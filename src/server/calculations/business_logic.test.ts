@@ -58,16 +58,35 @@ describe('Business Logic - Rentabilité', () => {
 });
 
 describe('Business Logic - Fiscalité', () => {
-  it('should calculate IR for Nom Propre correctly', () => {
-    const rentabilite = { revenu_net_avant_impots: 10000 } as any;
-    const structure: StructureData = { type: 'nom_propre', tmi: 30, associes: [] };
+  it('should calculate IR for Nom Propre (Micro-foncier) correctly', () => {
+    const rentabilite = { revenu_net_avant_impots: 10000, loyer_annuel: 12000 } as any;
+    const structure: StructureData = { type: 'nom_propre', regime_fiscal: 'micro_foncier', tmi: 30, associes: [] };
     
     const res = calculerFiscalite(structure, rentabilite, 200000);
     
-    // Impot = 30% (TMI) + 17.2% (PS) = 47.2%
-    // 10000 * 0.472 = 4720
-    expect(res.impot_total).toBe(4720);
-    expect(res.revenu_net_apres_impot).toBe(5280);
+    // Base = 12000 * 0.7 = 8400
+    // Impot = 8400 * (30% + 17.2%) = 8400 * 0.472 = 3964.8
+    expect(res.base_imposable).toBe(8400);
+    expect(res.impot_total).toBe(3964.8);
+    expect(res.alertes).toHaveLength(0);
+  });
+
+  it('should generate alert when micro-foncier threshold is exceeded', () => {
+    const rentabilite = { revenu_net_avant_impots: 15000, loyer_annuel: 16000 } as any;
+    const structure: StructureData = { type: 'nom_propre', regime_fiscal: 'micro_foncier', tmi: 30, associes: [] };
+    const res = calculerFiscalite(structure, rentabilite, 200000);
+    expect(res.alertes[0]).toContain('Plafond Micro-foncier dépassé');
+  });
+
+  it('should calculate LMNP Micro-BIC correctly', () => {
+    const rentabilite = { revenu_net_avant_impots: 10000, loyer_annuel: 12000 } as any;
+    const structure: StructureData = { type: 'nom_propre', regime_fiscal: 'lmnp_micro', tmi: 30, associes: [] };
+    const res = calculerFiscalite(structure, rentabilite, 200000);
+    
+    // Base = 12000 * 0.5 = 6000
+    // Impot = 6000 * 0.472 = 2832
+    expect(res.base_imposable).toBe(6000);
+    expect(res.impot_total).toBe(2832);
   });
 
   it('should calculate IS for SCI correctly with amortization', () => {

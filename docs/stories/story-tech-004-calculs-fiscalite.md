@@ -47,33 +47,33 @@ src/server/calculations/fiscalite.ts
 
 ### 3.1 Fonctions principales
 
-- [ ] `calculerFiscaliteNomPropre(revenus, charges, regime, tmi)` - IR + PS
-- [ ] `calculerFiscaliteSciIs(resultat, distribuer)` - IS + dividendes
-- [ ] `calculerFiscalite(data, rentabilite)` - Orchestration
+- [x] `calculerFiscaliteNomPropre(revenus, charges, regime, tmi)` - IR + PS
+- [x] `calculerFiscaliteSciIs(resultat, distribuer)` - IS + dividendes
+- [x] `calculerFiscalite(data, rentabilite)` - Orchestration
 
 ### 3.2 Régime Nom Propre
 
-- [ ] Micro-foncier : abattement 30%, vérification plafond 15 000€
-- [ ] Foncier réel : déduction charges réelles
-- [ ] LMNP Micro-BIC : abattement 50%, vérification plafond 77 700€
-- [ ] LMNP Réel : charges + amortissement (simplifié)
-- [ ] Calcul IR selon TMI
-- [ ] Calcul prélèvements sociaux (17.2%)
-- [ ] Rentabilité nette-nette
+- [x] Micro-foncier : abattement 30%, vérification plafond 15 000€
+- [x] Foncier réel : déduction charges réelles
+- [x] LMNP Micro-BIC : abattement 50%, vérification plafond 77 700€
+- [x] LMNP Réel : charges + amortissement (simplifié)
+- [x] Calcul IR selon TMI
+- [x] Calcul prélèvements sociaux (17.2%)
+- [x] Rentabilité nette-nette
 
 ### 3.3 Régime SCI IS
 
-- [ ] IS taux réduit 15% jusqu'à 42 500€
-- [ ] IS taux normal 25% au-delà
-- [ ] Amortissement déductible (2% du bâti)
-- [ ] Simulation distribution dividendes (flat tax 30%)
-- [ ] Résultat après IS
+- [x] IS taux réduit 15% jusqu'à 42 500€
+- [x] IS taux normal 25% au-delà
+- [x] Amortissement déductible (2% du bâti)
+- [ ] Simulation distribution dividendes (flat tax 30%) - Non implémenté dans le MVP simplifié
+- [x] Résultat après IS
 
 ### 3.4 Qualité
 
-- [ ] TypeScript compile sans erreur
-- [ ] Calculs conformes à la législation 2024
-- [ ] JSDoc complet
+- [x] TypeScript compile sans erreur
+- [x] Calculs conformes à la législation 2024
+- [x] JSDoc complet
 
 ---
 
@@ -482,21 +482,21 @@ export function performCalculations(input: unknown): CalculationResult | Calcula
 
 ### 7.2 Implémentation
 
-- [ ] Créer `fiscalite.ts`
-- [ ] Implémenter `calculerFiscaliteNomPropre()`
-- [ ] Implémenter `calculerFiscaliteSciIs()`
-- [ ] Implémenter `calculerFiscalite()`
-- [ ] Implémenter `calculerRentabiliteNetteNette()`
-- [ ] Gérer les alertes (plafonds dépassés)
-- [ ] Mettre à jour `index.ts`
+- [x] Créer `fiscalite.ts`
+- [x] Implémenter `calculerFiscaliteNomPropre()`
+- [x] Implémenter `calculerFiscaliteSciIs()`
+- [x] Implémenter `calculerFiscalite()`
+- [x] Implémenter `calculerRentabiliteNetteNette()`
+- [x] Gérer les alertes (plafonds dépassés)
+- [x] Mettre à jour `index.ts`
 
 ### 7.3 Validation
 
-- [ ] `npm run type-check` passe
-- [ ] `npm run lint` passe
-- [ ] Tests avec cas de référence
-- [ ] Vérification avec simulateurs externes
-- [ ] Code review demandée
+- [x] `npm run type-check` passe
+- [x] `npm run lint` passe
+- [x] Tests avec cas de référence
+- [x] Vérification avec simulateurs externes
+- [x] Code review demandée (Gemini)
 
 ---
 
