@@ -6,9 +6,22 @@ import type { BienData, FinancementData, ExploitationData, StructureData } from 
 
 describe('Business Logic - Rentabilité', () => {
   it('should calculate correct loan payments (PMT formula)', () => {
-    // 200k€ à 3% sur 20 ans
-    const detail = calculerMensualite(200000, 3, 20);
-    expect(detail.mensualite_credit).toBeCloseTo(1109.20, 1);
+    // 200k€ à 3.5% sur 20 ans, assurance 0.3%
+    const detail = calculerMensualite(200000, 3.5, 20, 0.3);
+    expect(detail.mensualite_credit).toBeCloseTo(1159.92, 1);
+    expect(detail.mensualite_assurance).toBe(50); // (200000 * 0.003) / 12
+    expect(detail.mensualite_totale).toBeCloseTo(1209.92, 1);
+  });
+
+  it('should handle 0% interest rate', () => {
+    const detail = calculerMensualite(120000, 0, 10, 0); // 120k sur 10 ans
+    expect(detail.mensualite_credit).toBe(1000);
+    expect(detail.mensualite_totale).toBe(1000);
+  });
+
+  it('should handle no loan (capital = 0)', () => {
+    const detail = calculerMensualite(0, 3.5, 20);
+    expect(detail.mensualite_totale).toBe(0);
   });
 
   it('should calculate correct profitability metrics', () => {
@@ -28,9 +41,19 @@ describe('Business Logic - Rentabilité', () => {
     
     // Brute: (1000 * 12) / 200000 = 6%
     expect(res.rentabilite_brute).toBe(6);
-    // Revenu net: 12000 (loyer) - 1200 (copro) - 800 (taxe) - 150 (pno) - (12000 * 18%) (gestion+travaux+vacance)
-    // 12000 - 2150 - 2160 = 7690
+    
+    // Charges: 
+    // Fixes: 100*12 + 800 + 150 = 2150
+    // Prop: 12000 * (8+5+5)/100 = 12000 * 0.18 = 2160
+    // Total charges: 4310
+    expect(res.charges.total_charges_annuelles).toBe(4310);
+
+    // Revenu net: 12000 - 4310 = 7690
     expect(res.revenu_net_avant_impots).toBe(7690);
+    
+    // Mensualité totale: 1043.93 (crédit sur 180k) + 45 (assurance 0.3% sur 180k) = 1088.93
+    // Cashflow annuel: 7690 - (1088.93 * 12) = 7690 - 13067.16 = -5377.16
+    expect(res.cashflow_annuel).toBeCloseTo(-5377.16, 1);
   });
 });
 
