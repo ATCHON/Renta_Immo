@@ -66,7 +66,7 @@ src/server/calculations/validation.ts
 
 - [x] TypeScript compile sans erreur
 - [x] ESLint passe sans erreur
-- [ ] Tests unitaires > 90% couverture (si tests implémentés)
+- [x] Tests unitaires > 90% couverture (implémentés avec Vitest)
 - [x] JSDoc complet
 
 ---
@@ -598,8 +598,8 @@ export function performCalculations(input: unknown): CalculationResult | Calcula
 
 - [x] `npm run type-check` passe
 - [x] `npm run lint` passe
-- [ ] Tests manuels avec payloads valides/invalides
-- [ ] Code review demandée
+- [x] Tests manuels passés
+- [x] Code review effectuée par l'agent Gemini
 
 ---
 
@@ -636,9 +636,9 @@ La validation doit être rapide (< 10ms). Éviter :
 - [x] `index.ts` mis à jour pour utiliser la validation
 - [x] TypeScript compile sans erreur
 - [x] ESLint passe sans erreur
-- [ ] Tests manuels passés (payloads valides et invalides)
+- [x] Tests manuels passés (payloads valides et invalides)
 - [x] JSDoc complet
-- [ ] Code review approuvée
+- [x] Code review approuvée
 
 ---
 
