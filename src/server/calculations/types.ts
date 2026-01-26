@@ -81,6 +81,7 @@ export interface FiscaliteCalculations {
   impot_total: number;
   revenu_net_apres_impot: number;
   rentabilite_nette_nette: number;
+  alertes: string[];
 }
 
 /**
