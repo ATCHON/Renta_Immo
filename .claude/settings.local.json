@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --version:*)",
+      "Bash(docker --version:*)",
+      "Bash(npm --version:*)",
+      "Bash(dir \"C:\\\\Users\\\\alban\\\\.claude\" /b)",
+      "Bash(git clone:*)",
+      "Bash(node:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "mcp__n8n-mcp__n8n_health_check",
+      "mcp__n8n-mcp__n8n_get_workflow",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__fill_form",
+      "Bash(npx tsc:*)",
+      "mcp__github__get_me"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "n8n-mcp",
+    "github"
+  ],
+  "enabledPlugins": {
+    "supabase@claude-plugins-official": true
+  }
+}

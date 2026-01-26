@@ -1,0 +1,161 @@
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Input } from '@/components/ui';
+import { Button } from '@/components/ui/Button';
+import { optionsSchema, type OptionsFormData } from '@/lib/validators';
+import { useCalculateurStore } from '@/stores/calculateur.store';
+import { cn } from '@/lib/utils';
+
+interface StepOptionsProps {
+  onSubmit: () => void;
+  onPrev: () => void;
+  isLoading?: boolean;
+}
+
+export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
+  const { options, updateOptions } = useCalculateurStore();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<OptionsFormData>({
+    resolver: zodResolver(optionsSchema),
+    defaultValues: {
+      generer_pdf: options.generer_pdf ?? true,
+      envoyer_email: options.envoyer_email ?? false,
+      email: options.email || '',
+    },
+  });
+
+  const watchedValues = watch();
+
+  const handleFormSubmit = (data: OptionsFormData) => {
+    updateOptions({
+      generer_pdf: data.generer_pdf,
+      envoyer_email: data.envoyer_email,
+      email: data.email || '',
+    });
+    onSubmit();
+  };
+
+  return (
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Options</h2>
+        <p className="text-gray-600 mt-1">
+          Configurez les options de génération des résultats
+        </p>
+      </div>
+
+      {/* Options de génération */}
+      <div className="space-y-4">
+        <OptionToggle
+          label="Générer un PDF récapitulatif"
+          description="Un document PDF détaillé sera généré avec tous les résultats"
+          checked={watchedValues.generer_pdf}
+          onChange={(checked) => setValue('generer_pdf', checked)}
+        />
+
+        <OptionToggle
+          label="Envoyer par email"
+          description="Recevez les résultats et le PDF directement par email"
+          checked={watchedValues.envoyer_email}
+          onChange={(checked) => setValue('envoyer_email', checked)}
+        />
+      </div>
+
+      {/* Champ email si option activée */}
+      {watchedValues.envoyer_email && (
+        <div className="pl-4 border-l-2 border-primary-200">
+          <Input
+            label="Adresse email"
+            type="email"
+            placeholder="votre@email.com"
+            error={errors.email?.message}
+            {...register('email')}
+          />
+        </div>
+      )}
+
+      {/* Récapitulatif */}
+      <div className="bg-gray-50 rounded-lg p-4">
+        <h3 className="font-semibold text-gray-900 mb-2">Récapitulatif</h3>
+        <ul className="text-sm text-gray-600 space-y-1">
+          <li>✓ Calcul de rentabilité (brute, nette, nette-nette)</li>
+          <li>✓ Analyse du cashflow mensuel et annuel</li>
+          <li>✓ Simulation fiscale selon votre structure</li>
+          <li>✓ Vérification conformité HCSF</li>
+          {watchedValues.generer_pdf && <li>✓ Génération du PDF récapitulatif</li>}
+          {watchedValues.envoyer_email && <li>✓ Envoi par email</li>}
+        </ul>
+      </div>
+
+      <div className="flex justify-between pt-4">
+        <Button type="button" variant="secondary" onClick={onPrev}>
+          Retour
+        </Button>
+        <Button type="submit" isLoading={isLoading}>
+          {isLoading ? 'Calcul en cours...' : 'Calculer la rentabilité'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+interface OptionToggleProps {
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}
+
+function OptionToggle({ label, description, checked, onChange }: OptionToggleProps) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={cn(
+        'w-full p-4 rounded-lg border-2 text-left transition-all duration-200',
+        'flex items-start gap-4',
+        checked
+          ? 'border-primary-600 bg-primary-50'
+          : 'border-gray-200 bg-white hover:border-gray-300'
+      )}
+    >
+      <div
+        className={cn(
+          'w-6 h-6 rounded border-2 flex-shrink-0 mt-0.5',
+          'flex items-center justify-center transition-colors',
+          checked
+            ? 'bg-primary-600 border-primary-600'
+            : 'bg-white border-gray-300'
+        )}
+      >
+        {checked && (
+          <svg
+            className="w-4 h-4 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={3}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        )}
+      </div>
+      <div>
+        <p className="font-semibold text-gray-900">{label}</p>
+        <p className="text-sm text-gray-600 mt-1">{description}</p>
+      </div>
+    </button>
+  );
+}
