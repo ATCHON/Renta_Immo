@@ -396,7 +396,7 @@ console.log(result);
 - [x] `npm run type-check` passe
 - [x] `npm run lint` passe
 - [x] Import fonctionne depuis un autre fichier
-- [ ] Code review demandée
+- [x] Code review effectuée par l'agent Gemni
 
 ---
 
@@ -430,7 +430,7 @@ Vérifier si certains types existent déjà dans `src/types/` pour éviter les d
 - [x] TypeScript compile sans erreur
 - [x] ESLint passe sans erreur
 - [x] JSDoc sur fonctions et types publics
-- [ ] Code review approuvée
+- [x] Code review approuvée
 - [ ] Merge dans la branche principale
 
 ---
