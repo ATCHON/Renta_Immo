@@ -15,7 +15,15 @@
       "mcp__chrome-devtools__take_snapshot",
       "mcp__chrome-devtools__fill_form",
       "Bash(npx tsc:*)",
-      "mcp__github__get_me"
+      "mcp__github__get_me",
+      "Bash(powershell -Command \"Invoke-RestMethod -Uri ''http://localhost:3002/api/calculate'' -Method POST -ContentType ''application/json'' -Body ''{\"\"bien\"\":{\"\"prix_achat\"\":200000,\"\"frais_notaire\"\":16000,\"\"travaux\"\":10000,\"\"loyer_mensuel\"\":1000},\"\"financement\"\":{\"\"apport\"\":30000,\"\"taux_interet\"\":3.5,\"\"duree_emprunt\"\":20,\"\"taux_assurance\"\":0.3},\"\"exploitation\"\":{\"\"taxe_fonciere\"\":1200,\"\"charges_copro\"\":1800,\"\"assurance_pno\"\":200,\"\"gestion_locative\"\":0,\"\"vacance_locative\"\":5},\"\"structure\"\":{\"\"type\"\":\"\"nom_propre\"\",\"\"tmi\"\":30,\"\"associes\"\":[]}}'' | ConvertTo-Json -Depth 10\")",
+      "Bash(grep:*)",
+      "Bash(xargs -I {} sh -c 'echo \"\"=== {} ===\"\" && grep -E \"\"^Status:|^# \"\" {} | head -2')",
+      "Bash(done)",
+      "mcp__n8n-mcp__n8n_list_workflows",
+      "mcp__n8n-mcp__n8n_test_workflow",
+      "Bash(npm run test:regression:*)",
+      "Bash(npx tsx:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
