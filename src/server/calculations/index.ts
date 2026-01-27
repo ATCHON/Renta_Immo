@@ -7,7 +7,7 @@ import type { CalculResultats } from '@/types/calculateur';
 import { validateAndNormalize, ValidationError } from './validation';
 import { calculerRentabilite } from './rentabilite';
 import { calculerFiscalite } from './fiscalite';
-import { analyserHCSF } from './hcsf';
+import { analyserHcsf } from './hcsf';
 import { genererSynthese } from './synthese';
 
 // Re-export des types et erreurs pour usage externe
@@ -63,8 +63,8 @@ export function performCalculations(
     );
 
     // Étape 4 : Analyse HCSF
-    const hcsf = analyserHCSF(
-      data.structure,
+    const hcsf = analyserHcsf(
+      data,
       rentabilite.financement,
       data.exploitation.loyer_mensuel
     );

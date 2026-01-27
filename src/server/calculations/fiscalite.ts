@@ -11,58 +11,106 @@ import type {
 import { PRELEVEMENTS_SOCIAUX, TAUX_IS } from './types';
 
 /**
+ * Constantes fiscales 2024
+ */
+const CONSTANTES = {
+  MICRO_FONCIER_PLAFOND: 15000,
+  MICRO_FONCIER_ABATTEMENT: 0.30,
+  MICRO_BIC_PLAFOND: 77700,
+  MICRO_BIC_ABATTEMENT: 0.50,
+  SCI_IS_AMORTISSEMENT_BATI_PART: 0.80, // 80% du prix est amortissable
+  SCI_IS_TAUX_AMORTISSEMENT: 0.02,     // 2% par an
+} as const;
+
+/**
  * Calcule l'impôt pour le régime nom propre (IR)
- * Revenu foncier : TMI + prélèvements sociaux sur le revenu net
  */
 function calculerFiscaliteNomPropre(
   revenuNetAvantImpots: number,
-  tmi: number,
+  loyerBrutAnnuel: number,
+  structure: StructureData,
   prixAchat: number
 ): FiscaliteCalculations {
-  // Base imposable = revenu net (simplification : pas d'abattement micro-foncier ici)
-  const base_imposable = Math.max(0, revenuNetAvantImpots);
+  const alertes: string[] = [];
+  const tmi = structure.tmi;
+  const regime = structure.regime_fiscal || 'micro_foncier';
+  
+  let baseImposable: number = 0; // Initialiser à 0
+  let abattement: number = 0;
+  let label_regime: string;
 
-  // Impôt sur le revenu (TMI)
-  const taux_tmi = tmi / 100;
-  const impot_revenu = base_imposable * taux_tmi;
+  switch (regime) {
+    case 'micro_foncier':
+      if (loyerBrutAnnuel > CONSTANTES.MICRO_FONCIER_PLAFOND) {
+        alertes.push(`Plafond Micro-foncier dépassé (${loyerBrutAnnuel}€ > ${CONSTANTES.MICRO_FONCIER_PLAFOND}€). Passage au régime Réel conseillé.`);
+      }
+      baseImposable = loyerBrutAnnuel * (1 - CONSTANTES.MICRO_FONCIER_ABATTEMENT);
+      label_regime = 'Micro-foncier (Abattement 30%)';
+      break;
 
-  // Prélèvements sociaux (17.2%)
-  const prelevements_sociaux = base_imposable * PRELEVEMENTS_SOCIAUX;
+    case 'lmnp_micro':
+      if (loyerBrutAnnuel > CONSTANTES.MICRO_BIC_PLAFOND) {
+        alertes.push(`Plafond Micro-BIC dépassé (${loyerBrutAnnuel}€ > ${CONSTANTES.MICRO_BIC_PLAFOND}€). Passage au régime Réel conseillé.`);
+      }
+      baseImposable = loyerBrutAnnuel * (1 - CONSTANTES.MICRO_BIC_ABATTEMENT);
+      label_regime = 'LMNP Micro-BIC (Abattement 50%)';
+      break;
 
-  // Impôt total
-  const impot_total = impot_revenu + prelevements_sociaux;
+    case 'lmnp_reel':
+      // Simplification MVP : on amortit comme en SCI mais on reste à l'IR
+      const amortissement = prixAchat * CONSTANTES.SCI_IS_AMORTISSEMENT_BATI_PART * CONSTANTES.SCI_IS_TAUX_AMORTISSEMENT;
+      baseImposable = Math.max(0, revenusBruts - chargesDeductibles);
+      label_regime = 'LMNP Réel (avec amortissement)';
+      break;
+
+    case 'reel':
+    default:
+      baseImposable = Math.max(0, revenusBruts - chargesDeductibles);
+      label_regime = 'Foncier Réel';
+      break;
+  }
+
+  const tauxTmi = tmi; // tmi est déjà un taux (ex: 0.30)
+  const impotRevenu = baseImposable * tauxTmi;
+
+  // Calcul Prélèvements Sociaux (sur base imposable)
+  const prelevementsSociaux = baseImposable * PRELEVEMENTS_SOCIAUX;
+
+  // Total impôt
+  const impotTotal = impotRevenu + prelevementsSociaux;
 
   // Revenu net après impôt
-  const revenu_net_apres_impot = revenuNetAvantImpots - impot_total;
+  const revenuNetApresImpot = revenuNetAvantImpots - impotTotal;
 
-  // Rentabilité nette-nette (après impôts)
+  // Rentabilité nette-nette
   const rentabilite_nette_nette = prixAchat > 0
-    ? (revenu_net_apres_impot / prixAchat) * 100
+    ? (revenuNetApresImpot / prixAchat) * 100
     : 0;
 
   return {
-    regime: `Nom propre (IR - TMI ${tmi}%)`,
-    base_imposable: round(base_imposable),
-    impot_revenu: round(impot_revenu),
-    prelevements_sociaux: round(prelevements_sociaux),
-    impot_total: round(impot_total),
-    revenu_net_apres_impot: round(revenu_net_apres_impot),
+    regime: `${label_regime} - TMI ${tmi}%`,
+    base_imposable: round(baseImposable),
+    impot_revenu: round(impotRevenu),
+    prelevements_sociaux: round(prelevementsSociaux),
+    impot_total: round(impotTotal),
+    revenu_net_apres_impot: round(revenuNetApresImpot),
     rentabilite_nette_nette: round(rentabilite_nette_nette, 2),
+    alertes
   };
 }
 
 /**
  * Calcule l'impôt pour le régime SCI à l'IS
- * IS : 15% jusqu'à 42 500 €, 25% au-delà
- * Possibilité d'amortissement du bien (2% par an)
  */
 function calculerFiscaliteSciIs(
   revenuNetAvantImpots: number,
   prixAchat: number
 ): FiscaliteCalculations {
+  const alertes: string[] = [];
+  
   // Amortissement annuel (2% de la valeur du bien, hors terrain ~20%)
-  const valeur_amortissable = prixAchat * 0.80; // 80% du prix (hors terrain)
-  const amortissement_annuel = valeur_amortissable * 0.02; // 2% par an
+  const valeur_amortissable = prixAchat * CONSTANTES.SCI_IS_AMORTISSEMENT_BATI_PART;
+  const amortissement_annuel = valeur_amortissable * CONSTANTES.SCI_IS_TAUX_AMORTISSEMENT;
 
   // Base imposable = revenu net - amortissement
   const base_imposable = Math.max(0, revenuNetAvantImpots - amortissement_annuel);
@@ -70,17 +118,12 @@ function calculerFiscaliteSciIs(
   // Calcul IS progressif
   let impot_is: number;
   if (base_imposable <= TAUX_IS.SEUIL) {
-    // Tout au taux réduit de 15%
     impot_is = base_imposable * TAUX_IS.TAUX_REDUIT;
   } else {
-    // 15% jusqu'à 42 500 € + 25% au-delà
     impot_is =
       TAUX_IS.SEUIL * TAUX_IS.TAUX_REDUIT +
       (base_imposable - TAUX_IS.SEUIL) * TAUX_IS.TAUX_NORMAL;
   }
-
-  // Pas de prélèvements sociaux au niveau de la SCI (seulement sur dividendes)
-  const prelevements_sociaux = 0;
 
   // Impôt total = IS
   const impot_total = impot_is;
@@ -93,14 +136,18 @@ function calculerFiscaliteSciIs(
     ? (revenu_net_apres_impot / prixAchat) * 100
     : 0;
 
+  if (amortissement_annuel > revenuNetAvantImpots) {
+    alertes.push(`Déficit fiscal créé par l'amortissement (${round(amortissement_annuel)}€). Aucun impôt à payer cette année.`);
+  }
+
   return {
-    regime: 'SCI à l\'IS',
     base_imposable: round(base_imposable),
     impot_revenu: round(impot_is),
-    prelevements_sociaux: round(prelevements_sociaux),
+    prelevements_sociaux: 0, // Pas de PS sur IS
     impot_total: round(impot_total),
     revenu_net_apres_impot: round(revenu_net_apres_impot),
     rentabilite_nette_nette: round(rentabilite_nette_nette, 2),
+    alertes
   };
 }
 
@@ -121,7 +168,8 @@ export function calculerFiscalite(
 
   return calculerFiscaliteNomPropre(
     rentabilite.revenu_net_avant_impots,
-    structure.tmi,
+    rentabilite.loyer_annuel,
+    structure,
     prixAchat
   );
 }
@@ -133,3 +181,4 @@ function round(value: number, decimals: number = 2): number {
   const factor = Math.pow(10, decimals);
   return Math.round(value * factor) / factor;
 }
+

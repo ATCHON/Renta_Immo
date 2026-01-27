@@ -1,0 +1,1108 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-01-27T07:19:48.900Z",
+  "source": "backend-ts",
+  "tolerance": 0.01,
+  "cases": [
+    {
+      "id": "case-001",
+      "name": "Nom propre simple - Studio Paris",
+      "description": "Investissement classique studio 20m² Paris, cashflow légèrement négatif",
+      "input": {
+        "bien": {
+          "adresse": "123 Rue Test Paris",
+          "prix_achat": 150000,
+          "surface": 20,
+          "type_bien": "appartement"
+        },
+        "financement": {
+          "apport": 30000,
+          "taux_interet": 3.5,
+          "duree_emprunt": 20,
+          "assurance_pret": 0.36
+        },
+        "exploitation": {
+          "loyer_mensuel": 750,
+          "charges_copro": 80,
+          "taxe_fonciere": 600,
+          "assurance_pno": 150,
+          "gestion_locative": 0,
+          "provision_travaux": 5,
+          "provision_vacance": 5
+        },
+        "structure": {
+          "type": "nom_propre",
+          "tmi": 30,
+          "associes": []
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 6,
+          "nette": 4.26,
+          "nette_nette": -122.46
+        },
+        "cashflow": {
+          "mensuel": -199.45,
+          "annuel": -2393.4
+        },
+        "financement": {
+          "montant_emprunt": 120000,
+          "mensualite": 731.95,
+          "cout_total_credit": 175668
+        },
+        "fiscalite": {
+          "regime": "Revenus fonciers (IR)",
+          "impot_estime": 3431,
+          "revenu_net_apres_impot": 3839
+        },
+        "hcsf": {
+          "taux_endettement": 48,
+          "conforme": false,
+          "details_associes": []
+        },
+        "synthese": {
+          "score_global": 15,
+          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "points_attention": [
+            "Cash-flow négatif : -199.45 €/mois",
+            "Rentabilité nette faible : 4.26% (< 7%)",
+            "Non conforme HCSF : taux d'endettement 48% (> 35%)",
+            "Taux d'endettement (48%) supérieur au seuil HCSF (35%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-002",
+      "name": "Nom propre TMI bas - Studio Lyon",
+      "description": "Investissement avec TMI faible (11%), durée longue 25 ans, cashflow positif",
+      "input": {
+        "bien": {
+          "adresse": "Studio Lyon",
+          "prix_achat": 100000,
+          "surface": 25,
+          "type_bien": "appartement"
+        },
+        "financement": {
+          "apport": 10000,
+          "taux_interet": 3.5,
+          "duree_emprunt": 25,
+          "assurance_pret": 0.3
+        },
+        "exploitation": {
+          "loyer_mensuel": 700,
+          "charges_copro": 50,
+          "taxe_fonciere": 400,
+          "assurance_pno": 120,
+          "gestion_locative": 8,
+          "provision_travaux": 5,
+          "provision_vacance": 5
+        },
+        "structure": {
+          "type": "nom_propre",
+          "tmi": 11,
+          "associes": []
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 8.4,
+          "nette": 5.77,
+          "nette_nette": -59.92
+        },
+        "cashflow": {
+          "mensuel": 7.61,
+          "annuel": 91.28
+        },
+        "financement": {
+          "montant_emprunt": 90000,
+          "mensualite": 473.06,
+          "cout_total_credit": 141918
+        },
+        "fiscalite": {
+          "regime": "Revenus fonciers (IR)",
+          "impot_estime": 1782,
+          "revenu_net_apres_impot": 4536
+        },
+        "hcsf": {
+          "taux_endettement": 31.75,
+          "conforme": true,
+          "details_associes": []
+        },
+        "synthese": {
+          "score_global": 65,
+          "recommandation": "Investissement à optimiser. Plusieurs critères ne sont pas satisfaits. Envisagez de négocier le prix ou d'augmenter le loyer.",
+          "points_attention": [
+            "Rentabilité nette faible : 5.77% (< 7%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-003",
+      "name": "Nom propre TMI élevé - T3 Bordeaux",
+      "description": "Investissement avec TMI élevé (41%), cashflow négatif, taux endettement proche limite",
+      "input": {
+        "bien": {
+          "adresse": "T3 Bordeaux",
+          "prix_achat": 180000,
+          "surface": 65,
+          "type_bien": "appartement"
+        },
+        "financement": {
+          "apport": 36000,
+          "taux_interet": 3.8,
+          "duree_emprunt": 20,
+          "assurance_pret": 0.34
+        },
+        "exploitation": {
+          "loyer_mensuel": 900,
+          "charges_copro": 120,
+          "taxe_fonciere": 800,
+          "assurance_pno": 180,
+          "gestion_locative": 7,
+          "provision_travaux": 3,
+          "provision_vacance": 5
+        },
+        "structure": {
+          "type": "nom_propre",
+          "tmi": 41,
+          "associes": []
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 6,
+          "nette": 3.76,
+          "nette_nette": -169.17
+        },
+        "cashflow": {
+          "mensuel": -334.98,
+          "annuel": -4019.72
+        },
+        "financement": {
+          "montant_emprunt": 144000,
+          "mensualite": 898.31,
+          "cout_total_credit": 215594.4
+        },
+        "fiscalite": {
+          "regime": "Revenus fonciers (IR)",
+          "impot_estime": 4703,
+          "revenu_net_apres_impot": 3377
+        },
+        "hcsf": {
+          "taux_endettement": 55.11,
+          "conforme": false,
+          "details_associes": []
+        },
+        "synthese": {
+          "score_global": 10,
+          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "points_attention": [
+            "Cash-flow négatif : -334.98 €/mois",
+            "Rentabilité nette faible : 3.76% (< 7%)",
+            "Non conforme HCSF : taux d'endettement 55.11% (> 35%)",
+            "Taux d'endettement (55.1%) supérieur au seuil HCSF (35%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-004",
+      "name": "SCI IS 2 associés - Immeuble Lille",
+      "description": "Immeuble en SCI IS avec 2 associés (60/40), un associé non conforme HCSF",
+      "input": {
+        "bien": {
+          "adresse": "Immeuble Lille",
+          "prix_achat": 350000,
+          "surface": 200,
+          "type_bien": "immeuble"
+        },
+        "financement": {
+          "apport": 70000,
+          "taux_interet": 3.6,
+          "duree_emprunt": 20,
+          "assurance_pret": 0.32
+        },
+        "exploitation": {
+          "loyer_mensuel": 2800,
+          "charges_copro": 200,
+          "taxe_fonciere": 2500,
+          "assurance_pno": 400,
+          "gestion_locative": 8,
+          "provision_travaux": 5,
+          "provision_vacance": 8
+        },
+        "structure": {
+          "type": "sci_is",
+          "tmi": 30,
+          "associes": [
+            {
+              "nom": "Marie",
+              "parts": 60,
+              "revenus": 4000,
+              "mensualites": 500,
+              "charges": 200
+            },
+            {
+              "nom": "Pierre",
+              "parts": 40,
+              "revenus": 3500,
+              "mensualites": 300,
+              "charges": 150
+            }
+          ]
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 9.6,
+          "nette": 6.07,
+          "nette_nette": 5.4
+        },
+        "cashflow": {
+          "mensuel": 57.35,
+          "annuel": 688.24
+        },
+        "financement": {
+          "montant_emprunt": 280000,
+          "mensualite": 1712.98,
+          "cout_total_credit": 411115.2
+        },
+        "fiscalite": {
+          "regime": "SCI à l'IS",
+          "impot_estime": 2467,
+          "revenu_net_apres_impot": 20977
+        },
+        "hcsf": {
+          "taux_endettement": 0,
+          "conforme": false,
+          "details_associes": [
+            {
+              "nom": "Marie",
+              "taux_endettement": null,
+              "conforme": false
+            },
+            {
+              "nom": "Pierre",
+              "taux_endettement": null,
+              "conforme": false
+            }
+          ]
+        },
+        "synthese": {
+          "score_global": 37,
+          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "points_attention": [
+            "Rentabilité nette faible : 6.07% (< 7%)",
+            "Non conforme HCSF : taux d'endettement 0% (> 35%)",
+            "Marie : Taux d'endettement (NaN%) > seuil HCSF (35%)",
+            "Pierre : Taux d'endettement (NaN%) > seuil HCSF (35%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-005",
+      "name": "Gros apport 50% - Studio Marseille",
+      "description": "Investissement avec 50% d'apport, durée courte 15 ans, excellent cashflow",
+      "input": {
+        "bien": {
+          "adresse": "Studio Marseille",
+          "prix_achat": 80000,
+          "surface": 18,
+          "type_bien": "appartement"
+        },
+        "financement": {
+          "apport": 40000,
+          "taux_interet": 3.2,
+          "duree_emprunt": 15,
+          "assurance_pret": 0.28
+        },
+        "exploitation": {
+          "loyer_mensuel": 550,
+          "charges_copro": 40,
+          "taxe_fonciere": 350,
+          "assurance_pno": 100,
+          "gestion_locative": 0,
+          "provision_travaux": 3,
+          "provision_vacance": 5
+        },
+        "structure": {
+          "type": "nom_propre",
+          "tmi": 30,
+          "associes": []
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 8.25,
+          "nette": 6.43,
+          "nette_nette": -167.82
+        },
+        "cashflow": {
+          "mensuel": 139.07,
+          "annuel": 1668.84
+        },
+        "financement": {
+          "montant_emprunt": 40000,
+          "mensualite": 289.43,
+          "cout_total_credit": 52097.4
+        },
+        "fiscalite": {
+          "regime": "Revenus fonciers (IR)",
+          "impot_estime": 2635,
+          "revenu_net_apres_impot": 2947
+        },
+        "hcsf": {
+          "taux_endettement": 20.9,
+          "conforme": true,
+          "details_associes": []
+        },
+        "synthese": {
+          "score_global": 69,
+          "recommandation": "Investissement à optimiser. Plusieurs critères ne sont pas satisfaits. Envisagez de négocier le prix ou d'augmenter le loyer.",
+          "points_attention": [
+            "Rentabilité nette faible : 6.43% (< 7%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-006",
+      "name": "Petit apport 10% - T2 Nantes",
+      "description": "Investissement avec petit apport 10%, effet levier maximum, cashflow négatif",
+      "input": {
+        "bien": {
+          "adresse": "T2 Nantes",
+          "prix_achat": 120000,
+          "surface": 40,
+          "type_bien": "appartement"
+        },
+        "financement": {
+          "apport": 12000,
+          "taux_interet": 3.5,
+          "duree_emprunt": 20,
+          "assurance_pret": 0.3
+        },
+        "exploitation": {
+          "loyer_mensuel": 650,
+          "charges_copro": 60,
+          "taxe_fonciere": 500,
+          "assurance_pno": 130,
+          "gestion_locative": 8,
+          "provision_travaux": 5,
+          "provision_vacance": 5
+        },
+        "structure": {
+          "type": "nom_propre",
+          "tmi": 30,
+          "associes": []
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 6.5,
+          "nette": 4.21,
+          "nette_nette": -133.08
+        },
+        "cashflow": {
+          "mensuel": -232.86,
+          "annuel": -2794.32
+        },
+        "financement": {
+          "montant_emprunt": 108000,
+          "mensualite": 653.36,
+          "cout_total_credit": 156806.4
+        },
+        "fiscalite": {
+          "regime": "Revenus fonciers (IR)",
+          "impot_estime": 2693,
+          "revenu_net_apres_impot": 3013
+        },
+        "hcsf": {
+          "taux_endettement": 44.9,
+          "conforme": false,
+          "details_associes": []
+        },
+        "synthese": {
+          "score_global": 13,
+          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "points_attention": [
+            "Cash-flow négatif : -232.86 €/mois",
+            "Rentabilité nette faible : 4.21% (< 7%)",
+            "Non conforme HCSF : taux d'endettement 44.9% (> 35%)",
+            "Taux d'endettement (44.9%) supérieur au seuil HCSF (35%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-007",
+      "name": "HCSF limite - Maison Toulouse",
+      "description": "Maison avec taux d'endettement proche de la limite HCSF (34.96%)",
+      "input": {
+        "bien": {
+          "adresse": "Maison Toulouse",
+          "prix_achat": 250000,
+          "surface": 100,
+          "type_bien": "maison"
+        },
+        "financement": {
+          "apport": 50000,
+          "taux_interet": 3.4,
+          "duree_emprunt": 25,
+          "assurance_pret": 0.35
+        },
+        "exploitation": {
+          "loyer_mensuel": 1200,
+          "charges_copro": 0,
+          "taxe_fonciere": 1200,
+          "assurance_pno": 250,
+          "gestion_locative": 7,
+          "provision_travaux": 5,
+          "provision_vacance": 8
+        },
+        "structure": {
+          "type": "nom_propre",
+          "tmi": 30,
+          "associes": []
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 5.76,
+          "nette": 4.03,
+          "nette_nette": -117.63
+        },
+        "cashflow": {
+          "mensuel": -209.72,
+          "annuel": -2516.68
+        },
+        "financement": {
+          "montant_emprunt": 200000,
+          "mensualite": 1048.89,
+          "cout_total_credit": 314667
+        },
+        "fiscalite": {
+          "regime": "Revenus fonciers (IR)",
+          "impot_estime": 4753,
+          "revenu_net_apres_impot": 5317
+        },
+        "hcsf": {
+          "taux_endettement": 57,
+          "conforme": false,
+          "details_associes": []
+        },
+        "synthese": {
+          "score_global": 15,
+          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "points_attention": [
+            "Cash-flow négatif : -209.72 €/mois",
+            "Rentabilité nette faible : 4.03% (< 7%)",
+            "Non conforme HCSF : taux d'endettement 57% (> 35%)",
+            "Taux d'endettement (57%) supérieur au seuil HCSF (35%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-008",
+      "name": "HCSF non conforme - Studio Paris 11",
+      "description": "Studio Paris premium, TMI élevé, HCSF non conforme (40.94%)",
+      "input": {
+        "bien": {
+          "adresse": "Studio Paris 11",
+          "prix_achat": 220000,
+          "surface": 22,
+          "type_bien": "appartement"
+        },
+        "financement": {
+          "apport": 22000,
+          "taux_interet": 3.7,
+          "duree_emprunt": 20,
+          "assurance_pret": 0.36
+        },
+        "exploitation": {
+          "loyer_mensuel": 950,
+          "charges_copro": 100,
+          "taxe_fonciere": 700,
+          "assurance_pno": 160,
+          "gestion_locative": 8,
+          "provision_travaux": 5,
+          "provision_vacance": 5
+        },
+        "structure": {
+          "type": "nom_propre",
+          "tmi": 41,
+          "associes": []
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 5.18,
+          "nette": 3.31,
+          "nette_nette": -146.03
+        },
+        "cashflow": {
+          "mensuel": -620.84,
+          "annuel": -7450.04
+        },
+        "financement": {
+          "montant_emprunt": 198000,
+          "mensualite": 1228.17,
+          "cout_total_credit": 294760.8
+        },
+        "fiscalite": {
+          "regime": "Revenus fonciers (IR)",
+          "impot_estime": 4882,
+          "revenu_net_apres_impot": 3506
+        },
+        "hcsf": {
+          "taux_endettement": 73.76,
+          "conforme": false,
+          "details_associes": []
+        },
+        "synthese": {
+          "score_global": 10,
+          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "points_attention": [
+            "Cash-flow négatif : -620.84 €/mois",
+            "Rentabilité nette faible : 3.31% (< 7%)",
+            "Non conforme HCSF : taux d'endettement 73.76% (> 35%)",
+            "Taux d'endettement (73.8%) supérieur au seuil HCSF (35%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-009",
+      "name": "SCI IS conforme - Immeuble Rennes",
+      "description": "Immeuble en SCI IS 50/50, tous les associés conformes HCSF, excellent score",
+      "input": {
+        "bien": {
+          "adresse": "Immeuble Rennes",
+          "prix_achat": 400000,
+          "surface": 180,
+          "type_bien": "immeuble"
+        },
+        "financement": {
+          "apport": 80000,
+          "taux_interet": 3.5,
+          "duree_emprunt": 20,
+          "assurance_pret": 0.3
+        },
+        "exploitation": {
+          "loyer_mensuel": 3200,
+          "charges_copro": 250,
+          "taxe_fonciere": 3000,
+          "assurance_pno": 500,
+          "gestion_locative": 8,
+          "provision_travaux": 5,
+          "provision_vacance": 5
+        },
+        "structure": {
+          "type": "sci_is",
+          "tmi": 30,
+          "associes": [
+            {
+              "nom": "Sophie",
+              "parts": 50,
+              "revenus": 5000,
+              "mensualites": 600,
+              "charges": 300
+            },
+            {
+              "nom": "Thomas",
+              "parts": 50,
+              "revenus": 4500,
+              "mensualites": 400,
+              "charges": 200
+            }
+          ]
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 9.6,
+          "nette": 6.25,
+          "nette_nette": 5.55
+        },
+        "cashflow": {
+          "mensuel": 146.46,
+          "annuel": 1757.56
+        },
+        "financement": {
+          "montant_emprunt": 320000,
+          "mensualite": 1935.87,
+          "cout_total_credit": 464608.8
+        },
+        "fiscalite": {
+          "regime": "SCI à l'IS",
+          "impot_estime": 2961,
+          "revenu_net_apres_impot": 24777
+        },
+        "hcsf": {
+          "taux_endettement": 0,
+          "conforme": false,
+          "details_associes": [
+            {
+              "nom": "Sophie",
+              "taux_endettement": null,
+              "conforme": false
+            },
+            {
+              "nom": "Thomas",
+              "taux_endettement": null,
+              "conforme": false
+            }
+          ]
+        },
+        "synthese": {
+          "score_global": 39,
+          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "points_attention": [
+            "Rentabilité nette faible : 6.25% (< 7%)",
+            "Non conforme HCSF : taux d'endettement 0% (> 35%)",
+            "Sophie : Taux d'endettement (NaN%) > seuil HCSF (35%)",
+            "Thomas : Taux d'endettement (NaN%) > seuil HCSF (35%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-010",
+      "name": "Durée courte 15 ans - T2 Strasbourg",
+      "description": "Crédit court avec gros apport (50%), cashflow positif",
+      "input": {
+        "bien": {
+          "adresse": "T2 Strasbourg",
+          "prix_achat": 140000,
+          "surface": 45,
+          "type_bien": "appartement"
+        },
+        "financement": {
+          "apport": 70000,
+          "taux_interet": 3.3,
+          "duree_emprunt": 15,
+          "assurance_pret": 0.28
+        },
+        "exploitation": {
+          "loyer_mensuel": 750,
+          "charges_copro": 70,
+          "taxe_fonciere": 600,
+          "assurance_pno": 140,
+          "gestion_locative": 0,
+          "provision_travaux": 3,
+          "provision_vacance": 5
+        },
+        "structure": {
+          "type": "nom_propre",
+          "tmi": 30,
+          "associes": []
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 6.43,
+          "nette": 4.79,
+          "nette_nette": -130.99
+        },
+        "cashflow": {
+          "mensuel": 48.43,
+          "annuel": 581.2
+        },
+        "financement": {
+          "montant_emprunt": 70000,
+          "mensualite": 509.9,
+          "cout_total_credit": 91782
+        },
+        "fiscalite": {
+          "regime": "Revenus fonciers (IR)",
+          "impot_estime": 3526,
+          "revenu_net_apres_impot": 3944
+        },
+        "hcsf": {
+          "taux_endettement": 33.44,
+          "conforme": true,
+          "details_associes": []
+        },
+        "synthese": {
+          "score_global": 56,
+          "recommandation": "Investissement à optimiser. Plusieurs critères ne sont pas satisfaits. Envisagez de négocier le prix ou d'augmenter le loyer.",
+          "points_attention": [
+            "Rentabilité nette faible : 4.79% (< 7%)",
+            "Taux d'endettement (33.4%) proche du seuil HCSF (33%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-011",
+      "name": "Durée longue 25 ans TMI bas - Studio Montpellier",
+      "description": "Crédit long 25 ans, TMI très bas (14%), cashflow positif",
+      "input": {
+        "bien": {
+          "adresse": "Studio Montpellier",
+          "prix_achat": 95000,
+          "surface": 22,
+          "type_bien": "appartement"
+        },
+        "financement": {
+          "apport": 9500,
+          "taux_interet": 3.6,
+          "duree_emprunt": 25,
+          "assurance_pret": 0.32
+        },
+        "exploitation": {
+          "loyer_mensuel": 650,
+          "charges_copro": 45,
+          "taxe_fonciere": 380,
+          "assurance_pno": 110,
+          "gestion_locative": 8,
+          "provision_travaux": 5,
+          "provision_vacance": 5
+        },
+        "structure": {
+          "type": "nom_propre",
+          "tmi": 14,
+          "associes": []
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 8.21,
+          "nette": 5.65,
+          "nette_nette": -75.8
+        },
+        "cashflow": {
+          "mensuel": -8.26,
+          "annuel": -99.16
+        },
+        "financement": {
+          "montant_emprunt": 85500,
+          "mensualite": 455.43,
+          "cout_total_credit": 136629
+        },
+        "fiscalite": {
+          "regime": "Revenus fonciers (IR)",
+          "impot_estime": 1829,
+          "revenu_net_apres_impot": 4032
+        },
+        "hcsf": {
+          "taux_endettement": 31.3,
+          "conforme": true,
+          "details_associes": []
+        },
+        "synthese": {
+          "score_global": 65,
+          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "points_attention": [
+            "Cash-flow négatif : -8.26 €/mois",
+            "Rentabilité nette faible : 5.65% (< 7%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-012",
+      "name": "HCSF très élevé - T4 Nice",
+      "description": "Appartement Nice, taux d'endettement très élevé (51.62%), investissement déconseillé",
+      "input": {
+        "bien": {
+          "adresse": "T4 Nice",
+          "prix_achat": 320000,
+          "surface": 85,
+          "type_bien": "appartement"
+        },
+        "financement": {
+          "apport": 64000,
+          "taux_interet": 3.5,
+          "duree_emprunt": 20,
+          "assurance_pret": 0.3
+        },
+        "exploitation": {
+          "loyer_mensuel": 1500,
+          "charges_copro": 180,
+          "taxe_fonciere": 1500,
+          "assurance_pno": 280,
+          "gestion_locative": 7,
+          "provision_travaux": 5,
+          "provision_vacance": 8
+        },
+        "structure": {
+          "type": "nom_propre",
+          "tmi": 30,
+          "associes": []
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 5.63,
+          "nette": 3.27,
+          "nette_nette": -115.53
+        },
+        "cashflow": {
+          "mensuel": -677.03,
+          "annuel": -8124.4
+        },
+        "financement": {
+          "montant_emprunt": 256000,
+          "mensualite": 1548.7,
+          "cout_total_credit": 371688
+        },
+        "fiscalite": {
+          "regime": "Revenus fonciers (IR)",
+          "impot_estime": 5872,
+          "revenu_net_apres_impot": 6568
+        },
+        "hcsf": {
+          "taux_endettement": 75.55,
+          "conforme": false,
+          "details_associes": []
+        },
+        "synthese": {
+          "score_global": 10,
+          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "points_attention": [
+            "Cash-flow négatif : -677.03 €/mois",
+            "Rentabilité nette faible : 3.27% (< 7%)",
+            "Non conforme HCSF : taux d'endettement 75.55% (> 35%)",
+            "Taux d'endettement (75.5%) supérieur au seuil HCSF (35%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-013",
+      "name": "SCI IS un associé non conforme - Immeuble Grenoble",
+      "description": "Immeuble SCI IS 70/30, un associé à 35.28% (non conforme)",
+      "input": {
+        "bien": {
+          "adresse": "Immeuble Grenoble",
+          "prix_achat": 280000,
+          "surface": 150,
+          "type_bien": "immeuble"
+        },
+        "financement": {
+          "apport": 56000,
+          "taux_interet": 3.4,
+          "duree_emprunt": 20,
+          "assurance_pret": 0.3
+        },
+        "exploitation": {
+          "loyer_mensuel": 2200,
+          "charges_copro": 180,
+          "taxe_fonciere": 2000,
+          "assurance_pno": 350,
+          "gestion_locative": 8,
+          "provision_travaux": 5,
+          "provision_vacance": 5
+        },
+        "structure": {
+          "type": "sci_is",
+          "tmi": 30,
+          "associes": [
+            {
+              "nom": "Julie",
+              "parts": 70,
+              "revenus": 3800,
+              "mensualites": 400,
+              "charges": 200
+            },
+            {
+              "nom": "Marc",
+              "parts": 30,
+              "revenus": 2800,
+              "mensualites": 200,
+              "charges": 100
+            }
+          ]
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 9.43,
+          "nette": 6.12,
+          "nette_nette": 5.44
+        },
+        "cashflow": {
+          "mensuel": 84.54,
+          "annuel": 1014.44
+        },
+        "financement": {
+          "montant_emprunt": 224000,
+          "mensualite": 1343.63,
+          "cout_total_credit": 322471.2
+        },
+        "fiscalite": {
+          "regime": "SCI à l'IS",
+          "impot_estime": 2028,
+          "revenu_net_apres_impot": 17090
+        },
+        "hcsf": {
+          "taux_endettement": 0,
+          "conforme": false,
+          "details_associes": [
+            {
+              "nom": "Julie",
+              "taux_endettement": null,
+              "conforme": false
+            },
+            {
+              "nom": "Marc",
+              "taux_endettement": null,
+              "conforme": false
+            }
+          ]
+        },
+        "synthese": {
+          "score_global": 38,
+          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "points_attention": [
+            "Rentabilité nette faible : 6.12% (< 7%)",
+            "Non conforme HCSF : taux d'endettement 0% (> 35%)",
+            "Julie : Taux d'endettement (NaN%) > seuil HCSF (35%)",
+            "Marc : Taux d'endettement (NaN%) > seuil HCSF (35%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-014",
+      "name": "TMI très bas gros apport - T2 Angers",
+      "description": "Investissement avec TMI très bas (11%), gros apport 50%, excellent cashflow",
+      "input": {
+        "bien": {
+          "adresse": "T2 Angers",
+          "prix_achat": 110000,
+          "surface": 42,
+          "type_bien": "appartement"
+        },
+        "financement": {
+          "apport": 55000,
+          "taux_interet": 3.3,
+          "duree_emprunt": 15,
+          "assurance_pret": 0.25
+        },
+        "exploitation": {
+          "loyer_mensuel": 600,
+          "charges_copro": 55,
+          "taxe_fonciere": 450,
+          "assurance_pno": 120,
+          "gestion_locative": 0,
+          "provision_travaux": 3,
+          "provision_vacance": 5
+        },
+        "structure": {
+          "type": "nom_propre",
+          "tmi": 11,
+          "associes": []
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 6.55,
+          "nette": 4.9,
+          "nette_nette": -46.28
+        },
+        "cashflow": {
+          "mensuel": 50.24,
+          "annuel": 602.88
+        },
+        "financement": {
+          "montant_emprunt": 55000,
+          "mensualite": 399.26,
+          "cout_total_credit": 71866.8
+        },
+        "fiscalite": {
+          "regime": "Revenus fonciers (IR)",
+          "impot_estime": 1692,
+          "revenu_net_apres_impot": 4307
+        },
+        "hcsf": {
+          "taux_endettement": 28.12,
+          "conforme": true,
+          "details_associes": []
+        },
+        "synthese": {
+          "score_global": 57,
+          "recommandation": "Investissement à optimiser. Plusieurs critères ne sont pas satisfaits. Envisagez de négocier le prix ou d'augmenter le loyer.",
+          "points_attention": [
+            "Rentabilité nette faible : 4.9% (< 7%)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "case-015",
+      "name": "Petit apport durée longue - Maison Caen",
+      "description": "Maison avec petit apport 10%, durée longue 25 ans, cashflow négatif",
+      "input": {
+        "bien": {
+          "adresse": "Maison Caen",
+          "prix_achat": 190000,
+          "surface": 90,
+          "type_bien": "maison"
+        },
+        "financement": {
+          "apport": 19000,
+          "taux_interet": 3.7,
+          "duree_emprunt": 25,
+          "assurance_pret": 0.35
+        },
+        "exploitation": {
+          "loyer_mensuel": 950,
+          "charges_copro": 0,
+          "taxe_fonciere": 900,
+          "assurance_pno": 200,
+          "gestion_locative": 8,
+          "provision_travaux": 5,
+          "provision_vacance": 8
+        },
+        "structure": {
+          "type": "nom_propre",
+          "tmi": 30,
+          "associes": []
+        }
+      },
+      "expected": {
+        "rentabilite": {
+          "brute": 6,
+          "nette": 4.16,
+          "nette_nette": -122.56
+        },
+        "cashflow": {
+          "mensuel": -265.56,
+          "annuel": -3186.68
+        },
+        "financement": {
+          "montant_emprunt": 171000,
+          "mensualite": 924.39,
+          "cout_total_credit": 277317
+        },
+        "fiscalite": {
+          "regime": "Revenus fonciers (IR)",
+          "impot_estime": 3732,
+          "revenu_net_apres_impot": 4174
+        },
+        "hcsf": {
+          "taux_endettement": 55.52,
+          "conforme": false,
+          "details_associes": []
+        },
+        "synthese": {
+          "score_global": 12,
+          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "points_attention": [
+            "Cash-flow négatif : -265.56 €/mois",
+            "Rentabilité nette faible : 4.16% (< 7%)",
+            "Non conforme HCSF : taux d'endettement 55.52% (> 35%)",
+            "Taux d'endettement (55.5%) supérieur au seuil HCSF (35%)"
+          ]
+        }
+      }
+    }
+  ]
+}
