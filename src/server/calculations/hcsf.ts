@@ -10,6 +10,7 @@
 
 import type { CalculationInput, HCSFCalculations, AssocieData, FinancementCalculations } from './types';
 import { SEUILS } from './types';
+import { CONSTANTS } from '@/config/constants';
 
 // ============================================================================
 // TYPES LOCAUX (selon spécification TECH-005)
@@ -330,7 +331,7 @@ function calculerHcsfPourAssocie(
   const parts = associe.parts / 100;
 
   const quotePartMensualiteCredit = mensualiteNouveauCredit * parts;
-  const revenusActiviteMensuels = (associe.revenus_annuels ?? associe.revenus * 12) / 12;
+  const revenusActiviteMensuels = associe.revenus; // Revenus déjà mensuels selon le type
   const revenusLocatifsBrutsMensuels = loyerMensuelBrut * parts;
 
   const revenusPonderes = calculerRevenusPonderes(
@@ -338,29 +339,29 @@ function calculerHcsfPourAssocie(
     revenusLocatifsBrutsMensuels
   );
 
-  const creditsExistantsMensuels = associe.credits_mensuels ?? associe.mensualites ?? 0;
-  const chargesFixesMensuelles = associe.charges_mensuelles ?? associe.charges ?? 0;
+  const creditsExistantsMensuels = associe.mensualites;
+  const chargesFixesMensuelles = associe.charges;
   const chargesTotalesMensuelles =
     creditsExistantsMensuels + chargesFixesMensuelles + quotePartMensualiteCredit;
 
   const tauxEndettement = calculerTauxEndettement(revenusPonderes.total, chargesTotalesMensuelles);
 
-  const conforme = tauxEndettement <= HCSF_CONSTANTES.TAUX_MAX;
+  const conforme = tauxEndettement <= CONSTANTS.HCSF.TAUX_MAX;
 
   if (!conforme) {
     alertes.push(
-      `${associe.nom ?? 'Associé'} : Taux d'endettement (${formatPourcent(tauxEndettement)}) > seuil HCSF (${formatPourcent(HCSF_CONSTANTES.TAUX_MAX)})`
+      `${associe.nom ?? 'Associé'} : Taux d'endettement (${formatPourcent(tauxEndettement)}) > seuil HCSF (${formatPourcent(CONSTANTS.HCSF.TAUX_MAX)})`
     );
-  } else if (tauxEndettement > HCSF_CONSTANTES.TAUX_ALERTE) {
+  } else if (tauxEndettement > (CONSTANTS.HCSF.TAUX_MAX * 0.95)) { // ~33%
     alertes.push(
-      `${associe.nom ?? 'Associé'} : Taux d'endettement (${formatPourcent(tauxEndettement)}) proche du seuil HCSF (${formatPourcent(HCSF_CONSTANTES.TAUX_ALERTE)})`
+      `${associe.nom ?? 'Associé'} : Taux d'endettement (${formatPourcent(tauxEndettement)}) proche du seuil HCSF`
     );
   }
 
   return {
     nom: associe.nom,
     parts: associe.parts,
-    revenus_annuels: arrondir(associe.revenus_annuels ?? associe.revenus * 12),
+    revenus_annuels: arrondir(associe.revenus * 12),
     credits_existants_mensuels: arrondir(creditsExistantsMensuels),
     charges_fixes_mensuelles: arrondir(chargesFixesMensuelles),
     quote_part_mensualite_credit: arrondir(quotePartMensualiteCredit),
@@ -402,12 +403,11 @@ export function analyserHcsf(
  * Estime les revenus mensuels à partir du TMI
  */
 function estimerRevenusDepuisTmi(tmi: number): number {
-  if (tmi === 0) return 1000;
-  if (tmi <= 0.11) return 1500;
-  if (tmi <= 0.30) return 3500;
-  if (tmi <= 0.41) return 6500;
-  if (tmi <= 0.45) return 15000;
-  return 1000;
+  if (tmi === 0) return CONSTANTS.HCSF.REVENUS_ESTIMES.TMI_0;
+  if (tmi <= 11) return CONSTANTS.HCSF.REVENUS_ESTIMES.TMI_11;
+  if (tmi <= 30) return CONSTANTS.HCSF.REVENUS_ESTIMES.TMI_30;
+  if (tmi <= 41) return CONSTANTS.HCSF.REVENUS_ESTIMES.TMI_41;
+  return CONSTANTS.HCSF.REVENUS_ESTIMES.TMI_45;
 }
 
 /**

@@ -23,6 +23,10 @@ export interface BienData {
   surface?: number;
   type_bien: TypeBien;
   annee_construction?: number;
+  // Nouveaux champs 2025
+  etat_bien: 'ancien' | 'neuf';
+  montant_travaux: number;
+  valeur_mobilier: number;
 }
 
 /**
@@ -33,6 +37,9 @@ export interface FinancementData {
   taux_interet: number;
   duree_emprunt: number;
   assurance_pret: number;
+  // Nouveaux champs 2025
+  frais_dossier: number;
+  frais_garantie: number;
 }
 
 /**
@@ -46,6 +53,12 @@ export interface ExploitationData {
   gestion_locative: number;
   provision_travaux: number;
   provision_vacance: number;
+  // Nouveaux champs 2025
+  type_location: 'nue' | 'meublee_longue_duree' | 'meublee_tourisme_classe' | 'meublee_tourisme_non_classe';
+  charges_copro_recuperables: number;
+  assurance_gli: number;
+  cfe_estimee: number;
+  comptable_annuel: number;
 }
 
 /**
