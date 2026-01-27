@@ -59,6 +59,9 @@ const DEFAULT_OPTIONS: OptionsData = {
   generer_pdf: true,
   envoyer_email: false,
   email: '',
+  horizon_projection: 20,
+  taux_evolution_loyer: 2,
+  taux_evolution_charges: 2.5,
 };
 
 /**

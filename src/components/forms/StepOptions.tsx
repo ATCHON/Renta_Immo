@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input } from '@/components/ui';
+import { Input, Select, PercentInput } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { optionsSchema, type OptionsFormData } from '@/lib/validators';
 import { useCalculateurStore } from '@/stores/calculateur.store';
@@ -23,22 +23,28 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
     watch,
     setValue,
     formState: { errors },
-  } = useForm<OptionsFormData>({
+  } = useForm({
     resolver: zodResolver(optionsSchema),
     defaultValues: {
       generer_pdf: options.generer_pdf ?? true,
       envoyer_email: options.envoyer_email ?? false,
       email: options.email || '',
+      horizon_projection: options.horizon_projection ?? 20,
+      taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
+      taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
     },
   });
 
   const watchedValues = watch();
 
-  const handleFormSubmit = (data: OptionsFormData) => {
+  const handleFormSubmit = (data: any) => {
     updateOptions({
       generer_pdf: data.generer_pdf,
       envoyer_email: data.envoyer_email,
       email: data.email || '',
+      horizon_projection: Number(data.horizon_projection),
+      taux_evolution_loyer: Number(data.taux_evolution_loyer),
+      taux_evolution_charges: Number(data.taux_evolution_charges),
     });
     onSubmit();
   };
@@ -69,6 +75,42 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
         />
       </div>
 
+      {/* Horizon de projection */}
+      <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <Select
+          label="Horizon de projection"
+          {...register('horizon_projection', { valueAsNumber: true })}
+          options={[
+            { value: 5, label: '5 ans' },
+            { value: 10, label: '10 ans' },
+            { value: 15, label: '15 ans' },
+            { value: 20, label: '20 ans' },
+            { value: 25, label: '25 ans' },
+          ]}
+          hint="Durée de la simulation financière"
+        />
+      </div>
+
+      {/* Paramètres de projection */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <PercentInput
+            label="Évolution annuelle loyers"
+            hint="Indice IRL (historique 2%)"
+            error={errors.taux_evolution_loyer?.message}
+            {...register('taux_evolution_loyer', { valueAsNumber: true })}
+          />
+        </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <PercentInput
+            label="Évolution annuelle charges"
+            hint="Inflation (historique 2.5%)"
+            error={errors.taux_evolution_charges?.message}
+            {...register('taux_evolution_charges', { valueAsNumber: true })}
+          />
+        </div>
+      </div>
+
       {/* Champ email si option activée */}
       {watchedValues.envoyer_email && (
         <div className="pl-4 border-l-2 border-primary-200">
@@ -90,6 +132,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
           <li>✓ Analyse du cashflow mensuel et annuel</li>
           <li>✓ Simulation fiscale selon votre structure</li>
           <li>✓ Vérification conformité HCSF</li>
+          <li>✓ Projection pluriannuelle sur {watchedValues.horizon_projection} ans</li>
           {watchedValues.generer_pdf && <li>✓ Génération du PDF récapitulatif</li>}
           {watchedValues.envoyer_email && <li>✓ Envoi par email</li>}
         </ul>

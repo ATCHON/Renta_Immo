@@ -94,6 +94,7 @@ export function normalizeFormData(data: CalculateurFormData): ValidatedFormData 
     financement,
     exploitation,
     structure,
+    options: data.options,
   };
 }
 

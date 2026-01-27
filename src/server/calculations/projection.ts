@@ -1,0 +1,288 @@
+import { CONSTANTS } from '@/config/constants';
+import {
+    CalculationInput,
+    ProjectionAnnuelle,
+    ProjectionData,
+    TableauAmortissement,
+    LigneAmortissement
+} from './types';
+import { calculerFinancement } from './rentabilite';
+
+/**
+ * Calcule le Taux de Rendement Interne (TRI)
+ * @param flux Flux de trésorerie (le premier élément est l'apport négatif)
+ * @param guess Estimation initiale (par défaut 0.1 pour 10%)
+ */
+export function calculerTRI(flux: number[], guess: number = 0.1): number {
+    // Vérification de base: il faut au moins un flux négatif et un flux positif
+    const hasNegative = flux.some(f => f < 0);
+    const hasPositive = flux.some(f => f > 0);
+    if (!hasNegative || !hasPositive) return 0;
+
+    const maxIterations = 100;
+    const precision = 0.00001;
+    let tri = guess;
+
+    for (let i = 0; i < maxIterations; i++) {
+        let npv = 0;
+        let dNpv = 0;
+
+        for (let t = 0; t < flux.length; t++) {
+            const factor = Math.pow(1 + tri, t);
+            if (!isFinite(factor) || factor === 0) break;
+
+            npv += flux[t] / factor;
+            if (t > 0) {
+                dNpv -= (t * flux[t]) / (factor * (1 + tri));
+            }
+        }
+
+        if (Math.abs(npv) < precision) return tri * 100;
+        if (dNpv === 0 || !isFinite(dNpv)) break;
+
+        const nextTri = tri - npv / dNpv;
+
+        // Sécurité supplémentaire : si le TRI s'emballe
+        if (Math.abs(nextTri) > 1000) break; // Cap à 100000%
+
+        if (Math.abs(nextTri - tri) < precision) return nextTri * 100;
+        tri = nextTri;
+    }
+
+    // Si on n'a pas convergé mais que le flux total est positif, on retourne un TRI approché ou 0
+    return 0;
+}
+
+/**
+ * Génère le tableau d'amortissement complet d'un crédit
+ * @param montant Montant emprunté
+ * @param tauxAnnuel Taux d'intérêt annuel (en décimal, ex: 0.035 pour 3.5%)
+ * @param dureeAnnees Durée du crédit en années
+ * @param tauxAssurance Taux d'assurance annuel (en décimal, ex: 0.003 pour 0.3%)
+ */
+export function genererTableauAmortissement(
+    montant: number,
+    tauxAnnuel: number,
+    dureeAnnees: number,
+    tauxAssurance: number = 0
+): TableauAmortissement {
+    if (montant <= 0 || dureeAnnees <= 0) {
+        return {
+            annuel: [],
+            mensuel: [],
+            totaux: { totalInterets: 0, totalAssurance: 0, totalPaye: 0 }
+        };
+    }
+
+    const nombreMois = dureeAnnees * 12;
+    const mensualiteCredit = (tauxAnnuel === 0)
+        ? montant / nombreMois
+        : (montant * tauxAnnuel / 12) / (1 - Math.pow(1 + tauxAnnuel / 12, -nombreMois));
+
+    // En France, l'assurance est souvent calculée sur le capital initial (fixe)
+    // ou sur le capital restant dû. On va partir sur un montant fixe mensuel pour simplifier
+    // basé sur le taux d'assurance annuel / 12 * montant initial.
+    const mensualiteAssurance = (montant * tauxAssurance) / 12;
+    const echeanceTotale = mensualiteCredit + mensualiteAssurance;
+
+    const lignesMensuelles: LigneAmortissement[] = [];
+    const lignesAnnuelles: LigneAmortissement[] = [];
+
+    let capitalRestant = montant;
+    let totalInterets = 0;
+    let totalAssurance = 0;
+
+    for (let mois = 1; mois <= nombreMois; mois++) {
+        const interetsMois = capitalRestant * (tauxAnnuel / 12);
+        const capitalMois = mensualiteCredit - interetsMois;
+
+        totalInterets += interetsMois;
+        totalAssurance += mensualiteAssurance;
+        capitalRestant -= capitalMois;
+
+        if (capitalRestant < 0) capitalRestant = 0;
+
+        lignesMensuelles.push({
+            periode: mois,
+            echeance: Math.round(echeanceTotale * 100) / 100,
+            capital: Math.round(capitalMois * 100) / 100,
+            interets: Math.round(interetsMois * 100) / 100,
+            assurance: Math.round(mensualiteAssurance * 100) / 100,
+            capitalRestant: Math.round(capitalRestant * 100) / 100
+        });
+
+        // Agrégation annuelle
+        if (mois % 12 === 0 || mois === nombreMois) {
+            const annee = Math.ceil(mois / 12);
+            const debut = (annee - 1) * 12;
+            const fin = Math.min(annee * 12, nombreMois);
+
+            let capAnnuel = 0;
+            let intAnnuel = 0;
+            let assAnnuel = 0;
+
+            for (let i = debut; i < fin; i++) {
+                capAnnuel += lignesMensuelles[i].capital;
+                intAnnuel += lignesMensuelles[i].interets;
+                assAnnuel += lignesMensuelles[i].assurance;
+            }
+
+            lignesAnnuelles.push({
+                periode: annee,
+                echeance: Math.round((capAnnuel + intAnnuel + assAnnuel) * 100) / 100,
+                capital: Math.round(capAnnuel * 100) / 100,
+                interets: Math.round(intAnnuel * 100) / 100,
+                assurance: Math.round(assAnnuel * 100) / 100,
+                capitalRestant: Math.round(capitalRestant * 100) / 100
+            });
+        }
+    }
+
+    return {
+        mensuel: lignesMensuelles,
+        annuel: lignesAnnuelles,
+        totaux: {
+            totalInterets: Math.round(totalInterets * 100) / 100,
+            totalAssurance: Math.round(totalAssurance * 100) / 100,
+            totalPaye: Math.round((totalInterets + totalAssurance + montant) * 100) / 100
+        }
+    };
+}
+
+/**
+ * Génère les projections financières sur un horizon donné
+ * @param input Données d'entrée validées
+ * @param horizon Horizon de projection en années (défaut: 20)
+ */
+export function genererProjections(
+    input: CalculationInput,
+    horizon: number = 20
+): ProjectionData {
+    // 1. Calculs initiaux via le module rentabilite
+    const financementCalc = calculerFinancement(input.bien, input.financement);
+
+    const montantEmprunt = financementCalc.montant_emprunt;
+    // Conversion taux % -> décimal
+    const tauxCredit = (input.financement.taux_interet || 0) / 100;
+    const dureeCredit = input.financement.duree_emprunt || 0;
+    const tauxAssurance = (input.financement.assurance_pret || 0) / 100;
+
+    // Générer l'amortissement
+    const amortissement = genererTableauAmortissement(montantEmprunt, tauxCredit, dureeCredit, tauxAssurance);
+
+    const projections: ProjectionAnnuelle[] = [];
+
+    // Valeurs initiales (Année 1)
+    let loyerMensuel = input.exploitation.loyer_mensuel;
+    let valeurBien = input.bien.prix_achat + (input.bien.montant_travaux || 0);
+
+    // Constantes d'évolution (utiliser les options si présentes, sinon les constantes par défaut)
+    const inflationLoyer = input.options.taux_evolution_loyer !== undefined
+        ? input.options.taux_evolution_loyer / 100
+        : CONSTANTS.PROJECTION.INFLATION_LOYER;
+
+    const inflationCharges = input.options.taux_evolution_charges !== undefined
+        ? input.options.taux_evolution_charges / 100
+        : CONSTANTS.PROJECTION.INFLATION_CHARGES;
+
+    const revalorisationBien = CONSTANTS.PROJECTION.REVALORISATION_BIEN;
+
+    // Facteur d'inflation cumulée pour les charges fixes (commence à 1)
+    let facteurInflationCharges = 1;
+
+    let cashflowCumule = 0;
+    let capitalRembourseTotal = 0;
+
+    for (let annee = 1; annee <= horizon; annee++) {
+        // Appliquer l'inflation
+        if (annee > 1) {
+            loyerMensuel *= (1 + inflationLoyer);
+            facteurInflationCharges *= (1 + inflationCharges);
+            valeurBien *= (1 + revalorisationBien);
+        }
+
+        const loyerAnnuel = loyerMensuel * 12;
+
+        // Calcul des charges fixes de base (saisies)
+        const chargesFixesBase =
+            (input.exploitation.charges_copro * 12) +
+            input.exploitation.taxe_fonciere +
+            input.exploitation.assurance_pno +
+            (input.exploitation.assurance_gli || 0) +
+            (input.exploitation.cfe_estimee || 0) +
+            (input.exploitation.comptable_annuel || 0);
+
+        const chargesFixesInflatees = chargesFixesBase * facteurInflationCharges;
+
+        // Charges proportionnelles (toujours % du loyer courant)
+        const chargesProp =
+            (input.exploitation.gestion_locative / 100 * loyerAnnuel) +
+            (input.exploitation.provision_travaux / 100 * loyerAnnuel) +
+            (input.exploitation.provision_vacance / 100 * loyerAnnuel);
+
+        const chargesAnnuelles = chargesFixesInflatees + chargesProp;
+
+        // Crédit
+        let capitalRembourseAnnuel = 0;
+        let capitalRestant = 0;
+        let remboursementCreditAnnuel = 0;
+
+        if (annee <= dureeCredit) {
+            const ligneAnnuelle = amortissement.annuel[annee - 1];
+            capitalRembourseAnnuel = ligneAnnuelle?.capital || 0;
+            capitalRestant = ligneAnnuelle?.capitalRestant || 0;
+            remboursementCreditAnnuel = ligneAnnuelle?.echeance || 0;
+        } else {
+            capitalRestant = 0;
+            remboursementCreditAnnuel = 0;
+        }
+
+        const cashflowBrut = loyerAnnuel - chargesAnnuelles - remboursementCreditAnnuel;
+        const impot = 0;
+        const cashflowNet = cashflowBrut - impot;
+
+        projections.push({
+            annee,
+            loyer: Math.round(loyerAnnuel),
+            charges: Math.round(chargesAnnuelles + remboursementCreditAnnuel),
+            chargesExploitation: Math.round(chargesAnnuelles),
+            remboursementCredit: Math.round(remboursementCreditAnnuel),
+            mensualite: Math.round(remboursementCreditAnnuel / 12),
+            cashflow: Math.round(cashflowBrut),
+            capitalRembourse: Math.round(capitalRembourseAnnuel),
+            capitalRestant: Math.round(capitalRestant),
+            valeurBien: Math.round(valeurBien),
+            patrimoineNet: Math.round(valeurBien - capitalRestant),
+            impot: Math.round(impot),
+            cashflowNetImpot: Math.round(cashflowNet)
+        });
+
+        cashflowCumule += cashflowNet;
+        capitalRembourseTotal += capitalRembourseAnnuel;
+    }
+
+    // Calcul du TRI
+    // Flux 0 : -Apport
+    const flux: number[] = [-input.financement.apport];
+    // Flux 1 à horizon-1 : Cashflow Net
+    for (let i = 0; i < projections.length - 1; i++) {
+        flux.push(projections[i].cashflowNetImpot);
+    }
+    // Flux horizon : Cashflow Net + Valeur Revente (Patrimoine Net)
+    const derniereProjection = projections[projections.length - 1];
+    flux.push(derniereProjection.cashflowNetImpot + derniereProjection.patrimoineNet);
+
+    const tri = input.financement.apport > 0 ? calculerTRI(flux) : 0;
+
+    return {
+        horizon,
+        projections,
+        totaux: {
+            cashflowCumule: Math.round(cashflowCumule),
+            capitalRembourse: Math.round(capitalRembourseTotal),
+            impotCumule: Math.round(projections.reduce((sum, p) => sum + p.impot, 0)),
+            enrichissementTotal: Math.round(capitalRembourseTotal + cashflowCumule),
+            tri: tri > 0 ? Math.round(tri * 100) / 100 : 0
+        }
+    };
+}

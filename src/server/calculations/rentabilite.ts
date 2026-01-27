@@ -168,6 +168,13 @@ export function calculerRentabilite(
     : 0;
 
   const cashflow_annuel = revenu_net_avant_impots - financementCalc.remboursement_annuel;
+  const cashflow_mensuel = cashflow_annuel / 12;
+  const effort_epargne_mensuel = cashflow_mensuel < 0 ? Math.abs(cashflow_mensuel) : 0;
+
+  // Effet de levier = (Rentabilité nette - Taux crédit) * (Emprunt / Fonds propres)
+  const apport = financement.apport || 1;
+  const tauxCredit = (financement.taux_interet + (financement.assurance_pret || 0));
+  const effet_levier = (rentabilite_nette - tauxCredit) * (financementCalc.montant_emprunt / apport);
 
   return {
     loyer_annuel: round(loyer_annuel),
@@ -177,7 +184,9 @@ export function calculerRentabilite(
     rentabilite_nette: round(rentabilite_nette, 2),
     revenu_net_avant_impots: round(revenu_net_avant_impots),
     cashflow_annuel: round(cashflow_annuel),
-    cashflow_mensuel: round(cashflow_annuel / 12),
+    cashflow_mensuel: round(cashflow_mensuel),
+    effort_epargne_mensuel: round(effort_epargne_mensuel),
+    effet_levier: round(effet_levier, 2),
   };
 }
 

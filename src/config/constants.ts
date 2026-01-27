@@ -124,5 +124,15 @@ export const CONSTANTS = {
         FRAIS_GARANTIE_CREDIT: 2000, // € (estimatif)
         COMPTABLE_LMNP: 400, // €/an (adhésion CGA incluse)
         CFE_MIN: 200, // €/an
+    },
+
+    // ========================================================================
+    // PROJECTIONS (SIMULATION PLURIANNUELLE)
+    // ========================================================================
+    PROJECTION: {
+        INFLATION_LOYER: 0.02, // 2%
+        INFLATION_CHARGES: 0.025, // 2.5%
+        REVALORISATION_BIEN: 0.015, // 1.5%
+        HORIZONS: [5, 10, 15, 20, 25], // Années
     }
 } as const;

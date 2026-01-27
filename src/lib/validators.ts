@@ -165,6 +165,9 @@ export const optionsSchema = z.object({
     .email('Email invalide')
     .optional()
     .or(z.literal('')),
+  horizon_projection: z.number().default(20),
+  taux_evolution_loyer: z.number().min(0).max(10).default(2),
+  taux_evolution_charges: z.number().min(0).max(10).default(2.5),
 }).refine(
   (data) => {
     if (data.envoyer_email && !data.email) {
