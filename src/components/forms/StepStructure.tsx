@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -31,6 +32,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<StructureStepFormData>({
     resolver: zodResolver(structureStepSchema),
@@ -40,6 +42,15 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
       regime_fiscal: structure.regime_fiscal ?? 'micro_foncier',
     },
   });
+
+  // Réinitialiser le formulaire quand le store est hydraté
+  useEffect(() => {
+    reset({
+      type: structure.type || 'nom_propre',
+      tmi: structure.tmi ?? 30,
+      regime_fiscal: structure.regime_fiscal ?? 'micro_foncier',
+    });
+  }, [structure, reset]);
 
   const selectedType = watch('type');
   const selectedRegime = watch('regime_fiscal');

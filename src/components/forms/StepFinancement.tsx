@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CurrencyInput, PercentInput, Input } from '@/components/ui';
@@ -21,6 +22,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<FinancementFormData>({
     resolver: zodResolver(financementSchema),
@@ -29,8 +31,22 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
       taux_interet: financement.taux_interet ?? 3.5,
       duree_emprunt: financement.duree_emprunt ?? 20,
       assurance_pret: financement.assurance_pret ?? 0.3,
+      frais_dossier: financement.frais_dossier ?? 0,
+      frais_garantie: financement.frais_garantie ?? 2000,
     },
   });
+
+  // Réinitialiser le formulaire quand le store est hydraté
+  useEffect(() => {
+    reset({
+      apport: financement.apport ?? 0,
+      taux_interet: financement.taux_interet ?? 3.5,
+      duree_emprunt: financement.duree_emprunt ?? 20,
+      assurance_pret: financement.assurance_pret ?? 0.3,
+      frais_dossier: financement.frais_dossier ?? 0,
+      frais_garantie: financement.frais_garantie ?? 2000,
+    });
+  }, [financement, reset]);
 
   const watchedValues = watch();
   const prixAchat = bien.prix_achat || 0;
@@ -100,12 +116,25 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
       </div>
 
       <PercentInput
-        label="Taux d'assurance emprunteur"
-        placeholder="0.3"
-        hint="Taux annuel sur le capital initial"
         error={errors.assurance_pret?.message}
         {...register('assurance_pret', { valueAsNumber: true })}
       />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CurrencyInput
+          label="Frais de dossier bancaire"
+          placeholder="500"
+          error={errors.frais_dossier?.message}
+          {...register('frais_dossier', { valueAsNumber: true })}
+        />
+
+        <CurrencyInput
+          label="Frais de garantie (hypothèque/caution)"
+          placeholder="2000"
+          error={errors.frais_garantie?.message}
+          {...register('frais_garantie', { valueAsNumber: true })}
+        />
+      </div>
 
       {/* Simulation mensualité */}
       {mensualite > 0 && (

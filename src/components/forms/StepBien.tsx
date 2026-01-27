@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input, CurrencyInput, Select } from '@/components/ui';
@@ -19,6 +20,7 @@ export function StepBien({ onNext }: StepBienProps) {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<BienFormData>({
     resolver: zodResolver(bienSchema),
@@ -28,8 +30,27 @@ export function StepBien({ onNext }: StepBienProps) {
       surface: bien.surface || undefined,
       type_bien: bien.type_bien || 'appartement',
       annee_construction: bien.annee_construction || undefined,
+      etat_bien: bien.etat_bien || 'ancien',
+      montant_travaux: bien.montant_travaux || undefined,
+      valeur_mobilier: bien.valeur_mobilier || undefined,
     },
   });
+
+  // Réinitialiser le formulaire quand le store est hydraté
+  useEffect(() => {
+    if (bien.adresse || bien.prix_achat) {
+      reset({
+        adresse: bien.adresse || '',
+        prix_achat: bien.prix_achat || undefined,
+        surface: bien.surface || undefined,
+        type_bien: bien.type_bien || 'appartement',
+        annee_construction: bien.annee_construction || undefined,
+        etat_bien: bien.etat_bien || 'ancien',
+        montant_travaux: bien.montant_travaux || undefined,
+        valeur_mobilier: bien.valeur_mobilier || undefined,
+      });
+    }
+  }, [bien, reset]);
 
   const onSubmit = (data: BienFormData) => {
     updateBien(data as BienData);
@@ -81,12 +102,39 @@ export function StepBien({ onNext }: StepBienProps) {
           {...register('type_bien')}
         />
 
+        <Select
+          label="État du bien"
+          options={[
+            { value: 'ancien', label: 'Ancien' },
+            { value: 'neuf', label: 'Neuf (VEFA)' },
+          ]}
+          error={errors.etat_bien?.message}
+          {...register('etat_bien')}
+        />
+
+
         <Input
           label="Année de construction"
           type="number"
           placeholder="1990"
           error={errors.annee_construction?.message}
           {...register('annee_construction', { valueAsNumber: true })}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CurrencyInput
+          label="Montant des travaux"
+          placeholder="0"
+          error={errors.montant_travaux?.message}
+          {...register('montant_travaux', { valueAsNumber: true })}
+        />
+
+        <CurrencyInput
+          label="Valeur du mobilier"
+          placeholder="0"
+          error={errors.valeur_mobilier?.message}
+          {...register('valeur_mobilier', { valueAsNumber: true })}
         />
       </div>
 

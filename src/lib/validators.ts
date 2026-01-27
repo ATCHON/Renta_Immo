@@ -27,6 +27,11 @@ export const bienSchema = z.object({
     .min(1800, 'Année de construction invalide')
     .max(new Date().getFullYear(), 'Année de construction invalide')
     .optional(),
+  etat_bien: z.enum(['ancien', 'neuf'], {
+    message: "Veuillez sélectionner l'état du bien",
+  }).optional().default('ancien'),
+  montant_travaux: z.number().min(0).optional().default(0),
+  valeur_mobilier: z.number().min(0).optional().default(0),
 });
 
 /**
@@ -45,9 +50,11 @@ export const financementSchema = z.object({
     .min(1, 'La durée minimum est de 1 an')
     .max(30, 'La durée maximum est de 30 ans'),
   assurance_pret: z
-    .number({ message: "L'assurance doit être un nombre" })
+    .number({ message: "L'assurance du prêt doit être un nombre" })
     .min(0, "L'assurance ne peut pas être négative")
     .max(2, "Le taux d'assurance semble trop élevé"),
+  frais_dossier: z.number().min(0).optional().default(0),
+  frais_garantie: z.number().min(0).optional().default(0),
 });
 
 /**
@@ -75,8 +82,13 @@ export const exploitationSchema = z.object({
     .min(0, 'La provision ne peut pas être négative'),
   provision_vacance: z
     .number({ message: 'La provision vacance doit être un nombre' })
-    .min(0, 'La provision ne peut pas être négative')
+    .min(0, 'La provision vacance ne peut pas être négative')
     .max(50, 'Le taux de vacance semble trop élevé'),
+  charges_copro_recuperables: z.number().min(0).optional().default(0),
+  assurance_gli: z.number().min(0).optional().default(0),
+  cfe_estimee: z.number().min(0).optional().default(0),
+  comptable_annuel: z.number().min(0).optional().default(0),
+  type_location: z.enum(['nue', 'meublee_longue_duree', 'meublee_tourisme_classe', 'meublee_tourisme_non_classe']).optional().default('nue'),
 });
 
 /**
