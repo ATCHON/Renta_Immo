@@ -8,6 +8,7 @@ import type {
   ExploitationData,
   StructureData,
   AssocieData,
+  RegimeFiscal,
 } from '@/types/calculateur';
 
 // Re-export des types du frontend pour usage serveur
@@ -17,6 +18,7 @@ export type {
   ExploitationData,
   StructureData,
   AssocieData,
+  RegimeFiscal,
 };
 
 /**
@@ -28,6 +30,11 @@ export interface ValidatedFormData {
   exploitation: ExploitationData;
   structure: StructureData;
 }
+
+/**
+ * Alias pour les données validées (utilisé dans les calculs)
+ */
+export type CalculationInput = ValidatedFormData;
 
 /**
  * Résultats des calculs de financement
@@ -85,14 +92,13 @@ export interface FiscaliteCalculations {
 }
 
 /**
- * Résultats HCSF pour un associé
+ * Type simplifié pour l'affichage des associés HCSF
  */
-
-
-/**
- * Résultats HCSF pour un associé (exporté pour être utilisé dans HCSFCalculations)
- */
-import type { AssocieHcsf } from './hcsf';
+export interface HCSFAssocie {
+  nom: string;
+  taux_endettement: number;
+  conforme: boolean;
+}
 
 /**
  * Résultats HCSF global
@@ -101,9 +107,10 @@ export interface HCSFCalculations {
   structure: 'nom_propre' | 'sci_is';
   taux_endettement: number;
   conforme: boolean;
-  details_associes: AssocieHcsf[]; // Liste des résultats par associé (pour SCI IS)
+  capacite_emprunt_residuelle: number;
+  details_associes: HCSFAssocie[];
   alertes: string[];
-  
+
   // Détails ajoutés pour une vision globale (agrégée)
   revenus_detail: {
     salaires_estimatif_mensuels: number;
@@ -117,7 +124,38 @@ export interface HCSFCalculations {
     charges_fixes_mensuelles: number;
     total_mensuelles: number;
   };
-  capacite_emprunt_residuelle: number;
+}
+
+/**
+ * Détail du scoring
+ */
+export interface ScoreDetail {
+  autofinancement: number; // 0-30 points
+  rentabilite: number; // 0-30 points
+  hcsf: number; // 0-25 points
+  bonus_rentabilite: number; // 0-15 points
+  total: number; // 0-100 points
+}
+
+/**
+ * Point d'attention détaillé
+ */
+export interface PointAttention {
+  type: 'error' | 'warning' | 'info';
+  categorie: 'cashflow' | 'rentabilite' | 'financement' | 'fiscalite' | 'general';
+  message: string;
+  conseil?: string;
+}
+
+/**
+ * Recommandation détaillée
+ */
+export interface Recommandation {
+  priorite: 'haute' | 'moyenne' | 'info';
+  categorie: 'cashflow' | 'rentabilite' | 'financement' | 'fiscalite' | 'general';
+  titre: string;
+  description: string;
+  actions: string[];
 }
 
 /**
@@ -126,8 +164,12 @@ export interface HCSFCalculations {
 export interface SyntheseCalculations {
   score_global: number;
   evaluation: 'Excellent' | 'Bon' | 'Moyen' | 'Faible';
+  couleur: string;
   recommandation: string;
   points_attention: string[];
+  score_detail: ScoreDetail;
+  points_attention_detail: PointAttention[];
+  recommandations_detail: Recommandation[];
   criteres: {
     autofinancement: { status: 'OK' | 'KO'; valeur: number };
     rentabilite: { status: 'OK' | 'KO'; valeur: number };

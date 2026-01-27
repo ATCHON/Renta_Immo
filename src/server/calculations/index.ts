@@ -66,11 +66,12 @@ export function performCalculations(
     const hcsf = analyserHcsf(
       data,
       rentabilite.financement,
-      data.exploitation.loyer_mensuel
+      data.exploitation.loyer_mensuel,
+      data.financement.duree_emprunt // Durée pour vérification HCSF
     );
 
     // Étape 5 : Synthèse et scoring
-    const synthese = genererSynthese(rentabilite, hcsf);
+    const synthese = genererSynthese(rentabilite, hcsf, fiscalite, data.structure);
 
     // Assemblage du résultat final (format compatible avec le frontend existant)
     const resultats: CalculResultats = {

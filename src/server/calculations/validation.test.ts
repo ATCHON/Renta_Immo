@@ -48,7 +48,7 @@ describe('Calculations Validation', () => {
       ...validBaseData,
       bien: { ...validBaseData.bien, prix_achat: -100 }
     };
-    
+
     expect(() => validateAndNormalize(invalidData)).toThrow();
   });
 
@@ -57,7 +57,7 @@ describe('Calculations Validation', () => {
       ...validBaseData,
       financement: { ...validBaseData.financement, apport: 250000 }
     };
-    
+
     expect(() => validateAndNormalize(invalidData)).toThrow(/apport/);
   });
 
@@ -68,14 +68,14 @@ describe('Calculations Validation', () => {
       financement: {
         ...validBaseData.financement,
         taux_interet: 0, // In our logic, 0 might trigger default
-        duree_emprunt: 0, 
+        duree_emprunt: 0,
       }
     };
-    
+
     // Actually, looking at validation.ts, it uses `data.financement.taux_interet || DEFAULTS...`
-    // But Zod schema says min(1) for duree_emprunt. 
+    // But Zod schema says min(1) for duree_emprunt.
     // Let's test fields that are truly optional in Zod but have defaults in normalize
-    
+
     const dataForDefaults = {
         ...validBaseData,
         financement: {
@@ -101,7 +101,7 @@ describe('Calculations Validation', () => {
         ]
       }
     };
-    
+
     expect(() => validateAndNormalize(sciData)).toThrow(/100%/);
   });
 });
