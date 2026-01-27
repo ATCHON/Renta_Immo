@@ -27,7 +27,17 @@ export const bienSchema = z.object({
     .min(1800, 'Année de construction invalide')
     .max(new Date().getFullYear(), 'Année de construction invalide')
     .optional(),
+  etat_bien: z.enum(['ancien', 'neuf'], {
+    message: "Veuillez sélectionner l'état du bien",
+  }).default('ancien'),
+  montant_travaux: z.number().min(0).default(0),
+  valeur_mobilier: z.number().min(0).default(0),
 });
+
+// Type d'entrée pour le formulaire (champs optionnels avec default)
+export type BienFormDataInput = z.input<typeof bienSchema>;
+// Type de sortie après parsing (avec les defaults appliqués)
+export type BienFormData = z.output<typeof bienSchema>;
 
 /**
  * Schéma de validation pour le financement
@@ -45,10 +55,17 @@ export const financementSchema = z.object({
     .min(1, 'La durée minimum est de 1 an')
     .max(30, 'La durée maximum est de 30 ans'),
   assurance_pret: z
-    .number({ message: "L'assurance doit être un nombre" })
+    .number({ message: "L'assurance du prêt doit être un nombre" })
     .min(0, "L'assurance ne peut pas être négative")
     .max(2, "Le taux d'assurance semble trop élevé"),
+  frais_dossier: z.number().min(0).default(0),
+  frais_garantie: z.number().min(0).default(0),
 });
+
+// Type d'entrée pour le formulaire (champs optionnels avec default)
+export type FinancementFormDataInput = z.input<typeof financementSchema>;
+// Type de sortie après parsing (avec les defaults appliqués)
+export type FinancementFormData = z.output<typeof financementSchema>;
 
 /**
  * Schéma de validation pour l'exploitation
@@ -75,9 +92,19 @@ export const exploitationSchema = z.object({
     .min(0, 'La provision ne peut pas être négative'),
   provision_vacance: z
     .number({ message: 'La provision vacance doit être un nombre' })
-    .min(0, 'La provision ne peut pas être négative')
+    .min(0, 'La provision vacance ne peut pas être négative')
     .max(50, 'Le taux de vacance semble trop élevé'),
+  charges_copro_recuperables: z.number().min(0).default(0),
+  assurance_gli: z.number().min(0).default(0),
+  cfe_estimee: z.number().min(0).default(0),
+  comptable_annuel: z.number().min(0).default(0),
+  type_location: z.enum(['nue', 'meublee_longue_duree', 'meublee_tourisme_classe', 'meublee_tourisme_non_classe']).default('nue'),
 });
+
+// Type d'entrée pour le formulaire (champs optionnels avec default)
+export type ExploitationFormDataInput = z.input<typeof exploitationSchema>;
+// Type de sortie après parsing (avec les defaults appliqués)
+export type ExploitationFormData = z.output<typeof exploitationSchema>;
 
 /**
  * Schéma de validation pour un associé
@@ -163,9 +190,6 @@ export const calculateurFormSchema = z.object({
 });
 
 // Types inférés depuis les schémas Zod
-export type BienFormData = z.infer<typeof bienSchema>;
-export type FinancementFormData = z.infer<typeof financementSchema>;
-export type ExploitationFormData = z.infer<typeof exploitationSchema>;
 export type AssocieFormData = z.infer<typeof associeSchema>;
 export type StructureFormData = z.infer<typeof structureSchema>;
 export type OptionsFormData = z.infer<typeof optionsSchema>;

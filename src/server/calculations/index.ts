@@ -59,15 +59,15 @@ export function performCalculations(
     const fiscalite = calculerFiscalite(
       data.structure,
       rentabilite,
-      data.bien.prix_achat
+      data.bien,
+      data.exploitation
     );
 
     // Étape 4 : Analyse HCSF
     const hcsf = analyserHcsf(
       data,
       rentabilite.financement,
-      data.exploitation.loyer_mensuel,
-      data.financement.duree_emprunt // Durée pour vérification HCSF
+      data.exploitation.loyer_mensuel
     );
 
     // Étape 5 : Synthèse et scoring

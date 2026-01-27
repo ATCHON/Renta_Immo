@@ -15,7 +15,7 @@ export default function HomePage() {
           <Link href="/calculateur" className="btn-primary text-center">
             Commencer le calcul
           </Link>
-          <Link href="#features" className="btn-secondary text-center">
+          <Link href="/en-savoir-plus" className="btn-secondary text-center">
             En savoir plus
           </Link>
         </div>

@@ -1,8 +1,4 @@
-/**
- * Module de calcul de rentabilité
- * Calcule les mensualités, charges et indicateurs de rentabilité
- */
-
+import { CONSTANTS } from '@/config/constants';
 import type {
   BienData,
   FinancementData,
@@ -65,13 +61,33 @@ export function calculerMensualite(
 }
 
 /**
+ * Calcule les frais de notaire estimés
+ */
+export function calculerFraisNotaire(prixAchat: number, etatBien: 'ancien' | 'neuf' = 'ancien'): number {
+  if (prixAchat <= 0) return 0;
+
+  // Utilisation des taux simplifiés pour l'instant (mais configurables)
+  const taux = etatBien === 'neuf'
+    ? CONSTANTS.NOTAIRE.TAUX_NEUF
+    : CONSTANTS.NOTAIRE.TAUX_ANCIEN;
+
+  return round(prixAchat * taux);
+}
+
+/**
  * Calcule les détails du financement
  */
 export function calculerFinancement(
-  prixAchat: number,
+  bien: BienData,
   financement: FinancementData
 ): FinancementCalculations {
-  const montant_emprunt = Math.max(0, prixAchat - financement.apport);
+  const prixAchat = bien.prix_achat;
+  const fraisNotaire = calculerFraisNotaire(prixAchat, bien.etat_bien);
+  const montantTravaux = bien.montant_travaux || 0;
+  const fraisBanque = (financement.frais_dossier || 0) + (financement.frais_garantie || 0);
+
+  const coutTotalAcquisition = prixAchat + fraisNotaire + montantTravaux + fraisBanque;
+  const montant_emprunt = Math.max(0, coutTotalAcquisition - financement.apport);
 
   const detailMensualite = calculerMensualite(
     montant_emprunt,
@@ -110,7 +126,10 @@ export function calculerChargesAnnuelles(
   const charges_fixes_annuelles =
     exploitation.charges_copro * 12 +
     exploitation.taxe_fonciere +
-    exploitation.assurance_pno;
+    exploitation.assurance_pno +
+    (exploitation.assurance_gli || 0) +
+    (exploitation.cfe_estimee || 0) +
+    (exploitation.comptable_annuel || 0);
 
   // Charges proportionnelles (en % du loyer annuel)
   const gestion = (exploitation.gestion_locative / 100) * loyerAnnuel;
@@ -135,7 +154,7 @@ export function calculerRentabilite(
   exploitation: ExploitationData
 ): RentabiliteCalculations {
   const loyer_annuel = exploitation.loyer_mensuel * 12;
-  const financementCalc = calculerFinancement(bien.prix_achat, financement);
+  const financementCalc = calculerFinancement(bien, financement);
   const charges = calculerChargesAnnuelles(exploitation, loyer_annuel);
 
   const rentabilite_brute = bien.prix_achat > 0

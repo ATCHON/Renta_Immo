@@ -23,6 +23,16 @@ export const TYPE_BIEN_OPTIONS = [
 ] as const;
 
 /**
+ * Types de location
+ */
+export const TYPE_LOCATION_OPTIONS = [
+  { value: 'nue', label: 'Location nue' },
+  { value: 'meublee_longue_duree', label: 'Meublé longue durée' },
+  { value: 'meublee_tourisme_classe', label: 'Meublé de tourisme classé' },
+  { value: 'meublee_tourisme_non_classe', label: 'Meublé de tourisme non classé' },
+] as const;
+
+/**
  * Types de structures juridiques
  */
 export const STRUCTURE_OPTIONS = [
