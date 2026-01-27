@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CurrencyInput, PercentInput, Input } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
-import { financementSchema, type FinancementFormData } from '@/lib/validators';
+import { financementSchema, type FinancementFormDataInput, type FinancementFormData } from '@/lib/validators';
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { calculateMensualite, formatCurrency } from '@/lib/utils';
 import type { FinancementData } from '@/types';
@@ -24,7 +24,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
     watch,
     reset,
     formState: { errors },
-  } = useForm<FinancementFormData>({
+  } = useForm<FinancementFormDataInput, unknown, FinancementFormData>({
     resolver: zodResolver(financementSchema),
     defaultValues: {
       apport: financement.apport ?? 0,

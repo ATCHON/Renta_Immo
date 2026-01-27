@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input, CurrencyInput, Select } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
-import { bienSchema, type BienFormData } from '@/lib/validators';
+import { bienSchema, type BienFormDataInput, type BienFormData } from '@/lib/validators';
 import { TYPE_BIEN_OPTIONS } from '@/lib/constants';
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import type { BienData } from '@/types';
@@ -22,7 +22,7 @@ export function StepBien({ onNext }: StepBienProps) {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<BienFormData>({
+  } = useForm<BienFormDataInput, unknown, BienFormData>({
     resolver: zodResolver(bienSchema),
     defaultValues: {
       adresse: bien.adresse || '',
@@ -31,8 +31,8 @@ export function StepBien({ onNext }: StepBienProps) {
       type_bien: bien.type_bien || 'appartement',
       annee_construction: bien.annee_construction || undefined,
       etat_bien: bien.etat_bien || 'ancien',
-      montant_travaux: bien.montant_travaux || undefined,
-      valeur_mobilier: bien.valeur_mobilier || undefined,
+      montant_travaux: bien.montant_travaux || 0,
+      valeur_mobilier: bien.valeur_mobilier || 0,
     },
   });
 
@@ -46,8 +46,8 @@ export function StepBien({ onNext }: StepBienProps) {
         type_bien: bien.type_bien || 'appartement',
         annee_construction: bien.annee_construction || undefined,
         etat_bien: bien.etat_bien || 'ancien',
-        montant_travaux: bien.montant_travaux || undefined,
-        valeur_mobilier: bien.valeur_mobilier || undefined,
+        montant_travaux: bien.montant_travaux || 0,
+        valeur_mobilier: bien.valeur_mobilier || 0,
       });
     }
   }, [bien, reset]);
