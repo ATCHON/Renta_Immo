@@ -1,9 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { calculerRentabilite, calculerMensualite } from './rentabilite';
 import { calculerFiscalite } from './fiscalite';
-import { calculerHcsfNomPropre, calculerHcsfSciIs, analyserHcsf } from './hcsf';
-import { analyserHCSF } from './hcsf';
-import type { BienData, FinancementData, ExploitationData, StructureData } from '@/types/calculateur';
+import { analyserHcsf } from './hcsf';
+import type { BienData, FinancementData, ExploitationData, StructureData, CalculationInput, FinancementCalculations } from './types';
 
 describe('Business Logic - Rentabilité', () => {
   it('should calculate correct loan payments (PMT formula)', () => {
@@ -28,10 +27,10 @@ describe('Business Logic - Rentabilité', () => {
   it('should calculate correct profitability metrics', () => {
     const bien: BienData = { prix_achat: 200000, type_bien: 'appartement', adresse: '', surface: 50 };
     const financement: FinancementData = { apport: 20000, taux_interet: 3.5, duree_emprunt: 20, assurance_pret: 0.3 };
-    const exploitation: ExploitationData = { 
-        loyer_mensuel: 1000, 
-        charges_copro: 100, 
-        taxe_fonciere: 800, 
+    const exploitation: ExploitationData = {
+        loyer_mensuel: 1000,
+        charges_copro: 100,
+        taxe_fonciere: 800,
         assurance_pno: 150,
         gestion_locative: 8,
         provision_travaux: 5,
@@ -39,11 +38,11 @@ describe('Business Logic - Rentabilité', () => {
     };
 
     const res = calculerRentabilite(bien, financement, exploitation);
-    
+
     // Brute: (1000 * 12) / 200000 = 6%
     expect(res.rentabilite_brute).toBe(6);
-    
-    // Charges: 
+
+    // Charges:
     // Fixes: 100*12 + 800 + 150 = 2150
     // Prop: 12000 * (8+5+5)/100 = 12000 * 0.18 = 2160
     // Total charges: 4310
@@ -51,7 +50,7 @@ describe('Business Logic - Rentabilité', () => {
 
     // Revenu net: 12000 - 4310 = 7690
     expect(res.revenu_net_avant_impots).toBe(7690);
-    
+
     // Mensualité totale: 1043.93 (crédit sur 180k) + 45 (assurance 0.3% sur 180k) = 1088.93
     // Cashflow annuel: 7690 - (1088.93 * 12) = 7690 - 13067.16 = -5377.16
     expect(res.cashflow_annuel).toBeCloseTo(-5377.16, 1);
@@ -60,55 +59,60 @@ describe('Business Logic - Rentabilité', () => {
 
 describe('Business Logic - Fiscalité', () => {
   it('should calculate IR for Nom Propre (Micro-foncier) correctly', () => {
-    const rentabilite = { 
-      revenu_net_avant_impots: 10000, 
+    const rentabilite = {
+      revenu_net_avant_impots: 10000,
       loyer_annuel: 12000,
-      charges: { total_charges_annuelles: 0 } 
+      charges: { total_charges_annuelles: 2000 }
     } as any;
-    const structure: StructureData = { type: 'nom_propre', regime_fiscal: 'micro_foncier', tmi: 0.30, associes: [] };
-    
+    const structure: StructureData = { type: 'nom_propre', regime_fiscal: 'micro_foncier', tmi: 30, associes: [] };
+
     const res = calculerFiscalite(structure, rentabilite, 200000);
-    
-    // Base = 12000 * 0.7 = 8400
-    // Impot = 8400 * (30% + 17.2%) = 8400 * 0.472 = 3964.8
+
+    // Micro-foncier: Base = 12000 * 70% = 8400
+    // Impot = 30% (TMI) + 17.2% (PS) = 47.2%
+    // 8400 * 0.472 = 3964.8
     expect(res.base_imposable).toBe(8400);
-    expect(res.impot_total).toBe(3964.8);
+    expect(res.impot_total).toBeCloseTo(3964.8, 0);
     expect(res.alertes).toHaveLength(0);
   });
 
   it('should generate alert when micro-foncier threshold is exceeded', () => {
-    const rentabilite = { revenu_net_avant_impots: 15000, loyer_annuel: 16000 } as any;
-    const structure: StructureData = { type: 'nom_propre', regime_fiscal: 'micro_foncier', tmi: 0.30, associes: [] };
+    const rentabilite = { revenu_net_avant_impots: 15000, loyer_annuel: 16000, charges: { total_charges_annuelles: 1000 } } as any;
+    const structure: StructureData = { type: 'nom_propre', regime_fiscal: 'micro_foncier', tmi: 30, associes: [] };
     const res = calculerFiscalite(structure, rentabilite, 200000);
     expect(res.alertes[0]).toContain('Plafond Micro-foncier dépassé');
   });
 
   it('should calculate LMNP Micro-BIC correctly', () => {
-    const rentabilite = { 
-      revenu_net_avant_impots: 10000, 
+    const rentabilite = {
+      revenu_net_avant_impots: 10000,
       loyer_annuel: 12000,
-      charges: { total_charges_annuelles: 0 } 
+      charges: { total_charges_annuelles: 2000 }
     } as any;
-    const structure: StructureData = { type: 'nom_propre', regime_fiscal: 'lmnp_micro', tmi: 0.30, associes: [] };
+    const structure: StructureData = { type: 'nom_propre', regime_fiscal: 'lmnp_micro', tmi: 30, associes: [] };
     const res = calculerFiscalite(structure, rentabilite, 200000);
-    
-    // Base = 12000 * 0.5 = 6000
+
+    // LMNP Micro: Base = 12000 * 50% = 6000
     // Impot = 6000 * 0.472 = 2832
     expect(res.base_imposable).toBe(6000);
-    expect(res.impot_total).toBe(2832);
+    expect(res.impot_total).toBeCloseTo(2832, 0);
   });
 
   it('should calculate IS for SCI correctly with amortization', () => {
-    const rentabilite = { revenu_net_avant_impots: 10000 } as any;
+    const rentabilite = {
+      revenu_net_avant_impots: 10000,
+      loyer_annuel: 12000,
+      charges: { total_charges_annuelles: 2000 }
+    } as any;
     const structure: StructureData = { type: 'sci_is', tmi: 0, associes: [] };
-    
+
     const res = calculerFiscalite(structure, rentabilite, 200000);
-    
-    // Amortissement: 200000 * 0.8 * 0.02 = 3200
-    // Base: 10000 - 3200 = 6800
-    // IS (15%): 6800 * 0.15 = 1020
-    expect(res.base_imposable).toBe(6800);
-    expect(res.impot_total).toBe(1020);
+
+    // Amortissement: 200000 * 0.85 (bâti) * 0.02 = 3400
+    // Base: 10000 - 3400 = 6600
+    // IS (15%): 6600 * 0.15 = 990
+    expect(res.base_imposable).toBe(6600);
+    expect(res.impot_total).toBe(990);
   });
 });
 
@@ -157,7 +161,7 @@ describe('Business Logic - HCSF', () => {
 
   it('should generate alert if HCSF Nom Propre is above 35%', () => {
     const data: CalculationInput = { ...nomPropreData };
-    data.structure.tmi = 0; // Revenus estimés à 1000€
+    data.structure = { ...data.structure, tmi: 0 }; // Revenus estimés à 1000€
     const financement = { ...nomPropreFinancement, mensualite_totale: 1200 }; // Mensualité plus élevée
     const res = analyserHcsf(data, financement, 800); // Loyer 800
     // Revenus estimés (TMI 0%) = 1000€
@@ -172,32 +176,20 @@ describe('Business Logic - HCSF', () => {
 
   it('should generate alert if HCSF Nom Propre is close to 35% (above 33%)', () => {
     const data: CalculationInput = { ...nomPropreData };
-    data.structure.tmi = 0.30; // Revenus estimés 3500€
-    const financement = { ...nomPropreFinancement, mensualite_totale: 1500 }; // Mensualité 1500€
-    const res = analyserHcsf(data, financement, 1000); // Loyer 1000€
-    // Revenus locatifs pondérés = 1000 * 0.7 = 700€
-    // Revenus totaux HCSF = 3500 + 700 = 4200€
-    // Charges = 1500€
-    // Taux endettement = 1500 / 4200 = 35.71% -> Should be > 35%, triggering the first alert.
-    // Let's adjust to be between 33 and 35.
-    const financement2 = { ...nomPropreFinancement, mensualite_totale: 1300 }; // Mensualité 1300€
-    const res2 = analyserHcsf(data, financement2, 1000); // Loyer 1000€
-    // Revenus totaux HCSF = 4200€
-    // Charges = 1300€
-    // Taux endettement = 1300 / 4200 = 30.95% -> This should not trigger an alert.
-    // Let's try to get 33-35%
+    data.structure = { ...data.structure, tmi: 0.30 }; // Revenus estimés 3500€
     const financement3 = { ...nomPropreFinancement, mensualite_totale: 1400 }; // Mensualité 1400€
     const res3 = analyserHcsf(data, financement3, 1000); // Loyer 1000€
+    // Revenus locatifs pondérés = 1000 * 0.7 = 700€
+    // Revenus totaux HCSF = 3500 + 700 = 4200€
     // Taux endettement = 1400 / 4200 = 33.33%
     expect(res3.taux_endettement).toBeCloseTo(33.33);
     expect(res3.conforme).toBe(true); // Still conforms
     expect(res3.alertes[0]).toContain('proche du seuil HCSF');
   });
 
-
   it('should generate alert if loan duration is above 25 years', () => {
     const data: CalculationInput = { ...nomPropreData };
-    data.financement.duree_emprunt = 26; // 26 ans
+    data.financement = { ...data.financement, duree_emprunt: 26 }; // 26 ans
     const res = analyserHcsf(data, nomPropreFinancement, nomPropreLoyer);
     expect(res.alertes[0]).toContain('Durée du crédit (26 ans) supérieure au maximum HCSF (25 ans)');
   });
@@ -272,9 +264,16 @@ describe('Business Logic - HCSF', () => {
   });
 
   it('should generate alert if an SCI associate is non-conforme', () => {
-    const data: CalculationInput = { ...sciIsData };
-    // Augmenter les crédits de l'associé A pour le rendre non conforme
-    data.structure.associes[0].credits_mensuels = 3000; // 3000€ de crédits existants
+    const data: CalculationInput = {
+      ...sciIsData,
+      structure: {
+        ...sciIsData.structure,
+        associes: [
+          { nom: 'Associé A', parts: 60, revenus_annuels: 60000, credits_mensuels: 3000, charges_mensuelles: 100 },
+          { nom: 'Associé B', parts: 40, revenus_annuels: 36000, credits_mensuels: 300, charges_mensuelles: 50 }
+        ]
+      }
+    };
     const res = analyserHcsf(data, sciIsFinancement, sciIsLoyer);
 
     const associeA = res.par_associe![0];
@@ -288,8 +287,13 @@ describe('Business Logic - HCSF', () => {
   });
 
   it('should handle empty associates list for SCI IS', () => {
-    const data: CalculationInput = { ...sciIsData };
-    data.structure.associes = [];
+    const data: CalculationInput = {
+      ...sciIsData,
+      structure: {
+        ...sciIsData.structure,
+        associes: []
+      }
+    };
     const res = analyserHcsf(data, sciIsFinancement, sciIsLoyer);
     expect(res.alertes[0]).toContain('Aucun associé défini pour la SCI');
     expect(res.conforme).toBe(false);

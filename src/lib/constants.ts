@@ -39,11 +39,67 @@ export const STRUCTURE_OPTIONS = [
 ] as const;
 
 /**
- * Seuils HCSF
+ * Régimes fiscaux pour nom propre
+ */
+export const REGIME_FISCAL_OPTIONS = [
+  {
+    value: 'micro_foncier',
+    label: 'Micro-foncier',
+    description: 'Abattement forfaitaire de 30% (plafond 15 000€/an)',
+  },
+  {
+    value: 'reel',
+    label: 'Foncier réel',
+    description: 'Déduction des charges réelles',
+  },
+  {
+    value: 'lmnp_micro',
+    label: 'LMNP Micro-BIC',
+    description: 'Abattement forfaitaire de 50% (plafond 77 700€/an)',
+  },
+  {
+    value: 'lmnp_reel',
+    label: 'LMNP Réel',
+    description: 'Déduction des charges + amortissement',
+  },
+] as const;
+
+/**
+ * Seuils HCSF (Haut Conseil de Stabilité Financière)
  */
 export const HCSF = {
   TAUX_ENDETTEMENT_MAX: 35,
+  TAUX_ENDETTEMENT_ALERTE: 33,
   DUREE_MAX_ANNEES: 25,
+  PONDERATION_REVENUS_LOCATIFS: 0.70,
+} as const;
+
+/**
+ * Constantes fiscales réglementaires
+ */
+export const FISCALITE = {
+  // Prélèvements sociaux (CSG-CRDS)
+  PRELEVEMENTS_SOCIAUX: 0.172, // 17.2%
+
+  // Micro-foncier
+  MICRO_FONCIER_ABATTEMENT: 0.30, // 30%
+  MICRO_FONCIER_PLAFOND: 15000, // 15 000€/an
+
+  // LMNP Micro-BIC
+  MICRO_BIC_ABATTEMENT: 0.50, // 50%
+  MICRO_BIC_PLAFOND: 77700, // 77 700€/an
+
+  // Impôt sur les sociétés (IS)
+  IS_TAUX_REDUIT: 0.15, // 15%
+  IS_TAUX_NORMAL: 0.25, // 25%
+  IS_SEUIL_TAUX_REDUIT: 42500, // 42 500€
+
+  // Amortissement SCI IS
+  TAUX_AMORTISSEMENT_BATI: 0.02, // 2% par an
+  PART_TERRAIN: 0.15, // 15% du prix = terrain (non amortissable)
+
+  // Flat tax sur dividendes
+  FLAT_TAX: 0.30, // 30%
 } as const;
 
 /**

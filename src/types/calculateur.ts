@@ -8,6 +8,9 @@ export type TypeBien = 'appartement' | 'maison' | 'immeuble';
 // Types de structure juridique
 export type TypeStructure = 'nom_propre' | 'sci_is';
 
+// Types de régimes fiscaux
+export type RegimeFiscal = 'micro_foncier' | 'reel' | 'lmnp_micro' | 'lmnp_reel';
+
 // Statut du formulaire
 export type FormStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -62,6 +65,7 @@ export interface AssocieData {
 export interface StructureData {
   type: TypeStructure;
   tmi: number;
+  regime_fiscal?: RegimeFiscal;
   associes: AssocieData[];
 }
 
