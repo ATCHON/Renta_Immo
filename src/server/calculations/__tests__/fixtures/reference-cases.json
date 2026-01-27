@@ -276,29 +276,27 @@
           "revenu_net_apres_impot": 20977
         },
         "hcsf": {
-          "taux_endettement": 0,
-          "conforme": false,
+          "taux_endettement": 34.89,
+          "conforme": true,
           "details_associes": [
             {
               "nom": "Marie",
-              "taux_endettement": null,
-              "conforme": false
+              "taux_endettement": 34.89,
+              "conforme": true
             },
             {
               "nom": "Pierre",
-              "taux_endettement": null,
-              "conforme": false
+              "taux_endettement": 30.89,
+              "conforme": true
             }
           ]
         },
         "synthese": {
-          "score_global": 37,
-          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "score_global": 65,
+          "recommandation": "Investissement à optimiser. Plusieurs critères ne sont pas satisfaits. Envisagez de négocier le prix ou d'augmenter le loyer.",
           "points_attention": [
             "Rentabilité nette faible : 6.07% (< 7%)",
-            "Non conforme HCSF : taux d'endettement 0% (> 35%)",
-            "Marie : Taux d'endettement (NaN%) > seuil HCSF (35%)",
-            "Pierre : Taux d'endettement (NaN%) > seuil HCSF (35%)"
+            "Marie : Taux d'endettement (34.9%) proche du seuil HCSF (33%)"
           ]
         }
       }
@@ -644,29 +642,26 @@
           "revenu_net_apres_impot": 24777
         },
         "hcsf": {
-          "taux_endettement": 0,
-          "conforme": false,
+          "taux_endettement": 30.52,
+          "conforme": true,
           "details_associes": [
             {
               "nom": "Sophie",
-              "taux_endettement": null,
-              "conforme": false
+              "taux_endettement": 30.52,
+              "conforme": true
             },
             {
               "nom": "Thomas",
-              "taux_endettement": null,
-              "conforme": false
+              "taux_endettement": 27.90,
+              "conforme": true
             }
           ]
         },
         "synthese": {
-          "score_global": 39,
-          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "score_global": 64,
+          "recommandation": "Investissement à optimiser. Plusieurs critères ne sont pas satisfaits. Envisagez de négocier le prix ou d'augmenter le loyer.",
           "points_attention": [
-            "Rentabilité nette faible : 6.25% (< 7%)",
-            "Non conforme HCSF : taux d'endettement 0% (> 35%)",
-            "Sophie : Taux d'endettement (NaN%) > seuil HCSF (35%)",
-            "Thomas : Taux d'endettement (NaN%) > seuil HCSF (35%)"
+            "Rentabilité nette faible : 6.25% (< 7%)"
           ]
         }
       }
@@ -942,29 +937,26 @@
           "revenu_net_apres_impot": 17090
         },
         "hcsf": {
-          "taux_endettement": 0,
-          "conforme": false,
+          "taux_endettement": 31.58,
+          "conforme": true,
           "details_associes": [
             {
               "nom": "Julie",
-              "taux_endettement": null,
-              "conforme": false
+              "taux_endettement": 31.58,
+              "conforme": true
             },
             {
               "nom": "Marc",
-              "taux_endettement": null,
-              "conforme": false
+              "taux_endettement": 21.55,
+              "conforme": true
             }
           ]
         },
         "synthese": {
-          "score_global": 38,
-          "recommandation": "Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.",
+          "score_global": 57,
+          "recommandation": "Investissement à optimiser. Plusieurs critères ne sont pas satisfaits. Envisagez de négocier le prix ou d'augmenter le loyer.",
           "points_attention": [
-            "Rentabilité nette faible : 6.12% (< 7%)",
-            "Non conforme HCSF : taux d'endettement 0% (> 35%)",
-            "Julie : Taux d'endettement (NaN%) > seuil HCSF (35%)",
-            "Marc : Taux d'endettement (NaN%) > seuil HCSF (35%)"
+            "Rentabilité nette faible : 6.12% (< 7%)"
           ]
         }
       }

@@ -80,7 +80,7 @@ describe('Business Logic - Fiscalité', () => {
     const rentabilite = { revenu_net_avant_impots: 15000, loyer_annuel: 16000, charges: { total_charges_annuelles: 1000 } } as any;
     const structure: StructureData = { type: 'nom_propre', regime_fiscal: 'micro_foncier', tmi: 30, associes: [] };
     const res = calculerFiscalite(structure, rentabilite, 200000);
-    expect(res.alertes[0]).toContain('Plafond Micro-foncier dépassé');
+    expect(res.alertes[0]).toContain('plafond micro-foncier');
   });
 
   it('should calculate LMNP Micro-BIC correctly', () => {
