@@ -23,7 +23,14 @@
       "mcp__n8n-mcp__n8n_list_workflows",
       "mcp__n8n-mcp__n8n_test_workflow",
       "Bash(npm run test:regression:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__take_screenshot",
+      "Bash(ss:*)",
+      "mcp__chrome-devtools__click",
+      "mcp__chrome-devtools__evaluate_script",
+      "Bash(npm run test:*)",
+      "Bash(git checkout:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

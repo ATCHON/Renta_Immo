@@ -9,6 +9,9 @@ import type {
   StructureData,
   AssocieData,
   RegimeFiscal,
+  OptionsData,
+  TableauAmortissement,
+  LigneAmortissement,
 } from '@/types/calculateur';
 
 // Re-export des types du frontend pour usage serveur
@@ -19,6 +22,9 @@ export type {
   StructureData,
   AssocieData,
   RegimeFiscal,
+  OptionsData,
+  TableauAmortissement,
+  LigneAmortissement,
 };
 
 /**
@@ -29,6 +35,7 @@ export interface ValidatedFormData {
   financement: FinancementData;
   exploitation: ExploitationData;
   structure: StructureData;
+  options: OptionsData;
 }
 
 /**
@@ -75,6 +82,8 @@ export interface RentabiliteCalculations {
   // Cash-flow
   cashflow_annuel: number;
   cashflow_mensuel: number;
+  effort_epargne_mensuel: number;
+  effet_levier: number;
 }
 
 /**
@@ -156,6 +165,42 @@ export interface Recommandation {
   titre: string;
   description: string;
   actions: string[];
+}
+
+
+
+/**
+ * Données d'une année de projection
+ */
+export interface ProjectionAnnuelle {
+  annee: number;
+  loyer: number;
+  charges: number; // Total charges (exploitation + crédit)
+  chargesExploitation: number;
+  remboursementCredit: number;
+  mensualite: number;
+  cashflow: number;
+  capitalRembourse: number;
+  capitalRestant: number;
+  valeurBien: number;
+  patrimoineNet: number;
+  impot: number;
+  cashflowNetImpot: number;
+}
+
+/**
+ * Résultat complet des projections
+ */
+export interface ProjectionData {
+  horizon: number;
+  projections: ProjectionAnnuelle[];
+  totaux: {
+    cashflowCumule: number;
+    capitalRembourse: number;
+    impotCumule: number;
+    enrichissementTotal: number;
+    tri: number;
+  };
 }
 
 /**

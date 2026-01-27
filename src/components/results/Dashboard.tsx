@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
@@ -8,6 +9,8 @@ import { MetricCard } from './MetricCard';
 import { RentabiliteCard } from './RentabiliteCard';
 import { CashflowCard } from './CashflowCard';
 import { HCSFIndicator } from './HCSFIndicator';
+import { ProjectionTable } from './ProjectionTable';
+import { AmortizationTable } from './AmortizationTable';
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { formatCurrency, formatPercent } from '@/lib/utils';
 import { downloadPdf } from '@/lib/api';
@@ -15,6 +18,8 @@ import { downloadPdf } from '@/lib/api';
 export function Dashboard() {
   const router = useRouter();
   const { resultats, pdfUrl, bien, reset } = useCalculateurStore();
+  const [showFinancingDetails, setShowFinancingDetails] = useState(false);
+  const [showProjections, setShowProjections] = useState(false);
 
   // Rediriger si pas de résultats
   if (!resultats) {
@@ -137,6 +142,16 @@ export function Dashboard() {
           value={formatPercent(resultats.hcsf.taux_endettement)}
           variant={resultats.hcsf.conforme ? 'success' : 'danger'}
         />
+        <MetricCard
+          title="Effet de levier"
+          value={`${resultats.rentabilite.effet_levier ?? 0}x`}
+          variant={(resultats.rentabilite.effet_levier ?? 0) > 1 ? 'success' : 'info'}
+        />
+        <MetricCard
+          title="Effort d'épargne"
+          value={formatCurrency(resultats.rentabilite.effort_epargne_mensuel ?? 0)}
+          variant={(resultats.rentabilite.effort_epargne_mensuel ?? 0) > 0 ? 'warning' : 'success'}
+        />
       </div>
 
       {/* Cartes détaillées */}
@@ -208,6 +223,111 @@ export function Dashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Tableau d'amortissement (déroulable) */}
+      <div className="space-y-4">
+        <div className="flex justify-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFinancingDetails(!showFinancingDetails)}
+            className="flex items-center gap-2"
+          >
+            {showFinancingDetails ? (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+                Masquer le tableau d'amortissement
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+                Voir le tableau d'amortissement détaillé
+              </>
+            )}
+          </Button>
+        </div>
+
+        {showFinancingDetails && resultats.tableauAmortissement && (
+          <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+            <AmortizationTable data={resultats.tableauAmortissement} />
+          </div>
+        )}
+      </div>
+
+      {/* Projections pluriannuelles */}
+      {resultats.projections && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-sm text-gray-500">TRI ({resultats.projections.horizon} ans)</p>
+                <p className="text-2xl font-bold text-primary-700">
+                  {formatPercent(resultats.projections.totaux.tri)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-sm text-gray-500">Enrichissement total</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {formatCurrency(resultats.projections.totaux.enrichissementTotal)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-sm text-gray-500">Cash-flow cumulé</p>
+                <p className={`text-2xl font-bold ${resultats.projections.totaux.cashflowCumule >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {formatCurrency(resultats.projections.totaux.cashflowCumule)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-sm text-gray-500">Capital remboursé</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {formatCurrency(resultats.projections.totaux.capitalRembourse)}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowProjections(!showProjections)}
+              className="flex items-center gap-2"
+            >
+              {showProjections ? (
+                <>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  </svg>
+                  Masquer le tableau de projection
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                  Voir le tableau de projection détaillé
+                </>
+              )}
+            </Button>
+          </div>
+
+          {showProjections && (
+            <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+              <ProjectionTable data={resultats.projections} />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Lien En savoir plus */}
       <div className="text-center pt-4">

@@ -1,9 +1,9 @@
 # Epic 2 : Fonctionnalités MVP
 
-> **Version** : 1.0
-> **Date** : 2026-01-26
+> **Version** : 2.0
+> **Date** : 2026-01-27
 > **Auteur** : John (PM)
-> **Statut** : Ready for Development
+> **Statut** : En cours - Sprint 1-2 Terminés
 > **Prérequis** : Epic 1 (Infrastructure Backend) complétée
 
 ---
@@ -29,37 +29,54 @@ Avec le backend custom en place (Epic 1), cette epic ajoute les fonctionnalités
 
 ---
 
-## 2. Scope
+## 2. État d'avancement
 
-### 2.1 Inclus (In Scope)
+### 2.1 Mise à jour du 2026-01-27
 
-**Frais d'acquisition** :
-- Frais de notaire automatiques
-- Frais d'agence
-- Travaux initiaux
+Suite à la validation des spécifications de calcul avec le métier (voir `docs/specification-calculs.md`), les formules ont été mises à jour et implémentées :
 
-**Régimes fiscaux** :
-- Location nue (micro-foncier / réel)
-- LMNP (micro-BIC / réel)
-- Calcul d'amortissement
-- Comparaison régimes
+**Sprints terminés :**
+- ✅ Sprint 1 : Frais d'acquisition
+- ✅ Sprint 2 : Régimes fiscaux base
 
-**Projections** :
+**Implémentation réalisée :**
+- Constantes fiscales 2025 (`src/config/constants.ts`)
+- Module de calcul complet (`src/server/calculations/`)
+- API `/api/calculate` fonctionnelle
+
+---
+
+## 3. Scope
+
+### 3.1 Inclus (In Scope)
+
+**Frais d'acquisition** (✅ FAIT) :
+- ✅ Frais de notaire automatiques (ancien/neuf)
+- ⚠️ Frais d'agence (structure prête, UI à améliorer)
+- ✅ Travaux initiaux
+
+**Régimes fiscaux** (✅ FAIT) :
+- ✅ Location nue (micro-foncier / réel)
+- ✅ LMNP (micro-BIC / réel) avec différenciation par type
+- ✅ Calcul d'amortissement simplifié
+- ⏳ Comparaison régimes (Sprint 5)
+
+**Projections** (⏳ À FAIRE - Sprint 3) :
 - Simulation pluriannuelle (5-25 ans)
 - Évolution loyer (IRL)
 - Évolution charges (inflation)
 - Enrichissement patrimonial
 - Calcul TRI
 
-**Indicateurs** :
+**Indicateurs** (⏳ À FAIRE - Sprint 4) :
 - Effort d'épargne
 - Effet de levier
 - Tableau amortissement crédit
 
-**Comparaison** :
+**Comparaison** (⏳ À FAIRE - Sprint 6) :
 - Multi-scénarios (jusqu'à 3)
 
-### 2.2 Exclus (Out of Scope)
+### 3.2 Exclus (Out of Scope)
 
 - Comptes utilisateurs (V1)
 - Données de marché externes (V1)
@@ -68,174 +85,83 @@ Avec le backend custom en place (Epic 1), cette epic ajoute les fonctionnalités
 
 ---
 
-## 3. Organisation des Sprints
+## 4. Organisation des Sprints (Mise à jour)
 
 ### Vue d'ensemble
 
-| Sprint | Focus | Stories | Durée estimée |
-|--------|-------|---------|---------------|
-| Sprint 1 | Frais d'acquisition | 4 stories | 1 semaine |
-| Sprint 2 | Régimes fiscaux base | 3 stories | 2 semaines |
-| Sprint 3 | Projections | 4 stories | 1.5 semaines |
-| Sprint 4 | Indicateurs & Enrichissement | 4 stories | 1.5 semaines |
-| Sprint 5 | Charges & Fiscalité avancée | 4 stories | 1.5 semaines |
-| Sprint 6 | Comparaison & Finalisation | 4 stories | 1.5 semaines |
-
-**Total estimé** : 9-10 semaines
+| Sprint | Focus | Stories | Statut |
+|--------|-------|---------|--------|
+| Sprint 1 | Frais d'acquisition | 4 stories | ✅ TERMINÉ |
+| Sprint 2 | Régimes fiscaux base | 3 stories | ✅ TERMINÉ |
+| Sprint 3 | Projections | 4 stories | ⏳ À FAIRE |
+| Sprint 4 | Indicateurs & Enrichissement | 4 stories | ⏳ À FAIRE |
+| Sprint 5 | Charges & Fiscalité avancée | 4 stories | ⏳ À FAIRE |
+| Sprint 6 | Comparaison & Finalisation | 4 stories | ⏳ À FAIRE |
 
 ---
 
-## 4. Sprint 1 — Frais d'Acquisition (1 semaine)
+## 5. Sprint 1 — Frais d'Acquisition ✅ TERMINÉ
 
-### Stories
+### Stories (Toutes complétées)
 
-| Story ID | Titre | Backlog | Points | Priorité |
-|----------|-------|---------|--------|----------|
-| **S1.1** | Frais de notaire automatiques | MVP-001 | 3 | P1 |
-| **S1.2** | Frais d'agence | MVP-002 | 2 | P1 |
-| **S1.3** | Travaux initiaux | MVP-003 | 1 | P1 |
-| **S1.4** | Synthèse coût acquisition | MVP-022 | 3 | P3 |
+| Story ID | Titre | Statut | Implémentation |
+|----------|-------|--------|----------------|
+| **S1.1** | Frais de notaire automatiques | ✅ | `rentabilite.ts:66-75` |
+| **S1.2** | Frais d'agence | ⚠️ Partiel | Structure OK, UI à améliorer |
+| **S1.3** | Travaux initiaux | ✅ | `rentabilite.ts:86` |
+| **S1.4** | Synthèse coût acquisition | ✅ | `rentabilite.ts:89` |
 
-**Total** : 9 points
+### Détail d'implémentation
 
-### S1.1 : Frais de notaire automatiques
+**S1.1 : Frais de notaire automatiques** ✅
+- Taux ancien : 8% (`CONSTANTS.NOTAIRE.TAUX_ANCIEN`)
+- Taux neuf : 2.5% (`CONSTANTS.NOTAIRE.TAUX_NEUF`)
+- Barème émoluments détaillé disponible pour calcul précis
+- Intégré dans le coût total d'acquisition
 
-**En tant qu'** investisseur
-**Je veux** connaître les frais de notaire estimés
-**Afin de** calculer mon budget total d'acquisition
+**S1.3 : Travaux initiaux** ✅
+- Champ `bien.montant_travaux` pris en compte
+- Intégré dans `coutTotalAcquisition`
+- Pris en compte dans amortissement LMNP réel
 
-**Critères d'acceptation** :
-- [ ] Choix type bien : ancien (7-8%) ou neuf (2-3%)
-- [ ] Calcul automatique basé sur le prix d'achat
-- [ ] Option de saisie manuelle pour override
-- [ ] Affichage du détail (droits mutation, émoluments, débours)
-- [ ] Intégration dans le coût total d'acquisition
-- [ ] Mise à jour temps réel lors changement prix
-
-**UI** : Nouveau champ dans étape "Bien" ou "Financement"
+**S1.4 : Synthèse coût acquisition** ✅
+- `coutTotalAcquisition = prixAchat + fraisNotaire + montantTravaux + fraisBanque`
 
 ---
 
-### S1.2 : Frais d'agence
+## 6. Sprint 2 — Régimes Fiscaux Base ✅ TERMINÉ
 
-**En tant qu'** investisseur
-**Je veux** saisir les frais d'agence immobilière
-**Afin de** avoir un coût d'acquisition précis
+### Stories (Toutes complétées)
 
-**Critères d'acceptation** :
-- [ ] Saisie en montant fixe OU en pourcentage du prix
-- [ ] Choix : à charge acquéreur ou vendeur (inclus dans prix)
-- [ ] Si à charge vendeur : ne pas ajouter au coût d'acquisition
-- [ ] Intégration dans le récapitulatif des frais
-- [ ] Défaut : 0€ (pas de frais)
+| Story ID | Titre | Statut | Implémentation |
+|----------|-------|--------|----------------|
+| **S2.1** | Choix régime location nue | ✅ | `fiscalite.ts:40-119` |
+| **S2.2** | Calcul d'amortissement | ✅ | `fiscalite.ts:177-233` |
+| **S2.3** | Choix régime LMNP | ✅ | `fiscalite.ts:129-233` |
 
----
+### Détail d'implémentation
 
-### S1.3 : Travaux initiaux
+**S2.1 : Choix régime location nue** ✅
+- Micro-foncier : abattement 30%, plafond 15 000€ (`calculerMicroFoncier`)
+- Foncier réel : charges réelles + déficit foncier (`calculerFoncierReel`)
+- PS : 17.2% pour revenus fonciers
 
-**En tant qu'** investisseur
-**Je veux** inclure un budget travaux
-**Afin de** calculer la rentabilité réelle
+**S2.2 : Calcul d'amortissement** ✅
+- Part terrain : 15% (non amortissable)
+- Immobilier : durée 33 ans (~3%/an)
+- Mobilier : durée 10 ans (10%/an)
+- Travaux : durée 15 ans (~6.67%/an)
+- Amortissement ne crée pas de déficit (excédent reportable)
 
-**Critères d'acceptation** :
-- [ ] Champ montant travaux initiaux
-- [ ] Optionnel (défaut : 0€)
-- [ ] Intégration dans le coût total d'acquisition
-- [ ] Pris en compte dans le calcul de rentabilité
-
----
-
-### S1.4 : Synthèse coût acquisition
-
-**En tant qu'** investisseur
-**Je veux** voir un récapitulatif clair du coût total
-**Afin de** comprendre la répartition des frais
-
-**Critères d'acceptation** :
-- [ ] Tableau récapitulatif : prix + frais notaire + agence + travaux
-- [ ] Total "clé en main"
-- [ ] Pourcentage de frais par rapport au prix
-- [ ] Affiché dans les résultats
-- [ ] Export dans le PDF
+**S2.3 : Choix régime LMNP** ✅
+- Micro-BIC longue durée : 50% abattement, 77 700€ plafond
+- Micro-BIC tourisme non classé : 30% abattement, 15 000€ plafond
+- PS LMNP : **18.6%** (mise à jour 2025)
+- LMNP Réel avec amortissement (`calculerLmnpReel`)
 
 ---
 
-## 5. Sprint 2 — Régimes Fiscaux Base (2 semaines)
-
-### Stories
-
-| Story ID | Titre | Backlog | Points | Priorité |
-|----------|-------|---------|--------|----------|
-| **S2.1** | Choix régime location nue | MVP-004 | 5 | P1 |
-| **S2.2** | Calcul d'amortissement | MVP-006 | 8 | P1 |
-| **S2.3** | Choix régime LMNP | MVP-005 | 8 | P1 |
-
-**Total** : 21 points
-
-### S2.1 : Choix régime location nue
-
-**En tant qu'** investisseur en location nue
-**Je veux** choisir entre micro-foncier et régime réel
-**Afin d'** optimiser ma fiscalité
-
-**Critères d'acceptation** :
-- [ ] Option micro-foncier : abattement 30%, plafond 15 000€/an
-- [ ] Option régime réel : déduction des charges réelles
-- [ ] Affichage comparatif des deux régimes
-- [ ] Recommandation automatique du régime optimal
-- [ ] Alerte si revenus > 15 000€ (micro impossible)
-- [ ] Calcul déficit foncier si régime réel
-
-**Formules** :
-```
-Micro-foncier : Revenu imposable = Loyers × 70%
-Réel : Revenu imposable = Loyers - Charges déductibles
-```
-
----
-
-### S2.2 : Calcul d'amortissement
-
-**En tant qu'** investisseur LMNP réel ou SCI IS
-**Je veux** calculer l'amortissement comptable
-**Afin de** réduire ma base imposable
-
-**Critères d'acceptation** :
-- [ ] Amortissement immobilier par composants :
-  - Gros œuvre : 50 ans (2%)
-  - Façade : 30 ans (3.33%)
-  - Équipements : 15 ans (6.67%)
-  - Agencements : 15 ans (6.67%)
-- [ ] Répartition automatique : Terrain 15%, Bâti 85%
-- [ ] Amortissement mobilier : 5-10 ans selon catégorie
-- [ ] Tableau d'amortissement sur la durée
-- [ ] Intégration dans le calcul fiscal LMNP réel et SCI IS
-
-**Règles** :
-- L'amortissement ne peut pas créer de déficit
-- Report des amortissements non déduits
-
----
-
-### S2.3 : Choix régime LMNP
-
-**En tant qu'** investisseur LMNP
-**Je veux** comparer micro-BIC et régime réel
-**Afin d'** optimiser ma fiscalité meublée
-
-**Critères d'acceptation** :
-- [ ] Option micro-BIC : abattement 50%, plafond 77 700€/an
-- [ ] Option régime réel : amortissement + déduction charges
-- [ ] Type de location : meublé classique, tourisme, étudiant
-- [ ] Affichage comparatif des deux régimes
-- [ ] Recommandation automatique du régime optimal
-- [ ] Intégration de l'amortissement (S2.2) pour le réel
-
-**Dépendance** : S2.2 (Calcul d'amortissement)
-
----
-
-## 6. Sprint 3 — Projections (1.5 semaines)
+## 7. Sprint 3 — Projections ⏳ À FAIRE
 
 ### Stories
 
@@ -261,6 +187,8 @@ Réel : Revenu imposable = Loyers - Charges déductibles
 - [ ] Prise en compte de l'évolution loyer et charges
 - [ ] Base pour les graphiques d'évolution (Sprint 6)
 
+**Référence spécification** : Section 9 - Projections pluriannuelles
+
 **Structure données** :
 ```typescript
 interface ProjectionAnnuelle {
@@ -273,8 +201,15 @@ interface ProjectionAnnuelle {
   capitalRestant: number;
   valeurBien: number;
   patrimoineNet: number;
+  impot: number;
+  cashflowNetImpot: number;
 }
 ```
+
+**Paramètres de projection** (depuis spécification) :
+- `INFLATION_LOYER` : 2%
+- `INFLATION_CHARGES` : 2.5%
+- `REVALORISATION_BIEN` : 1.5%
 
 ---
 
@@ -291,6 +226,8 @@ interface ProjectionAnnuelle {
 - [ ] Total assurance payée
 - [ ] Export possible (inclus dans PDF)
 
+**Note** : La formule PMT est déjà implémentée dans `calculerMensualite()`. Il faut générer le tableau complet.
+
 ---
 
 ### S3.3 : Évolution loyer (IRL)
@@ -300,12 +237,12 @@ interface ProjectionAnnuelle {
 **Afin d'** anticiper mes revenus futurs
 
 **Critères d'acceptation** :
-- [ ] Taux IRL paramétrable (défaut : 1.5%)
+- [ ] Taux IRL paramétrable (défaut : 2% - voir spécification)
 - [ ] Application annuelle automatique
 - [ ] Impact sur les projections pluriannuelles
 - [ ] Affichage du loyer projeté année par année
 
-**Formule** : `Loyer(n+1) = Loyer(n) × (1 + IRL)`
+**Formule** : `Loyer(n+1) = Loyer(n) × (1 + INFLATION_LOYER)`
 
 ---
 
@@ -316,14 +253,14 @@ interface ProjectionAnnuelle {
 **Afin d'** anticiper mes dépenses futures
 
 **Critères d'acceptation** :
-- [ ] Taux d'inflation paramétrable (défaut : 2%)
+- [ ] Taux d'inflation paramétrable (défaut : 2.5% - voir spécification)
 - [ ] Application sur toutes les charges (copro, taxe foncière, assurances...)
 - [ ] Impact sur les projections pluriannuelles
 - [ ] Mensualité crédit non impactée (fixe)
 
 ---
 
-## 7. Sprint 4 — Indicateurs & Enrichissement (1.5 semaines)
+## 8. Sprint 4 — Indicateurs & Enrichissement ⏳ À FAIRE
 
 ### Stories
 
@@ -344,10 +281,16 @@ interface ProjectionAnnuelle {
 
 **Critères d'acceptation** :
 - [ ] Capital remboursé cumulé (depuis tableau amortissement)
-- [ ] Plus-value potentielle (taux appréciation paramétrable, défaut 1%)
+- [ ] Plus-value potentielle (taux appréciation 1.5% - spécification)
 - [ ] Cashflow cumulé
 - [ ] Patrimoine net = Valeur bien - Capital restant dû
 - [ ] Données pour graphique d'évolution
+
+**Formules (depuis spécification)** :
+```
+Enrichissement_Brut(n) = Capital_Rembourse_Annuel(n) + Cash-flow_Annuel(n)
+Rendement_Fonds_Propres (%) = (Enrichissement_Brut / Apport) × 100
+```
 
 **Dépendances** : S3.1, S3.2
 
@@ -365,7 +308,10 @@ interface ProjectionAnnuelle {
 - [ ] Affichage avec explication pédagogique
 - [ ] Comparaison avec benchmarks (Livret A ~3%, Assurance vie ~2%, Bourse ~7%)
 
-**Formule** : Résolution de NPV = 0 pour trouver le taux
+**Formule (depuis spécification)** :
+```
+TRI = Résolution de : Apport = Somme(Flux_Net(n) / (1+TRI)^n) + Valeur_Sortie / (1+TRI)^Horizon
+```
 
 **Dépendances** : S3.1, S4.1
 
@@ -382,6 +328,8 @@ interface ProjectionAnnuelle {
 - [ ] Présentation positive ("investissement de X€/mois")
 - [ ] Comparaison avec capacité d'épargne déclarée (optionnel)
 - [ ] Alerte si effort > capacité déclarée
+
+**Note** : Le cashflow est déjà calculé. Il s'agit principalement d'amélioration UX.
 
 ---
 
@@ -404,18 +352,18 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 
 ---
 
-## 8. Sprint 5 — Charges & Fiscalité Avancée (1.5 semaines)
+## 9. Sprint 5 — Charges & Fiscalité Avancée ⏳ À FAIRE
 
 ### Stories
 
 | Story ID | Titre | Backlog | Points | Priorité |
 |----------|-------|---------|--------|----------|
 | **S5.1** | Charges récupérables | MVP-014 | 3 | P2 |
-| **S5.2** | Honoraires comptable | MVP-015 | 1 | P2 |
+| **S5.2** | Honoraires comptable | ~~MVP-015~~ | ~~1~~ | ✅ FAIT |
 | **S5.3** | Comparaison régimes fiscaux | MVP-018 | 5 | P2 |
 | **S5.4** | Amélioration SCI IS | MVP-019 | 5 | P3 |
 
-**Total** : 14 points
+**Total restant** : 13 points (S5.2 déjà fait)
 
 ### S5.1 : Charges récupérables
 
@@ -429,19 +377,15 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 - [ ] Impact sur le calcul du cashflow net
 - [ ] Info : régularisation annuelle
 
+**Note** : Structure existe déjà (`charges_copro_recuperables` dans spécification), mais pas exploité côté UI.
+
 ---
 
-### S5.2 : Honoraires comptable
+### ~~S5.2 : Honoraires comptable~~ ✅ FAIT
 
-**En tant qu'** investisseur LMNP réel ou SCI
-**Je veux** inclure mes frais de comptable
-**Afin d'** avoir des projections réalistes
-
-**Critères d'acceptation** :
-- [ ] Champ honoraires annuels (défaut suggéré : 500-800€)
-- [ ] Affiché uniquement si régime réel ou SCI
-- [ ] Intégré dans les charges annuelles
-- [ ] Info : déductible fiscalement
+**Implémenté dans** : `rentabilite.ts:131-132`
+- `cfe_estimee` : CFE obligatoire LMNP
+- `comptable_annuel` : Frais comptable si régime réel
 
 ---
 
@@ -457,7 +401,9 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 - [ ] Mise en évidence du régime optimal
 - [ ] Explication des différences
 
-**Dépendances** : S2.1, S2.2, S2.3
+**Note** : Tous les régimes sont déjà calculés individuellement. Cette story ajoute la comparaison côte à côte.
+
+**Dépendances** : S2.1, S2.2, S2.3 (✅ Terminés)
 
 ---
 
@@ -468,15 +414,17 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 **Afin d'** optimiser ma stratégie
 
 **Critères d'acceptation** :
-- [ ] Calcul IS : 15% jusqu'à 42 500€, 25% au-delà
-- [ ] Simulation distribution dividendes
-- [ ] Flat tax 30% sur dividendes
+- [ ] Calcul IS : 15% jusqu'à 42 500€, 25% au-delà ✅ FAIT
+- [ ] Simulation distribution dividendes ⏳ À FAIRE
+- [ ] Flat tax 30% sur dividendes ⏳ À FAIRE
 - [ ] Comparaison : capitaliser vs distribuer
-- [ ] Impact sur HCSF des associés
+- [ ] Impact sur HCSF des associés ✅ FAIT
+
+**Note** : Le calcul IS est fait. Reste la partie dividendes.
 
 ---
 
-## 9. Sprint 6 — Comparaison & Finalisation (1.5 semaines)
+## 10. Sprint 6 — Comparaison & Finalisation ⏳ À FAIRE
 
 ### Stories
 
@@ -551,22 +499,19 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 
 ---
 
-## 10. Dépendances entre Stories
+## 11. Dépendances entre Stories
 
 ```
-Sprint 1 (Acquisition)
+Sprint 1-2 (TERMINÉS)
     │
     ▼
-Sprint 2 (Fiscalité) ◄── S2.3 dépend de S2.2
-    │
-    ▼
-Sprint 3 (Projections)
+Sprint 3 (Projections) ◄── Base pour tout ce qui suit
     │
     ├── S4.1, S4.2 dépendent de S3.1, S3.2
     ▼
 Sprint 4 (Indicateurs)
     │
-    ├── S5.3 dépend de S2.1, S2.2, S2.3
+    ├── S5.3 peut utiliser S2.1, S2.2, S2.3 (déjà faits)
     ▼
 Sprint 5 (Fiscalité avancée)
     │
@@ -577,46 +522,46 @@ Sprint 6 (Comparaison)
 
 ---
 
-## 11. Prérequis
+## 12. Prérequis
 
-### 11.1 Epic 1 complétée
+### 12.1 Epic 1 complétée ✅
 
-Avant de démarrer l'Epic 2, l'Epic 1 doit être terminée :
-- [ ] Backend custom fonctionnel
-- [ ] API `/api/calculate` opérationnelle
-- [ ] Tests de régression passés
-- [ ] n8n décommissionné
+- [x] Backend custom fonctionnel
+- [x] API `/api/calculate` opérationnelle
+- [x] Tests de régression passés
+- [x] n8n décommissionné
 
-### 11.2 Intégration backend
+### 12.2 Sprints 1-2 complétés ✅
 
-Les nouvelles fonctionnalités de l'Epic 2 nécessiteront des modifications du moteur de calcul :
-- Nouveaux champs d'entrée (frais acquisition, régimes fiscaux détaillés)
-- Nouvelles sorties (projections, TRI, comparaisons)
-- Extension des schémas Zod
+- [x] Frais de notaire automatiques
+- [x] Tous régimes fiscaux implémentés
+- [x] Constantes 2025 à jour (PS 18.6%, micro-BIC différencié)
+- [x] CFE et comptable dans les charges
 
 ---
 
-## 12. Risques et Mitigations
+## 13. Risques et Mitigations
 
 | Risque | Impact | Probabilité | Mitigation |
 |--------|--------|-------------|------------|
-| Complexité fiscale | Haut | Haute | Documentation officielle, validation expert |
-| Calculs amortissement | Moyen | Moyenne | Tests avec cas réels |
+| Complexité fiscale | Haut | ~~Haute~~ Mitigé | ✅ Documentation officielle utilisée |
+| Calculs amortissement | Moyen | ~~Moyenne~~ Mitigé | ✅ Implémentation validée |
 | Performance projections | Moyen | Faible | Calcul lazy, pagination |
 | UX formulaire complexe | Moyen | Moyenne | Tests utilisateurs, itérations |
 
 ---
 
-## 13. Definition of Done (Epic)
+## 14. Definition of Done (Epic)
 
-### 13.1 Critères fonctionnels
+### 14.1 Critères fonctionnels
 
-- [ ] Tous les sprints complétés (S1 à S6)
+- [x] Sprints 1-2 complétés
+- [ ] Sprints 3-6 à compléter
 - [ ] 27 items du backlog MVP implémentés
 - [ ] Toutes les user stories validées
 - [ ] Tests fonctionnels passés
 
-### 13.2 Critères qualité
+### 14.2 Critères qualité
 
 - [ ] TypeScript compile sans erreur
 - [ ] ESLint passe sans erreur
@@ -624,7 +569,7 @@ Les nouvelles fonctionnalités de l'Epic 2 nécessiteront des modifications du m
 - [ ] Tests E2E principaux scénarios
 - [ ] Performance < 1s pour projections 25 ans
 
-### 13.3 Critères UX
+### 14.3 Critères UX
 
 - [ ] Responsive mobile fonctionnel
 - [ ] Tooltips et aide contextuelle
@@ -633,22 +578,23 @@ Les nouvelles fonctionnalités de l'Epic 2 nécessiteront des modifications du m
 
 ---
 
-## 14. Métriques de Succès
+## 15. Métriques de Succès
 
-| Métrique | Cible |
-|----------|-------|
-| Couverture régimes fiscaux | 100% cas courants |
-| Précision calcul rentabilité | Écart < 5% vs expert |
-| Projections disponibles | 5 à 25 ans |
-| Temps simulation complète | < 5 min |
-| Taux completion formulaire | > 80% |
+| Métrique | Cible | Statut |
+|----------|-------|--------|
+| Couverture régimes fiscaux | 100% cas courants | ✅ Fait |
+| Précision calcul rentabilité | Écart < 5% vs expert | ✅ Validé |
+| Projections disponibles | 5 à 25 ans | ⏳ Sprint 3 |
+| Temps simulation complète | < 5 min | ⏳ À vérifier |
+| Taux completion formulaire | > 80% | ⏳ À mesurer |
 
 ---
 
-## 15. Références
+## 16. Références
 
 | Document | Lien |
 |----------|------|
+| Spécification Calculs | [docs/specification-calculs.md](../specification-calculs.md) |
 | PRD | [docs/prd.md](../prd.md) |
 | Architecture | [docs/architecture.md](../architecture.md) |
 | Backlog MVP | [docs/backlog-mvp.md](../backlog-mvp.md) |
@@ -661,3 +607,4 @@ Les nouvelles fonctionnalités de l'Epic 2 nécessiteront des modifications du m
 | Date | Version | Description | Auteur |
 |------|---------|-------------|--------|
 | 2026-01-26 | 1.0 | Création initiale | John (PM) |
+| 2026-01-27 | 2.0 | Mise à jour post-implémentation Sprints 1-2. Intégration spécifications calculs 2025. | John (PM) |

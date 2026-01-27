@@ -89,6 +89,9 @@ export interface OptionsData {
   generer_pdf: boolean;
   envoyer_email: boolean;
   email?: string;
+  horizon_projection?: number;
+  taux_evolution_loyer?: number;
+  taux_evolution_charges?: number; // Anticipating Story 2.3.4
 }
 
 /**
@@ -109,6 +112,8 @@ export interface RentabiliteResultat {
   brute: number;
   nette: number;
   nette_nette: number;
+  effort_epargne_mensuel?: number;
+  effet_levier?: number;
 }
 
 /**
@@ -126,6 +131,31 @@ export interface FinancementResultat {
   montant_emprunt: number;
   mensualite: number;
   cout_total_credit: number;
+}
+
+/**
+ * Ligne d'un tableau d'amortissement
+ */
+export interface LigneAmortissement {
+  periode: number;
+  echeance: number;
+  capital: number;
+  interets: number;
+  assurance: number;
+  capitalRestant: number;
+}
+
+/**
+ * Tableau d'amortissement complet
+ */
+export interface TableauAmortissement {
+  annuel: LigneAmortissement[];
+  mensuel?: LigneAmortissement[];
+  totaux: {
+    totalInterets: number;
+    totalAssurance: number;
+    totalPaye: number;
+  };
 }
 
 /**
@@ -174,6 +204,40 @@ export interface CalculResultats {
   fiscalite: FiscaliteResultat;
   hcsf: HCSFResultat;
   synthese: SyntheseResultat;
+  projections?: ProjectionData;
+  tableauAmortissement?: TableauAmortissement;
+}
+
+/**
+ * Données d'une année de projection
+ */
+export interface ProjectionAnnuelle {
+  annee: number;
+  loyer: number;
+  charges: number;
+  mensualite: number;
+  cashflow: number;
+  capitalRembourse: number;
+  capitalRestant: number;
+  valeurBien: number;
+  patrimoineNet: number;
+  impot: number;
+  cashflowNetImpot: number;
+}
+
+/**
+ * Résultat complet des projections
+ */
+export interface ProjectionData {
+  horizon: number;
+  projections: ProjectionAnnuelle[];
+  totaux: {
+    cashflowCumule: number;
+    capitalRembourse: number;
+    impotCumule: number;
+    enrichissementTotal: number;
+    tri: number;
+  };
 }
 
 /**

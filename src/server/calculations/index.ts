@@ -9,6 +9,7 @@ import { calculerRentabilite } from './rentabilite';
 import { calculerFiscalite } from './fiscalite';
 import { analyserHcsf } from './hcsf';
 import { genererSynthese } from './synthese';
+import { genererProjections, genererTableauAmortissement } from './projection';
 
 // Re-export des types et erreurs pour usage externe
 export { ValidationError } from './validation';
@@ -70,8 +71,25 @@ export function performCalculations(
       data.exploitation.loyer_mensuel
     );
 
+
+
     // Étape 5 : Synthèse et scoring
     const synthese = genererSynthese(rentabilite, hcsf, fiscalite, data.structure);
+
+    // Étape 6 : Projections pluriannuelles
+    const projections = genererProjections(data, data.options.horizon_projection);
+
+    // Étape 7 : Tableau d'amortissement détaillé
+    const tauxCredit = (data.financement.taux_interet || 0) / 100;
+    const dureeCredit = data.financement.duree_emprunt || 0;
+    const tauxAssurance = (data.financement.assurance_pret || 0) / 100;
+
+    const tableauAmortissement = genererTableauAmortissement(
+      rentabilite.financement.montant_emprunt,
+      tauxCredit,
+      dureeCredit,
+      tauxAssurance
+    );
 
     // Assemblage du résultat final (format compatible avec le frontend existant)
     const resultats: CalculResultats = {
@@ -108,6 +126,8 @@ export function performCalculations(
         recommandation: synthese.recommandation,
         points_attention: synthese.points_attention,
       },
+      projections,
+      tableauAmortissement,
     };
 
     // Fusionner les alertes de validation avec celles du HCSF

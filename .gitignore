@@ -38,3 +38,8 @@ next-env.d.ts
 
 # Vercel
 .vercel
+
+# Agent 
+.bmad-core
+.claude
+_bmad-output
