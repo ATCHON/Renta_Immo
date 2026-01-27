@@ -87,15 +87,12 @@ export interface FiscaliteCalculations {
 /**
  * Résultats HCSF pour un associé
  */
-export interface HCSFAssocie {
-  nom: string;
-  pourcentage_parts: number;
-  revenus_mensuels: number;
-  charges_mensuelles: number;
-  part_mensualite: number;
-  taux_endettement: number;
-  conforme: boolean;
-}
+
+
+/**
+ * Résultats HCSF pour un associé (exporté pour être utilisé dans HCSFCalculations)
+ */
+import type { AssocieHcsf } from './hcsf';
 
 /**
  * Résultats HCSF global
@@ -104,8 +101,23 @@ export interface HCSFCalculations {
   structure: 'nom_propre' | 'sci_is';
   taux_endettement: number;
   conforme: boolean;
-  details_associes: HCSFAssocie[];
+  details_associes: AssocieHcsf[]; // Liste des résultats par associé (pour SCI IS)
   alertes: string[];
+  
+  // Détails ajoutés pour une vision globale (agrégée)
+  revenus_detail: {
+    salaires_estimatif_mensuels: number;
+    locatifs_bruts_mensuels: number;
+    locatifs_ponderes_mensuels: number;
+    total_mensuels: number;
+  };
+  charges_detail: {
+    credits_existants_mensuels: number;
+    nouveau_credit_mensuel: number;
+    charges_fixes_mensuelles: number;
+    total_mensuelles: number;
+  };
+  capacite_emprunt_residuelle: number;
 }
 
 /**

@@ -96,8 +96,8 @@ describe('Calculations Validation', () => {
         type: "sci_is",
         tmi: 30,
         associes: [
-          { nom: "A", parts: 50, revenus: 3000, mensualites: 0, charges: 0 },
-          { nom: "B", parts: 40, revenus: 3000, mensualites: 0, charges: 0 }
+          { nom: "Alice", parts: 50, revenus: 3000, mensualites: 0, charges: 0 },
+          { nom: "Bob", parts: 40, revenus: 3000, mensualites: 0, charges: 0 }
         ]
       }
     };

@@ -35,7 +35,8 @@ function calculerFiscaliteNomPropre(
   const tmi = structure.tmi;
   const regime = structure.regime_fiscal || 'micro_foncier';
   
-  let base_imposable: number;
+  let baseImposable: number = 0; // Initialiser à 0
+  let abattement: number = 0;
   let label_regime: string;
 
   switch (regime) {
@@ -43,7 +44,7 @@ function calculerFiscaliteNomPropre(
       if (loyerBrutAnnuel > CONSTANTES.MICRO_FONCIER_PLAFOND) {
         alertes.push(`Plafond Micro-foncier dépassé (${loyerBrutAnnuel}€ > ${CONSTANTES.MICRO_FONCIER_PLAFOND}€). Passage au régime Réel conseillé.`);
       }
-      base_imposable = loyerBrutAnnuel * (1 - CONSTANTES.MICRO_FONCIER_ABATTEMENT);
+      baseImposable = loyerBrutAnnuel * (1 - CONSTANTES.MICRO_FONCIER_ABATTEMENT);
       label_regime = 'Micro-foncier (Abattement 30%)';
       break;
 
@@ -51,48 +52,48 @@ function calculerFiscaliteNomPropre(
       if (loyerBrutAnnuel > CONSTANTES.MICRO_BIC_PLAFOND) {
         alertes.push(`Plafond Micro-BIC dépassé (${loyerBrutAnnuel}€ > ${CONSTANTES.MICRO_BIC_PLAFOND}€). Passage au régime Réel conseillé.`);
       }
-      base_imposable = loyerBrutAnnuel * (1 - CONSTANTES.MICRO_BIC_ABATTEMENT);
+      baseImposable = loyerBrutAnnuel * (1 - CONSTANTES.MICRO_BIC_ABATTEMENT);
       label_regime = 'LMNP Micro-BIC (Abattement 50%)';
       break;
 
     case 'lmnp_reel':
       // Simplification MVP : on amortit comme en SCI mais on reste à l'IR
       const amortissement = prixAchat * CONSTANTES.SCI_IS_AMORTISSEMENT_BATI_PART * CONSTANTES.SCI_IS_TAUX_AMORTISSEMENT;
-      base_imposable = Math.max(0, revenuNetAvantImpots - amortissement);
+      baseImposable = Math.max(0, revenusBruts - chargesDeductibles);
       label_regime = 'LMNP Réel (avec amortissement)';
       break;
 
     case 'reel':
     default:
-      base_imposable = Math.max(0, revenuNetAvantImpots);
+      baseImposable = Math.max(0, revenusBruts - chargesDeductibles);
       label_regime = 'Foncier Réel';
       break;
   }
 
-  // Impôt sur le revenu (TMI)
-  const impot_revenu = base_imposable * (tmi / 100);
+  const tauxTmi = tmi; // tmi est déjà un taux (ex: 0.30)
+  const impotRevenu = baseImposable * tauxTmi;
 
-  // Prélèvements sociaux (17.2%)
-  const prelevements_sociaux = base_imposable * PRELEVEMENTS_SOCIAUX;
+  // Calcul Prélèvements Sociaux (sur base imposable)
+  const prelevementsSociaux = baseImposable * PRELEVEMENTS_SOCIAUX;
 
-  // Impôt total
-  const impot_total = impot_revenu + prelevements_sociaux;
+  // Total impôt
+  const impotTotal = impotRevenu + prelevementsSociaux;
 
   // Revenu net après impôt
-  const revenu_net_apres_impot = revenuNetAvantImpots - impot_total;
+  const revenuNetApresImpot = revenuNetAvantImpots - impotTotal;
 
   // Rentabilité nette-nette
   const rentabilite_nette_nette = prixAchat > 0
-    ? (revenu_net_apres_impot / prixAchat) * 100
+    ? (revenuNetApresImpot / prixAchat) * 100
     : 0;
 
   return {
     regime: `${label_regime} - TMI ${tmi}%`,
-    base_imposable: round(base_imposable),
-    impot_revenu: round(impot_revenu),
-    prelevements_sociaux: round(prelevements_sociaux),
-    impot_total: round(impot_total),
-    revenu_net_apres_impot: round(revenu_net_apres_impot),
+    base_imposable: round(baseImposable),
+    impot_revenu: round(impotRevenu),
+    prelevements_sociaux: round(prelevementsSociaux),
+    impot_total: round(impotTotal),
+    revenu_net_apres_impot: round(revenuNetApresImpot),
     rentabilite_nette_nette: round(rentabilite_nette_nette, 2),
     alertes
   };
@@ -140,10 +141,9 @@ function calculerFiscaliteSciIs(
   }
 
   return {
-    regime: 'SCI à l\'IS',
     base_imposable: round(base_imposable),
     impot_revenu: round(impot_is),
-    prelevements_sociaux: 0,
+    prelevements_sociaux: 0, // Pas de PS sur IS
     impot_total: round(impot_total),
     revenu_net_apres_impot: round(revenu_net_apres_impot),
     rentabilite_nette_nette: round(rentabilite_nette_nette, 2),
