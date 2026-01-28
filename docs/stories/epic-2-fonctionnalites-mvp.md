@@ -3,7 +3,7 @@
 > **Version** : 2.0
 > **Date** : 2026-01-27
 > **Auteur** : John (PM)
-> **Statut** : En cours - Sprints 1-3 Terminés
+> **Statut** : En cours - Sprints 1-4 Terminés
 > **Prérequis** : Epic 1 (Infrastructure Backend) complétée
 
 ---
@@ -39,6 +39,8 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 - ✅ Sprint 1 : Frais d'acquisition
 - ✅ Sprint 2 : Régimes fiscaux base
 - ✅ Sprint 3 : Projections et Amortissement
+- ✅ Sprint 4 : Indicateurs & Enrichissement
+- ⏳ Sprint 5 : Charges & Fiscalité avancée (En cours)
 
 **Implémentation réalisée :**
 - Constantes fiscales 2025 (`src/config/constants.ts`)
@@ -51,28 +53,14 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 
 ### 3.1 Inclus (In Scope)
 
-**Frais d'acquisition** (✅ FAIT) :
-- ✅ Frais de notaire automatiques (ancien/neuf)
-- ⚠️ Frais d'agence (structure prête, UI à améliorer)
-- ✅ Travaux initiaux
-
-**Régimes fiscaux** (✅ FAIT) :
-- ✅ Location nue (micro-foncier / réel)
-- ✅ LMNP (micro-BIC / réel) avec différenciation par type
-- ✅ Calcul d'amortissement simplifié
-- ⏳ Comparaison régimes (Sprint 5)
-
-**Projections** (✅ FAIT) :
-- ✅ Simulation pluriannuelle (5-25 ans)
-- ✅ Évolution loyer (IRL)
-- ✅ Évolution charges (inflation)
-- ✅ Enrichissement patrimonial
-- ✅ Calcul TRI
-
-**Indicateurs** (⏳ EN COURS - Sprint 4) :
-- ⏳ Effort d'épargne
-- ⏳ Effet de levier
+**Indicateurs** (✅ TERMINÉ - Sprint 4) :
+- ✅ Effort d'épargne
+- ✅ Effet de levier
 - ✅ Tableau amortissement crédit
+
+**Audit & Fiabilisation** (✅ TERMINÉ) :
+- ✅ Correction formules Rentabilité et Notaire
+- ✅ Déduction fiscale des intérêts (LMNP/IS)
 
 **Comparaison** (⏳ À FAIRE - Sprint 6) :
 - Multi-scénarios (jusqu'à 3)
@@ -95,8 +83,8 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 | Sprint 1 | Frais d'acquisition | 4 stories | ✅ TERMINÉ |
 | Sprint 2 | Régimes fiscaux base | 3 stories | ✅ TERMINÉ |
 | Sprint 3 | Projections | 4 stories | ✅ TERMINÉ |
-| Sprint 4 | Indicateurs & Enrichissement | 4 stories | ⏳ EN COURS |
-| Sprint 5 | Charges & Fiscalité avancée | 4 stories | ⏳ À FAIRE |
+| Sprint 4 | Indicateurs & Enrichissement | 4 stories | ✅ TERMINÉ |
+| Sprint 5 | Charges & Fiscalité avancée | 4 stories | ⏳ EN COURS |
 | Sprint 6 | Comparaison & Finalisation | 4 stories | ⏳ À FAIRE |
 
 ---
@@ -139,6 +127,7 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 | **S2.1** | Choix régime location nue | ✅ | `fiscalite.ts:40-119` |
 | **S2.2** | Calcul d'amortissement | ✅ | `fiscalite.ts:177-233` |
 | **S2.3** | Choix régime LMNP | ✅ | `fiscalite.ts:129-233` |
+| **AUDIT** | Corrections audit Notaire/Renta | ✅ | `story-audit-corrections.md` |
 
 ### Détail d'implémentation
 
@@ -261,16 +250,14 @@ interface ProjectionAnnuelle {
 
 ---
 
-## 8. Sprint 4 — Indicateurs & Enrichissement ⏳ EN COURS
+## 8. Sprint 4 — Indicateurs & Enrichissement ✅ TERMINÉ
 
 ### Stories
 
-| Story ID | Titre | Backlog | Points | Priorité |
-|----------|-------|---------|--------|----------|
-| **S4.1** | Enrichissement patrimonial | MVP-012 | 5 | P2 |
-| **S4.2** | Calcul TRI | MVP-013 | 5 | P2 |
-| **S4.3** | Effort d'épargne | MVP-016 | 3 | P2 |
-| **S4.4** | Effet de levier | MVP-017 | 3 | P2 |
+| **S4.1** | Enrichissement patrimonial | MVP-012 | 5 | P2 | ✅ |
+| **S4.2** | Calcul TRI | MVP-013 | 5 | P2 | ✅ |
+| **S4.3** | Effort d'épargne | MVP-016 | 3 | P2 | ✅ |
+| **S4.4** | Effet de levier | MVP-017 | 3 | P2 | ✅ |
 
 **Total** : 16 points
 
@@ -325,8 +312,8 @@ TRI = Résolution de : Apport = Somme(Flux_Net(n) / (1+TRI)^n) + Valeur_Sortie /
 **Afin de** vérifier ma capacité d'investissement
 
 **Critères d'acceptation** :
-- [ ] Si cashflow négatif : afficher comme "effort d'épargne"
-- [ ] Présentation positive ("investissement de X€/mois")
+- [x] Si cashflow négatif : afficher comme "effort d'épargne"
+- [x] Présentation positive ("investissement de X€/mois")
 - [ ] Comparaison avec capacité d'épargne déclarée (optionnel)
 - [ ] Alerte si effort > capacité déclarée
 
@@ -341,10 +328,10 @@ TRI = Résolution de : Apport = Somme(Flux_Net(n) / (1+TRI)^n) + Valeur_Sortie /
 **Afin de** optimiser mon financement
 
 **Critères d'acceptation** :
-- [ ] Formule : Rentabilité fonds propres / Rentabilité sans crédit
-- [ ] Explication pédagogique de l'effet de levier
+- [x] Formule : Rentabilité Nette / Coût moyen dette
+- [x] Explication pédagogique de l'effet de levier (tooltip)
 - [ ] Comparaison achat cash vs achat crédit
-- [ ] Alerte si levier négatif (taux crédit > rentabilité)
+- [x] Alerte si levier négatif (taux crédit > rentabilité)
 
 **Formule** :
 ```
@@ -357,12 +344,12 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 
 ### Stories
 
-| Story ID | Titre | Backlog | Points | Priorité |
-|----------|-------|---------|--------|----------|
-| **S5.1** | Charges récupérables | MVP-014 | 3 | P2 |
-| **S5.2** | Honoraires comptable | ~~MVP-015~~ | ~~1~~ | ✅ FAIT |
-| **S5.3** | Comparaison régimes fiscaux | MVP-018 | 5 | P2 |
-| **S5.4** | Amélioration SCI IS | MVP-019 | 5 | P3 |
+| Story ID | Titre | Backlog | Points | Priorité | Statut |
+|----------|-------|---------|--------|----------|--------|
+| **S5.1** | Charges récupérables | MVP-014 | 3 | P2 | ✅ |
+| **S5.2** | Honoraires comptable | ~~MVP-015~~ | ~~1~~ | ✅ FAIT | ✅ |
+| **S5.3** | Comparaison régimes fiscaux | MVP-018 | 5 | P2 | ⏳ |
+| **S5.4** | Amélioration SCI IS | MVP-019 | 5 | P3 | ⏳ |
 
 **Total restant** : 13 points (S5.2 déjà fait)
 
@@ -373,9 +360,9 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 **Afin d'** avoir un cashflow précis
 
 **Critères d'acceptation** :
-- [ ] Saisie des charges récupérables (provisions sur charges)
-- [ ] Distinction charges propriétaire vs charges récupérables
-- [ ] Impact sur le calcul du cashflow net
+- [x] Saisie des charges récupérables (provisions sur charges)
+- [x] Distinction charges propriétaire vs charges récupérables
+- [x] Impact sur le calcul du cashflow net
 - [ ] Info : régularisation annuelle
 
 **Note** : Structure existe déjà (`charges_copro_recuperables` dans spécification), mais pas exploité côté UI.
@@ -609,3 +596,4 @@ Sprint 6 (Comparaison)
 |------|---------|-------------|--------|
 | 2026-01-26 | 1.0 | Création initiale | John (PM) |
 | 2026-01-27 | 2.0 | Mise à jour post-implémentation Sprints 1-2. Intégration spécifications calculs 2025. | John (PM) |
+| 2026-01-28 | 2.1 | Mise à jour Sprints 3-4 Terminés et Audit validé. | John (PM) |

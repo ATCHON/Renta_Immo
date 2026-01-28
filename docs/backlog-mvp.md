@@ -49,11 +49,11 @@
 Calculer automatiquement les frais de notaire en fonction du type de bien (ancien/neuf) et du prix d'achat.
 
 **Critères d'acceptation**
-- [ ] Choix ancien (7-8%) ou neuf (2-3%)
-- [ ] Calcul automatique basé sur le prix d'achat
-- [ ] Option de saisie manuelle pour override
-- [ ] Affichage du détail (droits mutation, émoluments, débours)
-- [ ] Intégration dans le coût total d'acquisition
+- [x] Choix ancien (7-8%) ou neuf (2-3%)
+- [x] Calcul automatique basé sur le prix d'achat
+- [x] Option de saisie manuelle pour override
+- [x] Affichage du détail (droits mutation, émoluments, débours)
+- [x] Intégration dans le coût total d'acquisition
 
 **User Stories**
 - En tant qu'investisseur, je veux connaître les frais de notaire estimés pour calculer mon budget total
@@ -75,10 +75,10 @@ Calculer automatiquement les frais de notaire en fonction du type de bien (ancie
 Permettre la saisie des frais d'agence immobilière.
 
 **Critères d'acceptation**
-- [ ] Saisie en montant fixe OU en pourcentage du prix
-- [ ] Choix : à charge acquéreur ou vendeur (inclus dans prix)
-- [ ] Si à charge vendeur : ne pas ajouter au coût d'acquisition
-- [ ] Intégration dans le récapitulatif des frais
+- [x] Saisie en montant fixe OU en pourcentage du prix
+- [x] Choix : à charge acquéreur ou vendeur (inclus dans prix)
+- [x] Si à charge vendeur : ne pas ajouter au coût d'acquisition
+- [x] Intégration dans le récapitulatif des frais
 
 **User Stories**
 - En tant qu'investisseur, je veux distinguer si les frais d'agence sont inclus ou en sus du prix affiché
@@ -99,10 +99,10 @@ Permettre la saisie des frais d'agence immobilière.
 Permettre la saisie d'un budget travaux avant mise en location.
 
 **Critères d'acceptation**
-- [ ] Champ montant travaux initiaux
-- [ ] Optionnel (défaut : 0€)
-- [ ] Intégration dans le coût total d'acquisition
-- [ ] Pris en compte dans le calcul de rentabilité
+- [x] Champ montant travaux initiaux
+- [x] Optionnel (défaut : 0€)
+- [x] Intégration dans le coût total d'acquisition
+- [x] Pris en compte dans le calcul de rentabilité
 
 **User Stories**
 - En tant qu'investisseur, je veux inclure mes travaux de rénovation dans mon calcul de rentabilité
@@ -123,11 +123,11 @@ Permettre la saisie d'un budget travaux avant mise en location.
 Permettre le choix entre micro-foncier et régime réel pour la location nue.
 
 **Critères d'acceptation**
-- [ ] Option micro-foncier : abattement 30%, plafond 15 000€/an
-- [ ] Option régime réel : déduction des charges réelles
+- [x] Option micro-foncier : abattement 30%, plafond 15 000€/an
+- [x] Option régime réel : déduction des charges réelles
 - [ ] Affichage comparatif des deux régimes
 - [ ] Recommandation automatique du régime optimal
-- [ ] Alerte si revenus > 15 000€ (micro impossible)
+- [x] Alerte si revenus > 15 000€ (micro impossible)
 
 **User Stories**
 - En tant qu'investisseur débutant, je veux comprendre quel régime est le plus avantageux
@@ -149,9 +149,9 @@ Permettre le choix entre micro-foncier et régime réel pour la location nue.
 Permettre le choix entre micro-BIC et régime réel pour le LMNP.
 
 **Critères d'acceptation**
-- [ ] Option micro-BIC : abattement 50%, plafond 77 700€/an
-- [ ] Option régime réel : amortissement + déduction charges
-- [ ] Type de location : meublé classique, tourisme, étudiant
+- [x] Option micro-BIC : abattement 50%, plafond 77 700€/an
+- [x] Option régime réel : amortissement + déduction charges
+- [x] Type de location : meublé classique, tourisme, étudiant
 - [ ] Affichage comparatif des deux régimes
 - [ ] Recommandation automatique du régime optimal
 
@@ -174,11 +174,11 @@ Permettre le choix entre micro-BIC et régime réel pour le LMNP.
 Calculer l'amortissement comptable du bien et du mobilier pour LMNP réel et SCI IS.
 
 **Critères d'acceptation**
-- [ ] Amortissement immobilier : composants (gros œuvre 50 ans, façade 30 ans, équipements 15 ans...)
-- [ ] Amortissement mobilier : 5-10 ans selon catégorie
-- [ ] Répartition automatique ou personnalisable
-- [ ] Tableau d'amortissement sur la durée
-- [ ] Intégration dans le calcul fiscal
+- [x] Amortissement immobilier : composants (gros œuvre 50 ans, façade 30 ans, équipements 15 ans...)
+- [x] Amortissement mobilier : 5-10 ans selon catégorie
+- [x] Répartition automatique ou personnalisable
+- [x] Tableau d'amortissement sur la durée
+- [x] Intégration dans le calcul fiscal
 
 **User Stories**
 - En tant qu'investisseur LMNP réel, je veux connaître mon amortissement annuel déductible
@@ -200,10 +200,10 @@ Calculer l'amortissement comptable du bien et du mobilier pour LMNP réel et SCI
 Créer l'infrastructure pour les projections sur 5/10/15/20/25 ans.
 
 **Critères d'acceptation**
-- [ ] Sélection de la durée de projection (5/10/15/20/25 ans)
-- [ ] Structure de données pour stocker les projections annuelles
-- [ ] Calcul année par année de tous les indicateurs
-- [ ] Base pour les graphiques d'évolution
+- [x] Sélection de la durée de projection (5/10/15/20/25 ans)
+- [x] Structure de données pour stocker les projections annuelles
+- [x] Calcul année par année de tous les indicateurs
+- [x] Base pour les graphiques d'évolution
 
 **User Stories**
 - En tant qu'investisseur, je veux voir l'évolution de mon investissement dans le temps
@@ -249,12 +249,12 @@ Permettre la création et comparaison de plusieurs scénarios.
 Implémenter un moteur de calcul de rentabilité autonome, sans dépendance à n8n. Tous les calculs (rentabilité, cashflow, fiscalité, HCSF) sont effectués côté backend.
 
 **Critères d'acceptation**
-- [ ] Calculs de rentabilité brute, nette, nette-nette
-- [ ] Calculs de cashflow mensuel et annuel
-- [ ] Calculs fiscaux selon le régime (nu, LMNP, SCI)
-- [ ] Calcul du taux d'endettement HCSF
-- [ ] Score de synthèse et recommandations
-- [ ] Résultats identiques à l'ancien système n8n
+- [x] Calculs de rentabilité brute, nette, nette-nette
+- [x] Calculs de cashflow mensuel et annuel
+- [x] Calculs fiscaux selon le régime (nu, LMNP, SCI)
+- [x] Calcul du taux d'endettement HCSF
+- [x] Score de synthèse et recommandations
+- [x] Résultats identiques à l'ancien système n8n
 
 **User Stories**
 - En tant que développeur, je veux un moteur de calcul maintenable et testable
@@ -276,10 +276,10 @@ Implémenter un moteur de calcul de rentabilité autonome, sans dépendance à n
 Créer une API REST pour soumettre les données du formulaire et récupérer les résultats de simulation.
 
 **Critères d'acceptation**
-- [ ] Endpoint POST pour soumettre une simulation
+- [x] Endpoint POST pour soumettre une simulation
 - [ ] Endpoint GET pour récupérer une simulation
-- [ ] Validation des données entrantes
-- [ ] Gestion des erreurs avec messages clairs
+- [x] Validation des données entrantes
+- [x] Gestion des erreurs avec messages clairs
 - [ ] Documentation de l'API
 
 **User Stories**
@@ -306,10 +306,11 @@ Créer une API REST pour soumettre les données du formulaire et récupérer les
 Afficher le tableau d'amortissement détaillé du crédit immobilier.
 
 **Critères d'acceptation**
-- [ ] Tableau année par année (et mois par mois en option)
-- [ ] Colonnes : échéance, capital, intérêts, assurance, reste dû
-- [ ] Total des intérêts payés
-- [ ] Export possible (PDF inclus)
+- [x] Tableau année par année (et mois par mois en option)
+- [x] Colonnes : échéance, capital, intérêts, assurance, reste dû
+- [x] Total des intérêts payés
+- [x] Total assurance payée
+- [x] Export possible (inclus dans PDF)
 
 **User Stories**
 - En tant qu'investisseur, je veux voir comment se répartit ma mensualité entre capital et intérêts
@@ -330,10 +331,10 @@ Afficher le tableau d'amortissement détaillé du crédit immobilier.
 Simuler l'évolution du loyer selon l'IRL (Indice de Référence des Loyers).
 
 **Critères d'acceptation**
-- [ ] Taux IRL paramétrable (défaut : moyenne historique ~1.5%)
-- [ ] Application annuelle automatique
-- [ ] Impact sur les projections pluriannuelles
-- [ ] Affichage du loyer projeté année par année
+- [x] Taux IRL paramétrable (défaut : moyenne historique ~1.5%)
+- [x] Application annuelle automatique
+- [x] Impact sur les projections pluriannuelles
+- [x] Affichage du loyer projeté année par année
 
 **User Stories**
 - En tant qu'investisseur, je veux projeter l'évolution de mes revenus locatifs
@@ -354,9 +355,9 @@ Simuler l'évolution du loyer selon l'IRL (Indice de Référence des Loyers).
 Simuler l'évolution des charges avec l'inflation.
 
 **Critères d'acceptation**
-- [ ] Taux d'inflation paramétrable (défaut : 2%)
-- [ ] Application sur toutes les charges (copro, taxe foncière, assurances...)
-- [ ] Impact sur les projections pluriannuelles
+- [x] Taux d'inflation paramétrable (défaut : 2%)
+- [x] Application sur toutes les charges (copro, taxe foncière, assurances...)
+- [x] Impact sur les projections pluriannuelles
 
 **User Stories**
 - En tant qu'investisseur, je veux anticiper l'augmentation de mes charges
@@ -377,11 +378,11 @@ Simuler l'évolution des charges avec l'inflation.
 Calculer l'enrichissement patrimonial total dans le temps.
 
 **Critères d'acceptation**
-- [ ] Capital remboursé cumulé (depuis tableau amortissement)
-- [ ] Plus-value potentielle (taux appréciation paramétrable)
-- [ ] Cashflow cumulé
-- [ ] Patrimoine net = Valeur bien - Capital restant dû
-- [ ] Graphique d'évolution
+- [x] Capital remboursé cumulé (depuis tableau amortissement)
+- [x] Plus-value potentielle (taux appréciation paramétrable)
+- [x] Cashflow cumulé
+- [x] Patrimoine net = Valeur bien - Capital restant dû
+- [x] Graphique d'évolution
 
 **User Stories**
 - En tant qu'investisseur, je veux voir combien je me serai enrichi après 10/20 ans
@@ -402,9 +403,9 @@ Calculer l'enrichissement patrimonial total dans le temps.
 Calculer le Taux de Rendement Interne de l'investissement.
 
 **Critères d'acceptation**
-- [ ] Calcul TRI sur la durée de projection choisie
-- [ ] Prise en compte : apport initial, cashflows annuels, valeur revente
-- [ ] Affichage avec explication pédagogique
+- [x] Calcul TRI sur la durée de projection choisie
+- [x] Prise en compte : apport initial, cashflows annuels, valeur revente
+- [x] Affichage avec explication pédagogique
 - [ ] Comparaison avec des benchmarks (livret A, assurance vie, bourse)
 
 **User Stories**
@@ -426,9 +427,9 @@ Calculer le Taux de Rendement Interne de l'investissement.
 Distinguer les charges récupérables sur le locataire.
 
 **Critères d'acceptation**
-- [ ] Saisie des charges récupérables (provisions sur charges)
-- [ ] Distinction charges propriétaire vs charges récupérables
-- [ ] Impact sur le calcul du cashflow net
+- [x] Saisie des charges récupérables (provisions sur charges)
+- [x] Distinction charges propriétaire vs charges récupérables
+- [x] Impact sur le calcul du cashflow net
 - [ ] Régularisation annuelle (info)
 
 **User Stories**
@@ -450,10 +451,10 @@ Distinguer les charges récupérables sur le locataire.
 Ajouter les frais de comptabilité pour LMNP réel et SCI.
 
 **Critères d'acceptation**
-- [ ] Champ honoraires annuels (défaut suggéré : 500-800€)
-- [ ] Affiché uniquement si régime réel ou SCI
-- [ ] Intégré dans les charges annuelles
-- [ ] Déductible fiscalement (info)
+- [x] Champ honoraires annuels (défaut suggéré : 500-800€)
+- [x] Affiché uniquement si régime réel ou SCI
+- [x] Intégré dans les charges annuelles
+- [x] Déductible fiscalement (info)
 
 **User Stories**
 - En tant qu'investisseur en LMNP réel, je veux inclure mes frais de comptable
@@ -474,10 +475,10 @@ Ajouter les frais de comptabilité pour LMNP réel et SCI.
 Calculer l'effort d'épargne mensuel nécessaire si cashflow négatif.
 
 **Critères d'acceptation**
-- [ ] Si cashflow négatif : afficher comme "effort d'épargne"
+- [x] Si cashflow négatif : afficher comme "effort d'épargne"
 - [ ] Comparaison avec capacité d'épargne déclarée (optionnel)
 - [ ] Alerte si effort > capacité
-- [ ] Présentation positive ("investissement de X€/mois")
+- [x] Présentation positive ("investissement de X€/mois")
 
 **User Stories**
 - En tant qu'investisseur, je veux savoir combien je devrai sortir de ma poche chaque mois
@@ -498,10 +499,10 @@ Calculer l'effort d'épargne mensuel nécessaire si cashflow négatif.
 Calculer et expliquer l'effet de levier du crédit.
 
 **Critères d'acceptation**
-- [ ] Formule : Rentabilité fonds propres / Rentabilité sans crédit
-- [ ] Explication pédagogique de l'effet de levier
-- [ ] Comparaison achat cash vs achat crédit
-- [ ] Alerte si levier négatif (taux crédit > rentabilité)
+- [x] Formule : Rentabilité fonds propres / Rentabilité sans crédit
+- [x] Explication pédagogique de l'effet de levier
+- [ ] Comparaison achat cash vs crédit
+- [x] Alerte si levier négatif (taux crédit > rentabilité)
 
 **User Stories**
 - En tant qu'investisseur, je veux comprendre l'intérêt d'emprunter plutôt que payer cash

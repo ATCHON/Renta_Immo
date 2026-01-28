@@ -59,8 +59,8 @@ Le projet Renta_Immo utilise actuellement n8n comme backend pour les calculs. Ce
 **Objectif Sprint** : Structure et validation en place
 
 **Critères d'acceptation Sprint** :
-- [ ] `npm run type-check` passe sans erreur
-- [ ] `performCalculations()` appelable (retourne erreur validation si input invalide)
+- [x] `npm run type-check` passe sans erreur
+- [x] `performCalculations()` appelable (retourne erreur validation si input invalide)
 
 ---
 
@@ -75,10 +75,10 @@ Le projet Renta_Immo utilise actuellement n8n comme backend pour les calculs. Ce
 **Objectif Sprint** : Tous les calculs métier implémentés
 
 **Critères d'acceptation Sprint** :
-- [ ] Rentabilité brute/nette/nette-nette calculées correctement
-- [ ] Cashflow mensuel/annuel corrects
-- [ ] Fiscalité IR et IS fonctionnelles
-- [ ] Taux HCSF correct selon mode (nom propre / SCI)
+- [x] Rentabilité brute/nette/nette-nette calculées correctement
+- [x] Cashflow mensuel/annuel corrects
+- [x] Fiscalité IR et IS fonctionnelles
+- [x] Taux HCSF correct selon mode (nom propre / SCI)
 
 ---
 
@@ -94,10 +94,10 @@ Le projet Renta_Immo utilise actuellement n8n comme backend pour les calculs. Ce
 **Objectif Sprint** : API fonctionnelle, frontend connecté, n8n décommissionné
 
 **Critères d'acceptation Sprint** :
-- [ ] POST `/api/calculate` retourne résultats corrects
-- [ ] Frontend utilise API interne (n8n décommissionné)
-- [ ] Tests régression : écart < 0.01% vs n8n
-- [ ] Performance < 500ms
+- [x] POST `/api/calculate` retourne résultats corrects
+- [x] Frontend utilise API interne (n8n décommissionné)
+- [x] Tests régression : écart < 0.01% vs n8n
+- [x] Performance < 500ms
 
 ---
 
@@ -110,11 +110,11 @@ Le projet Renta_Immo utilise actuellement n8n comme backend pour les calculs. Ce
 **Afin de** faciliter la maintenance et les tests
 
 **Critères d'acceptation** :
-- [ ] Dossier `src/server/calculations/` créé
-- [ ] Fichier `index.ts` avec fonction `performCalculations(input: unknown)`
-- [ ] Fichier `types.ts` avec types et constantes internes
-- [ ] Barrel export configuré
-- [ ] TypeScript compile sans erreur
+- [x] Dossier `src/server/calculations/` créé
+- [x] Fichier `index.ts` avec fonction `performCalculations(input: unknown)`
+- [x] Fichier `types.ts` avec types et constantes internes
+- [x] Barrel export configuré
+- [x] TypeScript compile sans erreur
 
 **Fichiers à créer** :
 ```
@@ -133,11 +133,11 @@ src/server/calculations/
 **Afin de** garantir la fiabilité des calculs
 
 **Critères d'acceptation** :
-- [ ] Schémas Zod pour toutes les entrées (bien, financement, exploitation, structure)
-- [ ] Fonction `validateFormData(input)` avec messages d'erreur clairs
-- [ ] Fonction `applyDefaults(data)` pour valeurs par défaut
-- [ ] Fonction `normalizeData(data)` pour normalisation (%, décimales)
-- [ ] Types d'erreur `ValidationError` avec code, champ, détails
+- [x] Schémas Zod pour toutes les entrées (bien, financement, exploitation, structure)
+- [x] Fonction `validateFormData(input)` avec messages d'erreur clairs
+- [x] Fonction `applyDefaults(data)` pour valeurs par défaut
+- [x] Fonction `normalizeData(data)` pour normalisation (%, décimales)
+- [x] Types d'erreur `ValidationError` avec code, champ, détails
 
 **Fichier** : `src/server/calculations/validation.ts`
 
@@ -150,12 +150,12 @@ src/server/calculations/
 **Afin de** évaluer la viabilité de mon investissement
 
 **Critères d'acceptation** :
-- [ ] `calculerMensualite(capital, taux, duree, assurance)` — Formule PMT
-- [ ] `calculerChargesAnnuelles(exploitation, loyer)` — Somme des charges
-- [ ] `calculerRentabilite(bien, financement, exploitation)` — Orchestration
-- [ ] Rentabilité brute = (Loyer × 12) / Prix × 100
-- [ ] Rentabilité nette = (Loyer × 12 - Charges) / Prix × 100
-- [ ] Cashflow = Loyer - (Charges/12) - Mensualité
+- [x] `calculerMensualite(capital, taux, duree, assurance)` — Formule PMT
+- [x] `calculerChargesAnnuelles(exploitation, loyer)` — Somme des charges
+- [x] `calculerRentabilite(bien, financement, exploitation)` — Orchestration
+- [x] Rentabilité brute = (Loyer × 12) / Prix × 100
+- [x] Rentabilité nette = (Loyer × 12 - Charges) / Prix × 100
+- [x] Cashflow = Loyer - (Charges/12) - Mensualité
 
 **Fichier** : `src/server/calculations/rentabilite.ts`
 
@@ -168,11 +168,11 @@ src/server/calculations/
 **Afin d'** optimiser ma stratégie
 
 **Critères d'acceptation** :
-- [ ] Régime Nom Propre (IR) : Base × TMI + Base × 17.2% (PS)
-- [ ] Régime SCI à l'IS : 15% jusqu'à 42 500€, 25% au-delà
-- [ ] Amortissement 2% pour SCI IS
-- [ ] Calcul `rentabilite_nette_nette` (après impôts)
-- [ ] Support des régimes : nu micro, nu réel, LMNP micro, LMNP réel
+- [x] Régime Nom Propre (IR) : Base × TMI + Base × 17.2% (PS)
+- [x] Régime SCI à l'IS : 15% jusqu'à 42 500€, 25% au-delà
+- [x] Amortissement 2% pour SCI IS
+- [x] Calcul `rentabilite_nette_nette` (après impôts)
+- [x] Support des régimes : nu micro, nu réel, LMNP micro, LMNP réel
 
 **Fichier** : `src/server/calculations/fiscalite.ts`
 
@@ -185,11 +185,11 @@ src/server/calculations/
 **Afin de** savoir si ma banque acceptera le financement
 
 **Critères d'acceptation** :
-- [ ] Taux d'endettement calculé (seuil 35%)
-- [ ] Revenus locatifs pondérés à 70%
-- [ ] Mode nom propre : calcul sur investisseur principal
-- [ ] Mode SCI IS : calcul par associé (quote-part)
-- [ ] Alertes si non-conformité
+- [x] Taux d'endettement calculé (seuil 35%)
+- [x] Revenus locatifs pondérés à 70%
+- [x] Mode nom propre : calcul sur investisseur principal
+- [x] Mode SCI IS : calcul par associé (quote-part)
+- [x] Alertes si non-conformité
 
 **Fichier** : `src/server/calculations/hcsf.ts`
 
@@ -202,11 +202,11 @@ src/server/calculations/
 **Afin de** prendre une décision éclairée
 
 **Critères d'acceptation** :
-- [ ] Score global 0-100 points avec pondération
-- [ ] Critères : autofinancement, rentabilité ≥7%, conformité HCSF, bonus ≥10%
-- [ ] Évaluations : Excellent / Bon / Moyen / Faible
-- [ ] Liste des points d'attention
-- [ ] Recommandations personnalisées
+- [x] Score global 0-100 points avec pondération
+- [x] Critères : autofinancement, rentabilité ≥7%, conformité HCSF, bonus ≥10%
+- [x] Évaluations : Excellent / Bon / Moyen / Faible
+- [x] Liste des points d'attention
+- [x] Recommandations personnalisées
 
 **Fichier** : `src/server/calculations/synthese.ts`
 
@@ -219,11 +219,11 @@ src/server/calculations/
 **Afin de** garantir une migration sans régression
 
 **Critères d'acceptation** :
-- [ ] Dataset de référence : 10-20 cas types documentés
-- [ ] Script de comparaison automatisé
-- [ ] Tolérance : écart < 0.01%
-- [ ] Rapport de test avec détails des écarts
-- [ ] Tous les cas passent avant mise en production
+- [x] Dataset de référence : 10-20 cas types documentés
+- [x] Script de comparaison automatisé
+- [x] Tolérance : écart < 0.01%
+- [x] Rapport de test avec détails des écarts
+- [x] Tous les cas passent avant mise en production
 
 ---
 
@@ -234,12 +234,12 @@ src/server/calculations/
 **Afin de** remplacer l'appel n8n
 
 **Critères d'acceptation** :
-- [ ] Endpoint `POST /api/calculate` créé
-- [ ] Headers CORS configurés
-- [ ] Preflight OPTIONS supporté
-- [ ] Response format identique à n8n
-- [ ] Gestion erreurs avec codes explicites (VALIDATION_ERROR, CALCULATION_ERROR, SERVER_ERROR)
-- [ ] Timeout configuré (30s max)
+- [x] Endpoint `POST /api/calculate` créé
+- [x] Headers CORS configurés
+- [x] Preflight OPTIONS supporté
+- [x] Response format identique à n8n
+- [x] Gestion erreurs avec codes explicites (VALIDATION_ERROR, CALCULATION_ERROR, SERVER_ERROR)
+- [x] Timeout configuré (30s max)
 
 **Fichier** : `src/app/api/calculate/route.ts`
 
@@ -263,11 +263,11 @@ src/server/calculations/
 **Afin de** ne pas percevoir le changement de backend
 
 **Critères d'acceptation** :
-- [ ] Modifier `src/lib/api.ts` : URL n8n → `/api/calculate`
-- [ ] Aucun changement visible côté utilisateur
-- [ ] Store Zustand inchangé
-- [ ] Composants résultats inchangés
-- [ ] Variable `NEXT_PUBLIC_N8N_WEBHOOK_URL` dépréciée
+- [x] Modifier `src/lib/api.ts` : URL n8n → `/api/calculate`
+- [x] Aucun changement visible côté utilisateur
+- [x] Store Zustand inchangé
+- [x] Composants résultats inchangés
+- [x] Variable `NEXT_PUBLIC_N8N_WEBHOOK_URL` dépréciée
 
 **Fichier** : `src/lib/api.ts`
 
