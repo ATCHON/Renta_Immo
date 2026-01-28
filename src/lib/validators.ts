@@ -152,6 +152,9 @@ export const structureSchema = z.object({
     .min(0, 'Le TMI ne peut pas être négatif')
     .max(50, 'Le TMI ne peut pas dépasser 50%'),
   associes: associesSchema,
+  regime_fiscal: z.enum(['micro_foncier', 'reel', 'lmnp_micro', 'lmnp_reel']).optional(),
+  credits_immobiliers: z.coerce.number({ message: 'Veuillez saisir un montant' }).min(0).default(0),
+  loyers_actuels: z.coerce.number({ message: 'Veuillez saisir un montant' }).min(0).default(0),
 });
 
 /**

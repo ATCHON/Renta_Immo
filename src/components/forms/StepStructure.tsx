@@ -4,20 +4,14 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Select } from '@/components/ui';
+import { CurrencyInput, Select } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { STRUCTURE_OPTIONS, TMI_OPTIONS, REGIME_FISCAL_OPTIONS } from '@/lib/constants';
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { cn } from '@/lib/utils';
 import type { TypeStructure, RegimeFiscal } from '@/types';
 
-const structureStepSchema = z.object({
-  type: z.enum(['nom_propre', 'sci_is']),
-  tmi: z.number().min(0).max(50),
-  regime_fiscal: z.enum(['micro_foncier', 'reel', 'lmnp_micro', 'lmnp_reel']).optional(),
-});
-
-type StructureStepFormData = z.infer<typeof structureStepSchema>;
+import { structureSchema, type StructureFormData } from '@/lib/validators';
 
 interface StepStructureProps {
   onNext: () => void;
@@ -34,12 +28,15 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
     setValue,
     reset,
     formState: { errors },
-  } = useForm<StructureStepFormData>({
-    resolver: zodResolver(structureStepSchema),
+  } = useForm<StructureFormData>({
+    resolver: zodResolver(structureSchema),
     defaultValues: {
       type: structure.type || 'nom_propre',
       tmi: structure.tmi ?? 30,
+      associes: structure.associes || [],
       regime_fiscal: structure.regime_fiscal ?? 'micro_foncier',
+      credits_immobiliers: structure.credits_immobiliers ?? 0,
+      loyers_actuels: structure.loyers_actuels ?? 0,
     },
   });
 
@@ -48,18 +45,20 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
     reset({
       type: structure.type || 'nom_propre',
       tmi: structure.tmi ?? 30,
+      associes: structure.associes || [],
       regime_fiscal: structure.regime_fiscal ?? 'micro_foncier',
+      credits_immobiliers: structure.credits_immobiliers ?? 0,
+      loyers_actuels: structure.loyers_actuels ?? 0,
     });
   }, [structure, reset]);
 
   const selectedType = watch('type');
   const selectedRegime = watch('regime_fiscal');
 
-  const onSubmit = (data: StructureStepFormData) => {
+  const onSubmit = (data: StructureFormData) => {
     updateStructure({
-      type: data.type as TypeStructure,
-      tmi: data.tmi,
-      regime_fiscal: data.type === 'nom_propre' ? data.regime_fiscal as RegimeFiscal : undefined,
+      ...data,
+      regime_fiscal: data.type === 'nom_propre' ? data.regime_fiscal : undefined,
       associes: data.type === 'nom_propre' ? [] : structure.associes || [],
     });
     onNext();
@@ -97,17 +96,40 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
       {/* Options pour nom propre */}
       {selectedType === 'nom_propre' && (
         <div className="space-y-6 bg-surface rounded-xl p-4 border border-sand">
-          {/* TMI */}
-          <Select
-            label="Tranche marginale d'imposition (TMI)"
-            options={TMI_OPTIONS.map((opt) => ({
-              value: opt.value,
-              label: opt.label,
-            }))}
-            hint="Votre TMI actuelle pour les revenus fonciers"
-            error={errors.tmi?.message}
-            {...register('tmi', { valueAsNumber: true })}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* TMI */}
+            <Select
+              label="Tranche d'imposition (TMI)"
+              options={TMI_OPTIONS.map((opt) => ({
+                value: opt.value,
+                label: opt.label,
+              }))}
+              hint="Pour vos revenus locatifs"
+              error={errors.tmi?.message}
+              {...register('tmi', { valueAsNumber: true })}
+            />
+
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <CurrencyInput
+                  label="Crédits immobiliers"
+                  placeholder="0"
+                  hint="Mensualités actuelles"
+                  error={errors.credits_immobiliers?.message}
+                  {...register('credits_immobiliers', { valueAsNumber: true })}
+                />
+              </div>
+              <div className="flex-1">
+                <CurrencyInput
+                  label="Loyers perçus"
+                  placeholder="0"
+                  hint="Loyers actuels (hors projet)"
+                  error={errors.loyers_actuels?.message}
+                  {...register('loyers_actuels', { valueAsNumber: true })}
+                />
+              </div>
+            </div>
+          </div>
 
           {/* Regime fiscal */}
           <div className="space-y-3">

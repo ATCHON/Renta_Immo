@@ -137,7 +137,7 @@ export function Dashboard() {
           status={resultats.rentabilite.nette >= 5 ? 'success' : 'warning'}
         />
         <MetricCard
-          label="Cashflow mensuel"
+          label={resultats.cashflow.mensuel >= 0 ? "Cashflow mensuel" : "Effort d'épargne (négatif)"}
           value={formatCurrency(resultats.cashflow.mensuel)}
           status={resultats.cashflow.mensuel >= 0 ? 'success' : 'danger'}
         />
@@ -147,19 +147,22 @@ export function Dashboard() {
           status="info"
         />
         <MetricCard
-          label="Taux endettement"
+          label="Taux d'endettement"
           value={formatPercent(resultats.hcsf.taux_endettement)}
           status={resultats.hcsf.conforme ? 'success' : 'danger'}
+          tooltip="Seuil maximal HCSF : 35%"
         />
         <MetricCard
           label="Effet de levier"
-          value={`${resultats.rentabilite.effet_levier ?? 0}x`}
+          value={`${(resultats.rentabilite.effet_levier ?? 0).toFixed(1)}x`}
           status={(resultats.rentabilite.effet_levier ?? 0) > 1 ? 'success' : 'info'}
+          tooltip="Capacité du projet à générer plus de rentabilité que le coût de l'argent"
         />
         <MetricCard
-          label="Effort d'épargne"
-          value={formatCurrency(resultats.rentabilite.effort_epargne_mensuel ?? 0)}
-          status={(resultats.rentabilite.effort_epargne_mensuel ?? 0) > 0 ? 'warning' : 'success'}
+          label="Épargne mensuelle"
+          value={formatCurrency(Math.abs(resultats.rentabilite.effort_epargne_mensuel ?? 0))}
+          status={(resultats.rentabilite.effort_epargne_mensuel ?? 0) > 0 ? 'danger' : 'success'}
+          tooltip="Somme réelle à sortir de votre poche chaque mois"
         />
       </div>
 

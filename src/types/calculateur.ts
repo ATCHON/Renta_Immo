@@ -80,6 +80,9 @@ export interface StructureData {
   tmi: number;
   regime_fiscal?: RegimeFiscal;
   associes: AssocieData[];
+  // Ajouts pour HCSF Nom Propre
+  credits_immobiliers?: number;
+  loyers_actuels?: number;
 }
 
 /**
