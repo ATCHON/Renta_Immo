@@ -21,13 +21,13 @@ export function HCSFIndicator({ hcsf }: HCSFIndicatorProps) {
         action={
           <span
             className={cn(
-              'px-3 py-1 rounded-full text-sm font-medium',
+              'px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide',
               isConforme
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'
+                ? 'bg-forest/10 text-forest border border-forest/20'
+                : 'bg-terracotta/10 text-terracotta border border-terracotta/20'
             )}
           >
-            {isConforme ? 'Conforme' : 'Non conforme'}
+            {isConforme ? 'Conforme' : 'Alerte HCSF'}
           </span>
         }
       />
@@ -35,13 +35,13 @@ export function HCSFIndicator({ hcsf }: HCSFIndicatorProps) {
         {/* Jauge principale */}
         <div className="mb-6">
           <div className="flex items-end justify-between mb-2">
-            <span className="text-sm text-gray-600">Taux d&apos;endettement global</span>
+            <span className="text-sm font-bold text-pebble uppercase tracking-wider">Taux d&apos;endettement global</span>
             <span
               className={cn(
-                'text-2xl font-bold',
+                'text-3xl font-black tabular-nums',
                 hcsf.taux_endettement <= HCSF.TAUX_ENDETTEMENT_MAX
-                  ? 'text-green-600'
-                  : 'text-red-600'
+                  ? 'text-forest'
+                  : 'text-terracotta'
               )}
             >
               {formatPercent(hcsf.taux_endettement)}
@@ -54,11 +54,11 @@ export function HCSFIndicator({ hcsf }: HCSFIndicatorProps) {
 
         {/* Détails par associé */}
         {hcsf.details_associes && hcsf.details_associes.length > 0 && (
-          <div className="border-t border-gray-100 pt-4">
-            <p className="text-sm font-medium text-gray-700 mb-3">
-              Détail par associé
+          <div className="border-t border-sand/50 pt-6">
+            <p className="text-xs font-bold text-pebble uppercase tracking-widest mb-4">
+              Détails par associé
             </p>
-            <div className="space-y-3">
+            <div className="space-y-5">
               {hcsf.details_associes.map((associe, index) => (
                 <AssocieHCSFRow key={index} associe={associe} />
               ))}
@@ -67,9 +67,10 @@ export function HCSFIndicator({ hcsf }: HCSFIndicatorProps) {
         )}
 
         {/* Information */}
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-          <p className="text-xs text-gray-600">
-            <strong>HCSF :</strong> Le Haut Conseil de Stabilité Financière
+        <div className="mt-6 p-4 bg-surface border border-sand/50 rounded-xl flex gap-3 italic">
+          <div className="text-forest">ℹ</div>
+          <p className="text-xs text-pebble leading-relaxed">
+            <strong className="text-charcoal not-italic font-bold">Rappel HCSF :</strong> Le Haut Conseil de Stabilité Financière
             recommande un taux d&apos;endettement maximum de 35% et une durée
             de crédit limitée à 25 ans.
           </p>
@@ -91,13 +92,13 @@ function HCSFGauge({ value, maxValue, threshold }: HCSFGaugeProps) {
   const isOverThreshold = value > threshold;
 
   return (
-    <div className="relative">
+    <div className="relative pt-6">
       {/* Barre de fond */}
-      <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
+      <div className="h-4 bg-sand/20 rounded-full overflow-hidden shadow-inner border border-sand/10">
         <div
           className={cn(
-            'h-full rounded-full transition-all duration-500',
-            isOverThreshold ? 'bg-red-500' : 'bg-green-500'
+            'h-full rounded-full transition-all duration-700 ease-out',
+            isOverThreshold ? 'bg-terracotta' : 'bg-forest'
           )}
           style={{ width: `${percentage}%` }}
         />
@@ -105,16 +106,16 @@ function HCSFGauge({ value, maxValue, threshold }: HCSFGaugeProps) {
 
       {/* Marqueur du seuil */}
       <div
-        className="absolute top-0 bottom-0 w-0.5 bg-gray-800"
+        className="absolute top-4 bottom-0 w-0.5 bg-charcoal/30 z-10"
         style={{ left: `${thresholdPosition}%` }}
       >
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs text-gray-600 whitespace-nowrap">
-          {threshold}%
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-black text-charcoal/40 uppercase tracking-tighter whitespace-nowrap bg-white px-1">
+          Seuil {threshold}%
         </div>
       </div>
 
       {/* Légende */}
-      <div className="flex justify-between mt-1 text-xs text-gray-500">
+      <div className="flex justify-between mt-2 text-[10px] font-bold text-pebble uppercase tracking-widest">
         <span>0%</span>
         <span>{maxValue}%</span>
       </div>
@@ -134,30 +135,30 @@ function AssocieHCSFRow({ associe }: AssocieHCSFRowProps) {
   const percentage = Math.min((associe.taux_endettement / 50) * 100, 100);
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-sm text-gray-700 w-24 truncate">{associe.nom}</span>
-      <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+    <div className="flex items-center gap-4">
+      <span className="text-sm font-bold text-charcoal w-24 truncate">{associe.nom}</span>
+      <div className="flex-1 h-3 bg-sand/20 rounded-full overflow-hidden border border-sand/30 shadow-inner">
         <div
           className={cn(
-            'h-full rounded-full transition-all duration-300',
-            associe.conforme ? 'bg-green-500' : 'bg-red-500'
+            'h-full rounded-full transition-all duration-700 ease-out',
+            associe.conforme ? 'bg-forest/60' : 'bg-terracotta/60'
           )}
           style={{ width: `${percentage}%` }}
         />
       </div>
       <span
         className={cn(
-          'text-sm font-medium w-14 text-right',
-          associe.conforme ? 'text-green-600' : 'text-red-600'
+          'text-sm font-black w-14 text-right tabular-nums',
+          associe.conforme ? 'text-forest' : 'text-terracotta'
         )}
       >
         {formatPercent(associe.taux_endettement)}
       </span>
-      <span className="w-6">
+      <span className="w-6 flex justify-center">
         {associe.conforme ? (
-          <CheckIcon className="w-5 h-5 text-green-500" />
+          <CheckIcon className="w-5 h-5 text-forest" />
         ) : (
-          <XIcon className="w-5 h-5 text-red-500" />
+          <XIcon className="w-5 h-5 text-terracotta" />
         )}
       </span>
     </div>

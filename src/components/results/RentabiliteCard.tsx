@@ -11,15 +11,15 @@ interface RentabiliteCardProps {
 
 export function RentabiliteCard({ rentabilite }: RentabiliteCardProps) {
   const getRentabiliteColor = (value: number) => {
-    if (value >= 8) return 'text-green-600';
-    if (value >= 5) return 'text-amber-600';
-    return 'text-red-600';
+    if (value >= 8) return 'text-forest';
+    if (value >= 5) return 'text-amber-700';
+    return 'text-terracotta';
   };
 
   const getRentabiliteBg = (value: number) => {
-    if (value >= 8) return 'bg-green-50';
-    if (value >= 5) return 'bg-amber-50';
-    return 'bg-red-50';
+    if (value >= 8) return 'bg-forest/5';
+    if (value >= 5) return 'bg-amber/5';
+    return 'bg-terracotta/5';
   };
 
   return (
@@ -55,26 +55,26 @@ export function RentabiliteCard({ rentabilite }: RentabiliteCardProps) {
         </div>
 
         {/* Barre de comparaison */}
-        <div className="mt-6 pt-4 border-t border-gray-100">
-          <p className="text-sm text-gray-600 mb-3">Comparaison des rentabilités</p>
-          <div className="space-y-2">
+        <div className="mt-6 pt-5 border-t border-sand/50">
+          <p className="text-sm font-bold text-charcoal mb-4 uppercase tracking-wider">Comparaison des taux</p>
+          <div className="space-y-4">
             <RentabiliteBar
               label="Brute"
               value={rentabilite.brute}
               maxValue={15}
-              color="bg-blue-500"
+              color="bg-stone/40"
             />
             <RentabiliteBar
               label="Nette"
               value={rentabilite.nette}
               maxValue={15}
-              color="bg-primary-500"
+              color="bg-forest/60"
             />
             <RentabiliteBar
               label="Nette-Nette"
               value={rentabilite.nette_nette}
               maxValue={15}
-              color="bg-green-500"
+              color="bg-forest"
             />
           </div>
         </div>
@@ -128,15 +128,15 @@ function RentabiliteBar({ label, value, maxValue, color }: RentabiliteBarProps) 
   const percentage = Math.min((value / maxValue) * 100, 100);
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-xs text-gray-600 w-20">{label}</span>
-      <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+    <div className="flex items-center gap-4">
+      <span className="text-xs font-medium text-pebble w-24">{label}</span>
+      <div className="flex-1 h-2 bg-sand/30 rounded-full overflow-hidden shadow-inner">
         <div
-          className={cn('h-full rounded-full transition-all duration-500', color)}
+          className={cn('h-full rounded-full transition-all duration-700 ease-out', color)}
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <span className="text-xs font-medium text-gray-900 w-12 text-right">
+      <span className="text-xs font-bold text-charcoal w-14 text-right">
         {formatPercent(value)}
       </span>
     </div>

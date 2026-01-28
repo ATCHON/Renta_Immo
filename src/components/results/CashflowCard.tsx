@@ -23,54 +23,54 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
           {/* Cashflow mensuel */}
           <div
             className={cn(
-              'p-6 rounded-xl text-center',
-              isPositive ? 'bg-green-50' : 'bg-red-50'
+              'p-6 rounded-xl text-center border',
+              isPositive ? 'bg-sage/5 border-sage/20' : 'bg-terracotta/5 border-terracotta/20'
             )}
           >
-            <p className="text-sm text-gray-600">Mensuel</p>
+            <p className="text-sm text-pebble font-medium uppercase tracking-tight">Mensuel</p>
             <p
               className={cn(
-                'text-3xl font-bold mt-2',
-                isPositive ? 'text-green-600' : 'text-red-600'
+                'text-4xl font-bold mt-2',
+                isPositive ? 'text-forest' : 'text-terracotta'
               )}
             >
               {isPositive ? '+' : ''}{formatCurrency(cashflow.mensuel)}
             </p>
-            <p className="text-xs text-gray-500 mt-2">
-              {isPositive ? 'Effort d\'épargne positif' : 'Effort d\'épargne négatif'}
+            <p className="text-xs text-pebble mt-2 font-medium">
+              {isPositive ? 'Excédent de trésorerie' : 'Effort d\'épargne requis'}
             </p>
           </div>
 
           {/* Cashflow annuel */}
           <div
             className={cn(
-              'p-6 rounded-xl text-center',
-              isPositive ? 'bg-green-50' : 'bg-red-50'
+              'p-6 rounded-xl text-center border',
+              isPositive ? 'bg-sage/5 border-sage/20' : 'bg-terracotta/5 border-terracotta/20'
             )}
           >
-            <p className="text-sm text-gray-600">Annuel</p>
+            <p className="text-sm text-pebble font-medium uppercase tracking-tight">Annuel</p>
             <p
               className={cn(
-                'text-3xl font-bold mt-2',
-                isPositive ? 'text-green-600' : 'text-red-600'
+                'text-4xl font-bold mt-2',
+                isPositive ? 'text-forest' : 'text-terracotta'
               )}
             >
               {isPositive ? '+' : ''}{formatCurrency(cashflow.annuel)}
             </p>
-            <p className="text-xs text-gray-500 mt-2">
-              sur 12 mois
+            <p className="text-xs text-pebble mt-2 font-medium">
+              Résultat net d&apos;exploitation
             </p>
           </div>
         </div>
 
         {/* Indicateur visuel */}
-        <div className="mt-6 pt-4 border-t border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">Indicateur de cashflow</span>
+        <div className="mt-6 pt-5 border-t border-sand/50">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm font-bold text-charcoal uppercase tracking-wider">Indicateur de Cashflow</span>
             <span
               className={cn(
-                'text-sm font-medium px-2 py-1 rounded',
-                isPositive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                'text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide',
+                isPositive ? 'bg-forest/10 text-forest' : 'bg-terracotta/10 text-terracotta'
               )}
             >
               {isPositive ? 'Positif' : 'Négatif'}
@@ -78,20 +78,20 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
           </div>
 
           {/* Barre de cashflow */}
-          <div className="relative h-4 bg-gray-200 rounded-full overflow-hidden">
+          <div className="relative h-6 bg-sand/20 rounded-full overflow-hidden shadow-inner border border-sand/30">
             <div className="absolute inset-0 flex">
-              <div className="w-1/2 bg-red-200" />
-              <div className="w-1/2 bg-green-200" />
+              <div className="w-1/2 bg-terracotta/10 border-r border-sand/30" />
+              <div className="w-1/2 bg-sage/10" />
             </div>
             <div
-              className="absolute top-0 bottom-0 w-1 bg-gray-800"
-              style={{ left: '50%', transform: 'translateX(-50%)' }}
+              className="absolute top-0 bottom-0 w-0.5 bg-charcoal/20 z-10"
+              style={{ left: '50%' }}
             />
             <CashflowIndicator value={cashflow.mensuel} maxValue={1000} />
           </div>
-          <div className="flex justify-between mt-1 text-xs text-gray-500">
+          <div className="flex justify-between mt-2 text-[10px] font-bold text-pebble uppercase tracking-widest">
             <span>-1000€</span>
-            <span>0€</span>
+            <span>Équilibre</span>
             <span>+1000€</span>
           </div>
         </div>
@@ -109,10 +109,14 @@ function CashflowIndicator({ value, maxValue }: CashflowIndicatorProps) {
   // Calculer la position (50% = 0, 0% = -max, 100% = +max)
   const clampedValue = Math.max(-maxValue, Math.min(maxValue, value));
   const position = 50 + (clampedValue / maxValue) * 50;
+  const isPositive = clampedValue >= 0;
 
   return (
     <div
-      className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-primary-600 border-2 border-white shadow-md transition-all duration-500"
+      className={cn(
+        "absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-4 border-white shadow-lg transition-all duration-700 ease-out z-20 flex items-center justify-center",
+        isPositive ? "bg-forest" : "bg-terracotta"
+      )}
       style={{ left: `${position}%`, transform: 'translate(-50%, -50%)' }}
     />
   );

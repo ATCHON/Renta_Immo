@@ -3,56 +3,82 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 15, 23, 42;
-  --background-start-rgb: 248, 250, 252;
-  --background-end-rgb: 241, 245, 249;
+  --foreground-rgb: 31, 31, 31; /* Charcoal */
+  --background-rgb: 250, 250, 248; /* Warm White */
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-    to bottom,
-    rgb(var(--background-start-rgb)),
-    rgb(var(--background-end-rgb))
-  );
+  background: rgb(var(--background-rgb));
   min-height: 100vh;
+}
+
+/* Focus indicator for accessibility */
+:focus-visible {
+  outline: 2px solid #2D5A45; /* Forest */
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold
-           hover:bg-primary-700 transition-colors duration-200
-           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+    @apply bg-forest text-white px-6 py-3 rounded-lg font-semibold
+           hover:bg-forest-dark transition-colors duration-fast
+           focus:outline-none focus:ring-2 focus:ring-forest focus:ring-offset-2
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold
-           border-2 border-primary-600
-           hover:bg-primary-50 transition-colors duration-200
-           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+    @apply bg-transparent text-charcoal px-6 py-3 rounded-lg font-semibold
+           border-2 border-border
+           hover:bg-surface transition-colors duration-fast
+           focus:outline-none focus:ring-2 focus:ring-forest focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-stone px-6 py-3 rounded-lg font-semibold
+           hover:bg-surface hover:text-charcoal transition-colors duration-fast
+           focus:outline-none focus:ring-2 focus:ring-forest focus:ring-offset-2
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg
-           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-           transition-colors duration-200;
+    @apply w-full px-4 py-3 border border-border rounded-lg bg-surface
+           focus:outline-none focus:ring-2 focus:ring-forest focus:ring-offset-1 focus:border-forest
+           transition-all duration-fast
+           placeholder:text-pebble;
   }
 
   .input-error {
-    @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+    @apply border-terracotta focus:ring-terracotta focus:border-terracotta bg-terracotta/[0.02];
   }
 
   .label {
-    @apply block text-sm font-medium text-gray-700 mb-1;
+    @apply block text-sm font-medium text-stone mb-1;
   }
 
   .error-message {
-    @apply text-sm text-red-600 mt-1;
+    @apply text-sm text-terracotta mt-1;
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-lg p-6;
+    @apply bg-surface rounded-lg p-6;
+  }
+
+  .card-elevated {
+    @apply bg-white rounded-lg shadow-md p-6;
+  }
+
+  .card-bordered {
+    @apply bg-white rounded-lg border border-border p-6;
   }
 }
+

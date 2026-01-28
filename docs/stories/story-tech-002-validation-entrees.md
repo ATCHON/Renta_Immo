@@ -1,10 +1,10 @@
-# Story TECH-002 : Validation des Entrées
+# Story TECH-002 : Validation des Entrées ✅ Done
 
 > **Epic** : Epic 1 - Infrastructure Backend
 > **Sprint** : 0.1 - Fondations Backend
 > **Points** : 3
 > **Priorité** : P1 (Critique)
-> **Statut** : Done
+> **Statut** : ✅ Done
 > **Dépendance** : TECH-001 (Structure calculs)
 
 ---

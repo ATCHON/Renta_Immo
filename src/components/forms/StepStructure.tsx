@@ -68,9 +68,9 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Structure juridique</h2>
-        <p className="text-gray-600 mt-1">
-          Choisissez le mode de detention du bien
+        <h2 className="text-2xl font-bold text-charcoal">Structure juridique</h2>
+        <p className="text-pebble mt-1">
+          Choisissez le mode de détention du bien
         </p>
       </div>
 
@@ -96,7 +96,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
 
       {/* Options pour nom propre */}
       {selectedType === 'nom_propre' && (
-        <div className="space-y-6 bg-gray-50 rounded-lg p-4">
+        <div className="space-y-6 bg-surface rounded-xl p-4 border border-sand">
           {/* TMI */}
           <Select
             label="Tranche marginale d'imposition (TMI)"
@@ -131,30 +131,30 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
 
           {/* Info sur le regime selectionne */}
           {selectedRegime && (
-            <div className="bg-blue-50 rounded-lg p-4">
-              <p className="text-sm text-blue-700">
+            <div className="bg-forest/5 rounded-xl p-4 border border-forest/10">
+              <p className="text-sm text-forest leading-relaxed">
                 {selectedRegime === 'micro_foncier' && (
                   <>
-                    <strong>Micro-foncier :</strong> Abattement forfaitaire de 30% sur vos revenus locatifs.
+                    <strong className="block mb-1">Micro-foncier</strong> Abattement forfaitaire de 30% sur vos revenus locatifs.
                     Plafond de 15 000 euros/an de revenus fonciers bruts.
                   </>
                 )}
                 {selectedRegime === 'reel' && (
                   <>
-                    <strong>Foncier reel :</strong> Deduction des charges reelles (interets, travaux, taxe fonciere...).
+                    <strong className="block mb-1">Foncier réel</strong> Déduction des charges réelles (intérêts, travaux, taxe foncière...).
                     Obligatoire si revenus &gt; 15 000 euros ou si plus avantageux.
                   </>
                 )}
                 {selectedRegime === 'lmnp_micro' && (
                   <>
-                    <strong>LMNP Micro-BIC :</strong> Abattement forfaitaire de 50% sur vos revenus locatifs meuble.
+                    <strong className="block mb-1">LMNP Micro-BIC</strong> Abattement forfaitaire de 50% sur vos revenus locatifs meublé.
                     Plafond de 77 700 euros/an de recettes.
                   </>
                 )}
                 {selectedRegime === 'lmnp_reel' && (
                   <>
-                    <strong>LMNP Reel :</strong> Deduction des charges + amortissement du bien.
-                    Permet souvent de reduire fortement l&apos;imposition.
+                    <strong className="block mb-1">LMNP Réel</strong> Déduction des charges + amortissement du bien.
+                    Permet souvent de réduire fortement l&apos;imposition.
                   </>
                 )}
               </p>
@@ -165,15 +165,15 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
 
       {/* Info pour SCI IS */}
       {selectedType === 'sci_is' && (
-        <div className="bg-blue-50 rounded-lg p-4">
-          <p className="text-sm text-blue-700">
-            <strong>SCI a l&apos;IS :</strong> Vous allez configurer les associes
-            et leurs revenus a l&apos;etape suivante pour le calcul du taux
+        <div className="bg-surface rounded-xl p-4 border border-sand">
+          <p className="text-sm text-charcoal">
+            <strong className="text-forest">SCI à l&apos;IS</strong> Vous allez configurer les associés
+            et leurs revenus à l&apos;étape suivante pour le calcul du taux
             d&apos;endettement HCSF.
           </p>
-          <p className="text-sm text-blue-600 mt-2">
-            L&apos;IS permet de deduire l&apos;amortissement du bien (2%/an) et d&apos;etre impose
-            a 15% jusqu&apos;a 42 500 euros puis 25% au-dela.
+          <p className="text-sm text-pebble mt-2">
+            L&apos;IS permet de déduire l&apos;amortissement du bien (2%/an) et d&apos;être imposé
+            à 15% jusqu&apos;a 42 500 euros puis 25% au-delà.
           </p>
         </div>
       )}
@@ -209,18 +209,18 @@ function StructureCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        'p-4 rounded-lg border-2 text-left transition-all duration-200',
+        'p-5 rounded-xl border-2 text-left transition-all duration-300',
         isSelected
-          ? 'border-primary-600 bg-primary-50 ring-2 ring-primary-200'
-          : 'border-gray-200 bg-white hover:border-gray-300'
+          ? 'border-forest bg-surface shadow-[0_0_0_1px_rgba(45,90,69,1)]'
+          : 'border-sand bg-white hover:border-pebble shadow-sm'
       )}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-4">
         <div
           className={cn(
-            'w-5 h-5 rounded-full border-2 flex-shrink-0 mt-0.5',
-            'flex items-center justify-center',
-            isSelected ? 'border-primary-600 bg-primary-600' : 'border-gray-300'
+            'w-6 h-6 rounded-full border-2 flex-shrink-0 mt-0.5',
+            'flex items-center justify-center transition-colors',
+            isSelected ? 'border-forest bg-forest' : 'border-sand'
           )}
         >
           {isSelected && (
@@ -234,8 +234,11 @@ function StructureCard({
           )}
         </div>
         <div>
-          <p className="font-semibold text-gray-900">{label}</p>
-          <p className="text-sm text-gray-600 mt-1">{description}</p>
+          <p className={cn(
+            'font-bold transition-colors',
+            isSelected ? 'text-forest' : 'text-charcoal'
+          )}>{label}</p>
+          <p className="text-sm text-pebble mt-1 leading-relaxed">{description}</p>
         </div>
       </div>
     </button>
@@ -261,18 +264,18 @@ function RegimeCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        'p-3 rounded-lg border text-left transition-all duration-200',
+        'p-4 rounded-xl border text-left transition-all duration-200',
         isSelected
-          ? 'border-primary-500 bg-primary-50 ring-1 ring-primary-200'
-          : 'border-gray-200 bg-white hover:border-gray-300'
+          ? 'border-forest bg-surface ring-1 ring-forest'
+          : 'border-sand bg-white hover:border-pebble shadow-sm'
       )}
     >
-      <div className="flex items-start gap-2">
+      <div className="flex items-start gap-3">
         <div
           className={cn(
-            'w-4 h-4 rounded-full border-2 flex-shrink-0 mt-0.5',
+            'w-4 h-4 rounded-full border flex-shrink-0 mt-1',
             'flex items-center justify-center',
-            isSelected ? 'border-primary-600 bg-primary-600' : 'border-gray-300'
+            isSelected ? 'border-forest bg-forest' : 'border-sand'
           )}
         >
           {isSelected && (
@@ -286,8 +289,11 @@ function RegimeCard({
           )}
         </div>
         <div>
-          <p className="font-medium text-gray-900 text-sm">{label}</p>
-          <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+          <p className={cn(
+            'font-semibold text-sm',
+            isSelected ? 'text-forest' : 'text-charcoal'
+          )}>{label}</p>
+          <p className="text-xs text-pebble mt-0.5">{description}</p>
         </div>
       </div>
     </button>

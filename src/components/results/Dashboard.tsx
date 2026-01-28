@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/Button';
-import { Card, CardHeader, CardContent } from '@/components/ui';
+import { ArrowLeft, Download } from 'lucide-react';
+import { Button, Card, CardHeader, CardContent, Collapsible } from '@/components/ui';
 import { MetricCard } from './MetricCard';
 import { RentabiliteCard } from './RentabiliteCard';
 import { CashflowCard } from './CashflowCard';
@@ -17,18 +17,16 @@ import { downloadPdf } from '@/lib/api';
 
 export function Dashboard() {
   const router = useRouter();
-  const { resultats, pdfUrl, bien, reset } = useCalculateurStore();
-  const [showFinancingDetails, setShowFinancingDetails] = useState(false);
-  const [showProjections, setShowProjections] = useState(false);
+  const { resultats, pdfUrl, bien, reset, setStatus } = useCalculateurStore();
 
   // Rediriger si pas de résultats
   if (!resultats) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        <h2 className="text-2xl font-medium text-charcoal mb-4">
           Aucun résultat disponible
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-stone mb-6">
           Vous devez d&apos;abord effectuer un calcul de rentabilité.
         </p>
         <Link href="/calculateur">
@@ -56,105 +54,116 @@ export function Dashboard() {
     }
   };
 
+  const handleEdit = () => {
+    setStatus('idle');
+    router.push('/calculateur');
+  };
+
   const handleNewCalculation = () => {
     reset();
     router.push('/calculateur');
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* En-tête */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Header avec actions */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Résultats de l&apos;analyse
-          </h1>
+          <div className="flex items-center gap-2 text-pebble mb-2">
+            <button
+              onClick={handleEdit}
+              className="hover:text-forest transition-colors flex items-center gap-1 text-sm font-medium"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Modifier
+            </button>
+            <span className="text-sand">/</span>
+            <span className="text-sm">Résultats d&apos;analyse</span>
+          </div>
           {bien.adresse && (
-            <p className="text-gray-600 mt-1">{bien.adresse}</p>
+            <h1 className="text-3xl font-bold text-charcoal">{bien.adresse}</h1>
           )}
         </div>
         <div className="flex gap-3">
           {pdfUrl && (
-            <Button variant="outline" onClick={handleDownloadPdf}>
-              Télécharger PDF
+            <Button variant="secondary" onClick={handleDownloadPdf} className="shadow-sm">
+              <Download className="h-4 w-4 mr-2" />
+              Rapport PDF
             </Button>
           )}
-          <Button variant="secondary" onClick={handleNewCalculation}>
+          <Button variant="ghost" onClick={handleNewCalculation}>
             Nouveau calcul
           </Button>
         </div>
       </div>
 
-      {/* Score global et recommandation */}
-      <Card className="bg-gradient-to-r from-primary-600 to-primary-700 text-white">
-        <CardContent className="py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <p className="text-primary-100 text-sm">Score global</p>
-              <p className="text-5xl font-bold mt-1">
-                {resultats.synthese.score_global}/100
-              </p>
+      {/* Score global */}
+      <Card variant="elevated" className="overflow-hidden border-none shadow-xl">
+        <div className="bg-gradient-to-br from-forest via-forest-dark to-charcoal p-8 text-white relative">
+          {/* Subtle background pattern could go here */}
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="text-center md:text-left">
+              <p className="text-white/70 text-sm font-medium uppercase tracking-wider mb-2">Indice de Performance</p>
+              <div className="flex items-baseline justify-center md:justify-start gap-1">
+                <span className="text-7xl font-bold tracking-tight">{resultats.synthese.score_global}</span>
+                <span className="text-2xl text-white/50">/100</span>
+              </div>
             </div>
-            <div className="flex-1 md:text-right">
-              <p className="text-primary-100 text-sm">Recommandation</p>
-              <p className="text-xl font-semibold mt-1">
-                {resultats.synthese.recommandation}
-              </p>
+
+            <div className="md:max-w-md bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+              <p className="text-white/70 text-sm font-medium uppercase tracking-wider mb-2">Recommandation Expert</p>
+              <p className="text-2xl font-bold leading-tight mb-4">{resultats.synthese.recommandation}</p>
+
+              {resultats.synthese.points_attention.length > 0 && (
+                <div className="space-y-2">
+                  {resultats.synthese.points_attention.slice(0, 2).map((point, index) => (
+                    <div key={index} className="flex items-start gap-2 text-sm text-white/90">
+                      <span className="text-amber shrink-0 mt-0.5">●</span>
+                      <span>{point}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Points d'attention */}
-          {resultats.synthese.points_attention.length > 0 && (
-            <div className="mt-6 pt-4 border-t border-primary-500">
-              <p className="text-primary-100 text-sm mb-2">Points d&apos;attention</p>
-              <ul className="space-y-1">
-                {resultats.synthese.points_attention.map((point, index) => (
-                  <li key={index} className="flex items-start gap-2 text-sm">
-                    <span className="text-amber-300">⚠</span>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </CardContent>
+        </div>
       </Card>
 
-      {/* Métriques clés */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Grille de 6 métriques clés */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <MetricCard
-          title="Rentabilité nette"
+          label="Rentabilité nette"
           value={formatPercent(resultats.rentabilite.nette)}
-          variant={resultats.rentabilite.nette >= 5 ? 'success' : 'warning'}
+          status={resultats.rentabilite.nette >= 5 ? 'success' : 'warning'}
         />
         <MetricCard
-          title="Cashflow mensuel"
+          label="Cashflow mensuel"
           value={formatCurrency(resultats.cashflow.mensuel)}
-          variant={resultats.cashflow.mensuel >= 0 ? 'success' : 'danger'}
+          status={resultats.cashflow.mensuel >= 0 ? 'success' : 'danger'}
         />
         <MetricCard
-          title="Mensualité crédit"
+          label="Mensualité prêt"
           value={formatCurrency(resultats.financement.mensualite)}
-          variant="info"
+          status="info"
         />
         <MetricCard
-          title="Taux endettement"
+          label="Taux endettement"
           value={formatPercent(resultats.hcsf.taux_endettement)}
-          variant={resultats.hcsf.conforme ? 'success' : 'danger'}
+          status={resultats.hcsf.conforme ? 'success' : 'danger'}
         />
         <MetricCard
-          title="Effet de levier"
+          label="Effet de levier"
           value={`${resultats.rentabilite.effet_levier ?? 0}x`}
-          variant={(resultats.rentabilite.effet_levier ?? 0) > 1 ? 'success' : 'info'}
+          status={(resultats.rentabilite.effet_levier ?? 0) > 1 ? 'success' : 'info'}
         />
         <MetricCard
-          title="Effort d'épargne"
+          label="Effort d'épargne"
           value={formatCurrency(resultats.rentabilite.effort_epargne_mensuel ?? 0)}
-          variant={(resultats.rentabilite.effort_epargne_mensuel ?? 0) > 0 ? 'warning' : 'success'}
+          status={(resultats.rentabilite.effort_epargne_mensuel ?? 0) > 0 ? 'warning' : 'success'}
         />
       </div>
 
-      {/* Cartes détaillées */}
+      {/* Cartes détaillées : Rentabilité et Cashflow */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RentabiliteCard rentabilite={resultats.rentabilite} />
         <CashflowCard cashflow={resultats.cashflow} />
@@ -170,22 +179,22 @@ export function Dashboard() {
             description="Impact fiscal de votre investissement"
           />
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-gray-600">Régime fiscal</span>
-                <span className="font-medium text-gray-900">
+            <div className="space-y-4 pt-2">
+              <div className="flex justify-between items-center py-3 border-b border-sand/30">
+                <span className="text-pebble font-medium">Régime fiscal</span>
+                <span className="font-bold text-charcoal">
                   {resultats.fiscalite.regime}
                 </span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-gray-600">Impôt estimé</span>
-                <span className="font-medium text-gray-900">
+              <div className="flex justify-between items-center py-3 border-b border-sand/30">
+                <span className="text-pebble font-medium">Impôt estimé</span>
+                <span className="font-bold text-terracotta tabular-nums">
                   {formatCurrency(resultats.fiscalite.impot_estime)} / an
                 </span>
               </div>
-              <div className="flex justify-between items-center py-2">
-                <span className="text-gray-600">Revenu net après impôt</span>
-                <span className="font-bold text-green-600">
+              <div className="flex justify-between items-center py-4 bg-surface/50 rounded-xl px-4 mt-2">
+                <span className="text-charcoal font-bold">Net après impôt</span>
+                <span className="font-black text-forest text-xl tabular-nums">
                   {formatCurrency(resultats.fiscalite.revenu_net_apres_impot)} / an
                 </span>
               </div>
@@ -194,151 +203,93 @@ export function Dashboard() {
         </Card>
       </div>
 
-      {/* Détails financement */}
-      <Card>
-        <CardHeader
-          title="Détails du financement"
-          description="Récapitulatif de votre emprunt immobilier"
-        />
-        <CardContent>
+      {/* Collapsible: Détails du financement + Tableau d'amortissement */}
+      <Collapsible title="Expertise financement & Amortissement">
+        <div className="space-y-8 py-4">
+          {/* Détails financement */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Montant emprunté</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
+            <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl shadow-sm">
+              <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Montant emprunté</p>
+              <p className="text-3xl font-black text-charcoal tabular-nums">
                 {formatCurrency(resultats.financement.montant_emprunt)}
               </p>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Mensualité</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
+            <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl shadow-sm">
+              <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Engagement mensuel</p>
+              <p className="text-3xl font-black text-charcoal tabular-nums">
                 {formatCurrency(resultats.financement.mensualite)}
               </p>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Coût total du crédit</p>
-              <p className="text-2xl font-bold text-amber-600 mt-1">
+            <div className="text-center p-6 bg-terracotta/[0.03] border border-terracotta/10 rounded-2xl shadow-sm">
+              <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Coût du crédit</p>
+              <p className="text-3xl font-black text-terracotta tabular-nums">
                 {formatCurrency(resultats.financement.cout_total_credit)}
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Tableau d'amortissement (déroulable) */}
-      <div className="space-y-4">
-        <div className="flex justify-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFinancingDetails(!showFinancingDetails)}
-            className="flex items-center gap-2"
-          >
-            {showFinancingDetails ? (
-              <>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                </svg>
-                Masquer le tableau d'amortissement
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-                Voir le tableau d'amortissement détaillé
-              </>
-            )}
-          </Button>
-        </div>
-
-        {showFinancingDetails && resultats.tableauAmortissement && (
-          <div className="animate-in fade-in slide-in-from-top-2 duration-200">
-            <AmortizationTable data={resultats.tableauAmortissement} />
-          </div>
-        )}
-      </div>
-
-      {/* Projections pluriannuelles */}
-      {resultats.projections && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-sm text-gray-500">TRI ({resultats.projections.horizon} ans)</p>
-                <p className="text-2xl font-bold text-primary-700">
-                  {formatPercent(resultats.projections.totaux.tri)}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-sm text-gray-500">Enrichissement total</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {formatCurrency(resultats.projections.totaux.enrichissementTotal)}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-sm text-gray-500">Cash-flow cumulé</p>
-                <p className={`text-2xl font-bold ${resultats.projections.totaux.cashflowCumule >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {formatCurrency(resultats.projections.totaux.cashflowCumule)}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-sm text-gray-500">Capital remboursé</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {formatCurrency(resultats.projections.totaux.capitalRembourse)}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex justify-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowProjections(!showProjections)}
-              className="flex items-center gap-2"
-            >
-              {showProjections ? (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                  </svg>
-                  Masquer le tableau de projection
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                  Voir le tableau de projection détaillé
-                </>
-              )}
-            </Button>
-          </div>
-
-          {showProjections && (
-            <div className="animate-in fade-in slide-in-from-top-2 duration-200">
-              <ProjectionTable data={resultats.projections} />
+          {/* Tableau d'amortissement */}
+          {resultats.tableauAmortissement && (
+            <div className="pt-4">
+              <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-forest/30 pl-3">
+                Tableau d&apos;amortissement
+              </h3>
+              <AmortizationTable data={resultats.tableauAmortissement} />
             </div>
           )}
         </div>
+      </Collapsible>
+
+      {/* Collapsible: Projections pluriannuelles */}
+      {resultats.projections && (
+        <Collapsible title={`Projections patrimoniales (${resultats.projections.horizon} ans)`} defaultOpen={false}>
+          <div className="space-y-8 py-4">
+            {/* Métriques des projections */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="text-center p-6 bg-forest/5 border border-forest/10 rounded-2xl">
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">TRI Projet</p>
+                <p className="text-3xl font-black text-forest tabular-nums">
+                  {formatPercent(resultats.projections.totaux.tri)}
+                </p>
+              </div>
+              <div className="text-center p-6 bg-sage/5 border border-sage/10 rounded-2xl">
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Patrimoine net</p>
+                <p className="text-3xl font-black text-forest tabular-nums">
+                  {formatCurrency(resultats.projections.totaux.enrichissementTotal)}
+                </p>
+              </div>
+              <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl">
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Cash-flow cumulé</p>
+                <p className={`text-3xl font-black tabular-nums ${resultats.projections.totaux.cashflowCumule >= 0 ? 'text-forest' : 'text-terracotta'}`}>
+                  {formatCurrency(resultats.projections.totaux.cashflowCumule)}
+                </p>
+              </div>
+              <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl">
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Dette remboursée</p>
+                <p className="text-3xl font-black text-charcoal tabular-nums">
+                  {formatCurrency(resultats.projections.totaux.capitalRembourse)}
+                </p>
+              </div>
+            </div>
+
+            {/* Tableau de projection */}
+            <div className="pt-4">
+              <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-forest/30 pl-3">
+                Simulation pluriannuelle détaillée
+              </h3>
+              <ProjectionTable data={resultats.projections} />
+            </div>
+          </div>
+        </Collapsible>
       )}
 
       {/* Lien En savoir plus */}
-      <div className="text-center pt-4">
+      <div className="text-center pt-8">
         <Link
           href="/en-savoir-plus"
-          className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 transition-colors"
+          className="inline-flex items-center gap-2 text-forest hover:text-forest-dark transition-all text-sm font-bold uppercase tracking-widest bg-forest/5 px-6 py-3 rounded-full border border-forest/10 hover:border-forest/30"
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          En savoir plus sur les calculs et les valeurs réglementaires
+          Méthodologie & Valeurs réglementaires
         </Link>
       </div>
     </div>

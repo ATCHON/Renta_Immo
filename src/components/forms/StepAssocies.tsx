@@ -97,8 +97,8 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Associés de la SCI</h2>
-        <p className="text-gray-600 mt-1">
+        <h2 className="text-2xl font-bold text-charcoal">Associés de la SCI</h2>
+        <p className="text-pebble mt-1">
           Renseignez les informations de chaque associé pour le calcul HCSF
         </p>
       </div>
@@ -106,22 +106,24 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
       {/* Indicateur total des parts */}
       <div
         className={cn(
-          'rounded-lg p-4',
-          Math.abs(totalParts - 100) < 0.01 ? 'bg-green-50' : 'bg-amber-50'
+          'rounded-xl p-4 border transition-colors',
+          Math.abs(totalParts - 100) < 0.01
+            ? 'bg-sage/10 border-sage/20'
+            : 'bg-amber/10 border-amber/20'
         )}
       >
-        <p className="text-sm font-medium">
+        <p className="text-sm font-medium text-charcoal">
           Total des parts : {' '}
           <span
             className={cn(
-              'text-lg',
-              Math.abs(totalParts - 100) < 0.01 ? 'text-green-700' : 'text-amber-700'
+              'text-lg font-bold',
+              Math.abs(totalParts - 100) < 0.01 ? 'text-forest' : 'text-amber-700'
             )}
           >
             {totalParts.toFixed(1)}%
           </span>
           {Math.abs(totalParts - 100) >= 0.01 && (
-            <span className="text-amber-600 ml-2">
+            <span className="text-amber-700 ml-2 font-normal">
               (doit être égal à 100%)
             </span>
           )}
@@ -133,10 +135,10 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
         {fields.map((field, index) => (
           <div
             key={field.id}
-            className="bg-white border border-gray-200 rounded-lg p-4"
+            className="bg-surface border border-sand rounded-xl p-5"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-sand/50">
+              <h3 className="font-bold text-charcoal">
                 Associé {index + 1}
               </h3>
               {fields.length > 1 && (
@@ -202,7 +204,7 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
       {/* Bouton ajouter */}
       <Button
         type="button"
-        variant="outline"
+        variant="secondary"
         onClick={addAssocie}
         className="w-full"
       >

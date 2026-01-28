@@ -3,7 +3,7 @@
 > **Version** : 2.0
 > **Date** : 2026-01-27
 > **Auteur** : John (PM)
-> **Statut** : En cours - Sprint 1-2 Terminés
+> **Statut** : En cours - Sprints 1-3 Terminés
 > **Prérequis** : Epic 1 (Infrastructure Backend) complétée
 
 ---
@@ -38,6 +38,7 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 **Sprints terminés :**
 - ✅ Sprint 1 : Frais d'acquisition
 - ✅ Sprint 2 : Régimes fiscaux base
+- ✅ Sprint 3 : Projections et Amortissement
 
 **Implémentation réalisée :**
 - Constantes fiscales 2025 (`src/config/constants.ts`)
@@ -61,17 +62,17 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 - ✅ Calcul d'amortissement simplifié
 - ⏳ Comparaison régimes (Sprint 5)
 
-**Projections** (⏳ À FAIRE - Sprint 3) :
-- Simulation pluriannuelle (5-25 ans)
-- Évolution loyer (IRL)
-- Évolution charges (inflation)
-- Enrichissement patrimonial
-- Calcul TRI
+**Projections** (✅ FAIT) :
+- ✅ Simulation pluriannuelle (5-25 ans)
+- ✅ Évolution loyer (IRL)
+- ✅ Évolution charges (inflation)
+- ✅ Enrichissement patrimonial
+- ✅ Calcul TRI
 
-**Indicateurs** (⏳ À FAIRE - Sprint 4) :
-- Effort d'épargne
-- Effet de levier
-- Tableau amortissement crédit
+**Indicateurs** (⏳ EN COURS - Sprint 4) :
+- ⏳ Effort d'épargne
+- ⏳ Effet de levier
+- ✅ Tableau amortissement crédit
 
 **Comparaison** (⏳ À FAIRE - Sprint 6) :
 - Multi-scénarios (jusqu'à 3)
@@ -93,8 +94,8 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 |--------|-------|---------|--------|
 | Sprint 1 | Frais d'acquisition | 4 stories | ✅ TERMINÉ |
 | Sprint 2 | Régimes fiscaux base | 3 stories | ✅ TERMINÉ |
-| Sprint 3 | Projections | 4 stories | ⏳ À FAIRE |
-| Sprint 4 | Indicateurs & Enrichissement | 4 stories | ⏳ À FAIRE |
+| Sprint 3 | Projections | 4 stories | ✅ TERMINÉ |
+| Sprint 4 | Indicateurs & Enrichissement | 4 stories | ⏳ EN COURS |
 | Sprint 5 | Charges & Fiscalité avancée | 4 stories | ⏳ À FAIRE |
 | Sprint 6 | Comparaison & Finalisation | 4 stories | ⏳ À FAIRE |
 
@@ -161,7 +162,7 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 
 ---
 
-## 7. Sprint 3 — Projections ⏳ À FAIRE
+## 7. Sprint 3 — Projections ✅ TERMINÉ
 
 ### Stories
 
@@ -181,11 +182,11 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 **Afin de** planifier sur le long terme
 
 **Critères d'acceptation** :
-- [ ] Sélection de la durée de projection : 5 / 10 / 15 / 20 / 25 ans
-- [ ] Structure de données pour stocker les projections annuelles
-- [ ] Calcul année par année de tous les indicateurs
-- [ ] Prise en compte de l'évolution loyer et charges
-- [ ] Base pour les graphiques d'évolution (Sprint 6)
+- [x] Sélection de la durée de projection : 5 / 10 / 15 / 20 / 25 ans
+- [x] Structure de données pour stocker les projections annuelles
+- [x] Calcul année par année de tous les indicateurs
+- [x] Prise en compte de l'évolution loyer et charges
+- [x] Base pour les graphiques d'évolution (Sprint 6)
 
 **Référence spécification** : Section 9 - Projections pluriannuelles
 
@@ -220,11 +221,11 @@ interface ProjectionAnnuelle {
 **Afin de** comprendre la répartition capital/intérêts
 
 **Critères d'acceptation** :
-- [ ] Tableau année par année (et mois par mois en option)
-- [ ] Colonnes : échéance, capital, intérêts, assurance, reste dû
-- [ ] Total des intérêts payés
-- [ ] Total assurance payée
-- [ ] Export possible (inclus dans PDF)
+- [x] Tableau année par année (et mois par mois en option)
+- [x] Colonnes : échéance, capital, intérêts, assurance, reste dû
+- [x] Total des intérêts payés
+- [x] Total assurance payée
+- [x] Export possible (inclus dans PDF)
 
 **Note** : La formule PMT est déjà implémentée dans `calculerMensualite()`. Il faut générer le tableau complet.
 
@@ -237,10 +238,10 @@ interface ProjectionAnnuelle {
 **Afin d'** anticiper mes revenus futurs
 
 **Critères d'acceptation** :
-- [ ] Taux IRL paramétrable (défaut : 2% - voir spécification)
-- [ ] Application annuelle automatique
-- [ ] Impact sur les projections pluriannuelles
-- [ ] Affichage du loyer projeté année par année
+- [x] Taux IRL paramétrable (défaut : 2% - voir spécification)
+- [x] Application annuelle automatique
+- [x] Impact sur les projections pluriannuelles
+- [x] Affichage du loyer projeté année par année
 
 **Formule** : `Loyer(n+1) = Loyer(n) × (1 + INFLATION_LOYER)`
 
@@ -253,14 +254,14 @@ interface ProjectionAnnuelle {
 **Afin d'** anticiper mes dépenses futures
 
 **Critères d'acceptation** :
-- [ ] Taux d'inflation paramétrable (défaut : 2.5% - voir spécification)
-- [ ] Application sur toutes les charges (copro, taxe foncière, assurances...)
-- [ ] Impact sur les projections pluriannuelles
-- [ ] Mensualité crédit non impactée (fixe)
+- [x] Taux d'inflation paramétrable (défaut : 2.5% - voir spécification)
+- [x] Application sur toutes les charges (copro, taxe foncière, assurances...)
+- [x] Impact sur les projections pluriannuelles
+- [x] Mensualité crédit non impactée (fixe)
 
 ---
 
-## 8. Sprint 4 — Indicateurs & Enrichissement ⏳ À FAIRE
+## 8. Sprint 4 — Indicateurs & Enrichissement ⏳ EN COURS
 
 ### Stories
 
@@ -280,11 +281,11 @@ interface ProjectionAnnuelle {
 **Afin de** mesurer la création de valeur
 
 **Critères d'acceptation** :
-- [ ] Capital remboursé cumulé (depuis tableau amortissement)
-- [ ] Plus-value potentielle (taux appréciation 1.5% - spécification)
-- [ ] Cashflow cumulé
-- [ ] Patrimoine net = Valeur bien - Capital restant dû
-- [ ] Données pour graphique d'évolution
+- [x] Capital remboursé cumulé (depuis tableau amortissement)
+- [x] Plus-value potentielle (taux appréciation 1.5% - spécification)
+- [x] Cashflow cumulé
+- [x] Patrimoine net = Valeur bien - Capital restant dû
+- [x] Données pour graphique d'évolution
 
 **Formules (depuis spécification)** :
 ```
@@ -303,10 +304,10 @@ Rendement_Fonds_Propres (%) = (Enrichissement_Brut / Apport) × 100
 **Afin de** comparer avec d'autres placements
 
 **Critères d'acceptation** :
-- [ ] Calcul TRI sur la durée de projection choisie
-- [ ] Prise en compte : apport initial, cashflows annuels, valeur revente
-- [ ] Affichage avec explication pédagogique
-- [ ] Comparaison avec benchmarks (Livret A ~3%, Assurance vie ~2%, Bourse ~7%)
+- [x] Calcul TRI sur la durée de projection choisie
+- [x] Prise en compte : apport initial, cashflows annuels, valeur revente
+- [x] Affichage avec explication pédagogique
+- [x] Comparaison avec benchmarks (Livret A ~3%, Assurance vie ~2%, Bourse ~7%)
 
 **Formule (depuis spécification)** :
 ```
