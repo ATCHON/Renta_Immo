@@ -1,8 +1,9 @@
 /**
- * Module de synthèse et scoring
- * Génère un score global et des recommandations d'investissement
- *
- * Système de scoring (100 points max) :
+ * Module de synthèse et scoring/**
+ * Génère une synthèse score et des recommandations basées sur les résultats
+ * 
+ * @ref docs/core/specification-calculs.md#7-scoring-et-synthèse
+ * @param resultats - Résultats des calculs
  * - Autofinancement : 0-30 points (cashflow mensuel)
  * - Rentabilité : 0-30 points (rentabilité nette)
  * - Conformité HCSF : 0-25 points (taux d'endettement)

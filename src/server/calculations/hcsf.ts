@@ -80,13 +80,16 @@ export function calculerTauxEndettement(
  */
 export function calculerRevenusPonderes(
   revenusActiviteMensuels: number,
-  revenusLocatifsBrutsMensuels: number
+  revenusProjetBrutsMensuels: number,
+  loyersActuelsMensuels: number = 0
 ): { bruts: number; ponderes: number; total: number } {
-  const locatifsPonderes = revenusLocatifsBrutsMensuels * HCSF_CONSTANTES.PONDERATION_LOCATIFS;
+  const projetPonderes = revenusProjetBrutsMensuels * HCSF_CONSTANTES.PONDERATION_LOCATIFS;
+  const actuelsPonderes = loyersActuelsMensuels * HCSF_CONSTANTES.PONDERATION_LOCATIFS;
+
   return {
-    bruts: revenusLocatifsBrutsMensuels,
-    ponderes: locatifsPonderes,
-    total: revenusActiviteMensuels + locatifsPonderes,
+    bruts: revenusProjetBrutsMensuels + loyersActuelsMensuels,
+    ponderes: projetPonderes + actuelsPonderes,
+    total: revenusActiviteMensuels + projetPonderes + actuelsPonderes,
   };
 }
 
@@ -120,6 +123,9 @@ function calculerCapaciteResiduelle(
 
 /**
  * Calcule le HCSF en mode nom propre
+ * 
+ * @ref docs/core/specification-calculs.md#62-calcul-du-taux-dendettement
+ * @ref docs/core/specification-calculs.md#63-revenus-pondérés-mode-nom-propre
  */
 export function calculerHcsfNomPropre(
   data: CalculationInput,
@@ -139,11 +145,12 @@ export function calculerHcsfNomPropre(
 
   const revenusPonderes = calculerRevenusPonderes(
     revenusActiviteMensuelsEstimes,
-    loyerMensuelBrut
+    loyerMensuelBrut,
+    data.structure.loyers_actuels || 0
   );
 
-  const creditsExistantsMensuels = 0;
-  const chargesFixesMensuelles = 0;
+  const creditsExistantsMensuels = data.structure.credits_immobiliers || 0;
+  const chargesFixesMensuelles = 0; // On pourrait ajouter d'autres charges ici si besoin
   const chargesTotalesMensuelles =
     creditsExistantsMensuels + chargesFixesMensuelles + mensualiteNouveauCredit;
 
@@ -198,6 +205,8 @@ export function calculerHcsfNomPropre(
 
 /**
  * Calcule le HCSF en mode SCI IS (par associé)
+ * 
+ * @ref docs/core/specification-calculs.md#67-mode-sci-is-par-associé
  */
 export function calculerHcsfSciIs(
   data: CalculationInput,
