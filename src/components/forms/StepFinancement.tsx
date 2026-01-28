@@ -48,7 +48,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
     });
   }, [financement, reset]);
 
-  const watchedValues = watch();
+  const watchedValues = watch() as unknown as FinancementFormData;
   const prixAchat = bien.prix_achat || 0;
   const montantEmprunt = Math.max(0, prixAchat - (watchedValues.apport || 0));
   const mensualite = calculateMensualite(
@@ -65,16 +65,16 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Financement</h2>
-        <p className="text-gray-600 mt-1">
+        <h2 className="text-2xl font-bold text-charcoal">Financement</h2>
+        <p className="text-pebble mt-1">
           Configurez les paramètres de votre emprunt
         </p>
       </div>
 
       {/* Résumé du bien */}
-      <div className="bg-gray-50 rounded-lg p-4 mb-6">
-        <p className="text-sm text-gray-600">
-          Prix d&apos;achat : <span className="font-semibold">{formatCurrency(prixAchat)}</span>
+      <div className="bg-surface rounded-xl p-4 mb-6 border border-sand">
+        <p className="text-sm text-pebble">
+          Prix d&apos;achat : <span className="font-semibold text-charcoal">{formatCurrency(prixAchat)}</span>
         </p>
       </div>
 
@@ -87,9 +87,9 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
           {...register('apport', { valueAsNumber: true })}
         />
 
-        <div className="bg-primary-50 rounded-lg p-4 flex flex-col justify-center">
-          <p className="text-sm text-primary-600">Montant à emprunter</p>
-          <p className="text-2xl font-bold text-primary-700">
+        <div className="bg-forest/5 rounded-xl p-4 flex flex-col justify-center border border-forest/10">
+          <p className="text-sm text-forest font-medium">Montant à emprunter</p>
+          <p className="text-2xl font-bold text-forest">
             {formatCurrency(montantEmprunt)}
           </p>
         </div>
@@ -116,6 +116,8 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
       </div>
 
       <PercentInput
+        label="Taux d'assurance prêt"
+        placeholder="0.3"
         error={errors.assurance_pret?.message}
         {...register('assurance_pret', { valueAsNumber: true })}
       />
@@ -138,9 +140,9 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
 
       {/* Simulation mensualité */}
       {mensualite > 0 && (
-        <div className="bg-green-50 rounded-lg p-4">
-          <p className="text-sm text-green-600">Mensualité estimée (hors assurance)</p>
-          <p className="text-2xl font-bold text-green-700">
+        <div className="bg-sage/10 rounded-xl p-4 border border-sage/20">
+          <p className="text-sm text-forest font-medium">Mensualité estimée (hors assurance)</p>
+          <p className="text-2xl font-bold text-forest">
             {formatCurrency(mensualite)} / mois
           </p>
         </div>

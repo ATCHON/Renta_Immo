@@ -60,8 +60,8 @@ export function StepBien({ onNext }: StepBienProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Informations du bien</h2>
-        <p className="text-gray-600 mt-1">
+        <h2 className="text-2xl font-bold text-charcoal">Informations du bien</h2>
+        <p className="text-pebble mt-1">
           Renseignez les caractéristiques du bien immobilier
         </p>
       </div>

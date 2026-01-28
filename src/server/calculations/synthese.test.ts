@@ -24,6 +24,8 @@ describe('Calculations Synthese', () => {
     revenu_net_avant_impots: 8000,
     cashflow_annuel: cashflow * 12,
     cashflow_mensuel: cashflow,
+    effort_epargne_mensuel: 0,
+    effet_levier: 0,
   });
 
   const mockHCSF = (conforme: boolean, taux: number): HCSFCalculations => ({

@@ -15,10 +15,10 @@ export function Card({
   return (
     <div
       className={cn(
-        'bg-white rounded-xl p-6',
-        variant === 'default' && 'shadow-lg',
-        variant === 'elevated' && 'shadow-xl',
-        variant === 'bordered' && 'border border-gray-200',
+        'rounded-lg p-6',
+        variant === 'default' && 'bg-surface',
+        variant === 'elevated' && 'bg-white shadow-md',
+        variant === 'bordered' && 'bg-white border border-border',
         className
       )}
       {...props}
@@ -47,9 +47,9 @@ export function CardHeader({
       {...props}
     >
       <div>
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <h3 className="text-lg font-medium text-charcoal">{title}</h3>
         {description && (
-          <p className="text-sm text-gray-500 mt-1">{description}</p>
+          <p className="text-sm text-stone mt-1">{description}</p>
         )}
       </div>
       {action && <div>{action}</div>}
@@ -57,7 +57,7 @@ export function CardHeader({
   );
 }
 
-interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function CardContent({
   className,
@@ -71,7 +71,7 @@ export function CardContent({
   );
 }
 
-interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function CardFooter({
   className,
@@ -81,7 +81,7 @@ export function CardFooter({
   return (
     <div
       className={cn(
-        'mt-4 pt-4 border-t border-gray-200 flex items-center justify-end gap-3',
+        'mt-4 pt-4 border-t border-border flex items-center justify-end gap-3',
         className
       )}
       {...props}
@@ -90,3 +90,4 @@ export function CardFooter({
     </div>
   );
 }
+

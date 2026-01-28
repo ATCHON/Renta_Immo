@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, ProgressBar } from '@/components/ui';
+import { Card } from '@/components/ui';
+import { ProgressStepper } from './ProgressStepper';
 import { StepBien } from './StepBien';
 import { StepFinancement } from './StepFinancement';
 import { StepExploitation } from './StepExploitation';
@@ -87,18 +88,21 @@ export function FormWizard() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      {/* Barre de progression */}
-      <div className="mb-8">
-        <ProgressBar
-          currentStep={displayStep}
-          totalSteps={visibleSteps.length}
-          labels={visibleSteps as unknown as string[]}
-        />
-      </div>
+    <div className="container mx-auto px-4 py-8">
+      {/* Stepper de progression */}
+      <ProgressStepper
+        currentStep={displayStep + 1}
+        totalSteps={visibleSteps.length}
+        onStepClick={(step) => {
+          const actualIndex = structure.type === 'nom_propre' && step > 4
+            ? step
+            : step - 1;
+          setStep(actualIndex);
+        }}
+      />
 
       {/* Carte du formulaire */}
-      <Card>
+      <Card className="max-w-2xl mx-auto">
         {/* Message d'erreur */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -109,32 +113,6 @@ export function FormWizard() {
         {/* Contenu de l'étape */}
         {renderStep()}
       </Card>
-
-      {/* Navigation rapide (optionnel) */}
-      <div className="mt-4 flex justify-center gap-2">
-        {visibleSteps.map((_, index) => {
-          const actualIndex = structure.type === 'nom_propre' && index >= 4
-            ? index + 1
-            : index;
-
-          return (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setStep(actualIndex)}
-              disabled={actualIndex > currentStep}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                actualIndex === currentStep
-                  ? 'bg-primary-600'
-                  : actualIndex < currentStep
-                    ? 'bg-primary-300 hover:bg-primary-400'
-                    : 'bg-gray-300'
-              }`}
-              aria-label={`Aller à l'étape ${index + 1}`}
-            />
-          );
-        })}
-      </div>
     </div>
   );
 }

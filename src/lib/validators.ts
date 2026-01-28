@@ -11,27 +11,27 @@ export const bienSchema = z.object({
   adresse: z
     .string()
     .min(5, "L'adresse doit contenir au moins 5 caractères"),
-  prix_achat: z
-    .number({ message: 'Le prix doit être un nombre' })
+  prix_achat: z.coerce
+    .number({ message: 'Veuillez saisir un nombre valide' })
     .positive('Le prix doit être positif')
     .min(10000, 'Le prix minimum est de 10 000 €'),
-  surface: z
-    .number()
+  surface: z.coerce
+    .number({ message: 'Veuillez saisir un nombre valide' })
     .positive('La surface doit être positive')
     .optional(),
   type_bien: z.enum(['appartement', 'maison', 'immeuble'], {
     message: 'Veuillez sélectionner un type de bien',
   }),
-  annee_construction: z
-    .number()
+  annee_construction: z.coerce
+    .number({ message: 'Veuillez saisir une année valide' })
     .min(1800, 'Année de construction invalide')
     .max(new Date().getFullYear(), 'Année de construction invalide')
     .optional(),
   etat_bien: z.enum(['ancien', 'neuf'], {
     message: "Veuillez sélectionner l'état du bien",
   }).default('ancien'),
-  montant_travaux: z.number().min(0).default(0),
-  valeur_mobilier: z.number().min(0).default(0),
+  montant_travaux: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
+  valeur_mobilier: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
 });
 
 // Type d'entrée pour le formulaire (champs optionnels avec default)
@@ -43,23 +43,23 @@ export type BienFormData = z.output<typeof bienSchema>;
  * Schéma de validation pour le financement
  */
 export const financementSchema = z.object({
-  apport: z
-    .number({ message: "L'apport doit être un nombre" })
+  apport: z.coerce
+    .number({ message: 'Veuillez saisir un nombre valide' })
     .min(0, "L'apport ne peut pas être négatif"),
-  taux_interet: z
-    .number({ message: 'Le taux doit être un nombre' })
+  taux_interet: z.coerce
+    .number({ message: 'Veuillez saisir un nombre valide' })
     .min(0, 'Le taux ne peut pas être négatif')
     .max(20, 'Le taux semble trop élevé'),
-  duree_emprunt: z
-    .number({ message: 'La durée doit être un nombre' })
+  duree_emprunt: z.coerce
+    .number({ message: 'Veuillez saisir un nombre valide' })
     .min(1, 'La durée minimum est de 1 an')
     .max(30, 'La durée maximum est de 30 ans'),
-  assurance_pret: z
-    .number({ message: "L'assurance du prêt doit être un nombre" })
+  assurance_pret: z.coerce
+    .number({ message: 'Veuillez saisir un nombre valide' })
     .min(0, "L'assurance ne peut pas être négative")
     .max(2, "Le taux d'assurance semble trop élevé"),
-  frais_dossier: z.number().min(0).default(0),
-  frais_garantie: z.number().min(0).default(0),
+  frais_dossier: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
+  frais_garantie: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
 });
 
 // Type d'entrée pour le formulaire (champs optionnels avec default)
@@ -71,33 +71,33 @@ export type FinancementFormData = z.output<typeof financementSchema>;
  * Schéma de validation pour l'exploitation
  */
 export const exploitationSchema = z.object({
-  loyer_mensuel: z
-    .number({ message: 'Le loyer doit être un nombre' })
+  loyer_mensuel: z.coerce
+    .number({ message: 'Veuillez saisir un montant valide' })
     .positive('Le loyer doit être positif'),
-  charges_copro: z
-    .number({ message: 'Les charges doivent être un nombre' })
+  charges_copro: z.coerce
+    .number({ message: 'Veuillez saisir un montant valide' })
     .min(0, 'Les charges ne peuvent pas être négatives'),
-  taxe_fonciere: z
-    .number({ message: 'La taxe foncière doit être un nombre' })
+  taxe_fonciere: z.coerce
+    .number({ message: 'Veuillez saisir un montant valide' })
     .min(0, 'La taxe foncière ne peut pas être négative'),
-  assurance_pno: z
-    .number({ message: "L'assurance PNO doit être un nombre" })
+  assurance_pno: z.coerce
+    .number({ message: 'Veuillez saisir un montant valide' })
     .min(0, "L'assurance PNO ne peut pas être négative"),
-  gestion_locative: z
-    .number({ message: 'La gestion locative doit être un nombre' })
+  gestion_locative: z.coerce
+    .number({ message: 'Veuillez saisir un pourcentage valide' })
     .min(0, 'La gestion locative ne peut pas être négative')
     .max(20, 'Le taux de gestion semble trop élevé'),
-  provision_travaux: z
-    .number({ message: 'La provision travaux doit être un nombre' })
+  provision_travaux: z.coerce
+    .number({ message: 'Veuillez saisir un pourcentage valide' })
     .min(0, 'La provision ne peut pas être négative'),
-  provision_vacance: z
-    .number({ message: 'La provision vacance doit être un nombre' })
+  provision_vacance: z.coerce
+    .number({ message: 'Veuillez saisir un pourcentage valide' })
     .min(0, 'La provision vacance ne peut pas être négative')
     .max(50, 'Le taux de vacance semble trop élevé'),
-  charges_copro_recuperables: z.number().min(0).default(0),
-  assurance_gli: z.number().min(0).default(0),
-  cfe_estimee: z.number().min(0).default(0),
-  comptable_annuel: z.number().min(0).default(0),
+  charges_copro_recuperables: z.coerce.number({ message: 'Veuillez saisir un montant valide' }).min(0).default(0),
+  assurance_gli: z.coerce.number({ message: 'Veuillez saisir un pourcentage valide' }).min(0).default(0),
+  cfe_estimee: z.coerce.number({ message: 'Veuillez saisir un montant valide' }).min(0).default(0),
+  comptable_annuel: z.coerce.number({ message: 'Veuillez saisir un montant valide' }).min(0).default(0),
   type_location: z.enum(['nue', 'meublee_longue_duree', 'meublee_tourisme_classe', 'meublee_tourisme_non_classe']).default('nue'),
 });
 
@@ -113,17 +113,17 @@ export const associeSchema = z.object({
   nom: z
     .string()
     .min(2, 'Le nom doit contenir au moins 2 caractères'),
-  parts: z
+  parts: z.coerce
     .number({ message: 'Les parts doivent être un nombre' })
     .min(0, 'Les parts ne peuvent pas être négatives')
     .max(100, 'Les parts ne peuvent pas dépasser 100%'),
-  revenus: z
+  revenus: z.coerce
     .number({ message: 'Les revenus doivent être un nombre' })
-    .min(0, 'Les revenus ne peuvent pas être négatifs'),
-  mensualites: z
+    .min(0, 'Le revenus ne peuvent pas être négatifs'),
+  mensualites: z.coerce
     .number({ message: 'Les mensualités doivent être un nombre' })
     .min(0, 'Les mensualités ne peuvent pas être négatives'),
-  charges: z
+  charges: z.coerce
     .number({ message: 'Les charges doivent être un nombre' })
     .min(0, 'Les charges ne peuvent pas être négatives'),
 });
@@ -147,7 +147,7 @@ export const structureSchema = z.object({
   type: z.enum(['nom_propre', 'sci_is'], {
     message: 'Veuillez sélectionner une structure',
   }),
-  tmi: z
+  tmi: z.coerce
     .number({ message: 'Le TMI doit être un nombre' })
     .min(0, 'Le TMI ne peut pas être négatif')
     .max(50, 'Le TMI ne peut pas dépasser 50%'),

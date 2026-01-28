@@ -1,363 +1,301 @@
 'use client';
 
 import Link from 'next/link';
-import { Card, CardHeader, CardContent } from '@/components/ui';
+import { ArrowLeft, Info, PieChart, TrendingUp, Calculator, ShieldCheck, Zap, HelpCircle } from 'lucide-react';
+import { Card, CardHeader, CardContent, Button } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 export default function EnSavoirPlusPage() {
   return (
-    <main className="min-h-screen py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <main className="min-h-screen py-8 px-4 animate-in fade-in duration-700">
+      <div className="max-w-4xl mx-auto space-y-12">
         {/* Header */}
-        <header className="mb-8">
+        <header>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-pebble hover:text-forest transition-colors mb-6 text-sm font-medium"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Retour
+            <ArrowLeft className="h-4 w-4" />
+            Retour à l&apos;accueil
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">En savoir plus</h1>
-          <p className="text-gray-600 mt-2">
-            Comprendre les calculs, formules et valeurs reglementaires utilisees dans le simulateur
+          <h1 className="text-4xl font-bold text-charcoal tracking-tight">Expertise & Méthodologie</h1>
+          <p className="text-pebble mt-3 text-lg leading-relaxed max-w-2xl">
+            Comprendre les calculs, formules et valeurs réglementaires utilisés par notre moteur d&apos;analyse immobilière.
           </p>
         </header>
 
-        <div className="space-y-8">
-          {/* Section Rentabilite */}
-          <Card>
-            <CardHeader
-              title="Calculs de rentabilite"
-              description="Comment sont calcules les indicateurs de rendement"
-            />
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Rentabilite brute</h4>
-                  <div className="bg-gray-50 p-4 rounded-lg font-mono text-sm mb-2">
-                    Rentabilite brute = (Loyer annuel / Prix d&apos;achat) x 100
+        <div className="space-y-10">
+          {/* Section Rentabilité */}
+          <section className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-sand pb-4">
+              <TrendingUp className="h-6 w-6 text-forest" />
+              <h2 className="text-2xl font-bold text-charcoal">Indicateurs de Performance</h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader
+                  title="Rentabilité Brute"
+                  description="Le ratio fondamental pour une première sélection."
+                />
+                <CardContent className="space-y-4">
+                  <div className="bg-surface border border-sand p-4 rounded-xl font-mono text-sm text-forest font-bold shadow-sm">
+                    (Loyer annuel / Prix d&apos;achat) x 100
                   </div>
-                  <p className="text-sm text-gray-600">
-                    C&apos;est le ratio le plus simple. Il ne prend pas en compte les charges ni les impots.
-                    Un investissement avec une rentabilite brute de 6% genere 6 euros de loyer par an pour 100 euros investis.
+                  <p className="text-sm text-pebble leading-relaxed">
+                    C&apos;est le ratio le plus simple. Il ne prend pas en compte les charges ni les impôts.
+                    Un investissement avec une rentabilité brute de 6% génère 6€ de loyer par an pour 100€ investis.
                   </p>
-                </div>
+                </CardContent>
+              </Card>
 
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Rentabilite nette</h4>
-                  <div className="bg-gray-50 p-4 rounded-lg font-mono text-sm mb-2">
-                    Rentabilite nette = (Loyer annuel - Charges) / Prix d&apos;achat x 100
+              <Card>
+                <CardHeader
+                  title="Rentabilité Nette"
+                  description="La réalité opérationnelle de votre projet."
+                />
+                <CardContent className="space-y-4">
+                  <div className="bg-surface border border-sand p-4 rounded-xl font-mono text-sm text-forest font-bold shadow-sm">
+                    (Loyer annuel - Charges) / Prix d&apos;achat x 100
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Prend en compte toutes les charges : taxe fonciere, charges de copropriete, assurance PNO,
-                    frais de gestion, provision pour travaux et vacance locative.
+                  <p className="text-sm text-pebble leading-relaxed">
+                    Prend en compte toutes les charges : taxe foncière, copropriété, assurance PNO, gestion, travaux et vacance locative.
                   </p>
-                </div>
+                </CardContent>
+              </Card>
 
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Rentabilite nette-nette</h4>
-                  <div className="bg-gray-50 p-4 rounded-lg font-mono text-sm mb-2">
-                    Rentabilite nette-nette = (Loyer - Charges - Impots) / Prix d&apos;achat x 100
+              <Card className="md:col-span-2">
+                <CardHeader
+                  title="Rentabilité Nette-Nette (Après Impôts)"
+                  description="Votre performance réelle nette de toute fiscalité."
+                />
+                <CardContent className="space-y-4">
+                  <div className="bg-forest/5 border border-forest/10 p-5 rounded-xl font-mono text-sm text-forest font-black shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                    <span>(Loyer - Charges - Impôts) / Prix d&apos;achat x 100</span>
+                    <span className="text-xs bg-forest text-white px-3 py-1 rounded-full not-italic font-bold">Le plus précis</span>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    C&apos;est la rentabilite reelle apres paiement de tous les impots.
-                    Elle varie selon votre regime fiscal et votre tranche marginale d&apos;imposition.
+                  <p className="text-sm text-pebble leading-relaxed">
+                    C&apos;est la rentabilité réelle après paiement de tous les impôts.
+                    Elle varie selon votre régime fiscal et votre tranche marginale d&apos;imposition (TMI).
                   </p>
-                </div>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
 
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Cash-flow</h4>
-                  <div className="bg-gray-50 p-4 rounded-lg font-mono text-sm mb-2">
-                    Cash-flow = Loyer mensuel - (Charges/12) - Mensualite credit
+          {/* Section Crédit */}
+          <section className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-sand pb-4">
+              <Calculator className="h-6 w-6 text-forest" />
+              <h2 className="text-2xl font-bold text-charcoal">Levier Bancaire</h2>
+            </div>
+
+            <Card>
+              <CardHeader
+                title="Mensualité de Crédit"
+                description="La formule de calcul standard (type Excel PMT)"
+              />
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="bg-surface border border-sand p-6 rounded-xl font-mono text-sm text-charcoal shadow-sm overflow-x-auto">
+                    M = C x t x (1+t)^n / ((1+t)^n - 1) + Assurance
                   </div>
-                  <p className="text-sm text-gray-600">
-                    C&apos;est ce qui reste dans votre poche chaque mois. Un cash-flow positif signifie
-                    que l&apos;investissement s&apos;autofinance. Un cash-flow negatif necessite un effort d&apos;epargne.
-                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs font-medium text-pebble">
+                    <div className="bg-sand/10 p-3 rounded-lg border border-sand/30"><strong className="text-charcoal">M</strong> : Mensualité totale</div>
+                    <div className="bg-sand/10 p-3 rounded-lg border border-sand/30"><strong className="text-charcoal">C</strong> : Capital emprunté</div>
+                    <div className="bg-sand/10 p-3 rounded-lg border border-sand/30"><strong className="text-charcoal">t</strong> : Taux mensuel (Annuel / 12)</div>
+                    <div className="bg-sand/10 p-3 rounded-lg border border-sand/30"><strong className="text-charcoal">n</strong> : Nombre de mensualités</div>
+                    <div className="bg-sand/10 p-3 rounded-lg border border-sand/30 font-bold"><strong className="text-charcoal">Assurance</strong> : Protection prêt</div>
+                  </div>
+                  <div className="bg-sage/10 p-5 rounded-xl border border-sage/20 flex gap-4 items-start shadow-sm">
+                    <Zap className="h-5 w-5 text-forest shrink-0 mt-0.5" />
+                    <p className="text-sm text-forest leading-relaxed">
+                      <strong>Exemple expert :</strong> Pour 200 000€ à 3.5% sur 20 ans (assurance 0.3%),
+                      la mensualité est d&apos;environ <span className="font-bold underline">1 210€</span>.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </section>
 
-          {/* Section Mensualite Credit */}
-          <Card>
-            <CardHeader
-              title="Calcul de la mensualite de credit"
-              description="Formule PMT (Payment)"
-            />
-            <CardContent>
-              <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg font-mono text-sm">
-                  M = C x t x (1+t)^n / ((1+t)^n - 1) + Assurance
-                </div>
-                <div className="text-sm text-gray-600 space-y-2">
-                  <p><strong>M</strong> = Mensualite totale</p>
-                  <p><strong>C</strong> = Capital emprunte</p>
-                  <p><strong>t</strong> = Taux d&apos;interet mensuel (taux annuel / 12)</p>
-                  <p><strong>n</strong> = Nombre de mensualites (duree en annees x 12)</p>
-                  <p><strong>Assurance</strong> = Capital x taux assurance / 12</p>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-sm text-blue-700">
-                    <strong>Exemple :</strong> Pour un emprunt de 200 000 euros a 3.5% sur 20 ans avec assurance 0.3%,
-                    la mensualite est d&apos;environ 1 210 euros (1 160 euros de credit + 50 euros d&apos;assurance).
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Section Fiscalité */}
+          <section className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-sand pb-4">
+              <ShieldCheck className="h-6 w-6 text-forest" />
+              <h2 className="text-2xl font-bold text-charcoal">Optimisation Fiscale</h2>
+            </div>
 
-          {/* Section Fiscalite */}
-          <Card>
-            <CardHeader
-              title="Regimes fiscaux"
-              description="Comment sont calcules les impots selon le regime choisi"
-            />
-            <CardContent>
-              <div className="space-y-6">
-                <div className="border-b pb-4">
-                  <h4 className="font-semibold text-gray-900 mb-2">Micro-foncier</h4>
-                  <div className="grid grid-cols-2 gap-4 text-sm mb-2">
-                    <div className="bg-gray-50 p-3 rounded">
-                      <p className="text-gray-500">Abattement forfaitaire</p>
-                      <p className="font-bold text-lg">30%</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                {
+                  title: "Micro-foncier",
+                  stats: [{ label: "Abattement", val: "30%" }, { label: "Plafond", val: "15 k€" }],
+                  desc: "Simple mais rigide. Base imposable = 70% des revenus. TMI + 17.2% PS."
+                },
+                {
+                  title: "Foncier Réel",
+                  stats: [{ label: "Déduction", val: "100%" }, { label: "Déficit", val: "10.7 k€" }],
+                  desc: "Déduction des charges réelles. Permet de créer un déficit foncier imputable."
+                },
+                {
+                  title: "LMNP Micro-BIC",
+                  stats: [{ label: "Abattement", val: "50%" }, { label: "Plafond", val: "77.7 k€" }],
+                  desc: "Avantageux pour le meublé. Abattement forfaitaire élevé (50%)."
+                },
+                {
+                  title: "LMNP Réel",
+                  stats: [{ label: "Amortissement", val: "~2%" }, { label: "Fiscalité", val: "Nulle*" }],
+                  desc: "Le Graal fiscal. L'amortissement bati peut ramener l'impôt à zéro pendant des années."
+                }
+              ].map((item, id) => (
+                <Card key={id} className="flex flex-col">
+                  <CardHeader title={item.title} />
+                  <CardContent className="flex-1 space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      {item.stats.map((s, sid) => (
+                        <div key={sid} className="bg-surface border border-sand/50 p-3 rounded-xl text-center">
+                          <p className="text-[10px] font-bold text-pebble uppercase tracking-widest">{s.label}</p>
+                          <p className="text-xl font-black text-charcoal">{s.val}</p>
+                        </div>
+                      ))}
                     </div>
-                    <div className="bg-gray-50 p-3 rounded">
-                      <p className="text-gray-500">Plafond de revenus</p>
-                      <p className="font-bold text-lg">15 000 euros/an</p>
+                    <p className="text-sm text-pebble leading-relaxed">{item.desc}</p>
+                  </CardContent>
+                </Card>
+              ))}
+
+              <Card className="md:col-span-2 bg-gradient-to-br from-surface to-cream border-sand shadow-sm">
+                <CardHeader
+                  title="SCI à l'IS"
+                  description="La structure de capitalisation par excellence."
+                />
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-sand/30">
+                      <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">IS Taux Réduit</p>
+                      <p className="text-2xl font-black text-charcoal">15% <span className="text-xs font-normal text-pebble">(jusqu&apos;à 42.5k€)</span></p>
+                    </div>
+                    <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-sand/30">
+                      <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">IS Taux Normal</p>
+                      <p className="text-2xl font-black text-charcoal">25% <span className="text-xs font-normal text-pebble">(au-delà)</span></p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Base imposable = Revenus x 70%. Impot = Base x TMI + Base x 17.2% (prelevements sociaux).
-                    Simple mais pas toujours optimal si vous avez beaucoup de charges.
+                  <p className="text-sm text-pebble leading-relaxed">
+                    Imposition au niveau de la société. Permet l&apos;amortissement comptable. Les dividendes distribués sont soumis à la Flat Tax (30%). Attention à la plus-value lors de la revente.
                   </p>
-                </div>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
 
-                <div className="border-b pb-4">
-                  <h4 className="font-semibold text-gray-900 mb-2">Foncier reel</h4>
-                  <p className="text-sm text-gray-600">
-                    Vous deduisez toutes vos charges reelles : interets d&apos;emprunt, travaux, taxe fonciere,
-                    frais de gestion, assurances... Obligatoire si revenus fonciers &gt; 15 000 euros/an ou si plus avantageux.
-                    Possibilite de creer un deficit foncier imputable sur le revenu global (jusqu&apos;a 10 700 euros/an).
-                  </p>
-                </div>
+          {/* Section Normes HCSF */}
+          <section className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-sand pb-4">
+              <ShieldCheck className="h-6 w-6 text-forest" />
+              <h2 className="text-2xl font-bold text-charcoal">Normes HCSF 2024</h2>
+            </div>
 
-                <div className="border-b pb-4">
-                  <h4 className="font-semibold text-gray-900 mb-2">LMNP Micro-BIC</h4>
-                  <div className="grid grid-cols-2 gap-4 text-sm mb-2">
-                    <div className="bg-gray-50 p-3 rounded">
-                      <p className="text-gray-500">Abattement forfaitaire</p>
-                      <p className="font-bold text-lg">50%</p>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded">
-                      <p className="text-gray-500">Plafond de recettes</p>
-                      <p className="font-bold text-lg">77 700 euros/an</p>
-                    </div>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="text-center space-y-2">
+                    <p className="text-[10px] font-bold text-pebble uppercase tracking-widest">Endettement Max</p>
+                    <p className="text-4xl font-black text-terracotta tracking-tighter">35%</p>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Pour la location meublee. Abattement plus avantageux que le micro-foncier (50% vs 30%).
-                    Base imposable = Revenus x 50%.
-                  </p>
-                </div>
-
-                <div className="border-b pb-4">
-                  <h4 className="font-semibold text-gray-900 mb-2">LMNP Reel</h4>
-                  <p className="text-sm text-gray-600">
-                    Le regime le plus optimise fiscalement. En plus des charges reelles, vous pouvez
-                    amortir le bien (environ 2% par an sur le bati). L&apos;amortissement n&apos;est pas imputable
-                    sur le revenu global mais peut etre reporte.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">SCI a l&apos;IS</h4>
-                  <div className="grid grid-cols-2 gap-4 text-sm mb-2">
-                    <div className="bg-gray-50 p-3 rounded">
-                      <p className="text-gray-500">Taux reduit (jusqu&apos;a 42 500 euros)</p>
-                      <p className="font-bold text-lg">15%</p>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded">
-                      <p className="text-gray-500">Taux normal (au-dela)</p>
-                      <p className="font-bold text-lg">25%</p>
-                    </div>
+                  <div className="text-center space-y-2">
+                    <p className="text-[10px] font-bold text-pebble uppercase tracking-widest">Durée Crédit Max</p>
+                    <p className="text-4xl font-black text-charcoal tracking-tighter">25 ans</p>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Imposition au niveau de la societe. Permet l&apos;amortissement du bien.
-                    Les dividendes distribues sont soumis a la flat tax (30%).
-                    Attention a la plus-value lors de la revente (pas d&apos;abattement pour duree de detention).
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Section Prelevements Sociaux */}
-          <Card>
-            <CardHeader
-              title="Prelevements sociaux"
-              description="CSG, CRDS et autres contributions sociales"
-            />
-            <CardContent>
-              <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-2xl font-bold text-gray-900 mb-2">17.2%</p>
-                  <p className="text-sm text-gray-600">Taux global des prelevements sociaux sur les revenus fonciers</p>
-                </div>
-                <div className="text-sm text-gray-600 space-y-1">
-                  <p>Composition : CSG 9.2% + CRDS 0.5% + Prelevement de solidarite 7.5%</p>
-                  <p>Appliques sur la base imposable (apres abattement le cas echeant).</p>
-                  <p>Non applicables pour la SCI a l&apos;IS (appliques uniquement sur les dividendes distribues).</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Section HCSF */}
-          <Card>
-            <CardHeader
-              title="Regles HCSF"
-              description="Normes du Haut Conseil de Stabilite Financiere pour l'octroi de credits"
-            />
-            <CardContent>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg text-center">
-                    <p className="text-gray-500 text-sm">Taux d&apos;endettement max</p>
-                    <p className="text-3xl font-bold text-primary-600">35%</p>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-lg text-center">
-                    <p className="text-gray-500 text-sm">Duree max du credit</p>
-                    <p className="text-3xl font-bold text-primary-600">25 ans</p>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-lg text-center">
-                    <p className="text-gray-500 text-sm">Ponderation revenus locatifs</p>
-                    <p className="text-3xl font-bold text-primary-600">70%</p>
+                  <div className="text-center space-y-2">
+                    <p className="text-[10px] font-bold text-pebble uppercase tracking-widest">Pondération Loyers</p>
+                    <p className="text-4xl font-black text-forest tracking-tighter">70-90%</p>
                   </div>
                 </div>
 
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Calcul du taux d&apos;endettement</h4>
-                  <div className="bg-gray-50 p-4 rounded-lg font-mono text-sm mb-2">
-                    Taux = Charges mensuelles / Revenus mensuels x 100
+                <div className="space-y-4">
+                  <h4 className="text-sm font-bold text-charcoal uppercase tracking-widest px-3 border-l-4 border-forest">Le calcul bancaire</h4>
+                  <div className="bg-surface border border-sand p-4 rounded-xl font-mono text-sm shadow-inner italic">
+                    Ratio = Total Charges / (Revenus + (Loyers x Période))
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Les revenus locatifs sont ponderes a 70% pour tenir compte des aleas (vacance, impayes).
-                    Les charges incluent tous les credits en cours + le nouveau credit.
+                  <p className="text-sm text-pebble leading-relaxed bg-amber/5 p-4 rounded-xl border border-amber/10">
+                    <strong>Note de l&apos;expert :</strong> Bien que le HCSF impose 35%, les banques disposent d&apos;une marge de flexibilité de 20% sur leurs dossiers, souvent réservée aux profils à haut reste à vivre.
                   </p>
                 </div>
-
-                <div className="bg-amber-50 p-4 rounded-lg">
-                  <p className="text-sm text-amber-700">
-                    <strong>Important :</strong> Ces regles s&apos;appliquent depuis janvier 2022.
-                    Les banques peuvent deroger pour 20% de leurs dossiers (principalement pour les primo-accedants residence principale).
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </section>
 
           {/* Section Scoring */}
-          <Card>
-            <CardHeader
-              title="Systeme de scoring"
-              description="Comment est calcule le score global de votre investissement"
-            />
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-xs text-gray-500">Autofinancement</p>
-                    <p className="text-xl font-bold text-gray-900">30 pts</p>
-                    <p className="text-xs text-gray-400">Cash-flow positif</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-xs text-gray-500">Rentabilite</p>
-                    <p className="text-xl font-bold text-gray-900">30 pts</p>
-                    <p className="text-xs text-gray-400">Cible : 7-10%</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-xs text-gray-500">HCSF</p>
-                    <p className="text-xl font-bold text-gray-900">25 pts</p>
-                    <p className="text-xs text-gray-400">Endettement &lt; 35%</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-xs text-gray-500">Bonus</p>
-                    <p className="text-xl font-bold text-gray-900">15 pts</p>
-                    <p className="text-xs text-gray-400">Renta &ge; 10%</p>
-                  </div>
+          <section className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-sand pb-4">
+              <PieChart className="h-6 w-6 text-forest" />
+              <h2 className="text-2xl font-bold text-charcoal">Système de Scoring</h2>
+            </div>
+
+            <Card>
+              <CardContent className="pt-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                  {[
+                    { label: "Cashflow", val: "30 pts", sub: "Autofinancement" },
+                    { label: "Renta", val: "30 pts", sub: "Cible 7%+" },
+                    { label: "HCSF", val: "25 pts", sub: "< 35%" },
+                    { label: "Bonus", val: "15 pts", sub: "Renta 10%+" }
+                  ].map((s, id) => (
+                    <div key={id} className="bg-surface p-4 rounded-2xl border border-sand/50 text-center">
+                      <p className="text-[10px] font-bold text-pebble uppercase tracking-widest mb-1">{s.label}</p>
+                      <p className="text-xl font-black text-charcoal">{s.val}</p>
+                      <p className="text-[10px] text-pebble mt-1">{s.sub}</p>
+                    </div>
+                  ))}
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-green-500 rounded"></div>
-                    <span className="text-sm"><strong>80-100 :</strong> Excellent - Tous les voyants sont au vert</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                    <span className="text-sm"><strong>60-79 :</strong> Bon - Investissement viable</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-orange-500 rounded"></div>
-                    <span className="text-sm"><strong>40-59 :</strong> Moyen - A optimiser</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-red-500 rounded"></div>
-                    <span className="text-sm"><strong>0-39 :</strong> Faible - A reconsiderer</span>
-                  </div>
+                <div className="space-y-3 max-w-lg mx-auto bg-surface/30 p-6 rounded-2xl border border-sand/20 shadow-sm">
+                  {[
+                    { range: "80-100", label: "Excellent - Opportunité rare", color: "bg-forest" },
+                    { range: "60-79", label: "Bon - Dossier solide", color: "bg-sage" },
+                    { range: "40-59", label: "Moyen - À optimiser", color: "bg-amber" },
+                    { range: "0-39", label: "Faible - Risqué", color: "bg-terracotta" }
+                  ].map((level, id) => (
+                    <div key={id} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-3">
+                        <div className={cn("w-3 h-3 rounded-full shadow-sm", level.color)}></div>
+                        <span className="font-bold text-charcoal w-16 tabular-nums">{level.range}</span>
+                      </div>
+                      <span className="text-pebble font-medium">{level.label}</span>
+                    </div>
+                  ))}
                 </div>
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* Avertissement Final */}
+          <div className="bg-charcoal text-white rounded-3xl p-8 md:p-12 relative overflow-hidden shadow-2xl">
+            <div className="relative z-10 space-y-4">
+              <div className="flex items-center gap-3">
+                <Info className="h-6 w-6 text-forest-light" />
+                <h3 className="text-xl font-bold">Clause de Non-Responsabilité</h3>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Section Charges */}
-          <Card>
-            <CardHeader
-              title="Detail des charges"
-              description="Les differentes charges prises en compte dans le calcul"
-            />
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Charges fixes annuelles</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>- Taxe fonciere</li>
-                      <li>- Charges de copropriete (x12 si mensuelles)</li>
-                      <li>- Assurance PNO (Proprietaire Non Occupant)</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Charges proportionnelles</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>- Frais de gestion locative (% du loyer)</li>
-                      <li>- Provision pour travaux (% du loyer)</li>
-                      <li>- Provision pour vacance locative (% du loyer)</li>
-                    </ul>
-                  </div>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-sm text-blue-700">
-                    <strong>Valeurs par defaut :</strong> Gestion locative 8%, Provision travaux 5%, Vacance 5%.
-                    Ces valeurs sont personnalisables selon votre situation.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Avertissement */}
-          <div className="bg-gray-100 rounded-lg p-6">
-            <h3 className="font-semibold text-gray-900 mb-2">Avertissement</h3>
-            <p className="text-sm text-gray-600">
-              Ce simulateur fournit des estimations basees sur les informations que vous renseignez.
-              Les calculs fiscaux sont simplifies et peuvent ne pas refleter exactement votre situation personnelle.
-              Pour un conseil personnalise, consultez un expert-comptable ou un conseiller en gestion de patrimoine.
-              Les valeurs reglementaires (HCSF, fiscalite) sont celles en vigueur en 2024 et peuvent evoluer.
-            </p>
+              <p className="text-stone-light/70 text-sm leading-relaxed max-w-3xl">
+                Ce simulateur fournit des estimations basées sur les informations renseignées. Les calculs fiscaux sont simplifiés et peuvent varier selon votre situation réelle.
+                <span className="block mt-2">Pour un conseil personnalisé, consultez un expert-comptable ou un CGP. Les valeurs réglementaires (HCSF, fiscalité) sont celles en vigueur en 2024.</span>
+              </p>
+            </div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-forest/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
           </div>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="text-center pt-8">
+          <Link href="/calculateur">
+            <Button variant="primary" size="lg" className="rounded-full px-12 py-6 text-lg shadow-xl shadow-forest/20">
+              Lancer une simulation
+            </Button>
+          </Link>
         </div>
       </div>
     </main>
   );
 }
+

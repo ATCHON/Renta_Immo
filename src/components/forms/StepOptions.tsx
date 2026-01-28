@@ -52,8 +52,8 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Options</h2>
-        <p className="text-gray-600 mt-1">
+        <h2 className="text-2xl font-bold text-charcoal">Options</h2>
+        <p className="text-pebble mt-1">
           Configurez les options de génération des résultats
         </p>
       </div>
@@ -76,7 +76,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       </div>
 
       {/* Horizon de projection */}
-      <div className="bg-white p-4 rounded-lg border border-gray-200">
+      <div className="bg-surface p-4 rounded-xl border border-sand">
         <Select
           label="Horizon de projection"
           {...register('horizon_projection', { valueAsNumber: true })}
@@ -93,7 +93,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
 
       {/* Paramètres de projection */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-surface p-4 rounded-xl border border-sand">
           <PercentInput
             label="Évolution annuelle loyers"
             hint="Indice IRL (historique 2%)"
@@ -101,7 +101,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
             {...register('taux_evolution_loyer', { valueAsNumber: true })}
           />
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-surface p-4 rounded-xl border border-sand">
           <PercentInput
             label="Évolution annuelle charges"
             hint="Inflation (historique 2.5%)"
@@ -113,7 +113,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
 
       {/* Champ email si option activée */}
       {watchedValues.envoyer_email && (
-        <div className="pl-4 border-l-2 border-primary-200">
+        <div className="pl-4 border-l-2 border-forest/30">
           <Input
             label="Adresse email"
             type="email"
@@ -125,16 +125,34 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       )}
 
       {/* Récapitulatif */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h3 className="font-semibold text-gray-900 mb-2">Récapitulatif</h3>
-        <ul className="text-sm text-gray-600 space-y-1">
-          <li>✓ Calcul de rentabilité (brute, nette, nette-nette)</li>
-          <li>✓ Analyse du cashflow mensuel et annuel</li>
-          <li>✓ Simulation fiscale selon votre structure</li>
-          <li>✓ Vérification conformité HCSF</li>
-          <li>✓ Projection pluriannuelle sur {watchedValues.horizon_projection} ans</li>
-          {watchedValues.generer_pdf && <li>✓ Génération du PDF récapitulatif</li>}
-          {watchedValues.envoyer_email && <li>✓ Envoi par email</li>}
+      <div className="bg-forest/5 rounded-xl p-5 border border-forest/10">
+        <h3 className="font-bold text-charcoal mb-3">Récapitulatif</h3>
+        <ul className="text-sm text-pebble space-y-2">
+          <li className="flex items-center gap-2">
+            <span className="text-forest">✓</span> Calcul de rentabilité (brute, nette, nette-nette)
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-forest">✓</span> Analyse du cashflow mensuel et annuel
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-forest">✓</span> Simulation fiscale selon votre structure
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-forest">✓</span> Vérification conformité HCSF
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-forest">✓</span> Projection pluriannuelle sur {watchedValues.horizon_projection} ans
+          </li>
+          {watchedValues.generer_pdf && (
+            <li className="flex items-center gap-2">
+              <span className="text-forest">✓</span> Génération du PDF récapitulatif
+            </li>
+          )}
+          {watchedValues.envoyer_email && (
+            <li className="flex items-center gap-2">
+              <span className="text-forest">✓</span> Envoi par email
+            </li>
+          )}
         </ul>
       </div>
 
@@ -163,11 +181,11 @@ function OptionToggle({ label, description, checked, onChange }: OptionTogglePro
       type="button"
       onClick={() => onChange(!checked)}
       className={cn(
-        'w-full p-4 rounded-lg border-2 text-left transition-all duration-200',
+        'w-full p-5 rounded-xl border-2 text-left transition-all duration-300',
         'flex items-start gap-4',
         checked
-          ? 'border-primary-600 bg-primary-50'
-          : 'border-gray-200 bg-white hover:border-gray-300'
+          ? 'border-forest bg-surface shadow-[0_0_0_1px_rgba(45,90,69,1)]'
+          : 'border-sand bg-white hover:border-pebble shadow-sm'
       )}
     >
       <div
@@ -175,8 +193,8 @@ function OptionToggle({ label, description, checked, onChange }: OptionTogglePro
           'w-6 h-6 rounded border-2 flex-shrink-0 mt-0.5',
           'flex items-center justify-center transition-colors',
           checked
-            ? 'bg-primary-600 border-primary-600'
-            : 'bg-white border-gray-300'
+            ? 'bg-forest border-forest'
+            : 'bg-white border-sand'
         )}
       >
         {checked && (
@@ -196,8 +214,11 @@ function OptionToggle({ label, description, checked, onChange }: OptionTogglePro
         )}
       </div>
       <div>
-        <p className="font-semibold text-gray-900">{label}</p>
-        <p className="text-sm text-gray-600 mt-1">{description}</p>
+        <p className={cn(
+          'font-bold transition-colors',
+          checked ? 'text-forest' : 'text-charcoal'
+        )}>{label}</p>
+        <p className="text-sm text-pebble mt-1 leading-relaxed">{description}</p>
       </div>
     </button>
   );
