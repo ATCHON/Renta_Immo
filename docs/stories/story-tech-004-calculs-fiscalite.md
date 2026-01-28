@@ -1,10 +1,10 @@
-# Story TECH-004 : Calculs de Fiscalité
+# Story TECH-004 : Calculs de Fiscalité ✅ Done
 
 > **Epic** : Epic 1 - Infrastructure Backend
 > **Sprint** : 0.2 - Calculs Core
 > **Points** : 5
 > **Priorité** : P1 (Critique)
-> **Statut** : Done
+> **Statut** : ✅ Done
 > **Dépendance** : TECH-002 (Validation entrées)
 
 ---

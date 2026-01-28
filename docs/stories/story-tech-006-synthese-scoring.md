@@ -1,10 +1,10 @@
-# Story TECH-006 : Synthèse et Scoring
+# Story TECH-006 : Synthèse et Scoring ✅ Done
 
 > **Epic** : Epic 1 - Infrastructure Backend
 > **Sprint** : 0.3 - Intégration
 > **Points** : 3
 > **Priorité** : P1 (Critique)
-> **Statut** : Done
+> **Statut** : ✅ Done
 > **Dépendances** : TECH-003, TECH-004, TECH-005
 
 ---

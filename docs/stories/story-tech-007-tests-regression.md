@@ -1,10 +1,10 @@
-# Story TECH-007 : Tests de Régression
+# Story TECH-007 : Tests de Régression ✅ Done
 
 > **Epic** : Epic 1 - Infrastructure Backend
 > **Sprint** : 0.3 - Intégration
 > **Points** : 5
 > **Priorité** : P1 (Critique)
-> **Statut** : ✅ Validated
+> **Statut** : ✅ Done
 > **Dépendances** : TECH-003, TECH-004, TECH-005, TECH-006
 
 ---

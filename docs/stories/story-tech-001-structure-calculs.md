@@ -1,10 +1,10 @@
-# Story TECH-001 : Structure du Module de Calculs
+# Story TECH-001 : Structure du Module de Calculs ✅ Done
 
 > **Epic** : Epic 1 - Infrastructure Backend
 > **Sprint** : 0.1 - Fondations Backend
 > **Points** : 2
 > **Priorité** : P1 (Critique)
-> **Statut** : Done
+> **Statut** : ✅ Done
 
 ---
 

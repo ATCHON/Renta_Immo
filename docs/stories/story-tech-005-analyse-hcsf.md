@@ -1,10 +1,10 @@
-# Story TECH-005 : Analyse HCSF (Taux d'Endettement)
+# Story TECH-005 : Analyse HCSF ✅ Done (Taux d'Endettement)
 
 > **Epic** : Epic 1 - Infrastructure Backend
 > **Sprint** : 0.2 - Calculs Core
 > **Points** : 3
 > **Priorité** : P1 (Critique)
-> **Statut** : Done
+> **Statut** : ✅ Done
 > **Dépendance** : TECH-002 (Validation entrées)
 
 ---
