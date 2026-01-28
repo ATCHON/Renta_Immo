@@ -197,6 +197,7 @@ export const calculateurFormSchema = z.object({
 
 // Types inférés depuis les schémas Zod
 export type AssocieFormData = z.infer<typeof associeSchema>;
+export type StructureFormDataInput = z.input<typeof structureSchema>;
 export type StructureFormData = z.infer<typeof structureSchema>;
 export type OptionsFormData = z.infer<typeof optionsSchema>;
 export type CalculateurFormSchema = z.infer<typeof calculateurFormSchema>;

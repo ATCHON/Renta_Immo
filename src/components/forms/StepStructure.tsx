@@ -11,7 +11,7 @@ import { useCalculateurStore } from '@/stores/calculateur.store';
 import { cn } from '@/lib/utils';
 import type { TypeStructure, RegimeFiscal } from '@/types';
 
-import { structureSchema, type StructureFormData } from '@/lib/validators';
+import { structureSchema, type StructureFormData, type StructureFormDataInput } from '@/lib/validators';
 
 interface StepStructureProps {
   onNext: () => void;
@@ -28,7 +28,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
     setValue,
     reset,
     formState: { errors },
-  } = useForm<StructureFormData>({
+  } = useForm<StructureFormDataInput, unknown, StructureFormData>({
     resolver: zodResolver(structureSchema),
     defaultValues: {
       type: structure.type || 'nom_propre',
