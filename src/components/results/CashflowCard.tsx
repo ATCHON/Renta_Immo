@@ -19,18 +19,18 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
         description="Flux de trésorerie de votre investissement"
       />
       <CardContent>
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           {/* Cashflow mensuel */}
           <div
             className={cn(
-              'p-6 rounded-xl text-center border',
+              'p-4 sm:p-6 rounded-xl text-center border',
               isPositive ? 'bg-sage/5 border-sage/20' : 'bg-terracotta/5 border-terracotta/20'
             )}
           >
             <p className="text-sm text-pebble font-medium uppercase tracking-tight">Mensuel</p>
             <p
               className={cn(
-                'text-4xl font-bold mt-2',
+                'text-3xl sm:text-4xl font-bold mt-2',
                 isPositive ? 'text-forest' : 'text-terracotta'
               )}
             >
@@ -44,14 +44,14 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
           {/* Cashflow annuel */}
           <div
             className={cn(
-              'p-6 rounded-xl text-center border',
+              'p-4 sm:p-6 rounded-xl text-center border',
               isPositive ? 'bg-sage/5 border-sage/20' : 'bg-terracotta/5 border-terracotta/20'
             )}
           >
             <p className="text-sm text-pebble font-medium uppercase tracking-tight">Annuel</p>
             <p
               className={cn(
-                'text-4xl font-bold mt-2',
+                'text-3xl sm:text-4xl font-bold mt-2',
                 isPositive ? 'text-forest' : 'text-terracotta'
               )}
             >

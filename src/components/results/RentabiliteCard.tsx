@@ -29,7 +29,7 @@ export function RentabiliteCard({ rentabilite }: RentabiliteCardProps) {
         description="Analyse de la rentabilité de votre investissement"
       />
       <CardContent>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <RentabiliteItem
             label="Brute"
             value={rentabilite.brute}
@@ -109,7 +109,7 @@ function RentabiliteItem({
       )}
     >
       <p className="text-sm text-gray-600">{label}</p>
-      <p className={cn('text-3xl font-bold mt-1', color)}>
+      <p className={cn('text-2xl sm:text-3xl font-bold mt-1', color)}>
         {formatPercent(value)}
       </p>
       <p className="text-xs text-gray-500 mt-1">{description}</p>

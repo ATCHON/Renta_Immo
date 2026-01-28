@@ -36,14 +36,14 @@ export function MetricCard({
   return (
     <div
       className={cn(
-        'rounded-lg p-6 border transition-shadow hover:shadow-md',
+        'rounded-lg p-3 sm:p-6 border transition-shadow hover:shadow-md',
         statusStyles[status],
         className
       )}
       title={tooltip}
     >
-      <div className="flex flex-col items-center text-center space-y-2">
-        <p className={cn('text-4xl font-semibold', valueStyles[status])}>
+      <div className="flex flex-col items-center text-center space-y-1 sm:space-y-2">
+        <p className={cn('text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold', valueStyles[status])}>
           {value}
         </p>
         <p className="text-xs font-medium uppercase tracking-wide text-pebble">
