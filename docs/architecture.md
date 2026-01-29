@@ -1,9 +1,9 @@
 # Architecture Backend - Renta_Immo
 
-> **Version** : 1.2
-> **Date** : 2026-01-26
+> **Version** : 2.0
+> **Date** : 2026-01-29
 > **Auteur** : Winston (Architecte)
-> **Statut** : Draft
+> **Statut** : Update - Projections & TRI
 
 ---
 
@@ -17,6 +17,7 @@ Migrer le moteur de calcul depuis n8n vers une solution intégrée à l'applicat
 - Autonomie (pas de dépendance externe)
 - Performance (< 500ms de temps de réponse)
 - Maintenabilité (code TypeScript typé)
+- Précision (Projections sur 25 ans, calcul du TRI)
 - Compatibilité (format de réponse API identique)
 
 ### 1.2 Documents de Référence
@@ -155,7 +156,7 @@ Migrer le moteur de calcul depuis n8n vers une solution intégrée à l'applicat
 │  │       │              │              │                   │   │
 │  │       ▼              ▼              ▼                   │   │
 │  │  ┌───────────┐  ┌───────────┐  ┌───────────┐           │   │
-│  │  │   hcsf    │→ │  synthese │→ │  Response │           │   │
+│  │  │   hcsf    │→ │  synthese │→ │ projection│           │   │
 │  │  └───────────┘  └───────────┘  └───────────┘           │   │
 │  └─────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
@@ -185,6 +186,7 @@ sequenceDiagram
     C->>C: calculerFiscalite()
     C->>C: analyserHCSF()
     C->>C: genererSynthese()
+    C->>C: genererProjections()
     C-->>A: CalculationResult
 
     A-->>F: JSON Response
@@ -230,8 +232,9 @@ src/server/calculations/
 ├── types.ts          # Types et constantes internes
 ├── validation.ts     # Validation Zod + normalisation
 ├── rentabilite.ts    # Calculs de rentabilité
-├── fiscalite.ts      # Calculs fiscaux (IR/IS)
+├── fiscalite.ts      # Calculis fiscaux (IR/IS)
 ├── hcsf.ts           # Analyse HCSF
+├── projection.ts     # Projections et TRI
 └── synthese.ts       # Scoring et recommandations
 ```
 
@@ -316,19 +319,25 @@ Cash-flow = Loyer - (Charges/12) - Mensualité
 
 ---
 
-#### 6.1.6 `synthese.ts` - Scoring
-
-**Responsabilité** : Score global et recommandations
-
-**Critères** (4 points max) :
-1. Autofinancement (cash-flow ≥ 0)
-2. Rentabilité nette ≥ 7%
-3. Conformité HCSF
-4. Bonus : Rentabilité ≥ 10%
-
 **Score Global** : 0-100 points avec pondération
 
 **Évaluations** : Excellent / Bon / Moyen / Faible
+
+---
+
+#### 6.1.7 `projection.ts` - Projections long terme
+
+**Responsabilité** : Évolution de l'investissement sur la durée choisie (5-25 ans).
+
+**Fonctions** :
+- `genererProjections(input, horizon)` : Orchestre les projections annuelles.
+- `genererTableauAmortissement(montant, taux, duree)` : Calcule le capital et les intérêts mois par mois.
+- `calculerTRI(flux)` : Calcule le Taux de Rendement Interne via Newton-Raphson.
+
+**Hypothèses par défaut** :
+- Inflation loyer : 2%
+- Inflation charges : 2.5%
+- Appréciation bien : 1.5%
 
 ---
 
@@ -733,6 +742,7 @@ Comparer les résultats du nouveau backend avec les résultats n8n :
 | 2026-01-25 | 1.0 | Création initiale | Winston |
 | 2026-01-25 | 1.1 | Ajout Supabase (PostgreSQL) via MCP | Winston |
 | 2026-01-26 | 1.2 | Ajout Section 17 : Guide PM - Mapping Sprints & Stories | Winston |
+| 2026-01-29 | 2.0 | Mise à jour Projections (Sprint 3-4), TRI et Enrichissement | Winston |
 
 ---
 
