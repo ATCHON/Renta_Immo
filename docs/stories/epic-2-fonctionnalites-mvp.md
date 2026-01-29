@@ -85,7 +85,7 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 | Sprint 3 | Projections | 4 stories | ✅ TERMINÉ |
 | Sprint 4 | Indicateurs & Enrichissement | 4 stories | ✅ TERMINÉ |
 | Sprint 5 | Charges & Fiscalité avancée | 4 stories | ⏳ EN COURS |
-| Sprint 6 | Comparaison & Finalisation | 4 stories | ⏳ À FAIRE |
+| Sprint 6 | Comparaison & UI | 4 stories | ⏳ À FAIRE |
 
 ---
 
@@ -340,18 +340,18 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 
 ---
 
-## 9. Sprint 5 — Charges & Fiscalité Avancée ⏳ À FAIRE
+## 9. Sprint 5 — Charges & Fiscalité Avancée ⏳ EN COURS
 
 ### Stories
 
 | Story ID | Titre | Backlog | Points | Priorité | Statut |
 |----------|-------|---------|--------|----------|--------|
-| **S5.1** | Charges récupérables | MVP-014 | 3 | P2 | ✅ |
-| **S5.2** | Honoraires comptable | ~~MVP-015~~ | ~~1~~ | ✅ FAIT | ✅ |
-| **S5.3** | Comparaison régimes fiscaux | MVP-018 | 5 | P2 | ⏳ |
-| **S5.4** | Amélioration SCI IS | MVP-019 | 5 | P3 | ⏳ |
+| **S5.1** | Charges récupérables | MVP-014 | 3 | P2 | ✅ TERMINÉ |
+| **S5.2** | Honoraires comptable | MVP-015 | 1 | P3 | ✅ TERMINÉ |
+| **S5.3** | Comparaison régimes fiscaux | MVP-018 | 5 | P1 | ⏳ À FAIRE |
+| **S5.4** | Amélioration SCI IS | MVP-019 | 5 | P2 | ✅ TERMINÉ |
 
-**Total restant** : 13 points (S5.2 déjà fait)
+**Total restant** : 5 points
 
 ### S5.1 : Charges récupérables
 
@@ -412,18 +412,18 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 
 ---
 
-## 10. Sprint 6 — Comparaison & Finalisation ⏳ À FAIRE
+## 10. Sprint 6 — Comparaison & UI ⏳ À FAIRE
 
 ### Stories
 
-| Story ID | Titre | Backlog | Points | Priorité |
-|----------|-------|---------|--------|----------|
-| **S6.1** | Multi-scénarios (structure) | MVP-008 | 5 | P1 |
-| **S6.2** | Persistance scénarios | MVP-023 | 3 | P3 |
-| **S6.3** | Graphiques d'évolution | MVP-020 | 5 | P3 |
-| **S6.4** | Amélioration formulaire régimes | MVP-021 | 5 | P3 |
+| Story ID | Titre | Backlog | Points | Priorité | Statut |
+|----------|-------|---------|--------|----------|--------|
+| **S6.1** | Multi-scénarios (Mémoire) | MVP-008 | 5 | P1 | ⏳ À FAIRE |
+| **S6.2** | Persistance scénarios (DB) | MVP-023 | 3 | P3 | 🛑 ON HOLD |
+| **S6.3** | Graphiques d'évolution | MVP-020 | 5 | P2 | ⏳ À FAIRE |
+| **S6.4** | Amélioration Formulaire Régimes| MVP-021 | 5 | P2 | ⏳ À FAIRE |
 
-**Total** : 18 points
+**Total** : 15 points (Hors S6.2)
 
 ### S6.1 : Multi-scénarios (structure)
 

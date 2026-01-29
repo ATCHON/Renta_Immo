@@ -43,3 +43,5 @@ next-env.d.ts
 .bmad-core
 .claude
 _bmad-output
+_bmad
+.agent
