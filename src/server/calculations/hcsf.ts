@@ -141,7 +141,9 @@ export function calculerHcsfNomPropre(
     );
   }
 
-  const revenusActiviteMensuelsEstimes = estimerRevenusDepuisTmi(data.structure.tmi ?? 0);
+  const revenusActiviteMensuelsEstimes = data.structure.revenus_activite && data.structure.revenus_activite > 0
+    ? data.structure.revenus_activite
+    : estimerRevenusDepuisTmi(data.structure.tmi ?? 0);
 
   const revenusPonderes = calculerRevenusPonderes(
     revenusActiviteMensuelsEstimes,

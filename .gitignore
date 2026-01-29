@@ -45,3 +45,4 @@ next-env.d.ts
 _bmad-output
 _bmad
 .agent
+.bmad-core

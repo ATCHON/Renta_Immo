@@ -11,6 +11,7 @@ import { CashflowCard } from './CashflowCard';
 import { HCSFIndicator } from './HCSFIndicator';
 import { ProjectionTable } from './ProjectionTable';
 import { AmortizationTable } from './AmortizationTable';
+import { FiscalComparator } from './FiscalComparator';
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { formatCurrency, formatPercent } from '@/lib/utils';
 import { downloadPdf } from '@/lib/api';
@@ -172,39 +173,14 @@ export function Dashboard() {
         <CashflowCard cashflow={resultats.cashflow} />
       </div>
 
-      {/* HCSF et Fiscalité */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <HCSFIndicator hcsf={resultats.hcsf} />
+      {/* HCSF Indicator */}
+      <HCSFIndicator hcsf={resultats.hcsf} />
 
-        <Card>
-          <CardHeader
-            title="Fiscalité"
-            description="Impact fiscal de votre investissement"
-          />
-          <CardContent>
-            <div className="space-y-4 pt-2">
-              <div className="flex justify-between items-center py-3 border-b border-sand/30">
-                <span className="text-pebble font-medium">Régime fiscal</span>
-                <span className="font-bold text-charcoal">
-                  {resultats.fiscalite.regime}
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-3 border-b border-sand/30">
-                <span className="text-pebble font-medium">Impôt estimé</span>
-                <span className="font-bold text-terracotta tabular-nums">
-                  {formatCurrency(resultats.fiscalite.impot_estime)} / an
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-4 bg-surface/50 rounded-xl px-4 mt-2">
-                <span className="text-charcoal font-bold">Net après impôt</span>
-                <span className="font-black text-forest text-xl tabular-nums">
-                  {formatCurrency(resultats.fiscalite.revenu_net_apres_impot)} / an
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Fiscalité - Comparateur dynamique */}
+      {resultats.comparaisonFiscalite && (
+        <FiscalComparator data={resultats.comparaisonFiscalite} />
+      )}
+
 
       {/* Collapsible: Détails du financement + Tableau d'amortissement */}
       <Collapsible title="Expertise financement & Amortissement">

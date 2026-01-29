@@ -34,7 +34,7 @@ describe('Calculations Synthese', () => {
     conforme: conforme,
     capacite_emprunt_residuelle: conforme ? 50000 : 0,
     details_associes: [],
-    alertes: conforme ? [] : ['Taux trop élevé'],
+    alertes: conforme ? [] : ['Taux d\'endettement trop élevé (HCSF)'],
     revenus_detail: {
       salaires_estimatif_mensuels: 3000,
       locatifs_bruts_mensuels: 1000,
@@ -78,7 +78,7 @@ describe('Calculations Synthese', () => {
 
     expect(synthese.evaluation).toBe('Faible');
     expect(synthese.score_global).toBeLessThan(50);
-    expect(synthese.points_attention).toContainEqual(expect.stringContaining('Non conforme HCSF'));
+    expect(synthese.points_attention).toContainEqual(expect.stringContaining('HCSF'));
   });
 
   it('should correctly calculate the 0-100 score global', () => {

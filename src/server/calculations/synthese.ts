@@ -454,10 +454,6 @@ export function genererSynthese(
   const critere_hcsf = evaluerCritere(hcsf.conforme, hcsf.taux_endettement);
   if (critere_hcsf.status === 'OK') {
     scoreInterne += 1;
-  } else {
-    points_attention_messages.push(
-      `Non conforme HCSF : taux d'endettement ${hcsf.taux_endettement}% (> ${SEUILS.TAUX_ENDETTEMENT_MAX}%)`
-    );
   }
 
   // Bonus : Rentabilité > 10%

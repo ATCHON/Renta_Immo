@@ -83,6 +83,7 @@ export interface StructureData {
   // Ajouts pour HCSF Nom Propre
   credits_immobiliers?: number;
   loyers_actuels?: number;
+  revenus_activite?: number;
 }
 
 /**
@@ -171,6 +172,29 @@ export interface FiscaliteResultat {
 }
 
 /**
+ * Item individuel d'une comparaison fiscale
+ */
+export interface FiscaliteComparaisonItem {
+  regime: string;
+  impotAnnuelMoyen: number;
+  cashflowNetMoyen: number;
+  rentabiliteNetteNette: number;
+  isOptimal: boolean;
+  isSelected: boolean;
+  description: string;
+  avantages: string[];
+  inconvenients: string[];
+}
+
+/**
+ * Résultats de la comparaison fiscale entre plusieurs régimes
+ */
+export interface FiscaliteComparaison {
+  items: FiscaliteComparaisonItem[];
+  conseil: string;
+}
+
+/**
  * Détails HCSF par associé
  */
 export interface HCSFDetailAssocie {
@@ -209,6 +233,7 @@ export interface CalculResultats {
   synthese: SyntheseResultat;
   projections?: ProjectionData;
   tableauAmortissement?: TableauAmortissement;
+  comparaisonFiscalite?: FiscaliteComparaison;
 }
 
 /**

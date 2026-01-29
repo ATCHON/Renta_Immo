@@ -37,6 +37,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
       regime_fiscal: structure.regime_fiscal ?? 'micro_foncier',
       credits_immobiliers: structure.credits_immobiliers ?? 0,
       loyers_actuels: structure.loyers_actuels ?? 0,
+      revenus_activite: structure.revenus_activite ?? 0,
     },
   });
 
@@ -49,6 +50,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
       regime_fiscal: structure.regime_fiscal ?? 'micro_foncier',
       credits_immobiliers: structure.credits_immobiliers ?? 0,
       loyers_actuels: structure.loyers_actuels ?? 0,
+      revenus_activite: structure.revenus_activite ?? 0,
     });
   }, [structure, reset]);
 
@@ -129,6 +131,14 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                 />
               </div>
             </div>
+
+            <CurrencyInput
+              label="Revenus mensuels nets"
+              placeholder="0"
+              hint="Salaires ou revenus d'activité nets avant projet (optionnel, affine le HCSF)"
+              error={errors.revenus_activite?.message}
+              {...register('revenus_activite', { valueAsNumber: true })}
+            />
           </div>
 
           {/* Regime fiscal */}

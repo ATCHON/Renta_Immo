@@ -6,7 +6,7 @@
 import type { CalculResultats } from '@/types/calculateur';
 import { validateAndNormalize, ValidationError } from './validation';
 import { calculerRentabilite } from './rentabilite';
-import { calculerFiscalite } from './fiscalite';
+import { calculerFiscalite, calculerToutesFiscalites } from './fiscalite';
 import { analyserHcsf } from './hcsf';
 import { genererSynthese } from './synthese';
 import { genererProjections, genererTableauAmortissement } from './projection';
@@ -71,6 +71,9 @@ export function performCalculations(
       data.exploitation.loyer_mensuel
     );
 
+    // Étape 4bis : Comparaison fiscale complète
+    const comparaisonFiscalite = calculerToutesFiscalites(data, rentabilite);
+
 
 
     // Étape 5 : Synthèse et scoring
@@ -121,6 +124,7 @@ export function performCalculations(
           conforme: a.conforme,
         })),
       },
+      comparaisonFiscalite,
       synthese: {
         score_global: synthese.score_global,
         recommandation: synthese.recommandation,

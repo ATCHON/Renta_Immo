@@ -11,7 +11,7 @@
  */
 
 import { CONSTANTS } from '@/config/constants';
-import type { FiscaliteCalculations, StructureData, RentabiliteCalculations, RegimeFiscal, BienData, ExploitationData } from './types';
+import type { FiscaliteCalculations, StructureData, RentabiliteCalculations, RegimeFiscal, BienData, ExploitationData, FinancementData } from './types';
 
 // Re-export pour compatibilité
 export const PRELEVEMENTS_SOCIAUX = CONSTANTS.FISCALITE.PRELEVEMENTS_SOCIAUX_FONCIER;
@@ -39,8 +39,9 @@ export interface FiscaliteDetail extends FiscaliteCalculations {
  *
  * @ref docs/core/specification-calculs.md#52-régime-micro-foncier-location-nue
  * @param revenusBruts - Loyer annuel brut
+ * @param tmi - Taux marginal d'imposition
  */
-function calculerMicroFoncier(
+export function calculerMicroFoncier(
   revenusBruts: number,
   tmi: number
 ): FiscaliteDetail {
@@ -86,7 +87,7 @@ function calculerMicroFoncier(
  * @ref docs/core/specification-calculs.md#53-régime-foncier-réel-location-nue
  * @param revenusBruts - Loyer annuel brut
  */
-function calculerFoncierReel(
+export function calculerFoncierReel(
   revenusBruts: number,
   chargesDeductibles: number,
   tmi: number,
@@ -132,7 +133,7 @@ function calculerFoncierReel(
  * @ref docs/core/specification-calculs.md#54-régime-lmnp-micro-bic-corrigé
  * @param revenusBruts - Loyer annuel brut
  */
-function calculerLmnpMicro(
+export function calculerLmnpMicro(
   revenusBruts: number,
   tmi: number,
   type_location: string = 'meublee_longue_duree'
@@ -183,7 +184,7 @@ function calculerLmnpMicro(
  * @ref docs/core/specification-calculs.md#55-régime-lmnp-réel-enrichi
  * @param revenusBruts - Loyer annuel brut
  */
-function calculerLmnpReel(
+export function calculerLmnpReel(
   revenusBruts: number,
   chargesDeductibles: number,
   prixAchat: number,
@@ -249,7 +250,7 @@ function calculerLmnpReel(
  * @ref docs/core/specification-calculs.md#56-régime-sci-à-lis-enrichi
  * @param revenuNetAvantImpots - Revenu net avant impôts (loyers - charges d'exploitation)
  */
-function calculerFiscaliteSciIs(
+export function calculerFiscaliteSciIs(
   revenuNetAvantImpots: number,
   prixAchat: number,
   interetsAssurance: number = 0
@@ -398,4 +399,114 @@ function round(value: number, decimals: number = 2): number {
  */
 function formatPourcent(valeur: number): string {
   return `${Math.round(valeur * 100)}%`;
+}
+
+/**
+ * Orchestre la comparaison entre les 5 régimes fiscaux principaux
+ */
+export function calculerToutesFiscalites(
+  input: {
+    bien: BienData;
+    financement: FinancementData;
+    exploitation: ExploitationData;
+    structure: StructureData;
+  },
+  rentabilite: RentabiliteCalculations
+): { items: any[]; conseil: string } {
+  const revenusBruts = rentabilite.loyer_annuel;
+  const chargesDeductibles = rentabilite.charges.total_charges_annuelles;
+  const prixAchat = input.bien.prix_achat;
+  const tmi = input.structure.tmi || 30;
+
+  // Estimation simplifiée intérêts + assurance (Année 1)
+  const coutFinancier = (rentabilite.financement.mensualite_assurance + (rentabilite.financement.mensualite_credit * 0.7)) * 12;
+
+  const resultatsRaw = [
+    {
+      id: 'micro_foncier',
+      label: 'Location Nue (Micro-foncier)',
+      calc: calculerMicroFoncier(revenusBruts, tmi),
+      desc: 'Abattement forfaitaire de 30%. Idéal si vos charges sont faibles.',
+      avantages: ['Simplicité administrative', 'Abattement de 30%'],
+      inconvenients: ['Plafond de 15 000€', 'Pas de déduction des intérêts'],
+    },
+    {
+      id: 'foncier_reel',
+      label: 'Location Nue (Réel)',
+      calc: calculerFoncierReel(revenusBruts, chargesDeductibles, tmi, coutFinancier),
+      desc: 'Déduction de toutes les charges réelles. Intéressant pour les gros travaux.',
+      avantages: ['Déduction intégrale des charges', 'Gestion des déficits fonciers'],
+      inconvenients: ['Complexité comptable', 'Pas d\'amortissement du bâti'],
+    },
+    {
+      id: 'lmnp_micro',
+      label: 'LMNP (Micro-BIC)',
+      calc: calculerLmnpMicro(revenusBruts, tmi, input.exploitation.type_location),
+      desc: 'Abattement de 50%. Très avantageux pour les petites surfaces.',
+      avantages: ['Abattement de 50%', 'Gestion simplifiée'],
+      inconvenients: ['Plafond de 77 700€', 'Soumis aux prélèvements sociaux'],
+    },
+    {
+      id: 'lmnp_reel',
+      label: 'LMNP (Réel)',
+      calc: calculerLmnpReel(
+        revenusBruts,
+        chargesDeductibles,
+        prixAchat,
+        tmi,
+        input.bien.montant_travaux,
+        input.bien.valeur_mobilier,
+        coutFinancier
+      ),
+      desc: 'Le régime "ROI" grâce à l\'amortissement. Souvent zéro impôt pendant 10 ans.',
+      avantages: ['Amortissement du bien', 'Gommer l\'imposition sur des années'],
+      inconvenients: ['Obligation de bilan comptable', 'Spécificités LMNP/LMP'],
+    },
+    {
+      id: 'sci_is',
+      label: 'SCI à l\'IS',
+      calc: calculerFiscaliteSciIs(
+        rentabilite.revenu_net_avant_impots,
+        prixAchat,
+        coutFinancier
+      ),
+      desc: 'Fiscalité de l\'entreprise. Idéal pour capitaliser et transmettre.',
+      avantages: ['Taux IS réduit (15%)', 'Pilotage de la fiscalité (dividendes)'],
+      inconvenients: ['Double imposition si sortie', 'Plus-value calculée sur VNC'],
+    },
+  ];
+
+  // Post-traitement pour calculer la rentabilité nette-nette de chaque régime
+  const items = resultatsRaw.map(r => {
+    const rentabiliteNetteNette = prixAchat > 0 ? (r.calc.revenu_net_apres_impot / prixAchat) * 100 : 0;
+    return {
+      regime: r.label,
+      impotAnnuelMoyen: r.calc.impot_total,
+      cashflowNetMoyen: r.calc.revenu_net_apres_impot - (rentabilite.financement.mensualite_totale * 12) + r.calc.impot_total, // On recalcule le cashflow net réel
+      // Note : revenu_net_apres_impot dans fiscalite.ts est (Revenus - Charges - Impots). 
+      // Pour le cashflow net, il faut faire (Revenus - Charges - Mensualités - Impots).
+      cashflowNetReel: r.calc.revenu_net_apres_impot - (rentabilite.financement.mensualite_totale * 12 - coutFinancier),
+      // En fait simplifions : Cashflow Brut (connu) - Impôt régime spécifique
+      cashflowNetSimple: rentabilite.cashflow_annuel - r.calc.impot_total,
+      rentabiliteNetteNette: Math.round(rentabiliteNetteNette * 100) / 100,
+      isOptimal: false,
+      isSelected: r.id === input.structure.regime_fiscal || (r.id === 'sci_is' && input.structure.type === 'sci_is') || (r.id === 'foncier_reel' && input.structure.regime_fiscal === 'reel'),
+      description: r.desc,
+      avantages: r.avantages,
+      inconvenients: r.inconvenients,
+    };
+  });
+
+  // Trouver le meilleur cashflow net
+  let bestIdx = 0;
+  for (let i = 1; i < items.length; i++) {
+    if (items[i].cashflowNetSimple > items[bestIdx].cashflowNetSimple) {
+      bestIdx = i;
+    }
+  }
+  items[bestIdx].isOptimal = true;
+
+  const conseil = `Le régime ${items[bestIdx].regime} semble être le plus avantageux pour votre situation actuelle, avec un gain de cash-flow net optimisé.`;
+
+  return { items, conseil };
 }
