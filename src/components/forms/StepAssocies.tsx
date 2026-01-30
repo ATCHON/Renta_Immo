@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { Input, CurrencyInput, PercentInput } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { useCalculateurStore } from '@/stores/calculateur.store';
+import { useHasHydrated } from '@/hooks/useHasHydrated';
 import { cn } from '@/lib/utils';
 import type { AssocieData } from '@/types';
 
@@ -36,7 +37,9 @@ interface StepAssociesProps {
 }
 
 export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
-  const { structure, updateStructure } = useCalculateurStore();
+  const { getActiveScenario, updateStructure, activeScenarioId } = useCalculateurStore();
+  const hasHydrated = useHasHydrated();
+  const { structure } = getActiveScenario();
 
   const defaultAssocies = structure.associes?.length
     ? structure.associes
@@ -47,6 +50,7 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
     control,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<AssociesStepFormData>({
     resolver: zodResolver(associesStepSchema),
@@ -55,13 +59,22 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
     },
   });
 
+  // Réinitialiser le formulaire quand le scénario change
+  useEffect(() => {
+    reset({
+      associes: structure.associes?.length
+        ? structure.associes
+        : [{ nom: '', parts: 100, revenus: 0, mensualites: 0, charges: 0 }],
+    });
+  }, [activeScenarioId, reset]);
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'associes',
   });
 
   const watchedAssocies = watch('associes');
-  const totalParts = watchedAssocies?.reduce((sum, a) => sum + (a.parts || 0), 0) || 0;
+  const totalParts = watchedAssocies?.reduce((sum: number, a: any) => sum + (a.parts || 0), 0) || 0;
 
   // Si nom propre, passer directement à l'étape suivante
   useEffect(() => {
@@ -89,8 +102,8 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
     });
   };
 
-  // Ne pas rendre si nom propre
-  if (structure.type === 'nom_propre') {
+  // Ne pas rendre si pas hydraté ou nom propre
+  if (!hasHydrated || structure.type === 'nom_propre') {
     return null;
   }
 

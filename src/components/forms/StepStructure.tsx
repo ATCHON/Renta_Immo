@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -19,7 +19,8 @@ interface StepStructureProps {
 }
 
 export function StepStructure({ onNext, onPrev }: StepStructureProps) {
-  const { structure, updateStructure } = useCalculateurStore();
+  const { getActiveScenario, updateStructure, activeScenarioId } = useCalculateurStore();
+  const { structure } = getActiveScenario();
 
   const {
     register,
@@ -43,7 +44,14 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
     },
   });
 
-  // Réinitialiser le formulaire quand le store est hydraté
+  // État local pour le type d'exploitation (Nue vs Meublée)
+  // On l'initialise en fonction du régime fiscal actuel
+  const currentRegime = watch('regime_fiscal');
+  const [typeExploitation, setTypeExploitation] = useState<'nue' | 'meublee'>(
+    currentRegime?.startsWith('lmnp') ? 'meublee' : 'nue'
+  );
+
+  // Réinitialiser le formulaire quand le scénario change
   useEffect(() => {
     reset({
       type: structure.type || 'nom_propre',
@@ -56,10 +64,17 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
       distribution_dividendes: structure.distribution_dividendes ?? false,
       autres_charges: structure.autres_charges ?? 0,
     });
-  }, [structure, reset]);
+    setTypeExploitation(structure.regime_fiscal?.startsWith('lmnp') ? 'meublee' : 'nue');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeScenarioId, reset]);
 
   const selectedType = watch('type');
   const selectedRegime = watch('regime_fiscal');
+
+  const filteredRegimeOptions = REGIME_FISCAL_OPTIONS.filter(opt => {
+    if (typeExploitation === 'meublee') return opt.value.startsWith('lmnp');
+    return !opt.value.startsWith('lmnp');
+  });
 
   const onSubmit = (data: StructureFormData) => {
     updateStructure({
@@ -153,11 +168,50 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
             />
           </div>
 
-          {/* Regime fiscal */}
+          <hr className="border-sand" />
+
+          {/* Workflow guidé Nue vs Meublée */}
+          <div className="space-y-4">
+            <p className="label">Type d&apos;exploitation</p>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setTypeExploitation('nue');
+                  setValue('regime_fiscal', 'micro_foncier');
+                }}
+                className={cn(
+                  "p-3 rounded-lg border text-center transition-all",
+                  typeExploitation === 'nue'
+                    ? "bg-forest/10 border-forest text-forest font-semibold"
+                    : "bg-white border-sand text-charcoal hover:border-pebble"
+                )}
+              >
+                Location Nue
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTypeExploitation('meublee');
+                  setValue('regime_fiscal', 'lmnp_micro');
+                }}
+                className={cn(
+                  "p-3 rounded-lg border text-center transition-all",
+                  typeExploitation === 'meublee'
+                    ? "bg-forest/10 border-forest text-forest font-semibold"
+                    : "bg-white border-sand text-charcoal hover:border-pebble"
+                )}
+              >
+                Location Meublée (LMNP)
+              </button>
+            </div>
+          </div>
+
+          {/* Regime fiscal filtré */}
           <div className="space-y-3">
-            <p className="label">Regime fiscal</p>
+            <p className="label">Choisir votre régime fiscal</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {REGIME_FISCAL_OPTIONS.map((option) => (
+              {filteredRegimeOptions.map((option) => (
                 <RegimeCard
                   key={option.value}
                   value={option.value}
@@ -180,28 +234,38 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                 {selectedRegime === 'micro_foncier' && (
                   <>
                     <strong className="block mb-1">Micro-foncier</strong> Abattement forfaitaire de 30% sur vos revenus locatifs.
-                    Plafond de 15 000 euros/an de revenus fonciers bruts.
+                    Plafond de 15 000 euros/an de revenus fonciers bruts. Idéal pour une gestion simple.
                   </>
                 )}
                 {selectedRegime === 'reel' && (
                   <>
                     <strong className="block mb-1">Foncier réel</strong> Déduction des charges réelles (intérêts, travaux, taxe foncière...).
-                    Obligatoire si revenus &gt; 15 000 euros ou si plus avantageux.
+                    Obligatoire si revenus &gt; 15 000 euros ou si vos charges dépassent 30%.
                   </>
                 )}
                 {selectedRegime === 'lmnp_micro' && (
                   <>
                     <strong className="block mb-1">LMNP Micro-BIC</strong> Abattement forfaitaire de 50% sur vos revenus locatifs meublé.
-                    Plafond de 77 700 euros/an de recettes.
+                    Plafond de 77 700 euros/an de recettes. Très avantageux pour démarrer.
                   </>
                 )}
                 {selectedRegime === 'lmnp_reel' && (
                   <>
                     <strong className="block mb-1">LMNP Réel</strong> Déduction des charges + amortissement du bien.
-                    Permet souvent de réduire fortement l&apos;imposition.
+                    Permet souvent d&apos;effacer totalement l&apos;imposition grâce à l&apos;amortissement comptable.
                   </>
                 )}
               </p>
+              <div className="mt-3 pt-3 border-t border-forest/10 flex justify-between items-center">
+                <span className="text-xs text-forest/70">Besoin d&apos;aide pour choisir ?</span>
+                <button
+                  type="button"
+                  className="text-xs font-bold underline hover:text-forest-dark"
+                  onClick={() => {/* Trigger comparateur modal or link */ }}
+                >
+                  Ouvrir le comparateur fiscal
+                </button>
+              </div>
             </div>
           )}
         </div>

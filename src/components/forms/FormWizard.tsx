@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui';
+import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { Card, Button } from '@/components/ui';
 import { ProgressStepper } from './ProgressStepper';
 import { StepBien } from './StepBien';
 import { StepFinancement } from './StepFinancement';
@@ -12,6 +13,8 @@ import { StepAssocies } from './StepAssocies';
 import { StepOptions } from './StepOptions';
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useCalculateur } from '@/hooks/useCalculateur';
+import { useHasHydrated } from '@/hooks/useHasHydrated';
+import { ScenarioTabs } from '@/components/results/ScenarioTabs';
 import { STEP_LABELS } from '@/lib/constants';
 import type { CalculateurFormData } from '@/types';
 
@@ -22,14 +25,14 @@ export function FormWizard() {
     setStep,
     nextStep,
     prevStep,
-    bien,
-    financement,
-    exploitation,
-    structure,
-    options,
+    getActiveScenario,
     status,
     error,
   } = useCalculateurStore();
+
+  const hasHydrated = useHasHydrated();
+  const scenario = getActiveScenario();
+  const { bien, financement, exploitation, structure, options } = scenario;
 
   const { calculate, isLoading } = useCalculateur();
 
@@ -87,8 +90,16 @@ export function FormWizard() {
     }
   };
 
+  if (!hasHydrated) return null;
+
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex-1 overflow-x-auto">
+          <ScenarioTabs />
+        </div>
+      </div>
+
       {/* Stepper de progression */}
       <ProgressStepper
         currentStep={displayStep + 1}

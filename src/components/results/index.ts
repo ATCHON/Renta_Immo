@@ -12,3 +12,6 @@ export { AmortizationTable } from './AmortizationTable';
 export { InvestmentBreakdown } from './InvestmentBreakdown';
 export { OperationalBalance } from './OperationalBalance';
 export { FiscalComparator } from './FiscalComparator';
+export { ScenarioTabs } from './ScenarioTabs';
+export { CashflowChart } from './CashflowChart';
+export { PatrimoineChart } from './PatrimoineChart';

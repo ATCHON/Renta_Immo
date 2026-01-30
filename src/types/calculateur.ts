@@ -112,6 +112,23 @@ export interface CalculateurFormData {
 }
 
 /**
+ * Un scénario complet de simulation
+ */
+export interface Scenario {
+  id: string;
+  name: string;
+  bien: Partial<BienData>;
+  financement: Partial<FinancementData>;
+  exploitation: Partial<ExploitationData>;
+  structure: Partial<StructureData>;
+  options: OptionsData;
+  resultats: CalculResultats | null;
+  pdfUrl: string | null;
+  currentStep: number;
+  status: FormStatus;
+}
+
+/**
  * Résultats de rentabilité
  */
 export interface RentabiliteResultat {

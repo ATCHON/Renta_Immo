@@ -3,7 +3,7 @@
 > **Version** : 2.0
 > **Date** : 2026-01-27
 > **Auteur** : John (PM)
-> **Statut** : En cours - Sprints 1-4 Terminés
+> **Statut** : ✅ TERMINÉ - Sprints 1-6 Terminés
 > **Prérequis** : Epic 1 (Infrastructure Backend) complétée
 
 ---
@@ -41,6 +41,7 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 - ✅ Sprint 3 : Projections et Amortissement
 - ✅ Sprint 4 : Indicateurs & Enrichissement
 - ✅ Sprint 5 : Charges & Fiscalité avancée
+- ✅ Sprint 6 : Comparaison & UI (Multi-scénarios, Graphiques)
 
 **Implémentation réalisée :**
 - Constantes fiscales 2025 (`src/config/constants.ts`)
@@ -62,8 +63,10 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 - ✅ Correction formules Rentabilité et Notaire
 - ✅ Déduction fiscale des intérêts (LMNP/IS)
 
-**Comparaison** (⏳ À FAIRE - Sprint 6) :
-- Multi-scénarios (jusqu'à 3)
+**Comparaison** (✅ TERMINÉ - Sprint 6) :
+- ✅ Multi-scénarios (jusqu'à 3)
+- ✅ Graphiques d'évolution (Recharts)
+- ✅ Workflow guidé fiscal
 
 ### 3.2 Exclus (Out of Scope)
 
@@ -85,7 +88,7 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 | Sprint 3 | Projections | 4 stories | ✅ TERMINÉ |
 | Sprint 4 | Indicateurs & Enrichissement | 4 stories | ✅ TERMINÉ |
 | Sprint 5 | Charges & Fiscalité avancée | 4 stories | ✅ TERMINÉ |
-| Sprint 6 | Comparaison & UI | 4 stories | ⏳ À FAIRE |
+| Sprint 6 | Comparaison & UI | 4 stories | ✅ TERMINÉ |
 
 ---
 
@@ -412,78 +415,36 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 
 ---
 
-## 10. Sprint 6 — Comparaison & UI ⏳ À FAIRE
+## 10. Sprint 6 — Comparaison & UI ✅ TERMINÉ
 
 ### Stories
 
 | Story ID | Titre | Backlog | Points | Priorité | Statut |
 |----------|-------|---------|--------|----------|--------|
-| **S6.1** | Multi-scénarios (Mémoire) | MVP-008 | 5 | P1 | ⏳ À FAIRE |
+| **S6.1** | Multi-scénarios (Mémoire) | MVP-008 | 5 | P1 | ✅ TERMINÉ |
 | **S6.2** | Persistance scénarios (DB) | MVP-023 | 3 | P3 | 🛑 ON HOLD |
-| **S6.3** | Graphiques d'évolution | MVP-020 | 5 | P2 | ⏳ À FAIRE |
-| **S6.4** | Amélioration Formulaire Régimes| MVP-021 | 5 | P2 | ⏳ À FAIRE |
+| **S6.3** | Graphiques d'évolution | MVP-020 | 5 | P2 | ✅ TERMINÉ |
+| **S6.4** | Amélioration Formulaire Régimes| MVP-021 | 5 | P2 | ✅ TERMINÉ |
 
 **Total** : 15 points (Hors S6.2)
 
-### S6.1 : Multi-scénarios (structure)
-
-**En tant qu'** investisseur
-**Je veux** comparer différentes hypothèses
-**Afin de** prendre la meilleure décision
-
-**Critères d'acceptation** :
-- [ ] Créer jusqu'à 3 scénarios
-- [ ] Dupliquer un scénario existant
-- [ ] Modifier indépendamment chaque scénario
-- [ ] Nommer chaque scénario
-- [ ] Affichage côte à côte des résultats clés
-
 ---
 
-### S6.2 : Persistance scénarios
-
-**En tant qu'** utilisateur
-**Je veux** retrouver mes scénarios si je quitte la page
-**Afin de** ne pas perdre mon travail
-
-**Critères d'acceptation** :
-- [ ] Sauvegarde automatique des scénarios en localStorage
-- [ ] Restauration au rechargement
-- [ ] Suppression d'un scénario
-- [ ] Limite de 5 scénarios max
-
----
+### S6.1 : Multi-scénarios
+- ✅ Gestion de 3 scénarios isolés (Zustand + UUID)
+- ✅ Navigation par onglets (Results & Form)
+- ✅ Action de duplication et renommage
 
 ### S6.3 : Graphiques d'évolution
-
-**En tant qu'** investisseur
-**Je veux** visualiser graphiquement les projections
-**Afin de** mieux comprendre l'évolution
-
-**Critères d'acceptation** :
-- [ ] Graphique cashflow annuel
-- [ ] Graphique enrichissement patrimonial
-- [ ] Graphique répartition capital/intérêts
-- [ ] Graphique évolution loyer vs charges
-- [ ] Interactif (survol pour détails)
-
-**Dépendances** : S3.1, S4.1
-
----
+- ✅ Intégration Recharts
+- ✅ Graphique Cash-flow (Annuel net d'impôt)
+- ✅ Graphique Patrimoine (Valorisation vs Restant dût)
+- ✅ Interactivité (Tooltips) et mise à jour dynamique
 
 ### S6.4 : Amélioration formulaire régimes
-
-**En tant qu'** utilisateur
-**Je veux** un parcours clair pour choisir mon régime
-**Afin de** ne pas me tromper
-
-**Critères d'acceptation** :
-- [ ] Choix type location : Nue / Meublée (LMNP)
-- [ ] Si Nue : choix micro-foncier / réel
-- [ ] Si Meublée : choix micro-BIC / réel
-- [ ] Option SCI (IR ou IS)
-- [ ] Workflow clair et guidé
-- [ ] Tooltips explicatifs
+- ✅ Workflow guidé (Nue vs Meublée)
+- ✅ Filtrage dynamique des régimes fiscaux
+- ✅ Aides contextuelles et lien comparateur
 
 ---
 
@@ -597,4 +558,4 @@ Sprint 6 (Comparaison)
 | 2026-01-26 | 1.0 | Création initiale | John (PM) |
 | 2026-01-27 | 2.0 | Mise à jour post-implémentation Sprints 1-2. Intégration spécifications calculs 2025. | John (PM) |
 | 2026-01-28 | 2.1 | Mise à jour Sprints 3-4 Terminés et Audit validé. | John (PM) |
-| 2026-01-30 | 2.2 | Finalisation Sprint 5 (Fiscalité avancée & SCI IS). Refonte Dashboard. | James (Dev) |
+| 2026-01-30 | 2.3 | Clôture Sprint 6 : Multi-scénarios, Graphiques Recharts et Workflow fiscal guidé. | James (Dev) |

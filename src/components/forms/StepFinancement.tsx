@@ -16,7 +16,8 @@ interface StepFinancementProps {
 }
 
 export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
-  const { bien, financement, updateFinancement } = useCalculateurStore();
+  const { getActiveScenario, updateFinancement, activeScenarioId } = useCalculateurStore();
+  const { bien, financement } = getActiveScenario();
 
   const {
     register,
@@ -46,7 +47,8 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
       frais_dossier: financement.frais_dossier ?? 0,
       frais_garantie: financement.frais_garantie ?? 2000,
     });
-  }, [financement, reset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeScenarioId, reset]);
 
   const watchedValues = watch() as unknown as FinancementFormData;
   const prixAchat = bien.prix_achat || 0;
