@@ -11,7 +11,7 @@
  */
 
 import { CONSTANTS } from '@/config/constants';
-import type { FiscaliteCalculations, StructureData, RentabiliteCalculations, RegimeFiscal, BienData, ExploitationData } from './types';
+import type { FiscaliteCalculations, StructureData, RentabiliteCalculations, RegimeFiscal, BienData, ExploitationData, FinancementData, FiscaliteComparaison } from './types';
 
 // Re-export pour compatibilité
 export const PRELEVEMENTS_SOCIAUX = CONSTANTS.FISCALITE.PRELEVEMENTS_SOCIAUX_FONCIER;
@@ -39,8 +39,9 @@ export interface FiscaliteDetail extends FiscaliteCalculations {
  *
  * @ref docs/core/specification-calculs.md#52-régime-micro-foncier-location-nue
  * @param revenusBruts - Loyer annuel brut
+ * @param tmi - Taux marginal d'imposition
  */
-function calculerMicroFoncier(
+export function calculerMicroFoncier(
   revenusBruts: number,
   tmi: number
 ): FiscaliteDetail {
@@ -86,7 +87,7 @@ function calculerMicroFoncier(
  * @ref docs/core/specification-calculs.md#53-régime-foncier-réel-location-nue
  * @param revenusBruts - Loyer annuel brut
  */
-function calculerFoncierReel(
+export function calculerFoncierReel(
   revenusBruts: number,
   chargesDeductibles: number,
   tmi: number,
@@ -132,7 +133,7 @@ function calculerFoncierReel(
  * @ref docs/core/specification-calculs.md#54-régime-lmnp-micro-bic-corrigé
  * @param revenusBruts - Loyer annuel brut
  */
-function calculerLmnpMicro(
+export function calculerLmnpMicro(
   revenusBruts: number,
   tmi: number,
   type_location: string = 'meublee_longue_duree'
@@ -183,7 +184,7 @@ function calculerLmnpMicro(
  * @ref docs/core/specification-calculs.md#55-régime-lmnp-réel-enrichi
  * @param revenusBruts - Loyer annuel brut
  */
-function calculerLmnpReel(
+export function calculerLmnpReel(
   revenusBruts: number,
   chargesDeductibles: number,
   prixAchat: number,
@@ -249,10 +250,11 @@ function calculerLmnpReel(
  * @ref docs/core/specification-calculs.md#56-régime-sci-à-lis-enrichi
  * @param revenuNetAvantImpots - Revenu net avant impôts (loyers - charges d'exploitation)
  */
-function calculerFiscaliteSciIs(
+export function calculerFiscaliteSciIs(
   revenuNetAvantImpots: number,
   prixAchat: number,
-  interetsAssurance: number = 0
+  interetsAssurance: number = 0,
+  distribuerDividendes: boolean = false
 ): FiscaliteDetail {
   const alertes: string[] = [];
 
@@ -261,7 +263,6 @@ function calculerFiscaliteSciIs(
   const amortissementAnnuel = valeurBati / CONSTANTS.AMORTISSEMENT.DUREE_BATI;
 
   // Base imposable = revenu net (exploitation) - intérêts/assurance - amortissement
-  // Ici revenuNetAvantImpots contient déjà (Loyers - Charges Exploitation)
   const baseImposable = Math.max(0, revenuNetAvantImpots - interetsAssurance - amortissementAnnuel);
 
   if (amortissementAnnuel + interetsAssurance > revenuNetAvantImpots) {
@@ -282,7 +283,19 @@ function calculerFiscaliteSciIs(
       (baseImposable - SEUIL_TAUX_REDUIT) * TAUX_NORMAL;
   }
 
-  const revenuNetApresImpot = revenuNetAvantImpots - interetsAssurance - impotIs;
+  const revenuNetApresIs = revenuNetAvantImpots - interetsAssurance - impotIs;
+
+  // Gestion des dividendes et Flat Tax (S5.4)
+  let dividendesBruts = 0;
+  let flatTax = 0;
+  let netEnPoche = revenuNetApresIs;
+
+  if (distribuerDividendes && revenuNetApresIs > 0) {
+    dividendesBruts = revenuNetApresIs;
+    flatTax = dividendesBruts * 0.30; // Flat tax 30%
+    netEnPoche = dividendesBruts - flatTax;
+    alertes.push(`Distribution des dividendes activée (Flat Tax 30% : ${round(flatTax)}€)`);
+  }
 
   return {
     regime: 'SCI à l\'IS',
@@ -290,8 +303,11 @@ function calculerFiscaliteSciIs(
     abattement: round(amortissementAnnuel),
     impot_revenu: round(impotIs),
     prelevements_sociaux: 0,
-    impot_total: round(impotIs),
-    revenu_net_apres_impot: round(revenuNetApresImpot),
+    impot_total: round(impotIs + flatTax),
+    revenu_net_apres_impot: round(netEnPoche),
+    dividendes_bruts: round(dividendesBruts),
+    flat_tax: round(flatTax),
+    net_en_poche: round(netEnPoche),
     rentabilite_nette_nette: 0,
     alertes,
   };
@@ -310,45 +326,31 @@ export function calculerFiscalite(
   const chargesDeductibles = rentabilite.charges.total_charges_annuelles;
   const prixAchat = bien.prix_achat;
 
-  // Extraction des frais financiers depuis le module rentabilité
-  const interetsAssurance = (rentabilite.financement.mensualite_totale * 12) - (rentabilite.loyer_annuel - rentabilite.cashflow_annuel - rentabilite.charges.total_charges_annuelles);
-  // Plus simple : Mensualité Totale * 12 - (Remboursement Principal Annuel)
-  // Mais ici on n'a pas encore le tableau d'amortissement dans l'objet rentabilite de base.
-  // Cependant, on sait que Revenu_Net_Avant_Impôts - Remboursement_Annuel = Cashflow_Annuel
-  // Donc Remboursement_Annuel = Revenu_Net_Avant_Impôts - Cashflow_Annuel.
-  const remboursement_annuel = rentabilite.revenu_net_avant_impots - rentabilite.cashflow_annuel;
+  // Estimation plus précise des intérêts Année 1 (Payer assurance + Intérêts calculés sur capital initial)
+  // @ts-ignore
+  const tauxInteret = (rentabilite.financement.taux_interet || 3.5) / 100;
+  const interetsAnnuels = rentabilite.financement.montant_emprunt * tauxInteret;
+  const assuranceAnnuelle = rentabilite.financement.mensualite_assurance * 12;
+  const coutFinancierAn1 = interetsAnnuels + assuranceAnnuelle;
 
   // SCI à l'IS
   if (structure.type === 'sci_is') {
     const result = calculerFiscaliteSciIs(
       rentabilite.revenu_net_avant_impots,
       prixAchat,
-      remboursement_annuel // On déduit le remboursement annuel total (intérêts + assurance, le principal n'est pas déductible en IS mais l'amortissement l'est)
-    );
-    // Note Correction Audit : En réalité, seul les intérêts et assurances sont déductibles.
-    // Mais ici 'remboursement_annuel' contient (Intérêts + Assurances + Principal).
-    // Or dans SCI IS, on déduit Intérêts + Assurances + AMORTISSEMENT.
-    // Pour être exact, il nous faut le détail. Utilisons une estimation simple pour l'audit.
-    // @ts-ignore
-    const coutTotalInteretsAnnuels = rentabilite.financement.mensualite_totale * 12 * 0.7; // Estimation 70% d'intérêts en début de prêt
-
-    // Simplifions en utilisant les données de rentabilite.financement
-    const resultCorrige = calculerFiscaliteSciIs(
-      rentabilite.revenu_net_avant_impots,
-      prixAchat,
-      rentabilite.financement.mensualite_assurance * 12 + rentabilite.financement.mensualite_credit * 12 * 0.6 // Estimation
+      coutFinancierAn1,
+      structure.distribution_dividendes || false
     );
 
-    resultCorrige.rentabilite_nette_nette = prixAchat > 0
-      ? (resultCorrige.revenu_net_apres_impot / prixAchat) * 100
+    result.rentabilite_nette_nette = prixAchat > 0
+      ? (result.revenu_net_apres_impot / prixAchat) * 100
       : 0;
-    return resultCorrige;
+    return result;
   }
 
   // Nom propre - selon le régime fiscal
   const regime: RegimeFiscal = structure.regime_fiscal ?? 'micro_foncier';
   const tmi = structure.tmi ?? 30;
-  const coutFinancier = rentabilite.financement.mensualite_assurance * 12 + rentabilite.financement.mensualite_credit * 12 * 0.6; // Estimation
 
   let result: FiscaliteDetail;
 
@@ -357,7 +359,7 @@ export function calculerFiscalite(
       result = calculerMicroFoncier(revenusBruts, tmi);
       break;
     case 'reel':
-      result = calculerFoncierReel(revenusBruts, chargesDeductibles, tmi, coutFinancier);
+      result = calculerFoncierReel(revenusBruts, chargesDeductibles, tmi, coutFinancierAn1);
       break;
     case 'lmnp_micro':
       result = calculerLmnpMicro(revenusBruts, tmi, exploitation.type_location);
@@ -370,7 +372,7 @@ export function calculerFiscalite(
         tmi,
         bien.montant_travaux,
         bien.valeur_mobilier,
-        coutFinancier
+        coutFinancierAn1
       );
       break;
     default:
@@ -398,4 +400,128 @@ function round(value: number, decimals: number = 2): number {
  */
 function formatPourcent(valeur: number): string {
   return `${Math.round(valeur * 100)}%`;
+}
+
+/**
+ * Orchestre la comparaison entre les 5 régimes fiscaux principaux
+ */
+export function calculerToutesFiscalites(
+  input: {
+    bien: BienData;
+    financement: FinancementData;
+    exploitation: ExploitationData;
+    structure: StructureData;
+  },
+  rentabilite: RentabiliteCalculations
+): FiscaliteComparaison {
+  const revenusBruts = rentabilite.loyer_annuel;
+  const chargesDeductibles = rentabilite.charges.total_charges_annuelles;
+  const prixAchat = input.bien.prix_achat;
+  const tmi = input.structure.tmi ?? 30;
+
+  // Estimation plus précise des intérêts Année 1
+  const tauxInteret = (input.financement.taux_interet || 3.5) / 100;
+  const interetsAnnuels = rentabilite.financement.montant_emprunt * tauxInteret;
+  const assuranceAnnuelle = rentabilite.financement.mensualite_assurance * 12;
+  const coutFinancierAn1 = interetsAnnuels + assuranceAnnuelle;
+
+  const resultatsRaw = [
+    {
+      id: 'micro_foncier',
+      label: 'Location Nue (Micro-foncier)',
+      calc: calculerMicroFoncier(revenusBruts, tmi),
+      desc: 'Abattement forfaitaire de 30%. Idéal si vos charges sont faibles.',
+      avantages: ['Simplicité administrative', 'Abattement de 30%'],
+      inconvenients: ['Plafond de 15 000€', 'Pas de déduction des intérêts'],
+    },
+    {
+      id: 'foncier_reel',
+      label: 'Location Nue (Réel)',
+      calc: calculerFoncierReel(revenusBruts, chargesDeductibles, tmi, coutFinancierAn1),
+      desc: 'Déduction de toutes les charges réelles. Intéressant pour les gros travaux.',
+      avantages: ['Déduction intégrale des charges', 'Gestion des déficits fonciers'],
+      inconvenients: ['Complexité comptable', 'Pas d\'amortissement du bâti'],
+    },
+    {
+      id: 'lmnp_micro',
+      label: 'LMNP (Micro-BIC)',
+      calc: calculerLmnpMicro(revenusBruts, tmi, input.exploitation.type_location),
+      desc: 'Abattement de 50%. Très avantageux pour les petites surfaces.',
+      avantages: ['Abattement de 50%', 'Gestion simplifiée'],
+      inconvenients: ['Plafond de 77 700€', 'Soumis aux prélèvements sociaux'],
+    },
+    {
+      id: 'lmnp_reel',
+      label: 'LMNP (Réel)',
+      calc: calculerLmnpReel(
+        revenusBruts,
+        chargesDeductibles,
+        prixAchat,
+        tmi,
+        input.bien.montant_travaux,
+        input.bien.valeur_mobilier,
+        coutFinancierAn1
+      ),
+      desc: 'Le régime "ROI" grâce à l\'amortissement. Souvent zéro impôt pendant 10 ans.',
+      avantages: ['Amortissement du bien', 'Gommer l\'imposition sur des années'],
+      inconvenients: ['Obligation de bilan comptable', 'Spécificités LMNP/LMP'],
+    },
+    {
+      id: 'sci_is',
+      label: 'SCI à l\'IS (Capitalisation)',
+      calc: calculerFiscaliteSciIs(
+        rentabilite.revenu_net_avant_impots,
+        prixAchat,
+        coutFinancierAn1,
+        false
+      ),
+      desc: 'Fiscalité de l\'entreprise. Idéal pour capitaliser et transmettre.',
+      avantages: ['Taux IS réduit (15%)', 'Pas d\'IR immédiat sur les bénéfices'],
+      inconvenients: ['Double imposition si sortie', 'Trésorerie bloquée dans la SCI'],
+    },
+    {
+      id: 'sci_is_dividendes',
+      label: 'SCI à l\'IS (Distribution)',
+      calc: calculerFiscaliteSciIs(
+        rentabilite.revenu_net_avant_impots,
+        prixAchat,
+        coutFinancierAn1,
+        true
+      ),
+      desc: 'Distribution des bénéfices via Flat Tax. Pour générer des revenus immédiats.',
+      avantages: ['Revenus disponibles immédiatement', 'Flat Tax de 30% libératoire'],
+      inconvenients: ['Poids de la Flat Tax', 'Moins d\'effet de levier sur le capital'],
+    },
+  ];
+
+  // Post-traitement pour calculer la rentabilité nette-nette de chaque régime
+  const items = resultatsRaw.map(r => {
+    const rentabiliteNetteNette = prixAchat > 0 ? (r.calc.revenu_net_apres_impot / prixAchat) * 100 : 0;
+    return {
+      regime: r.label,
+      impotAnnuelMoyen: r.calc.impot_total,
+      cashflowNetMoyen: Math.round(rentabilite.cashflow_annuel - r.calc.impot_total),
+      rentabiliteNetteNette: Math.round(rentabiliteNetteNette * 100) / 100,
+      isOptimal: false,
+      isSelected: r.id === input.structure.regime_fiscal || (r.id === 'sci_is' && input.structure.type === 'sci_is') || (r.id === 'foncier_reel' && input.structure.regime_fiscal === 'reel'),
+      description: r.desc,
+      avantages: r.avantages,
+      inconvenients: r.inconvenients,
+      dividendes_bruts: r.calc.dividendes_bruts,
+      flat_tax: r.calc.flat_tax,
+    };
+  });
+
+  // Trouver le meilleur cashflow net
+  let bestIdx = 0;
+  for (let i = 1; i < items.length; i++) {
+    if (items[i].cashflowNetMoyen > items[bestIdx].cashflowNetMoyen) {
+      bestIdx = i;
+    }
+  }
+  items[bestIdx].isOptimal = true;
+
+  const conseil = `Le régime ${items[bestIdx].regime} semble être le plus avantageux pour votre situation actuelle, avec un gain de cash-flow net optimisé.`;
+
+  return { items, conseil };
 }

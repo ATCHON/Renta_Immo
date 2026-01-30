@@ -141,7 +141,9 @@ export function calculerHcsfNomPropre(
     );
   }
 
-  const revenusActiviteMensuelsEstimes = estimerRevenusDepuisTmi(data.structure.tmi ?? 0);
+  const revenusActiviteMensuelsEstimes = data.structure.revenus_activite && data.structure.revenus_activite > 0
+    ? data.structure.revenus_activite
+    : estimerRevenusDepuisTmi(data.structure.tmi ?? 0);
 
   const revenusPonderes = calculerRevenusPonderes(
     revenusActiviteMensuelsEstimes,
@@ -150,9 +152,10 @@ export function calculerHcsfNomPropre(
   );
 
   const creditsExistantsMensuels = data.structure.credits_immobiliers || 0;
+  const autresChargesMensuelles = data.structure.autres_charges || 0;
   const chargesFixesMensuelles = 0; // On pourrait ajouter d'autres charges ici si besoin
   const chargesTotalesMensuelles =
-    creditsExistantsMensuels + chargesFixesMensuelles + mensualiteNouveauCredit;
+    creditsExistantsMensuels + autresChargesMensuelles + chargesFixesMensuelles + mensualiteNouveauCredit;
 
   const tauxEndettement = calculerTauxEndettement(
     revenusPonderes.total,
@@ -192,6 +195,7 @@ export function calculerHcsfNomPropre(
     charges_detail: {
       credits_existants_mensuels: arrondir(creditsExistantsMensuels),
       nouveau_credit_mensuel: arrondir(mensualiteNouveauCredit),
+      autres_charges_mensuelles: arrondir(autresChargesMensuelles),
       charges_fixes_mensuelles: arrondir(chargesFixesMensuelles),
       total_mensuelles: arrondir(chargesTotalesMensuelles),
     },

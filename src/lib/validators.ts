@@ -155,6 +155,9 @@ export const structureSchema = z.object({
   regime_fiscal: z.enum(['micro_foncier', 'reel', 'lmnp_micro', 'lmnp_reel']).optional(),
   credits_immobiliers: z.coerce.number({ message: 'Veuillez saisir un montant' }).min(0).default(0),
   loyers_actuels: z.coerce.number({ message: 'Veuillez saisir un montant' }).min(0).default(0),
+  revenus_activite: z.coerce.number({ message: 'Veuillez saisir un montant' }).min(0).default(0),
+  distribution_dividendes: z.boolean().default(false),
+  autres_charges: z.coerce.number({ message: 'Veuillez saisir un montant' }).min(0).default(0),
 });
 
 /**

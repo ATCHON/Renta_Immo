@@ -98,6 +98,34 @@ export interface FiscaliteCalculations {
   revenu_net_apres_impot: number;
   rentabilite_nette_nette: number;
   alertes: string[];
+  dividendes_bruts?: number;
+  flat_tax?: number;
+  net_en_poche?: number;
+}
+
+/**
+ * Item de comparaison fiscale
+ */
+export interface FiscaliteComparaisonItem {
+  regime: string;
+  impotAnnuelMoyen: number;
+  cashflowNetMoyen: number;
+  rentabiliteNetteNette: number;
+  isOptimal: boolean;
+  isSelected: boolean;
+  description: string;
+  avantages: string[];
+  inconvenients: string[];
+  dividendes_bruts?: number;
+  flat_tax?: number;
+}
+
+/**
+ * Résultat complet de la comparaison fiscale
+ */
+export interface FiscaliteComparaison {
+  items: FiscaliteComparaisonItem[];
+  conseil: string;
 }
 
 /**
@@ -130,6 +158,7 @@ export interface HCSFCalculations {
   charges_detail: {
     credits_existants_mensuels: number;
     nouveau_credit_mensuel: number;
+    autres_charges_mensuelles?: number;
     charges_fixes_mensuelles: number;
     total_mensuelles: number;
   };
