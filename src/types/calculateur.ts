@@ -84,6 +84,8 @@ export interface StructureData {
   credits_immobiliers?: number;
   loyers_actuels?: number;
   revenus_activite?: number;
+  distribution_dividendes?: boolean;
+  autres_charges?: number;
 }
 
 /**
@@ -169,6 +171,9 @@ export interface FiscaliteResultat {
   regime: string;
   impot_estime: number;
   revenu_net_apres_impot: number;
+  dividendes_bruts?: number;
+  flat_tax?: number;
+  net_en_poche?: number;
 }
 
 /**
@@ -184,6 +189,8 @@ export interface FiscaliteComparaisonItem {
   description: string;
   avantages: string[];
   inconvenients: string[];
+  dividendes_bruts?: number;
+  flat_tax?: number;
 }
 
 /**

@@ -38,6 +38,8 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
       credits_immobiliers: structure.credits_immobiliers ?? 0,
       loyers_actuels: structure.loyers_actuels ?? 0,
       revenus_activite: structure.revenus_activite ?? 0,
+      distribution_dividendes: structure.distribution_dividendes ?? false,
+      autres_charges: structure.autres_charges ?? 0,
     },
   });
 
@@ -51,6 +53,8 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
       credits_immobiliers: structure.credits_immobiliers ?? 0,
       loyers_actuels: structure.loyers_actuels ?? 0,
       revenus_activite: structure.revenus_activite ?? 0,
+      distribution_dividendes: structure.distribution_dividendes ?? false,
+      autres_charges: structure.autres_charges ?? 0,
     });
   }, [structure, reset]);
 
@@ -139,6 +143,14 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
               error={errors.revenus_activite?.message}
               {...register('revenus_activite', { valueAsNumber: true })}
             />
+
+            <CurrencyInput
+              label="Autres charges"
+              placeholder="0"
+              hint="Crédits conso, pensions, etc. (affine le HCSF)"
+              error={errors.autres_charges?.message}
+              {...register('autres_charges', { valueAsNumber: true })}
+            />
           </div>
 
           {/* Regime fiscal */}
@@ -197,13 +209,30 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
 
       {/* Info pour SCI IS */}
       {selectedType === 'sci_is' && (
-        <div className="bg-surface rounded-xl p-4 border border-sand">
+        <div className="bg-surface rounded-xl p-4 border border-sand space-y-4">
           <p className="text-sm text-charcoal">
             <strong className="text-forest">SCI à l&apos;IS</strong> Vous allez configurer les associés
             et leurs revenus à l&apos;étape suivante pour le calcul du taux
             d&apos;endettement HCSF.
           </p>
-          <p className="text-sm text-pebble mt-2">
+
+          <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-sand">
+            <div>
+              <p className="font-semibold text-sm text-charcoal">Distribuer les bénéfices (Dividendes)</p>
+              <p className="text-xs text-pebble">Active la distribution annuelle et applique la Flat Tax de 30%.</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={watch('distribution_dividendes')}
+                onChange={(e) => setValue('distribution_dividendes', e.target.checked)}
+              />
+              <div className="w-11 h-6 bg-sand peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-forest"></div>
+            </label>
+          </div>
+
+          <p className="text-xs text-pebble">
             L&apos;IS permet de déduire l&apos;amortissement du bien (2%/an) et d&apos;être imposé
             à 15% jusqu&apos;a 42 500 euros puis 25% au-delà.
           </p>

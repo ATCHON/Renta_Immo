@@ -61,6 +61,18 @@ export const FiscalComparator: React.FC<FiscalComparatorProps> = ({ data }) => {
                                         <p className="text-[11px] text-slate-500 mt-1 line-clamp-1 group-hover:line-clamp-none transition-all duration-300">
                                             {item.description}
                                         </p>
+                                        {item.dividendes_bruts !== undefined && item.dividendes_bruts > 0 && (
+                                            <div className="mt-2 p-2 bg-slate-50 rounded border border-slate-100 text-[10px] space-y-1">
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-500">Div. bruts:</span>
+                                                    <span className="font-semibold text-slate-700">{Math.round(item.dividendes_bruts).toLocaleString()} €</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-500">Flat Tax (30%):</span>
+                                                    <span className="font-semibold text-rose-500">-{Math.round(item.flat_tax || 0).toLocaleString()} €</span>
+                                                </div>
+                                            </div>
+                                        )}
                                     </td>
                                     <td className="px-6 py-5 text-center font-medium text-slate-600 text-sm">
                                         {item.impotAnnuelMoyen > 0 ? `${Math.round(item.impotAnnuelMoyen).toLocaleString()} €` : '0 €'}

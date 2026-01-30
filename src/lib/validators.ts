@@ -156,6 +156,8 @@ export const structureSchema = z.object({
   credits_immobiliers: z.coerce.number({ message: 'Veuillez saisir un montant' }).min(0).default(0),
   loyers_actuels: z.coerce.number({ message: 'Veuillez saisir un montant' }).min(0).default(0),
   revenus_activite: z.coerce.number({ message: 'Veuillez saisir un montant' }).min(0).default(0),
+  distribution_dividendes: z.boolean().default(false),
+  autres_charges: z.coerce.number({ message: 'Veuillez saisir un montant' }).min(0).default(0),
 });
 
 /**

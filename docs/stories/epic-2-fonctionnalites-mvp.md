@@ -348,8 +348,8 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 |----------|-------|---------|--------|----------|--------|
 | **S5.1** | Charges récupérables | MVP-014 | 3 | P2 | ✅ TERMINÉ |
 | **S5.2** | Honoraires comptable | MVP-015 | 1 | P3 | ✅ TERMINÉ |
-| **S5.3** | Comparaison régimes fiscaux | MVP-018 | 5 | P1 | ⏳ À FAIRE |
-| **S5.4** | Amélioration SCI IS | MVP-019 | 5 | P2 | ✅ TERMINÉ |
+| **S5.3** | Comparaison régimes fiscaux | MVP-018 | 5 | P1 | ✅ TERMINÉ |
+| **S5.4** | Amélioration SCI IS | MVP-019 | 5 | P2 | ⏳ EN COURS |
 
 **Total restant** : 5 points
 
