@@ -13,6 +13,7 @@ const config: Config = {
         background: '#FAFAF8',
         surface: '#F5F3EF',
         border: '#E8E4DD',
+        sand: '#E8E4DD',
 
         // Text colors
         charcoal: '#1F1F1F',

@@ -9,3 +9,6 @@ export { CashflowCard } from './CashflowCard';
 export { HCSFIndicator } from './HCSFIndicator';
 export { ProjectionTable } from './ProjectionTable';
 export { AmortizationTable } from './AmortizationTable';
+export { InvestmentBreakdown } from './InvestmentBreakdown';
+export { OperationalBalance } from './OperationalBalance';
+export { FiscalComparator } from './FiscalComparator';
