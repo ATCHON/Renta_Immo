@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import type { ExploitationData, CashflowResultat, RentabiliteResultat, FinancementResultat } from '@/types';
 
 interface OperationalBalanceProps {
-    exploitation: ExploitationData;
+    exploitation: Partial<ExploitationData>;
     cashflow: CashflowResultat;
     rentabilite: RentabiliteResultat;
     financement: FinancementResultat;
@@ -21,11 +21,11 @@ export function OperationalBalance({
     impotMensuel
 }: OperationalBalanceProps) {
     const isPositive = cashflow.mensuel >= 0;
+    const loyerMensuel = exploitation.loyer_mensuel || 0;
+    const cashflowMensuelBrut = cashflow.mensuel_brut || 0;
 
     // Calcul du total des sorties mensuelles
-    const totalSorties = (exploitation.loyer_mensuel - cashflow.mensuel_brut!) + financement.mensualite + impotMensuel;
-    // Note: cashflow.mensuel_brut = loyer - charges. Donc loyer - cashflow_brut = charges.
-    const chargesMensuelles = exploitation.loyer_mensuel - (cashflow.mensuel_brut || 0);
+    const chargesMensuelles = loyerMensuel - cashflowMensuelBrut;
 
     return (
         <Card className="h-full">
@@ -60,7 +60,7 @@ export function OperationalBalance({
                             <div className="w-2 h-2 rounded-full bg-forest" />
                             <span className="text-sm font-medium text-charcoal">Revenus locatifs</span>
                         </div>
-                        <span className="font-bold text-forest">{formatCurrency(exploitation.loyer_mensuel)}</span>
+                        <span className="font-bold text-forest">{formatCurrency(loyerMensuel)}</span>
                     </div>
 
                     <div className="space-y-4">
@@ -92,7 +92,7 @@ export function OperationalBalance({
                             "px-3 py-1 rounded-full text-xs font-bold",
                             isPositive ? "bg-forest/10 text-forest" : "bg-terracotta/10 text-terracotta"
                         )}>
-                            {isPositive ? "Projet Sain" : `${((Math.abs(cashflow.mensuel) / exploitation.loyer_mensuel) * 100).toFixed(0)}% du loyer`}
+                            {isPositive ? "Projet Sain" : `${((Math.abs(cashflow.mensuel) / (loyerMensuel || 1)) * 100).toFixed(0)}% du loyer`}
                         </div>
                     </div>
                 </div>

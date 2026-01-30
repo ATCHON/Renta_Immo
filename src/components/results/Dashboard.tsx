@@ -165,12 +165,12 @@ export function Dashboard() {
       {/* Section 2 : Analyse Détaillée (Capital vs Exploitation) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <InvestmentBreakdown
-          bien={bien as any}
-          financement={financement as any}
+          bien={bien}
+          financement={financement}
           resultats={resultats.financement}
         />
         <OperationalBalance
-          exploitation={exploitation as any}
+          exploitation={exploitation}
           cashflow={resultats.cashflow}
           rentabilite={resultats.rentabilite}
           financement={resultats.financement}

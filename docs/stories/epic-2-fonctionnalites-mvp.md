@@ -40,7 +40,7 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 - ✅ Sprint 2 : Régimes fiscaux base
 - ✅ Sprint 3 : Projections et Amortissement
 - ✅ Sprint 4 : Indicateurs & Enrichissement
-- ⏳ Sprint 5 : Charges & Fiscalité avancée (En cours)
+- ✅ Sprint 5 : Charges & Fiscalité avancée
 
 **Implémentation réalisée :**
 - Constantes fiscales 2025 (`src/config/constants.ts`)
@@ -84,7 +84,7 @@ Suite à la validation des spécifications de calcul avec le métier (voir `docs
 | Sprint 2 | Régimes fiscaux base | 3 stories | ✅ TERMINÉ |
 | Sprint 3 | Projections | 4 stories | ✅ TERMINÉ |
 | Sprint 4 | Indicateurs & Enrichissement | 4 stories | ✅ TERMINÉ |
-| Sprint 5 | Charges & Fiscalité avancée | 4 stories | ⏳ EN COURS |
+| Sprint 5 | Charges & Fiscalité avancée | 4 stories | ✅ TERMINÉ |
 | Sprint 6 | Comparaison & UI | 4 stories | ⏳ À FAIRE |
 
 ---
@@ -349,7 +349,7 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 | **S5.1** | Charges récupérables | MVP-014 | 3 | P2 | ✅ TERMINÉ |
 | **S5.2** | Honoraires comptable | MVP-015 | 1 | P3 | ✅ TERMINÉ |
 | **S5.3** | Comparaison régimes fiscaux | MVP-018 | 5 | P1 | ✅ TERMINÉ |
-| **S5.4** | Amélioration SCI IS | MVP-019 | 5 | P2 | ⏳ EN COURS |
+| **S5.4** | Amélioration SCI IS | MVP-019 | 5 | P2 | ✅ TERMINÉ |
 
 **Total restant** : 5 points
 
@@ -384,10 +384,10 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 **Afin de** choisir le montage optimal
 
 **Critères d'acceptation** :
-- [ ] Tableau comparatif : Nu micro, Nu réel, LMNP micro, LMNP réel, SCI IS
-- [ ] Pour chaque : imposition, cashflow net, rentabilité nette-nette
-- [ ] Mise en évidence du régime optimal
-- [ ] Explication des différences
+- [x] Tableau comparatif : Nu micro, Nu réel, LMNP micro, LMNP réel, SCI IS
+- [x] Pour chaque : imposition, cashflow net, rentabilité nette-nette
+- [x] Mise en évidence du régime optimal
+- [x] Explication des différences
 
 **Note** : Tous les régimes sont déjà calculés individuellement. Cette story ajoute la comparaison côte à côte.
 
@@ -402,11 +402,11 @@ Effet de levier = (Rentabilité nette - Taux crédit) × (Emprunt / Fonds propre
 **Afin d'** optimiser ma stratégie
 
 **Critères d'acceptation** :
-- [ ] Calcul IS : 15% jusqu'à 42 500€, 25% au-delà ✅ FAIT
-- [ ] Simulation distribution dividendes ⏳ À FAIRE
-- [ ] Flat tax 30% sur dividendes ⏳ À FAIRE
-- [ ] Comparaison : capitaliser vs distribuer
-- [ ] Impact sur HCSF des associés ✅ FAIT
+- [x] Calcul IS : 15% jusqu'à 42 500€, 25% au-delà ✅ FAIT
+- [x] Simulation distribution dividendes ✅ FAIT
+- [x] Flat tax 30% sur dividendes ✅ FAIT
+- [x] Comparaison : capitaliser vs distribuer ✅ FAIT
+- [x] Impact sur HCSF des associés ✅ FAIT
 
 **Note** : Le calcul IS est fait. Reste la partie dividendes.
 
@@ -597,3 +597,4 @@ Sprint 6 (Comparaison)
 | 2026-01-26 | 1.0 | Création initiale | John (PM) |
 | 2026-01-27 | 2.0 | Mise à jour post-implémentation Sprints 1-2. Intégration spécifications calculs 2025. | John (PM) |
 | 2026-01-28 | 2.1 | Mise à jour Sprints 3-4 Terminés et Audit validé. | John (PM) |
+| 2026-01-30 | 2.2 | Finalisation Sprint 5 (Fiscalité avancée & SCI IS). Refonte Dashboard. | James (Dev) |

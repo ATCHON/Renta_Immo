@@ -6,18 +6,23 @@ import { cn } from '@/lib/utils';
 import type { BienData, FinancementData, FinancementResultat } from '@/types';
 
 interface InvestmentBreakdownProps {
-    bien: BienData;
-    financement: FinancementData;
+    bien: Partial<BienData>;
+    financement: Partial<FinancementData>;
     resultats: FinancementResultat;
 }
 
 export function InvestmentBreakdown({ bien, financement, resultats }: InvestmentBreakdownProps) {
-    const totalInvesti = (bien.prix_achat || 0) + (bien.montant_travaux || 0) + resultats.cout_total_credit - (resultats.montant_emprunt - (bien.prix_achat || 0));
-    // Note: Simplification pour le capital total mobilisé
-    const totalBesoin = (bien.prix_achat || 0) + (bien.montant_travaux || 0) + (financement.frais_dossier || 0) + (financement.frais_garantie || 0);
+    const prixAchat = bien.prix_achat || 0;
+    const montantTravaux = bien.montant_travaux || 0;
+    const apport = financement.apport || 0;
+    const fraisDossier = financement.frais_dossier || 0;
+    const fraisGarantie = financement.frais_garantie || 0;
 
-    const apportPart = (financement.apport / totalBesoin) * 100;
-    const empruntPart = (resultats.montant_emprunt / totalBesoin) * 100;
+    const totalBesoin = prixAchat + montantTravaux + fraisDossier + fraisGarantie;
+    const safeTotal = totalBesoin || 1;
+
+    const apportPart = (apport / safeTotal) * 100;
+    const empruntPart = (resultats.montant_emprunt / safeTotal) * 100;
 
     return (
         <Card className="h-full">
@@ -53,16 +58,16 @@ export function InvestmentBreakdown({ bien, financement, resultats }: Investment
                 <div className="grid grid-cols-2 gap-4">
                     <div className="p-3 bg-surface rounded-xl border border-sand/50">
                         <p className="nordic-label-xs !tracking-wider mb-1">Prix & Frais</p>
-                        <p className="text-lg font-bold text-charcoal">{formatCurrency(bien.prix_achat)}</p>
+                        <p className="text-lg font-bold text-charcoal">{formatCurrency(prixAchat)}</p>
                         <p className="text-[10px] text-stone/80">Exclu. frais de notaire</p>
                     </div>
                     <div className="p-3 bg-surface rounded-xl border border-sand/50">
                         <p className="nordic-label-xs !tracking-wider mb-1">Travaux & Mobilier</p>
-                        <p className="text-lg font-bold text-charcoal">{formatCurrency((bien.montant_travaux || 0) + (bien.valeur_mobilier || 0))}</p>
+                        <p className="text-lg font-bold text-charcoal">{formatCurrency(montantTravaux + (bien.valeur_mobilier || 0))}</p>
                     </div>
                     <div className="p-3 bg-forest/5 rounded-xl border border-forest/10">
                         <p className="nordic-label-xs !text-forest !tracking-wider mb-1">Apport Personnel</p>
-                        <p className="text-lg font-bold text-forest">{formatCurrency(financement.apport)}</p>
+                        <p className="text-lg font-bold text-forest">{formatCurrency(apport)}</p>
                     </div>
                     <div className="p-3 bg-forest/5 rounded-xl border border-forest/10">
                         <p className="nordic-label-xs !text-forest !tracking-wider mb-1">Montant Emprunté</p>
