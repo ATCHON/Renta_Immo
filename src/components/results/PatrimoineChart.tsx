@@ -56,7 +56,7 @@ export const PatrimoineChart: React.FC<PatrimoineChartProps> = ({ data }) => {
                             border: '1px solid #E2E8F0',
                             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                         }}
-                        formatter={(value: number) => formatCurrency(value)}
+                        formatter={(value: any) => formatCurrency(Number(value))}
                     />
                     <Legend iconType="circle" />
                     <Area
