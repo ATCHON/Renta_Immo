@@ -37,7 +37,7 @@ interface StepAssociesProps {
 }
 
 export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
-  const { getActiveScenario, updateStructure } = useCalculateurStore();
+  const { getActiveScenario, updateStructure, activeScenarioId } = useCalculateurStore();
   const hasHydrated = useHasHydrated();
   const { structure } = getActiveScenario();
 
@@ -50,6 +50,7 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
     control,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<AssociesStepFormData>({
     resolver: zodResolver(associesStepSchema),
@@ -58,13 +59,22 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
     },
   });
 
+  // Réinitialiser le formulaire quand le scénario change
+  useEffect(() => {
+    reset({
+      associes: structure.associes?.length
+        ? structure.associes
+        : [{ nom: '', parts: 100, revenus: 0, mensualites: 0, charges: 0 }],
+    });
+  }, [activeScenarioId, reset]);
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'associes',
   });
 
   const watchedAssocies = watch('associes');
-  const totalParts = watchedAssocies?.reduce((sum, a) => sum + (a.parts || 0), 0) || 0;
+  const totalParts = watchedAssocies?.reduce((sum: number, a: any) => sum + (a.parts || 0), 0) || 0;
 
   // Si nom propre, passer directement à l'étape suivante
   useEffect(() => {

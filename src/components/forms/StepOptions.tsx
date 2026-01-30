@@ -16,7 +16,7 @@ interface StepOptionsProps {
 }
 
 export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
-  const { getActiveScenario, updateOptions } = useCalculateurStore();
+  const { getActiveScenario, updateOptions, activeScenarioId } = useCalculateurStore();
   const { options } = getActiveScenario();
 
   const {
@@ -48,7 +48,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
       taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
     });
-  }, [options, reset]);
+  }, [activeScenarioId, reset]);
 
   const watchedValues = watch();
 

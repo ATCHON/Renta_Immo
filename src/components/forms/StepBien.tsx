@@ -15,7 +15,7 @@ interface StepBienProps {
 }
 
 export function StepBien({ onNext }: StepBienProps) {
-  const { getActiveScenario, updateBien } = useCalculateurStore();
+  const { getActiveScenario, updateBien, activeScenarioId } = useCalculateurStore();
   const { bien } = getActiveScenario();
 
   const {
@@ -49,7 +49,7 @@ export function StepBien({ onNext }: StepBienProps) {
       montant_travaux: bien.montant_travaux || 0,
       valeur_mobilier: bien.valeur_mobilier || 0,
     });
-  }, [bien, reset]);
+  }, [activeScenarioId, reset]);
 
   const onSubmit = (data: BienFormData) => {
     updateBien(data as BienData);

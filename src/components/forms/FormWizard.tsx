@@ -98,38 +98,6 @@ export function FormWizard() {
         <div className="flex-1 overflow-x-auto">
           <ScenarioTabs />
         </div>
-
-        <div className="flex items-center gap-2 shrink-0 h-10">
-          {currentStep > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={prevStep}
-              className="flex items-center gap-1 text-muted-foreground hover:text-forest"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span>Retour</span>
-            </Button>
-          )}
-
-          <Button
-            size="sm"
-            onClick={currentStep === 5 || (structure.type === 'nom_propre' && currentStep === 4) ? handleSubmit : nextStep}
-            isLoading={isLoading}
-            className="flex items-center gap-1 px-4"
-          >
-            <span>
-              {currentStep === 5 || (structure.type === 'nom_propre' && currentStep === 4)
-                ? 'Calculer'
-                : 'Continuer'}
-            </span>
-            {currentStep === 5 || (structure.type === 'nom_propre' && currentStep === 4) ? (
-              <Play className="w-4 h-4" />
-            ) : (
-              <ChevronRight className="w-4 h-4" />
-            )}
-          </Button>
-        </div>
       </div>
 
       {/* Stepper de progression */}

@@ -11,8 +11,16 @@ import { CashflowCard } from './CashflowCard';
 import { HCSFIndicator } from './HCSFIndicator';
 import { ProjectionTable } from './ProjectionTable';
 import { AmortizationTable } from './AmortizationTable';
-import { InvestmentBreakdown, OperationalBalance, FiscalComparator, ScenarioTabs } from './';
+import {
+  InvestmentBreakdown,
+  OperationalBalance,
+  FiscalComparator,
+  ScenarioTabs,
+  CashflowChart,
+  PatrimoineChart
+} from './';
 import { useCalculateurStore } from '@/stores/calculateur.store';
+import { useChartData } from '@/hooks/useChartData';
 import { useHasHydrated } from '@/hooks/useHasHydrated';
 import { formatCurrency, formatPercent, cn } from '@/lib/utils';
 import { downloadPdf } from '@/lib/api';
@@ -28,6 +36,8 @@ export function Dashboard() {
   const hasHydrated = useHasHydrated();
   const scenario = getActiveScenario();
   const { resultats, pdfUrl, bien, financement, exploitation } = scenario;
+
+  const { cashflowData, patrimoineData } = useChartData(resultats?.projections?.projections);
 
   if (!hasHydrated) return null;
 
@@ -175,7 +185,8 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Section 2 : Analyse Détaillée (Capital vs Exploitation) */}
+
+      {/* Section 3 : Analyse Détaillée (Capital vs Exploitation) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <InvestmentBreakdown
           bien={bien}
@@ -299,6 +310,22 @@ export function Dashboard() {
                   {formatCurrency(resultats.projections.totaux.capitalRembourse)}
                 </p>
               </div>
+            </div>
+
+            {/* Graphiques de projection */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
+              <Card className="p-6 bg-white shadow-sm border-none">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-sm font-bold text-charcoal uppercase tracking-widestAlpha">Projection Cash-flow (Net d&apos;impôt)</h3>
+                </div>
+                <CashflowChart data={cashflowData} />
+              </Card>
+              <Card className="p-6 bg-white shadow-sm border-none">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-sm font-bold text-charcoal uppercase tracking-widestAlpha">Évolution du Patrimoine</h3>
+                </div>
+                <PatrimoineChart data={patrimoineData} />
+              </Card>
             </div>
 
             {/* Tableau de projection */}
