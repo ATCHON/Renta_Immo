@@ -98,40 +98,6 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Vos Paramètres (Données de saisie) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <MetricCard
-          label="Prix d'achat"
-          value={formatCurrency(bien.prix_achat || 0)}
-          status="info"
-        />
-        <MetricCard
-          label="Travaux"
-          value={formatCurrency(bien.montant_travaux || 0)}
-          status="info"
-        />
-        <MetricCard
-          label="Apport personnel"
-          value={formatCurrency(useCalculateurStore.getState().financement.apport || 0)}
-          status="info"
-        />
-        <MetricCard
-          label="Loyer mensuel"
-          value={formatCurrency(useCalculateurStore.getState().exploitation.loyer_mensuel || 0)}
-          status="info"
-        />
-        <MetricCard
-          label="Taux du crédit"
-          value={formatPercent(useCalculateurStore.getState().financement.taux_interet || 0)}
-          status="info"
-        />
-        <MetricCard
-          label="Durée du prêt"
-          value={`${useCalculateurStore.getState().financement.duree_emprunt || 0} ans`}
-          status="info"
-        />
-      </div>
-
       {/* Score global */}
       <Card variant="elevated" className="overflow-hidden border-none shadow-xl">
         <div className="bg-gradient-to-br from-forest via-forest-dark to-charcoal p-8 text-white relative">
@@ -164,20 +130,47 @@ export function Dashboard() {
         </div>
       </Card>
 
-      {/* Performance du Projet (Indicateurs clés) */}
+      {/* Vos Paramètres (Données de saisie) */}
       <div className="space-y-4">
-        <h3 className="text-sm font-bold text-charcoal uppercase tracking-[0.2em] px-1">Performance du Projet</h3>
+        <h3 className="text-sm font-bold text-charcoal uppercase tracking-[0.2em] px-1">Vos Paramètres</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <MetricCard
-            label="Rentabilité nette"
-            value={formatPercent(resultats.rentabilite.nette)}
-            status={resultats.rentabilite.nette >= 5 ? 'success' : 'warning'}
+            label="Prix d'achat"
+            value={formatCurrency(bien.prix_achat || 0)}
+            status="info"
           />
           <MetricCard
-            label={resultats.cashflow.mensuel >= 0 ? "Cashflow Net mensuel" : "Effort d'épargne net"}
-            value={formatCurrency(resultats.cashflow.mensuel)}
-            status={resultats.cashflow.mensuel >= 0 ? 'success' : 'danger'}
+            label="Travaux"
+            value={formatCurrency(bien.montant_travaux || 0)}
+            status="info"
           />
+          <MetricCard
+            label="Apport personnel"
+            value={formatCurrency(useCalculateurStore.getState().financement.apport || 0)}
+            status="info"
+          />
+          <MetricCard
+            label="Loyer mensuel"
+            value={formatCurrency(useCalculateurStore.getState().exploitation.loyer_mensuel || 0)}
+            status="info"
+          />
+          <MetricCard
+            label="Taux du crédit"
+            value={formatPercent(useCalculateurStore.getState().financement.taux_interet || 0)}
+            status="info"
+          />
+          <MetricCard
+            label="Durée du prêt"
+            value={`${useCalculateurStore.getState().financement.duree_emprunt || 0} ans`}
+            status="info"
+          />
+        </div>
+      </div>
+
+      {/* Performance du Projet (Indicateurs clés techniques) */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-bold text-charcoal uppercase tracking-[0.2em] px-1">Performance du Projet</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             label="Mensualité prêt"
             value={formatCurrency(resultats.financement.mensualite)}
