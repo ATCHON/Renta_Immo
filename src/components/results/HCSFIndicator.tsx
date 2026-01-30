@@ -17,62 +17,61 @@ export function HCSFIndicator({ hcsf }: HCSFIndicatorProps) {
     <Card>
       <CardHeader
         title="Conformité HCSF"
-        description="Vérification du taux d'endettement (max 35%)"
+        className="pb-2"
         action={
           <span
             className={cn(
-              'px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide',
+              'nordic-badge',
               isConforme
-                ? 'bg-forest/10 text-forest border border-forest/20'
-                : 'bg-terracotta/10 text-terracotta border border-terracotta/20'
+                ? 'bg-forest/10 text-forest border-forest/20'
+                : 'bg-terracotta/10 text-terracotta border-terracotta/20'
             )}
           >
-            {isConforme ? 'Conforme' : 'Alerte HCSF'}
+            {isConforme ? 'Conforme' : 'Alerte'}
           </span>
         }
       />
       <CardContent>
-        {/* Jauge principale */}
-        <div className="mb-6">
-          <div className="flex items-end justify-between mb-2">
-            <span className="text-sm font-bold text-pebble uppercase tracking-wider">Taux d&apos;endettement global</span>
+        {/* Jauge principale compacte */}
+        <div className="flex items-center gap-6">
+          <div className="flex-1">
+            <HCSFGauge value={hcsf.taux_endettement} maxValue={50} threshold={HCSF.TAUX_ENDETTEMENT_MAX} />
+          </div>
+          <div className="shrink-0 text-right">
+            <p className="nordic-label-xs mb-1">Taux Global</p>
             <span
               className={cn(
-                'text-3xl font-black tabular-nums',
+                'nordic-kpi-value leading-none',
                 hcsf.taux_endettement <= HCSF.TAUX_ENDETTEMENT_MAX
-                  ? 'text-forest'
-                  : 'text-terracotta'
+                  ? '!text-forest'
+                  : '!text-terracotta'
               )}
             >
               {formatPercent(hcsf.taux_endettement)}
             </span>
           </div>
-
-          {/* Jauge visuelle */}
-          <HCSFGauge value={hcsf.taux_endettement} maxValue={50} threshold={HCSF.TAUX_ENDETTEMENT_MAX} />
         </div>
 
-        {/* Détails par associé */}
-        {hcsf.details_associes && hcsf.details_associes.length > 0 && (
-          <div className="border-t border-sand/50 pt-6">
-            <p className="text-xs font-bold text-pebble uppercase tracking-widest mb-4">
-              Détails par associé
-            </p>
-            <div className="space-y-5">
+        {/* Détails par associé (Masqués si conforme ou compactés) */}
+        {!isConforme && hcsf.details_associes && hcsf.details_associes.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-sand/30">
+            <div className="space-y-2">
               {hcsf.details_associes.map((associe, index) => (
-                <AssocieHCSFRow key={index} associe={associe} />
+                <div key={index} className="flex justify-between items-center text-[11px]">
+                  <span className="text-stone font-medium">{associe.nom}</span>
+                  <span className={cn("font-bold", associe.conforme ? "text-forest" : "text-terracotta")}>
+                    {formatPercent(associe.taux_endettement)}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Information */}
-        <div className="mt-6 p-4 bg-surface border border-sand/50 rounded-xl flex gap-3 italic">
-          <div className="text-forest">ℹ</div>
-          <p className="text-xs text-pebble leading-relaxed">
-            <strong className="text-charcoal not-italic font-bold">Rappel HCSF :</strong> Le Haut Conseil de Stabilité Financière
-            recommande un taux d&apos;endettement maximum de 35% et une durée
-            de crédit limitée à 25 ans.
+        {/* Information Rappel (Ultra-compact) */}
+        <div className="mt-4 pt-4 border-t border-sand/50">
+          <p className="text-[10px] text-stone leading-relaxed italic">
+            <strong className="text-charcoal not-italic">HCSF :</strong> Max 35% d&apos;endettement sur 25 ans.
           </p>
         </div>
       </CardContent>
@@ -92,33 +91,21 @@ function HCSFGauge({ value, maxValue, threshold }: HCSFGaugeProps) {
   const isOverThreshold = value > threshold;
 
   return (
-    <div className="relative pt-6">
+    <div className="relative h-2 w-full bg-sand/20 rounded-full overflow-hidden border border-sand/10">
       {/* Barre de fond */}
-      <div className="h-4 bg-sand/20 rounded-full overflow-hidden shadow-inner border border-sand/10">
-        <div
-          className={cn(
-            'h-full rounded-full transition-all duration-700 ease-out',
-            isOverThreshold ? 'bg-terracotta' : 'bg-forest'
-          )}
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
+      <div
+        className={cn(
+          'h-full rounded-full transition-all duration-700 ease-out',
+          isOverThreshold ? 'bg-terracotta' : 'bg-forest'
+        )}
+        style={{ width: `${percentage}%` }}
+      />
 
       {/* Marqueur du seuil */}
       <div
-        className="absolute top-4 bottom-0 w-0.5 bg-charcoal/30 z-10"
+        className="absolute top-0 bottom-0 w-0.5 bg-charcoal/30 z-10"
         style={{ left: `${thresholdPosition}%` }}
-      >
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-black text-charcoal/40 uppercase tracking-tighter whitespace-nowrap bg-white px-1">
-          Seuil {threshold}%
-        </div>
-      </div>
-
-      {/* Légende */}
-      <div className="flex justify-between mt-2 text-[10px] font-bold text-pebble uppercase tracking-widest">
-        <span>0%</span>
-        <span>{maxValue}%</span>
-      </div>
+      />
     </div>
   );
 }
