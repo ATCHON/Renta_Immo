@@ -65,6 +65,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
       autres_charges: structure.autres_charges ?? 0,
     });
     setTypeExploitation(structure.regime_fiscal?.startsWith('lmnp') ? 'meublee' : 'nue');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeScenarioId, reset]);
 
   const selectedType = watch('type');
@@ -171,7 +172,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
 
           {/* Workflow guidé Nue vs Meublée */}
           <div className="space-y-4">
-            <p className="label">Type d'exploitation</p>
+            <p className="label">Type d&apos;exploitation</p>
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
@@ -251,12 +252,12 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                 {selectedRegime === 'lmnp_reel' && (
                   <>
                     <strong className="block mb-1">LMNP Réel</strong> Déduction des charges + amortissement du bien.
-                    Permet souvent d'effacer totalement l'imposition grâce à l'amortissement comptable.
+                    Permet souvent d&apos;effacer totalement l&apos;imposition grâce à l&apos;amortissement comptable.
                   </>
                 )}
               </p>
               <div className="mt-3 pt-3 border-t border-forest/10 flex justify-between items-center">
-                <span className="text-xs text-forest/70">Besoin d'aide pour choisir ?</span>
+                <span className="text-xs text-forest/70">Besoin d&apos;aide pour choisir ?</span>
                 <button
                   type="button"
                   className="text-xs font-bold underline hover:text-forest-dark"

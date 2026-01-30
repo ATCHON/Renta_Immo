@@ -49,6 +49,7 @@ export function StepBien({ onNext }: StepBienProps) {
       montant_travaux: bien.montant_travaux || 0,
       valeur_mobilier: bien.valeur_mobilier || 0,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeScenarioId, reset]);
 
   const onSubmit = (data: BienFormData) => {
