@@ -16,7 +16,8 @@ interface StepFinancementProps {
 }
 
 export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
-  const { bien, financement, updateFinancement } = useCalculateurStore();
+  const { getActiveScenario, updateFinancement } = useCalculateurStore();
+  const { bien, financement } = getActiveScenario();
 
   const {
     register,

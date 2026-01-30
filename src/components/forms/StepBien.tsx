@@ -15,7 +15,8 @@ interface StepBienProps {
 }
 
 export function StepBien({ onNext }: StepBienProps) {
-  const { bien, updateBien } = useCalculateurStore();
+  const { getActiveScenario, updateBien } = useCalculateurStore();
+  const { bien } = getActiveScenario();
 
   const {
     register,
@@ -36,20 +37,18 @@ export function StepBien({ onNext }: StepBienProps) {
     },
   });
 
-  // Réinitialiser le formulaire quand le store est hydraté
+  // Réinitialiser le formulaire quand le scénario change
   useEffect(() => {
-    if (bien.adresse || bien.prix_achat) {
-      reset({
-        adresse: bien.adresse || '',
-        prix_achat: bien.prix_achat || undefined,
-        surface: bien.surface || undefined,
-        type_bien: bien.type_bien || 'appartement',
-        annee_construction: bien.annee_construction || undefined,
-        etat_bien: bien.etat_bien || 'ancien',
-        montant_travaux: bien.montant_travaux || 0,
-        valeur_mobilier: bien.valeur_mobilier || 0,
-      });
-    }
+    reset({
+      adresse: bien.adresse || '',
+      prix_achat: bien.prix_achat || undefined,
+      surface: bien.surface || undefined,
+      type_bien: bien.type_bien || 'appartement',
+      annee_construction: bien.annee_construction || undefined,
+      etat_bien: bien.etat_bien || 'ancien',
+      montant_travaux: bien.montant_travaux || 0,
+      valeur_mobilier: bien.valeur_mobilier || 0,
+    });
   }, [bien, reset]);
 
   const onSubmit = (data: BienFormData) => {

@@ -19,7 +19,8 @@ interface StepStructureProps {
 }
 
 export function StepStructure({ onNext, onPrev }: StepStructureProps) {
-  const { structure, updateStructure } = useCalculateurStore();
+  const { getActiveScenario, updateStructure } = useCalculateurStore();
+  const { structure } = getActiveScenario();
 
   const {
     register,
@@ -43,7 +44,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
     },
   });
 
-  // Réinitialiser le formulaire quand le store est hydraté
+  // Réinitialiser le formulaire quand le scénario change
   useEffect(() => {
     reset({
       type: structure.type || 'nom_propre',

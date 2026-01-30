@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { Input, CurrencyInput, PercentInput } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { useCalculateurStore } from '@/stores/calculateur.store';
+import { useHasHydrated } from '@/hooks/useHasHydrated';
 import { cn } from '@/lib/utils';
 import type { AssocieData } from '@/types';
 
@@ -36,7 +37,9 @@ interface StepAssociesProps {
 }
 
 export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
-  const { structure, updateStructure } = useCalculateurStore();
+  const { getActiveScenario, updateStructure } = useCalculateurStore();
+  const hasHydrated = useHasHydrated();
+  const { structure } = getActiveScenario();
 
   const defaultAssocies = structure.associes?.length
     ? structure.associes
@@ -89,8 +92,8 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
     });
   };
 
-  // Ne pas rendre si nom propre
-  if (structure.type === 'nom_propre') {
+  // Ne pas rendre si pas hydraté ou nom propre
+  if (!hasHydrated || structure.type === 'nom_propre') {
     return null;
   }
 

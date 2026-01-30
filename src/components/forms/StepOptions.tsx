@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input, Select, PercentInput } from '@/components/ui';
@@ -15,13 +16,15 @@ interface StepOptionsProps {
 }
 
 export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
-  const { options, updateOptions } = useCalculateurStore();
+  const { getActiveScenario, updateOptions } = useCalculateurStore();
+  const { options } = getActiveScenario();
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(optionsSchema),
@@ -34,6 +37,18 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
     },
   });
+
+  // Réinitialiser le formulaire quand le scénario change
+  useEffect(() => {
+    reset({
+      generer_pdf: options.generer_pdf ?? true,
+      envoyer_email: options.envoyer_email ?? false,
+      email: options.email || '',
+      horizon_projection: options.horizon_projection ?? 20,
+      taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
+      taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
+    });
+  }, [options, reset]);
 
   const watchedValues = watch();
 

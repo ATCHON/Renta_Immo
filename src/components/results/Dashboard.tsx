@@ -11,14 +11,25 @@ import { CashflowCard } from './CashflowCard';
 import { HCSFIndicator } from './HCSFIndicator';
 import { ProjectionTable } from './ProjectionTable';
 import { AmortizationTable } from './AmortizationTable';
-import { InvestmentBreakdown, OperationalBalance, FiscalComparator } from './';
+import { InvestmentBreakdown, OperationalBalance, FiscalComparator, ScenarioTabs } from './';
 import { useCalculateurStore } from '@/stores/calculateur.store';
+import { useHasHydrated } from '@/hooks/useHasHydrated';
 import { formatCurrency, formatPercent, cn } from '@/lib/utils';
 import { downloadPdf } from '@/lib/api';
 
 export function Dashboard() {
   const router = useRouter();
-  const { resultats, pdfUrl, bien, financement, exploitation, reset, setStatus } = useCalculateurStore();
+  const {
+    getActiveScenario,
+    resetScenario,
+    setStatus
+  } = useCalculateurStore();
+
+  const hasHydrated = useHasHydrated();
+  const scenario = getActiveScenario();
+  const { resultats, pdfUrl, bien, financement, exploitation } = scenario;
+
+  if (!hasHydrated) return null;
 
   // Rediriger si pas de résultats
   if (!resultats) {
@@ -61,7 +72,7 @@ export function Dashboard() {
   };
 
   const handleNewCalculation = () => {
-    reset();
+    resetScenario(scenario.id);
     router.push('/calculateur');
   };
 
@@ -99,6 +110,8 @@ export function Dashboard() {
           )}
         </div>
       </div>
+
+      <ScenarioTabs />
 
       {/* Vue d'overview - Section "Verdict" */}
       <div className="mt-12 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
