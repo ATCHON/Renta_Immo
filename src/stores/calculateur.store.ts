@@ -3,7 +3,6 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type {
   BienData,
   FinancementData,
@@ -147,6 +146,18 @@ export const useCalculateurStore = create<CalculateurState>()(
   (set, get) => {
     const initialScenario = createInitialScenario();
 
+    /**
+     * Helper pour mettre à jour une ou plusieurs propriétés du scénario actif
+     */
+    const updateActive = (updates: Partial<Scenario>) => {
+      const { scenarios, activeScenarioId } = get();
+      set({
+        scenarios: scenarios.map((s) =>
+          s.id === activeScenarioId ? { ...s, ...updates } : s
+        ),
+      });
+    };
+
     return {
       // État initial global
       currentStep: 0,
@@ -166,33 +177,26 @@ export const useCalculateurStore = create<CalculateurState>()(
       // Actions de navigation
       setStep: (step) => {
         if (step >= 0 && step < TOTAL_STEPS) {
-          const { scenarios, activeScenarioId } = get();
-          set({
-            currentStep: step,
-            scenarios: scenarios.map(s => s.id === activeScenarioId ? { ...s, currentStep: step } : s)
-          });
+          set({ currentStep: step });
+          updateActive({ currentStep: step });
         }
       },
 
       nextStep: () => {
-        const { currentStep, scenarios, activeScenarioId } = get();
+        const { currentStep } = get();
         if (currentStep < TOTAL_STEPS - 1) {
           const nextStep = currentStep + 1;
-          set({
-            currentStep: nextStep,
-            scenarios: scenarios.map(s => s.id === activeScenarioId ? { ...s, currentStep: nextStep } : s)
-          });
+          set({ currentStep: nextStep });
+          updateActive({ currentStep: nextStep });
         }
       },
 
       prevStep: () => {
-        const { currentStep, scenarios, activeScenarioId } = get();
+        const { currentStep } = get();
         if (currentStep > 0) {
           const prevStep = currentStep - 1;
-          set({
-            currentStep: prevStep,
-            scenarios: scenarios.map(s => s.id === activeScenarioId ? { ...s, currentStep: prevStep } : s)
-          });
+          set({ currentStep: prevStep });
+          updateActive({ currentStep: prevStep });
         }
       },
 
@@ -242,11 +246,13 @@ export const useCalculateurStore = create<CalculateurState>()(
           nextActiveId = nextScenarios[0].id;
         }
 
+        const nextTarget = nextScenarios.find(s => s.id === nextActiveId);
+
         set({
           scenarios: nextScenarios,
           activeScenarioId: nextActiveId,
-          currentStep: nextScenarios.find(s => s.id === nextActiveId)?.currentStep ?? 0,
-          status: nextScenarios.find(s => s.id === nextActiveId)?.status ?? 'idle',
+          currentStep: nextTarget?.currentStep ?? 0,
+          status: nextTarget?.status ?? 'idle',
         });
       },
 
@@ -271,85 +277,45 @@ export const useCalculateurStore = create<CalculateurState>()(
 
       // Actions de mise à jour (ciblent le scénario actif)
       updateBien: (data) => {
-        const { scenarios, activeScenarioId } = get();
-        set({
-          scenarios: scenarios.map((s) =>
-            s.id === activeScenarioId ? { ...s, bien: { ...s.bien, ...data } } : s
-          ),
-        });
+        const scenario = get().getActiveScenario();
+        updateActive({ bien: { ...scenario.bien, ...data } });
       },
 
       updateFinancement: (data) => {
-        const { scenarios, activeScenarioId } = get();
-        set({
-          scenarios: scenarios.map((s) =>
-            s.id === activeScenarioId
-              ? { ...s, financement: { ...s.financement, ...data } }
-              : s
-          ),
-        });
+        const scenario = get().getActiveScenario();
+        updateActive({ financement: { ...scenario.financement, ...data } });
       },
 
       updateExploitation: (data) => {
-        const { scenarios, activeScenarioId } = get();
-        set({
-          scenarios: scenarios.map((s) =>
-            s.id === activeScenarioId
-              ? { ...s, exploitation: { ...s.exploitation, ...data } }
-              : s
-          ),
-        });
+        const scenario = get().getActiveScenario();
+        updateActive({ exploitation: { ...scenario.exploitation, ...data } });
       },
 
       updateStructure: (data) => {
-        const { scenarios, activeScenarioId } = get();
-        set({
-          scenarios: scenarios.map((s) =>
-            s.id === activeScenarioId
-              ? { ...s, structure: { ...s.structure, ...data } }
-              : s
-          ),
-        });
+        const scenario = get().getActiveScenario();
+        updateActive({ structure: { ...scenario.structure, ...data } });
       },
 
       updateOptions: (data) => {
-        const { scenarios, activeScenarioId } = get();
-        set({
-          scenarios: scenarios.map((s) =>
-            s.id === activeScenarioId
-              ? { ...s, options: { ...s.options, ...data } }
-              : s
-          ),
-        });
+        const scenario = get().getActiveScenario();
+        updateActive({ options: { ...scenario.options, ...data } });
       },
 
       // Actions pour les résultats (ciblent le scénario actif)
       setResultats: (resultats, pdfUrl) => {
-        const { scenarios, activeScenarioId } = get();
-        set({
-          status: 'success',
-          scenarios: scenarios.map((s) =>
-            s.id === activeScenarioId ? { ...s, resultats, pdfUrl } : s
-          ),
-        });
+        set({ status: 'success' });
+        updateActive({ resultats, pdfUrl, status: 'success' });
       },
 
       setStatus: (status) => {
-        const { scenarios, activeScenarioId } = get();
-        set({
-          status,
-          scenarios: scenarios.map(s => s.id === activeScenarioId ? { ...s, status } : s)
-        });
+        set({ status });
+        updateActive({ status });
       },
 
       setError: (error) => {
-        const { scenarios, activeScenarioId } = get();
         const status = error ? 'error' : 'idle';
-        set({
-          error,
-          status,
-          scenarios: scenarios.map(s => s.id === activeScenarioId ? { ...s, status } : s)
-        });
+        set({ error, status });
+        updateActive({ status });
       },
 
       // Actions utilitaires
@@ -365,7 +331,9 @@ export const useCalculateurStore = create<CalculateurState>()(
       },
 
       resetScenario: (id) => {
-        const { scenarios } = get();
+        const { scenarios, activeScenarioId } = get();
+        const isActive = id === activeScenarioId;
+
         set({
           scenarios: scenarios.map((s) => {
             if (s.id === id) {
@@ -374,9 +342,11 @@ export const useCalculateurStore = create<CalculateurState>()(
             }
             return s;
           }),
-          currentStep: 0,
-          status: 'idle',
-          error: null,
+          ...(isActive && {
+            currentStep: 0,
+            status: 'idle',
+            error: null,
+          }),
         });
       },
 
@@ -391,5 +361,5 @@ export const useCalculateurStore = create<CalculateurState>()(
         };
       },
     };
-  }
+  },
 );
