@@ -18,8 +18,8 @@ export const FiscalComparator: React.FC<FiscalComparatorProps> = ({ data }) => {
                 <div>
                     <h2 className="text-2xl font-semibold text-slate-900 tracking-tight">Comparatif des Régimes Fiscaux</h2>
                     <p className="text-slate-500 mt-1 max-w-2xl">
-                        Optimisez votre investissement en comparant l'impact fiscal des principaux régimes.
-                        Le cash-flow net est l'indicateur clé pour votre poche.
+                        Optimisez votre investissement en comparant l&apos;impact fiscal des principaux régimes.
+                        Le cash-flow net est l&apos;indicateur clé pour votre poche.
                     </p>
                 </div>
             </div>
@@ -109,7 +109,7 @@ export const FiscalComparator: React.FC<FiscalComparatorProps> = ({ data }) => {
                     <Info size={18} />
                 </div>
                 <div>
-                    <h4 className="font-bold text-indigo-900">Conseil de l'expert</h4>
+                    <h4 className="font-bold text-indigo-900">Conseil de l&apos;expert</h4>
                     <p className="text-indigo-800/80 text-sm mt-1 leading-relaxed">
                         {data.conseil}
                         <span className="block mt-2 font-medium opacity-75">
