@@ -102,8 +102,10 @@ export function performCalculations(
         nette_nette: fiscalite.rentabilite_nette_nette,
       },
       cashflow: {
-        mensuel: rentabilite.cashflow_mensuel,
-        annuel: rentabilite.cashflow_annuel,
+        mensuel: Math.round((rentabilite.cashflow_annuel - fiscalite.impot_total) / 12),
+        annuel: Math.round(rentabilite.cashflow_annuel - fiscalite.impot_total),
+        mensuel_brut: rentabilite.cashflow_mensuel,
+        annuel_brut: rentabilite.cashflow_annuel,
       },
       financement: {
         montant_emprunt: rentabilite.financement.montant_emprunt,

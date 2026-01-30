@@ -138,7 +138,7 @@ export function Dashboard() {
           status={resultats.rentabilite.nette >= 5 ? 'success' : 'warning'}
         />
         <MetricCard
-          label={resultats.cashflow.mensuel >= 0 ? "Cashflow mensuel" : "Effort d'épargne (négatif)"}
+          label={resultats.cashflow.mensuel >= 0 ? "Cashflow Net mensuel" : "Effort d'épargne net"}
           value={formatCurrency(resultats.cashflow.mensuel)}
           status={resultats.cashflow.mensuel >= 0 ? 'success' : 'danger'}
         />

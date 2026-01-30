@@ -15,8 +15,8 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
   return (
     <Card>
       <CardHeader
-        title="Cashflow"
-        description="Flux de trésorerie de votre investissement"
+        title="Cashflow Net"
+        description="Flux de trésorerie net (après impôts et crédit)"
       />
       <CardContent>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -58,7 +58,7 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
               {isPositive ? '+' : ''}{formatCurrency(cashflow.annuel)}
             </p>
             <p className="text-xs text-pebble mt-2 font-medium">
-              Résultat net d&apos;exploitation
+              Cashflow Net annuel (après impôts)
             </p>
           </div>
         </div>

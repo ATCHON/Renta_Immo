@@ -128,6 +128,8 @@ export interface RentabiliteResultat {
 export interface CashflowResultat {
   mensuel: number;
   annuel: number;
+  mensuel_brut?: number;
+  annuel_brut?: number;
 }
 
 /**
