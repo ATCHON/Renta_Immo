@@ -80,17 +80,17 @@ TECH-013 (Setup react-pdf)
 
 ---
 
-## 📅 Sprint 2 - Persistance Supabase
+## 📅 Sprint 2 - Persistance Supabase - 🏃 EN COURS
 
 > **Objectif** : Permettre aux utilisateurs de sauvegarder et retrouver leurs simulations
 
-| Ordre | Story | Titre | Points | Dépendances |
-|-------|-------|-------|--------|-------------|
-| 1 | TECH-017 | Setup Supabase | 1 | - |
-| 2 | TECH-018 | Schéma BDD | 3 | TECH-017 |
-| 3 | TECH-019 | Client Supabase | 2 | TECH-017, TECH-018 |
-| 4 | TECH-020 | API CRUD Simulations | 5 | TECH-017, TECH-018, TECH-019 |
-| 5 | TECH-021 | Intégration UI Simulations | 8 | TECH-020 |
+| Ordre | Story | Titre | Points | Dépendances | Statut |
+|-------|-------|-------|--------|-------------|--------|
+| 1 | TECH-017 | Setup Supabase | 1 | - | ✅ Terminé |
+| 2 | TECH-018 | Schéma BDD | 3 | TECH-017 | ✅ Terminé |
+| 3 | TECH-019 | Client Supabase | 2 | TECH-017, TECH-018 | ✅ Terminé |
+| 4 | TECH-020 | API CRUD Simulations | 5 | TECH-017, TECH-018, TECH-019 | ✅ Terminé |
+| 5 | TECH-021 | Intégration UI Simulations | 8 | TECH-020 | ✅ Terminé |
 
 **Total Sprint 2 : 19 points**
 

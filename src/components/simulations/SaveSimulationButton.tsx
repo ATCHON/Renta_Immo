@@ -1,0 +1,38 @@
+'use client';
+
+import React, { useState } from 'react';
+import { SaveSimulationModal } from './SaveSimulationModal';
+import type { CalculateurFormData, CalculResultats } from '@/types/calculateur';
+
+interface SaveSimulationButtonProps {
+    formData: CalculateurFormData;
+    resultats: CalculResultats;
+}
+
+export const SaveSimulationButton: React.FC<SaveSimulationButtonProps> = ({
+    formData,
+    resultats,
+}) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    return (
+        <>
+            <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-indigo-200 active:transform active:scale-95 transition-all text-sm sm:text-base"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                </svg>
+                Sauvegarder la simulation
+            </button>
+
+            <SaveSimulationModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                formData={formData}
+                resultats={resultats}
+            />
+        </>
+    );
+};
