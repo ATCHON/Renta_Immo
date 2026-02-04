@@ -91,6 +91,7 @@ TECH-013 (Setup react-pdf)
 | 3 | TECH-019 | Client Supabase | 2 | TECH-017, TECH-018 | ✅ Terminé |
 | 4 | TECH-020 | API CRUD Simulations | 5 | TECH-017, TECH-018, TECH-019 | ✅ Terminé |
 | 5 | TECH-021 | Intégration UI Simulations | 8 | TECH-020 | ✅ Terminé |
+| 6 | TECH-024 | Compléments & Dette Supabase | 8 | TECH-021 | 📋 Backlog |
 
 **Total Sprint 2 : 19 points**
 

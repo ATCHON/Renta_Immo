@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useSimulations } from '@/hooks/useSimulations';
 import { formatCurrency } from '@/lib/utils';
+import type { Simulation } from '@/types/database';
 
 export default function SimulationsPage() {
     const { data: response, isLoading, error } = useSimulations({ sort: 'created_at', order: 'desc' });
@@ -65,7 +66,7 @@ export default function SimulationsPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {simulations.map((sim: any) => (
+                    {simulations.map((sim: Simulation) => (
                         <div
                             key={sim.id}
                             className="group bg-white rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:shadow-slate-200 border border-slate-100 p-8 transition-all duration-300"
@@ -104,8 +105,8 @@ export default function SimulationsPage() {
                                 </div>
                                 <div>
                                     <p className="text-[10px] uppercase tracking-wider font-black text-slate-300 mb-1">Cash-flow</p>
-                                    <p className={`font-bold ${sim.cashflow_mensuel >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                        {sim.cashflow_mensuel >= 0 ? '+' : ''}{formatCurrency(sim.cashflow_mensuel)}
+                                    <p className={`font-bold ${(sim.cashflow_mensuel || 0) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                        {(sim.cashflow_mensuel || 0) >= 0 ? '+' : ''}{formatCurrency(sim.cashflow_mensuel || 0)}
                                     </p>
                                 </div>
                             </div>

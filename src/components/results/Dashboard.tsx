@@ -11,6 +11,7 @@ import { CashflowCard } from './CashflowCard';
 import { HCSFIndicator } from './HCSFIndicator';
 import { ProjectionTable } from './ProjectionTable';
 import { AmortizationTable } from './AmortizationTable';
+import type { CalculateurFormData } from '@/types/calculateur';
 import {
   InvestmentBreakdown,
   OperationalBalance,
@@ -49,7 +50,7 @@ export function Dashboard() {
           Aucun résultat disponible
         </h2>
         <p className="text-stone mb-6">
-          Vous devez d'abord effectuer un calcul de rentabilité.
+          Vous devez d&apos;abord effectuer un calcul de rentabilité.
         </p>
         <Link href="/calculateur">
           <Button>Commencer un calcul</Button>
@@ -58,11 +59,11 @@ export function Dashboard() {
     );
   }
 
-  const formData = {
-    bien: bien as any,
-    financement: financement as any,
-    exploitation: exploitation as any,
-    structure: structure as any,
+  const formData: CalculateurFormData = {
+    bien: bien as CalculateurFormData['bien'],
+    financement: financement as CalculateurFormData['financement'],
+    exploitation: exploitation as CalculateurFormData['exploitation'],
+    structure: structure as CalculateurFormData['structure'],
     options,
   };
 
@@ -91,7 +92,7 @@ export function Dashboard() {
               Modifier la saisie
             </button>
             <span className="text-sand">/</span>
-            <span className="text-xs font-bold text-stone/80 uppercase tracking-widest">Rapport d'analyse</span>
+            <span className="text-xs font-bold text-stone/80 uppercase tracking-widest">Rapport d&apos;analyse</span>
           </div>
           {bien.adresse && (
             <h1 className="text-4xl font-black text-charcoal tracking-tight">{bien.adresse}</h1>
@@ -102,11 +103,11 @@ export function Dashboard() {
             Nouveau calcul
           </Button>
           <SaveSimulationButton
-            formData={formData as any}
+            formData={formData}
             resultats={resultats}
           />
           <DownloadPdfButton
-            formData={formData as any}
+            formData={formData}
             resultats={resultats}
             className="shadow-lg shadow-forest/20"
           />
@@ -135,7 +136,7 @@ export function Dashboard() {
               <ul className="space-y-3">
                 <li className="flex items-start gap-2 text-sm text-white/80 font-medium">
                   <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-amber shrink-0" />
-                  Focus sur le cash-flow et l'impact fiscal pour optimiser ce projet.
+                  Focus sur le cash-flow et l&apos;impact fiscal pour optimiser ce projet.
                 </li>
               </ul>
             </div>
@@ -170,7 +171,7 @@ export function Dashboard() {
             <p className="nordic-kpi-value">
               {resultats.projections ? formatCurrency(resultats.projections.totaux.enrichissementTotal) : '--'}
             </p>
-            <p className="text-[10px] text-stone mt-2">Gain à l'horizon</p>
+            <p className="text-[10px] text-stone mt-2">Gain à l&apos;horizon</p>
           </div>
         </div>
       </div>
@@ -255,7 +256,7 @@ export function Dashboard() {
           {resultats.tableauAmortissement && (
             <div className="pt-4">
               <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-forest/30 pl-3">
-                Tableau d'amortissement
+                Tableau d&apos;amortissement
               </h3>
               <AmortizationTable data={resultats.tableauAmortissement} />
             </div>
@@ -296,7 +297,7 @@ export function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
               <Card className="p-6 bg-white shadow-sm border-none">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest">Projection Cash-flow (Net d'impôt)</h3>
+                  <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest">Projection Cash-flow (Net d&apos;impôt)</h3>
                 </div>
                 <CashflowChart data={cashflowData} />
               </Card>

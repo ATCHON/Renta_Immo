@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import type { SimulationUpdate } from '@/types/database';
 
 const UpdateSimulationSchema = z.object({
     name: z.string().max(255).optional(),
@@ -54,7 +55,7 @@ export async function PATCH(
         const body = await request.json();
         const validated = UpdateSimulationSchema.parse(body);
 
-        const updateData: any = { ...validated };
+        const updateData: SimulationUpdate = { ...validated } as any;
 
         // Update denormalized fields if resultats is provided
         if (validated.resultats) {
@@ -65,8 +66,7 @@ export async function PATCH(
             updateData.score_global = res.synthese?.score_global;
         }
 
-        const { data, error } = await supabase
-            .from('simulations')
+        const { data, error } = await (supabase.from('simulations') as any)
             .update(updateData)
             .eq('id', params.id)
             .eq('user_id', user.id)

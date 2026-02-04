@@ -113,7 +113,7 @@ Ajouter le bouton dans `src/app/resultats/page.tsx` ou le composant résultats a
 - [x] Bouton visible sur page résultats
 - [x] États loading/success/error gérés
 - [x] Téléchargement fonctionne (fichier .pdf valide)
-- [x] Nom fichier inclut la date
+- [x] Nom du fichier inclut la date
 - [x] Accessible (keyboard, screen reader)
 - [x] Mobile responsive
 
