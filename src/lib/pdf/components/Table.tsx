@@ -6,11 +6,11 @@ import { View, Text, StyleSheet } from '@react-pdf/renderer';
 import { styles as baseStyles, colors } from '../styles';
 
 interface TableColumn<T> {
-    key: keyof T | string;
+    key: keyof T;
     header: string;
     width?: string | number;
     align?: 'left' | 'center' | 'right';
-    render?: (value: unknown, row: T) => string;
+    render?: (value: any, row: T) => string;
 }
 
 interface TableProps<T> {
@@ -20,7 +20,7 @@ interface TableProps<T> {
     striped?: boolean;
 }
 
-export function Table<T extends Record<string, unknown>>({
+export function Table<T extends Record<string, any>>({
     data,
     columns,
     showHeader = true,
@@ -40,7 +40,7 @@ export function Table<T extends Record<string, unknown>>({
     };
 
     const getCellValue = (row: T, column: TableColumn<T>): string => {
-        const value = row[column.key as keyof T];
+        const value = row[column.key];
         if (column.render) {
             return column.render(value, row);
         }

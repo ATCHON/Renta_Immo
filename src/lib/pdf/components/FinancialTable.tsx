@@ -5,6 +5,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
 import { colors } from '../styles';
+import { formatCurrency, formatPercent } from '../utils/formatters';
 import type { RentabiliteResultat, CashflowResultat, FiscaliteResultat, ProjectionData, FiscaliteComparaison } from '@/types/calculateur';
 
 interface FinancialTableProps {
@@ -120,13 +121,7 @@ const tableStyles = StyleSheet.create({
     },
 });
 
-function formatCurrency(value: number): string {
-    return `${value.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €`;
-}
 
-function formatPercent(value: number): string {
-    return `${value.toFixed(2)}%`;
-}
 
 export function FinancialTable({ rentabilite, cashflow, fiscalite, projections, comparaison }: FinancialTableProps) {
     return (

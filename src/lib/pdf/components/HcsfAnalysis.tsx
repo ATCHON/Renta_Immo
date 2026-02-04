@@ -77,7 +77,7 @@ const hcsfStyles = StyleSheet.create({
         bottom: 0,
         width: 2,
         backgroundColor: colors.charcoal,
-        left: '35%',
+        left: '70%', // 35 is 70% of 50 (max gauge)
     },
     sectionTitle: {
         fontSize: 11,
@@ -139,9 +139,7 @@ const hcsfStyles = StyleSheet.create({
     },
 });
 
-function formatPercent(value: number): string {
-    return `${value.toFixed(2)}%`;
-}
+import { formatPercent } from '../utils/formatters';
 
 export function HcsfAnalysis({ hcsf }: HcsfAnalysisProps) {
     const { taux_endettement, conforme, details_associes } = hcsf;

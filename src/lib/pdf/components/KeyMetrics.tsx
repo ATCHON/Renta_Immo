@@ -14,6 +14,8 @@ interface KeyMetricsProps {
     mensualite?: number;
 }
 
+import { formatCurrency, formatPercent, formatCurrencyWithSign } from '../utils/formatters';
+
 const metricsStyles = StyleSheet.create({
     container: {
         flexDirection: 'row',
@@ -61,14 +63,7 @@ const metricsStyles = StyleSheet.create({
     },
 });
 
-function formatPercent(value: number): string {
-    return `${value.toFixed(2)}%`;
-}
 
-function formatCurrency(value: number): string {
-    const sign = value >= 0 ? '+' : '';
-    return `${sign}${value.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €`;
-}
 
 export function KeyMetrics({ rentaBrute, rentaNette, cashflow, tauxHCSF, mensualite }: KeyMetricsProps) {
     const isHcsfConform = tauxHCSF <= 35;
@@ -99,7 +94,7 @@ export function KeyMetrics({ rentaBrute, rentaNette, cashflow, tauxHCSF, mensual
                     metricsStyles.value,
                     isCashflowPositive ? metricsStyles.valuePositive : metricsStyles.valueNegative
                 ]}>
-                    {formatCurrency(cashflow)}
+                    {formatCurrencyWithSign(cashflow)}
                 </Text>
                 <Text style={metricsStyles.subtext}>Par mois</Text>
             </View>

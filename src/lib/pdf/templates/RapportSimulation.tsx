@@ -141,12 +141,9 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
 
                 <HcsfAnalysis hcsf={hcsf} />
 
-                {/* Disclaimer */}
+                {/* Disclaimer - Flux normal */}
                 <View style={{
-                    position: 'absolute',
-                    bottom: 60,
-                    left: 40,
-                    right: 40,
+                    marginTop: 20,
                     padding: 12,
                     backgroundColor: colors.surface,
                     borderRadius: 4,

@@ -1,4 +1,4 @@
-# Guide d'Implementation - Phase 2 (TECH-010 to TECH-023)
+# Guide d'Implémentation - Phase 2 (TECH-010 to TECH-023)
 
 > **Version** : 1.0
 > **Date** : 2026-02-04

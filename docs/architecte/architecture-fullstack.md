@@ -25,9 +25,9 @@ Ce document formalise l'architecture fullstack complete pour **Renta_Immo**, un 
 
 | Document | Chemin |
 |----------|--------|
-| PRD | [docs/prd.md](./prd.md) |
-| Architecture Backend (historique) | [docs/architecture.md](./architecture.md) |
-| Guide Implementation Phase 2 | [docs/devs-guide/guide-implementation-phase2.md](./devs-guide/guide-implementation-phase2.md) |
+| PRD | [docs/prd.md](../prd.md) |
+| Architecture Backend (historique) | [docs/architecture.md](../architecture.md) |
+| Guide Implémentation Phase 2 | [docs/devs-guide/guide-implementation-phase2.md](../devs-guide/guide-implementation-phase2.md) |
 
 ### 1.3 Changelog
 

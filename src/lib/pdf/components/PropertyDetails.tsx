@@ -5,7 +5,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
 import { colors } from '../styles';
-import type { BienData, FinancementData, ExploitationData } from '@/types/calculateur';
+import { formatCurrency, formatPercent } from '../utils/formatters';
+import type { BienData, FinancementData, ExploitationData, TypeBien, TypeLocation } from '@/types/calculateur';
 
 interface PropertyDetailsProps {
     bien: BienData;
@@ -58,31 +59,25 @@ const detailStyles = StyleSheet.create({
     },
 });
 
-function formatCurrency(value: number): string {
-    return `${value.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €`;
-}
 
-function formatPercent(value: number): string {
-    return `${value.toFixed(2)}%`;
-}
 
-function getTypeBienLabel(type: string): string {
-    const labels: Record<string, string> = {
+function getTypeBienLabel(type: TypeBien): string {
+    const labels: Record<TypeBien, string> = {
         appartement: 'Appartement',
         maison: 'Maison',
         immeuble: 'Immeuble',
     };
-    return labels[type] || type;
+    return labels[type] || (type as string);
 }
 
-function getTypeLocationLabel(type: string): string {
-    const labels: Record<string, string> = {
+function getTypeLocationLabel(type: TypeLocation): string {
+    const labels: Record<TypeLocation, string> = {
         nue: 'Location nue',
         meublee_longue_duree: 'Meublée longue durée',
         meublee_tourisme_classe: 'Meublée tourisme classé',
         meublee_tourisme_non_classe: 'Meublée tourisme non classé',
     };
-    return labels[type] || type;
+    return labels[type] || (type as string);
 }
 
 export function PropertyDetails({ bien, financement, exploitation, montantEmprunt, mensualite }: PropertyDetailsProps) {
