@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { user } = session;
-    const supabase = await createClient();
+    const supabase = await createAdminClient();
 
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { user } = session;
-    const supabase = await createClient();
+    const supabase = await createAdminClient();
 
     try {
         const body = await request.json();

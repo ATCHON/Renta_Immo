@@ -64,10 +64,8 @@ ALTER TABLE public.simulations ADD CONSTRAINT simulations_user_id_fkey
 
 -- 3. Update RLS for Better Auth
 -- Les politiques existantes utilisaient auth.uid() qui vient de Supabase Auth.
--- Puisque nous gérons maintenant l'auth via Better Auth, nous allons désactiver RLS
--- ou le modifier pour qu'il soit géré via l'ID utilisateur passé par l'API.
--- Pour le moment, nous gardons RLS mais nous devrons utiliser un client Supabase avec Service Role 
--- dans nos API Routes pour contourner RLS après avoir vérifié la session Better Auth.
+-- Puisque nous gérons maintenant l'auth via Better Auth, nous activons RLS sans politique publique
+-- ce qui empêche tout accès direct via la clé anon.
+-- L'accès se fera uniquement via le Serveur (API Routes) utilisant le Service Role.
 
--- Alternative : Supprimer RLS car la sécurité est maintenant dans la couche API
-ALTER TABLE public.simulations DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.simulations ENABLE ROW LEVEL SECURITY;

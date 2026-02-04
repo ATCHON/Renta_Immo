@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import type { SimulationUpdate } from '@/types/database';
 import { auth } from '@/lib/auth';
@@ -27,7 +27,7 @@ export async function GET(
     }
 
     const { user } = session;
-    const supabase = await createClient();
+    const supabase = await createAdminClient();
 
     const { data, error } = await supabase
         .from('simulations')
@@ -59,7 +59,7 @@ export async function PATCH(
     }
 
     const { user } = session;
-    const supabase = await createClient();
+    const supabase = await createAdminClient();
 
     try {
         const body = await request.json();
@@ -107,7 +107,7 @@ export async function DELETE(
     }
 
     const { user } = session;
-    const supabase = await createClient();
+    const supabase = await createAdminClient();
 
     const { error } = await supabase
         .from('simulations')
