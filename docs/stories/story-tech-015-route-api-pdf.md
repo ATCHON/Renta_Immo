@@ -126,12 +126,12 @@ export async function POST(request: NextRequest) {
 
 ## 5. Critères d'acceptation
 
-- [ ] Endpoint `POST /api/pdf` créé
-- [ ] Validation du body avec Zod
-- [ ] PDF généré correctement
-- [ ] Headers Content-Type et Content-Disposition corrects
-- [ ] Gestion des erreurs (400, 500)
-- [ ] Performance < 2 secondes
+- [x] Endpoint `POST /api/pdf` créé
+- [x] Validation du body avec Zod
+- [x] PDF généré correctement
+- [x] Headers Content-Type et Content-Disposition corrects
+- [x] Gestion des erreurs (400, 500)
+- [x] Performance < 2 secondes
 - [ ] Tests unitaires
 
 ---

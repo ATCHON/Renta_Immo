@@ -1,0 +1,43 @@
+import { useQuery } from '@tanstack/react-query';
+import type { Simulation } from '@/types/database';
+
+interface QueryOptions {
+    limit?: number;
+    offset?: number;
+    sort?: 'created_at' | 'updated_at' | 'score_global';
+    order?: 'asc' | 'desc';
+    favorite?: boolean;
+    archived?: boolean;
+}
+
+export function useSimulations(options: QueryOptions = {}) {
+    const params = new URLSearchParams();
+    if (options.limit) params.set('limit', String(options.limit));
+    if (options.offset) params.set('offset', String(options.offset));
+    if (options.sort) params.set('sort', options.sort);
+    if (options.order) params.set('order', options.order);
+    if (options.favorite) params.set('favorite', 'true');
+    if (options.archived) params.set('archived', 'true');
+
+    return useQuery({
+        queryKey: ['simulations', options],
+        queryFn: async () => {
+            const res = await fetch(`/api/simulations?${params.toString()}`);
+            if (!res.ok) throw new Error('Failed to fetch simulations');
+            return res.json();
+        },
+    });
+}
+
+export function useSimulation(id: string | null) {
+    return useQuery({
+        queryKey: ['simulation', id],
+        queryFn: async () => {
+            if (!id) return null;
+            const res = await fetch(`/api/simulations/${id}`);
+            if (!res.ok) throw new Error('Failed to fetch simulation');
+            return res.json();
+        },
+        enabled: !!id,
+    });
+}

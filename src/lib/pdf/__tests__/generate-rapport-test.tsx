@@ -104,7 +104,7 @@ async function generateTestReport() {
         generatedAt: new Date(),
     });
 
-    const buffer = await renderToBuffer(doc);
+    const buffer = await renderToBuffer(doc as any);
     const outputPath = path.join(__dirname, 'rapport-simulation-test.pdf');
     fs.writeFileSync(outputPath, buffer);
 

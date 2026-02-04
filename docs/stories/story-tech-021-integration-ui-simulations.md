@@ -3,7 +3,7 @@
 > **Version** : 1.0
 > **Date** : 2026-02-04
 > **Auteur** : John (PM)
-> **Statut** : 📋 Backlog
+> **Statut** : ✅ Terminé
 > **Type** : Feature
 > **Epic** : Epic 1 - Infrastructure Backend (Phase 2)
 > **Sprint** : Sprint 2

@@ -108,14 +108,14 @@ Ajouter le bouton dans `src/app/resultats/page.tsx` ou le composant résultats a
 
 ## 5. Critères d'acceptation
 
-- [ ] Composant `DownloadPdfButton` créé
-- [ ] Hook `useDownloadPdf` implémenté
-- [ ] Bouton visible sur page résultats
-- [ ] États loading/success/error gérés
-- [ ] Téléchargement fonctionne (fichier .pdf valide)
-- [ ] Nom fichier inclut la date
-- [ ] Accessible (keyboard, screen reader)
-- [ ] Mobile responsive
+- [x] Composant `DownloadPdfButton` créé
+- [x] Hook `useDownloadPdf` implémenté
+- [x] Bouton visible sur page résultats
+- [x] États loading/success/error gérés
+- [x] Téléchargement fonctionne (fichier .pdf valide)
+- [x] Nom du fichier inclut la date
+- [x] Accessible (keyboard, screen reader)
+- [x] Mobile responsive
 
 ---
 

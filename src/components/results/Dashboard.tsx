@@ -11,6 +11,7 @@ import { CashflowCard } from './CashflowCard';
 import { HCSFIndicator } from './HCSFIndicator';
 import { ProjectionTable } from './ProjectionTable';
 import { AmortizationTable } from './AmortizationTable';
+import type { CalculateurFormData } from '@/types/calculateur';
 import {
   InvestmentBreakdown,
   OperationalBalance,
@@ -20,11 +21,11 @@ import {
   PatrimoineChart,
   DownloadPdfButton
 } from './';
+import { SaveSimulationButton } from '../simulations/SaveSimulationButton';
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useChartData } from '@/hooks/useChartData';
 import { useHasHydrated } from '@/hooks/useHasHydrated';
 import { formatCurrency, formatPercent, cn } from '@/lib/utils';
-// PDF download now handled by DownloadPdfButton component
 
 export function Dashboard() {
   const router = useRouter();
@@ -42,7 +43,6 @@ export function Dashboard() {
 
   if (!hasHydrated) return null;
 
-  // Rediriger si pas de résultats
   if (!resultats) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
@@ -59,12 +59,11 @@ export function Dashboard() {
     );
   }
 
-  // Build complete form data for PDF generation
-  const formData = {
-    bien: bien as Required<typeof bien>,
-    financement: financement as Required<typeof financement>,
-    exploitation: exploitation as Required<typeof exploitation>,
-    structure: structure as Required<typeof structure>,
+  const formData: CalculateurFormData = {
+    bien: bien as CalculateurFormData['bien'],
+    financement: financement as CalculateurFormData['financement'],
+    exploitation: exploitation as CalculateurFormData['exploitation'],
+    structure: structure as CalculateurFormData['structure'],
     options,
   };
 
@@ -82,7 +81,6 @@ export function Dashboard() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      {/* Header avec actions */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 text-stone mb-3">
@@ -94,7 +92,7 @@ export function Dashboard() {
               Modifier la saisie
             </button>
             <span className="text-sand">/</span>
-            <span className="text-xs font-bold text-stone/80 uppercase tracking-widestAlpha">Rapport d&apos;analyse</span>
+            <span className="text-xs font-bold text-stone/80 uppercase tracking-widest">Rapport d&apos;analyse</span>
           </div>
           {bien.adresse && (
             <h1 className="text-4xl font-black text-charcoal tracking-tight">{bien.adresse}</h1>
@@ -104,8 +102,12 @@ export function Dashboard() {
           <Button variant="ghost" className="text-stone hover:text-charcoal" onClick={handleNewCalculation}>
             Nouveau calcul
           </Button>
+          <SaveSimulationButton
+            formData={formData}
+            resultats={resultats}
+          />
           <DownloadPdfButton
-            formData={formData as import('@/types/calculateur').CalculateurFormData}
+            formData={formData}
             resultats={resultats}
             className="shadow-lg shadow-forest/20"
           />
@@ -114,9 +116,7 @@ export function Dashboard() {
 
       <ScenarioTabs />
 
-      {/* Vue d'overview - Section "Verdict" */}
       <div className="mt-12 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        {/* Score Card - ALIGNED WIDTH */}
         <Card variant="elevated" className="nordic-card-expert max-w-5xl mx-auto border-none !p-0">
           <div className="p-8 md:p-10 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
             <div className="relative z-10 flex flex-col items-center md:items-start text-center md:text-left">
@@ -176,8 +176,6 @@ export function Dashboard() {
         </div>
       </div>
 
-
-      {/* Section 3 : Analyse Détaillée (Capital vs Exploitation) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <InvestmentBreakdown
           bien={bien}
@@ -193,13 +191,10 @@ export function Dashboard() {
         />
       </div>
 
-      {/* Section 3 : Optimisation Fiscale & Bancaire */}
-      {/* Fiscalité - Comparateur dynamique */}
       {resultats.comparaisonFiscalite && (
         <FiscalComparator data={resultats.comparaisonFiscalite} />
       )}
 
-      {/* Section 4 : Expertise & Stratégie (Fusionnée & Compacte) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <HCSFIndicator hcsf={resultats.hcsf} />
@@ -237,7 +232,6 @@ export function Dashboard() {
       </div>
       <Collapsible title="Expertise financement & Amortissement">
         <div className="space-y-8 py-4">
-          {/* Détails financement */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl shadow-sm">
               <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Montant emprunté</p>
@@ -259,7 +253,6 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Tableau d'amortissement */}
           {resultats.tableauAmortissement && (
             <div className="pt-4">
               <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-forest/30 pl-3">
@@ -271,11 +264,9 @@ export function Dashboard() {
         </div>
       </Collapsible>
 
-      {/* Collapsible: Projections pluriannuelles */}
       {resultats.projections && (
         <Collapsible title={`Projections patrimoniales (${resultats.projections.horizon} ans)`} defaultOpen={false}>
           <div className="space-y-8 py-4">
-            {/* Métriques des projections */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center p-6 bg-forest/5 border border-forest/10 rounded-2xl">
                 <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">TRI Projet</p>
@@ -303,23 +294,21 @@ export function Dashboard() {
               </div>
             </div>
 
-            {/* Graphiques de projection */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
               <Card className="p-6 bg-white shadow-sm border-none">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-bold text-charcoal uppercase tracking-widestAlpha">Projection Cash-flow (Net d&apos;impôt)</h3>
+                  <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest">Projection Cash-flow (Net d&apos;impôt)</h3>
                 </div>
                 <CashflowChart data={cashflowData} />
               </Card>
               <Card className="p-6 bg-white shadow-sm border-none">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-bold text-charcoal uppercase tracking-widestAlpha">Évolution du Patrimoine</h3>
+                  <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest">Évolution du Patrimoine</h3>
                 </div>
                 <PatrimoineChart data={patrimoineData} />
               </Card>
             </div>
 
-            {/* Tableau de projection */}
             <div className="pt-4">
               <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-forest/30 pl-3">
                 Simulation pluriannuelle détaillée
@@ -330,7 +319,6 @@ export function Dashboard() {
         </Collapsible>
       )}
 
-      {/* Lien En savoir plus */}
       <div className="text-center pt-8">
         <Link
           href="/en-savoir-plus"
