@@ -3,3 +3,4 @@
  */
 
 export { useCalculateur } from './useCalculateur';
+export { useDownloadPdf } from './useDownloadPdf';

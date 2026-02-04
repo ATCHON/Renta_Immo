@@ -5,6 +5,12 @@
 // Types de bien immobilier
 export type TypeBien = 'appartement' | 'maison' | 'immeuble';
 
+// Types d'état du bien
+export type EtatBien = 'ancien' | 'neuf';
+
+// Types de location
+export type TypeLocation = 'nue' | 'meublee_longue_duree' | 'meublee_tourisme_classe' | 'meublee_tourisme_non_classe';
+
 // Types de structure juridique
 export type TypeStructure = 'nom_propre' | 'sci_is';
 
@@ -24,7 +30,7 @@ export interface BienData {
   type_bien: TypeBien;
   annee_construction?: number;
   // Nouveaux champs 2025
-  etat_bien: 'ancien' | 'neuf';
+  etat_bien: EtatBien;
   montant_travaux: number;
   valeur_mobilier: number;
 }
@@ -54,7 +60,7 @@ export interface ExploitationData {
   provision_travaux: number;
   provision_vacance: number;
   // Nouveaux champs 2025
-  type_location: 'nue' | 'meublee_longue_duree' | 'meublee_tourisme_classe' | 'meublee_tourisme_non_classe';
+  type_location: TypeLocation;
   charges_copro_recuperables: number;
   assurance_gli: number;
   cfe_estimee: number;

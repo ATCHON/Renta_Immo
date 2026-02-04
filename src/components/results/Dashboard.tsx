@@ -17,13 +17,14 @@ import {
   FiscalComparator,
   ScenarioTabs,
   CashflowChart,
-  PatrimoineChart
+  PatrimoineChart,
+  DownloadPdfButton
 } from './';
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useChartData } from '@/hooks/useChartData';
 import { useHasHydrated } from '@/hooks/useHasHydrated';
 import { formatCurrency, formatPercent, cn } from '@/lib/utils';
-import { downloadPdf } from '@/lib/api';
+// PDF download now handled by DownloadPdfButton component
 
 export function Dashboard() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export function Dashboard() {
 
   const hasHydrated = useHasHydrated();
   const scenario = getActiveScenario();
-  const { resultats, pdfUrl, bien, financement, exploitation } = scenario;
+  const { resultats, bien, financement, exploitation, structure, options } = scenario;
 
   const { cashflowData, patrimoineData } = useChartData(resultats?.projections?.projections);
 
@@ -58,22 +59,13 @@ export function Dashboard() {
     );
   }
 
-  const handleDownloadPdf = async () => {
-    if (!pdfUrl) return;
-
-    try {
-      const blob = await downloadPdf(pdfUrl);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'rentabilite-immobiliere.pdf';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Erreur téléchargement PDF:', error);
-    }
+  // Build complete form data for PDF generation
+  const formData = {
+    bien: bien as Required<typeof bien>,
+    financement: financement as Required<typeof financement>,
+    exploitation: exploitation as Required<typeof exploitation>,
+    structure: structure as Required<typeof structure>,
+    options,
   };
 
   const handleEdit = () => {
@@ -112,12 +104,11 @@ export function Dashboard() {
           <Button variant="ghost" className="text-stone hover:text-charcoal" onClick={handleNewCalculation}>
             Nouveau calcul
           </Button>
-          {pdfUrl && (
-            <Button variant="primary" onClick={handleDownloadPdf} className="shadow-lg shadow-forest/20">
-              <Download className="h-4 w-4 mr-2" />
-              Télécharger le PDF
-            </Button>
-          )}
+          <DownloadPdfButton
+            formData={formData as import('@/types/calculateur').CalculateurFormData}
+            resultats={resultats}
+            className="shadow-lg shadow-forest/20"
+          />
         </div>
       </div>
 

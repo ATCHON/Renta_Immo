@@ -15,3 +15,4 @@ export { FiscalComparator } from './FiscalComparator';
 export { ScenarioTabs } from './ScenarioTabs';
 export { CashflowChart } from './CashflowChart';
 export { PatrimoineChart } from './PatrimoineChart';
+export { DownloadPdfButton } from './DownloadPdfButton';
