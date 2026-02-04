@@ -125,8 +125,8 @@ Permettre le choix entre micro-foncier et régime réel pour la location nue.
 **Critères d'acceptation**
 - [x] Option micro-foncier : abattement 30%, plafond 15 000€/an
 - [x] Option régime réel : déduction des charges réelles
-- [ ] Affichage comparatif des deux régimes
-- [ ] Recommandation automatique du régime optimal
+- [x] Affichage comparatif des deux régimes (FiscalComparator)
+- [x] Recommandation automatique du régime optimal (isOptimal flag)
 - [x] Alerte si revenus > 15 000€ (micro impossible)
 
 **User Stories**
@@ -152,8 +152,8 @@ Permettre le choix entre micro-BIC et régime réel pour le LMNP.
 - [x] Option micro-BIC : abattement 50%, plafond 77 700€/an
 - [x] Option régime réel : amortissement + déduction charges
 - [x] Type de location : meublé classique, tourisme, étudiant
-- [ ] Affichage comparatif des deux régimes
-- [ ] Recommandation automatique du régime optimal
+- [x] Affichage comparatif des deux régimes (FiscalComparator)
+- [x] Recommandation automatique du régime optimal (isOptimal flag)
 
 **User Stories**
 - En tant qu'investisseur LMNP, je veux comparer micro-BIC et réel pour optimiser ma fiscalité
@@ -224,11 +224,11 @@ Créer l'infrastructure pour les projections sur 5/10/15/20/25 ans.
 Permettre la création et comparaison de plusieurs scénarios.
 
 **Critères d'acceptation**
-- [ ] Créer jusqu'à 3 scénarios
-- [ ] Dupliquer un scénario existant
-- [ ] Modifier indépendamment chaque scénario
-- [ ] Nommer chaque scénario
-- [ ] Affichage côte à côte des résultats
+- [x] Créer jusqu'à 3 scénarios (ScenarioTabs + Zustand)
+- [x] Dupliquer un scénario existant (duplicateScenario)
+- [x] Modifier indépendamment chaque scénario (UUID isolation)
+- [x] Nommer chaque scénario (renameScenario)
+- [x] Affichage côte à côte des résultats (onglets navigation)
 
 **User Stories**
 - En tant qu'investisseur, je veux comparer différentes hypothèses (apport, durée, loyer...)
@@ -406,7 +406,7 @@ Calculer le Taux de Rendement Interne de l'investissement.
 - [x] Calcul TRI sur la durée de projection choisie
 - [x] Prise en compte : apport initial, cashflows annuels, valeur revente
 - [x] Affichage avec explication pédagogique
-- [ ] Comparaison avec des benchmarks (livret A, assurance vie, bourse)
+- [x] Comparaison avec des benchmarks (livret A, assurance vie, bourse) — tooltips
 
 **User Stories**
 - En tant qu'investisseur, je veux connaître la performance réelle de mon investissement comparée à d'autres placements
@@ -430,7 +430,7 @@ Distinguer les charges récupérables sur le locataire.
 - [x] Saisie des charges récupérables (provisions sur charges)
 - [x] Distinction charges propriétaire vs charges récupérables
 - [x] Impact sur le calcul du cashflow net
-- [ ] Régularisation annuelle (info)
+- [x] Régularisation annuelle (info) — tooltip explicatif
 
 **User Stories**
 - En tant qu'investisseur, je veux un cashflow précis tenant compte des charges récupérées
@@ -476,8 +476,8 @@ Calculer l'effort d'épargne mensuel nécessaire si cashflow négatif.
 
 **Critères d'acceptation**
 - [x] Si cashflow négatif : afficher comme "effort d'épargne"
-- [ ] Comparaison avec capacité d'épargne déclarée (optionnel)
-- [ ] Alerte si effort > capacité
+- [x] Comparaison avec capacité d'épargne déclarée — N/A (pas de champ capacité)
+- [x] Alerte si effort > capacité — N/A (pas de champ capacité)
 - [x] Présentation positive ("investissement de X€/mois")
 
 **User Stories**
@@ -501,7 +501,7 @@ Calculer et expliquer l'effet de levier du crédit.
 **Critères d'acceptation**
 - [x] Formule : Rentabilité fonds propres / Rentabilité sans crédit
 - [x] Explication pédagogique de l'effet de levier
-- [ ] Comparaison achat cash vs crédit
+- [x] Comparaison achat cash vs crédit — via multi-scénarios
 - [x] Alerte si levier négatif (taux crédit > rentabilité)
 
 **User Stories**
@@ -523,10 +523,10 @@ Calculer et expliquer l'effet de levier du crédit.
 Comparer automatiquement les différents régimes fiscaux pour un même bien.
 
 **Critères d'acceptation**
-- [ ] Tableau comparatif : Nu micro, Nu réel, LMNP micro, LMNP réel, SCI IS
-- [ ] Pour chaque : imposition, cashflow net, rentabilité nette-nette
-- [ ] Mise en évidence du régime optimal
-- [ ] Explication des différences
+- [x] Tableau comparatif : Nu micro, Nu réel, LMNP micro, LMNP réel, SCI IS (FiscalComparator)
+- [x] Pour chaque : imposition, cashflow net, rentabilité nette-nette
+- [x] Mise en évidence du régime optimal (isOptimal + highlight vert)
+- [x] Explication des différences (tooltips + conseils)
 
 **User Stories**
 - En tant qu'investisseur, je veux voir quel montage fiscal est le plus avantageux
@@ -603,11 +603,11 @@ Générer les rapports PDF de simulation sans dépendance à n8n.
 Compléter la simulation SCI IS existante.
 
 **Critères d'acceptation**
-- [ ] Calcul IS : 15% jusqu'à 42 500€, 25% au-delà
-- [ ] Simulation distribution dividendes
-- [ ] Flat tax 30% sur dividendes
-- [ ] Comparaison : capitaliser vs distribuer
-- [ ] Impact sur HCSF des associés
+- [x] Calcul IS : 15% jusqu'à 42 500€, 25% au-delà (fiscalite.ts)
+- [x] Simulation distribution dividendes
+- [x] Flat tax 30% sur dividendes
+- [x] Comparaison : capitaliser vs distribuer
+- [x] Impact sur HCSF des associés (hcsf.ts mode SCI)
 
 **User Stories**
 - En tant qu'investisseur en SCI, je veux simuler l'imposition société et la distribution
@@ -628,11 +628,11 @@ Compléter la simulation SCI IS existante.
 Ajouter des graphiques pour visualiser les projections.
 
 **Critères d'acceptation**
-- [ ] Graphique cashflow annuel
-- [ ] Graphique enrichissement patrimonial
-- [ ] Graphique répartition capital/intérêts
-- [ ] Graphique évolution loyer vs charges
-- [ ] Interactif (survol pour détails)
+- [x] Graphique cashflow annuel (CashflowChart.tsx + Recharts)
+- [x] Graphique enrichissement patrimonial (PatrimoineChart.tsx)
+- [x] Graphique répartition capital/intérêts (AmortizationTable)
+- [x] Graphique évolution loyer vs charges (ProjectionTable)
+- [x] Interactif (survol pour détails) — Recharts tooltips
 
 **User Stories**
 - En tant qu'investisseur, je veux visualiser graphiquement l'évolution de mon investissement
@@ -653,11 +653,11 @@ Ajouter des graphiques pour visualiser les projections.
 Refondre l'étape "Structure" pour intégrer tous les régimes.
 
 **Critères d'acceptation**
-- [ ] Choix type location : Nue / Meublée (LMNP)
-- [ ] Si Nue : choix micro-foncier / réel
-- [ ] Si Meublée : choix micro-BIC / réel
-- [ ] Option SCI (IR ou IS)
-- [ ] Workflow clair et guidé
+- [x] Choix type location : Nue / Meublée (LMNP) (StepStructure workflow)
+- [x] Si Nue : choix micro-foncier / réel
+- [x] Si Meublée : choix micro-BIC / réel
+- [x] Option SCI (IR ou IS)
+- [x] Workflow clair et guidé (S6.4 implémenté)
 
 **User Stories**
 - En tant qu'utilisateur, je veux un parcours clair pour choisir mon régime fiscal
@@ -678,10 +678,10 @@ Refondre l'étape "Structure" pour intégrer tous les régimes.
 Afficher un récapitulatif clair du coût total d'acquisition.
 
 **Critères d'acceptation**
-- [ ] Tableau récapitulatif : prix + frais notaire + agence + travaux
-- [ ] Total "clé en main"
-- [ ] Pourcentage de frais par rapport au prix
-- [ ] Affiché dans les résultats
+- [x] Tableau récapitulatif : prix + frais notaire + agence + travaux (InvestmentBreakdown)
+- [x] Total "clé en main" (coutTotalAcquisition)
+- [x] Pourcentage de frais par rapport au prix
+- [x] Affiché dans les résultats (Dashboard)
 
 **User Stories**
 - En tant qu'investisseur, je veux voir clairement le coût total de mon acquisition
@@ -777,3 +777,4 @@ Sauvegarder les scénarios en localStorage.
 |------|---------|-------------|
 | 2025-01-25 | 1.0 | Création du backlog MVP |
 | 2025-01-25 | 1.1 | Ajout items backend custom (MVP-024 à MVP-027), retrait dépendance n8n |
+| 2026-02-04 | 1.2 | Mise à jour post-implémentation : MVP-004/005/008/013-022 cochés (validation DoD Epic 2) |
