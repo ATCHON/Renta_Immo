@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import type { SimulationUpdate } from '@/types/database';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 
 const UpdateSimulationSchema = z.object({
     name: z.string().max(255).optional(),
@@ -16,12 +18,16 @@ export async function GET(
     request: NextRequest,
     { params }: { params: { id: string } }
 ) {
-    const supabase = await createClient();
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    if (!session) {
         return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
     }
+
+    const { user } = session;
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from('simulations')
@@ -44,12 +50,16 @@ export async function PATCH(
     request: NextRequest,
     { params }: { params: { id: string } }
 ) {
-    const supabase = await createClient();
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    if (!session) {
         return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
     }
+
+    const { user } = session;
+    const supabase = await createClient();
 
     try {
         const body = await request.json();
@@ -88,12 +98,16 @@ export async function DELETE(
     request: NextRequest,
     { params }: { params: { id: string } }
 ) {
-    const supabase = await createClient();
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    if (!session) {
         return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
     }
+
+    const { user } = session;
+    const supabase = await createClient();
 
     const { error } = await supabase
         .from('simulations')
