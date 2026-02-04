@@ -21,6 +21,10 @@
 | TECH-019 | Client Supabase | ✅ Sprint 2 | 2 | P2 |
 | TECH-020 | API CRUD Simulations | ✅ Sprint 2 | 5 | P2 |
 | TECH-021 | Intégration UI Simulations | ✅ Sprint 2 | 8 | P2 |
+| TECH-022 | Test Coverage | ✅ Sprint 2 | 3 | P3 |
+| TECH-023 | Tests E2E | ✅ Sprint 2 | 5 | P3 |
+| TECH-024 | Compléments & Dette Supabase | ✅ Sprint 2 | 8 | P2 |
+| TECH-025 | Authentification Better Auth | 🚀 Sprint 3 | 8 | P1 |
 
 ---
 
@@ -114,13 +118,34 @@ TECH-017 (Setup Supabase)
 
 ---
 
+## 🔐 Sprint 3 - Authentification & Sécurité
+
+> **Objectif** : Sécuriser l'accès aux données et permettre l'authentification sociale (Google)
+
+| Ordre | Story | Titre | Points | Dépendances | Statut |
+|-------|-------|-------|--------|-------------|--------|
+| 1 | TECH-025 | Authentification Better Auth | 8 | - | 📋 Backlog |
+
+**Total Sprint 3 : 8 points**
+
+### ✅ Definition of Done Sprint 3
+- [ ] Better Auth installé et connecté à Supabase (PostgreSQL)
+- [ ] Inscription/Connexion Email/Password fonctionnelle
+- [ ] Login Google (OAuth) fonctionnel
+- [ ] Middleware de session protégeant `/simulations`
+- [ ] Logout sécurisé
+- [ ] Tests de bout en bout passants
+
+---
+
 ## 📈 Vélocité Estimée
 
 | Sprint | Points | Durée suggérée |
 |--------|--------|----------------|
 | Sprint 0 | 5 | Ongoing |
 | Sprint 1 | 12 | 1 semaine |
-| Sprint 2 | 19 | 2 semaines |
+| Sprint 2 | 27 | 2-3 semaines |
+| Sprint 3 | 8 | 1 semaine |
 
 ---
 
@@ -133,11 +158,12 @@ TECH-017 (Setup Supabase)
 | TECH-017 | Config Supabase | Suivre doc officielle Next.js |
 | TECH-020 | RLS Supabase | Tester tous les cas d'accès |
 | TECH-021 | Complexité UI (8 pts) | Découper si nécessaire |
+| TECH-025 | Config OAuth Google | Vérifier redirect URIs et secrets |
 
 ---
 
 ## 🎬 Actions Recommandées
 
-1. **Commencer Sprint 1** avec TECH-013 (setup react-pdf)
-2. **Traiter Sprint 0 en parallèle** si temps disponible
-3. **Planifier Sprint 2** après validation Sprint 1
+1. **Finaliser Sprint 2** avec TECH-024.
+2. **Lancer Sprint 3** pour débloquer la multi-utilisation réelle.
+3. **Maintenir la documentation** à jour sur Context7.
