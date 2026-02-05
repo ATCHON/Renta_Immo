@@ -14,6 +14,12 @@ export const Pagination: React.FC<PaginationProps> = ({
     totalPages,
     onPageChange,
 }) => {
+    React.useEffect(() => {
+        if (currentPage > totalPages && totalPages > 0) {
+            onPageChange(totalPages);
+        }
+    }, [currentPage, totalPages, onPageChange]);
+
     if (totalPages <= 1) return null;
 
     const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -40,8 +46,8 @@ export const Pagination: React.FC<PaginationProps> = ({
                             key={page}
                             onClick={() => onPageChange(page)}
                             className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${currentPage === page
-                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                                    : 'text-slate-600 hover:bg-slate-50 border border-transparent hover:border-slate-200'
+                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                                : 'text-slate-600 hover:bg-slate-50 border border-transparent hover:border-slate-200'
                                 }`}
                         >
                             {page}

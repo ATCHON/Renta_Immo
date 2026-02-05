@@ -22,10 +22,10 @@ export const SimulationActions: React.FC<SimulationActionsProps> = ({
 }) => {
     const [isRenameOpen, setIsRenameOpen] = useState(false);
 
-    const handleAction = (callback: () => void) => (e: React.MouseEvent) => {
+    const handleAction = (callback: () => void | Promise<void>) => async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        callback();
+        await callback();
     };
 
     const handleDelete = handleAction(() => {

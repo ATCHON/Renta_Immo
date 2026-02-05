@@ -12,6 +12,7 @@ import type {
   CalculResultats,
   FormStatus,
   Scenario,
+  Simulation,
 } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -115,8 +116,15 @@ interface CalculateurState {
     structure: Partial<StructureData>;
     options: OptionsData;
   };
-  loadScenario: (simulation: any) => void;
+  loadScenario: (simulation: PersistedSimulation) => void;
 }
+
+type PersistedSimulation = Pick<Simulation, 'id' | 'name' | 'resultats'> & {
+  form_data: Pick<
+    Scenario,
+    'bien' | 'financement' | 'exploitation' | 'structure' | 'options'
+  >;
+};
 
 /**
  * Nombre d'étapes dans le formulaire
@@ -362,7 +370,7 @@ export const useCalculateurStore = create<CalculateurState>()(
         };
       },
 
-      loadScenario: (simulation: any) => {
+      loadScenario: (simulation: PersistedSimulation) => {
         const loadedScenario: Scenario = {
           id: simulation.id,
           name: simulation.name,
