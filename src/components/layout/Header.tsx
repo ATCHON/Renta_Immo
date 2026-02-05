@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Calculator, Info, Menu, X, LogOut, User, FolderOpen, LogIn } from 'lucide-react';
@@ -83,7 +84,13 @@ export function Header() {
                             <div className="flex items-center space-x-4">
                                 <Link href="/account" className="flex items-center space-x-2 text-sm font-medium text-charcoal hover:text-forest transition-colors">
                                     {session.user.image ? (
-                                        <img src={session.user.image} alt="" className="w-8 h-8 rounded-full border border-sand" />
+                                        <Image
+                                            src={session.user.image}
+                                            alt={session.user.name || "Avatar"}
+                                            width={32}
+                                            height={32}
+                                            className="rounded-full border border-sand object-cover"
+                                        />
                                     ) : (
                                         <div className="w-8 h-8 rounded-full bg-forest/10 flex items-center justify-center">
                                             <User className="w-4 h-4 text-forest" />
@@ -131,7 +138,13 @@ export function Header() {
                         {session && (
                             <div className="flex items-center space-x-4 px-4 py-4 mb-2 bg-sand/20 rounded-xl">
                                 {session.user.image ? (
-                                    <img src={session.user.image} alt="" className="w-10 h-10 rounded-full border border-sand" />
+                                    <Image
+                                        src={session.user.image}
+                                        alt={session.user.name || "Avatar"}
+                                        width={40}
+                                        height={40}
+                                        className="rounded-full border border-sand object-cover"
+                                    />
                                 ) : (
                                     <div className="w-10 h-10 rounded-full bg-forest/10 flex items-center justify-center">
                                         <User className="w-6 h-6 text-forest" />

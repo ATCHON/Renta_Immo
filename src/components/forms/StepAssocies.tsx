@@ -66,6 +66,7 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
         ? structure.associes
         : [{ nom: '', parts: 100, revenus: 0, mensualites: 0, charges: 0 }],
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeScenarioId, reset]);
 
   const { fields, append, remove } = useFieldArray({
