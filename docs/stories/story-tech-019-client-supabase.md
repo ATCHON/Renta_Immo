@@ -109,13 +109,13 @@ export function useSupabase() {
 
 ## 5. Critères d'acceptation
 
-- [ ] Package `@supabase/ssr` installé
-- [ ] Client browser créé (`src/lib/supabase/client.ts`)
-- [ ] Client server créé (`src/lib/supabase/server.ts`)
-- [ ] Hook `useSupabase` créé
-- [ ] Types Database générés/définis
-- [ ] Test connexion depuis un composant client
-- [ ] Test connexion depuis une Route Handler
+- [x] Package `@supabase/ssr` installé
+- [x] Client browser créé (`src/lib/supabase/client.ts`)
+- [x] Client server créé (`src/lib/supabase/server.ts`)
+- [x] Hook `useSupabase` créé
+- [x] Types Database générés/définis
+- [x] Test connexion depuis un composant client
+- [x] Test connexion depuis une Route Handler
 
 ---
 

@@ -52,5 +52,17 @@ export function useSimulationMutations() {
         createSimulation: createMutation,
         updateSimulation: updateMutation,
         deleteSimulation: deleteMutation,
+        toggleFavorite: {
+            mutateAsync: async ({ id, isFavorite }: { id: string; isFavorite: boolean }) =>
+                updateMutation.mutateAsync({ id, data: { is_favorite: isFavorite } })
+        },
+        renameSimulation: {
+            mutateAsync: async ({ id, name }: { id: string; name: string }) =>
+                updateMutation.mutateAsync({ id, data: { name } })
+        },
+        toggleArchive: {
+            mutateAsync: async ({ id, isArchived }: { id: string; isArchived: boolean }) =>
+                updateMutation.mutateAsync({ id, data: { is_archived: isArchived } })
+        }
     };
 }

@@ -42,11 +42,11 @@ Les deux méthodes d'authentification requises sont :
 
 ## 4. Critères d'acceptation de la story
 
-- [ ] L'utilisateur peut créer un compte avec email/password.
-- [ ] L'utilisateur peut se connecter/déconnecter avec Google.
-- [ ] Les sessions sont persistées correctement (cookies/DB).
-- [ ] Les routes privées (`/simulations`) sont inaccessibles sans authentification.
-- [ ] L'ID utilisateur (`userId`) est correctement associé aux simulations créées.
+- [x] L'utilisateur peut créer un compte avec email/password.
+- [x] L'utilisateur peut se connecter/déconnecter avec Google.
+- [x] Les sessions sont persistées correctement (cookies/DB).
+- [x] Les routes privées (`/simulations`) sont inaccessibles sans authentification.
+- [x] L'ID utilisateur (`userId`) est correctement associé aux simulations créées.
 
 ---
 

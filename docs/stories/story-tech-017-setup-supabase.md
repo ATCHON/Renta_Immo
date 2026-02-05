@@ -55,11 +55,11 @@ Ajouter les variables avec valeurs placeholder pour la documentation.
 
 ## 4. Critères d'acceptation
 
-- [ ] Projet Supabase créé et accessible
-- [ ] Package `@supabase/supabase-js` installé
-- [ ] Variables d'environnement configurées dans `.env.local`
-- [ ] `.env.example` mis à jour
-- [ ] Connection testée (ping Supabase depuis l'app)
+- [x] Projet Supabase créé et accessible
+- [x] Package `@supabase/supabase-js` installé
+- [x] Variables d'environnement configurées dans `.env.local`
+- [x] `.env.example` mis à jour
+- [x] Connection testée (ping Supabase depuis l'app)
 
 ---
 
