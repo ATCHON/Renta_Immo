@@ -4,3 +4,4 @@
 
 export * from './calculateur';
 export * from './api';
+export * from './database';

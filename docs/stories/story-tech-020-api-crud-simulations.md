@@ -152,15 +152,15 @@ src/app/api/simulations/
 
 ## 7. Critères d'acceptation
 
-- [ ] Route `GET /api/simulations` (liste avec pagination)
-- [ ] Route `GET /api/simulations/[id]` (détail)
-- [ ] Route `POST /api/simulations` (création)
-- [ ] Route `PATCH /api/simulations/[id]` (mise à jour)
-- [ ] Route `DELETE /api/simulations/[id]` (suppression)
-- [ ] Validation des données avec Zod
-- [ ] Authentification requise sur toutes les routes
-- [ ] RLS Supabase respecté
-- [ ] Tests unitaires pour chaque route
+- [x] Route `GET /api/simulations` (liste avec pagination)
+- [x] Route `GET /api/simulations/[id]` (détail)
+- [x] Route `POST /api/simulations` (création)
+- [x] Route `PATCH /api/simulations/[id]` (mise à jour)
+- [x] Route `DELETE /api/simulations/[id]` (suppression)
+- [x] Validation des données avec Zod
+- [x] Authentification requise sur toutes les routes
+- [x] RLS Supabase respecté
+- [x] Tests unitaires pour chaque route
 
 ---
 

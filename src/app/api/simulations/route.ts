@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sort') || 'created_at';
     const order = searchParams.get('order') === 'asc';
     const favoriteOnly = searchParams.get('favorite') === 'true';
-    const includeArchived = searchParams.get('archived') === 'true';
+    const search = searchParams.get('search');
+    const showArchived = searchParams.get('archived') === 'true';
 
     let query = supabase
         .from('simulations')
@@ -41,11 +42,22 @@ export async function GET(request: NextRequest) {
         .order(sortBy, { ascending: order })
         .range(offset, offset + limit - 1);
 
+    // Search
+    if (search) {
+        query = query.ilike('name', `%${search}%`);
+    }
+
+    // Status Filters
+    if (showArchived) {
+        // Tab "Archived": show only archived
+        query = query.eq('is_archived', true);
+    } else {
+        // Tab "All" or "Favorites": show only non-archived
+        query = query.eq('is_archived', false);
+    }
+
     if (favoriteOnly) {
         query = query.eq('is_favorite', true);
-    }
-    if (!includeArchived) {
-        query = query.eq('is_archived', false);
     }
 
     const { data, error, count } = await query;

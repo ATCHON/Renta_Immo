@@ -161,12 +161,12 @@ supabase/migrations/
 
 ## 6. Critères d'acceptation
 
-- [ ] Table `simulations` créée dans Supabase
-- [ ] Index créés pour performance
-- [ ] RLS activé et politiques configurées
-- [ ] Types TypeScript définis dans `src/types/database.ts`
-- [ ] Migration documentée
-- [ ] Test insertion/lecture via Supabase dashboard
+- [x] Table `simulations` créée dans Supabase
+- [x] Index créés pour performance
+- [x] RLS activé et politiques configurées
+- [x] Types TypeScript définis dans `src/types/database.ts`
+- [x] Migration documentée
+- [x] Test insertion/lecture via Supabase dashboard
 
 ---
 

@@ -12,6 +12,7 @@ import type {
   CalculResultats,
   FormStatus,
   Scenario,
+  Simulation,
 } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -115,7 +116,15 @@ interface CalculateurState {
     structure: Partial<StructureData>;
     options: OptionsData;
   };
+  loadScenario: (simulation: PersistedSimulation) => void;
 }
+
+type PersistedSimulation = Pick<Simulation, 'id' | 'name' | 'resultats'> & {
+  form_data: Pick<
+    Scenario,
+    'bien' | 'financement' | 'exploitation' | 'structure' | 'options'
+  >;
+};
 
 /**
  * Nombre d'étapes dans le formulaire
@@ -359,6 +368,30 @@ export const useCalculateurStore = create<CalculateurState>()(
           structure: scenario.structure,
           options: scenario.options,
         };
+      },
+
+      loadScenario: (simulation: PersistedSimulation) => {
+        const loadedScenario: Scenario = {
+          id: simulation.id,
+          name: simulation.name,
+          bien: simulation.form_data.bien,
+          financement: simulation.form_data.financement,
+          exploitation: simulation.form_data.exploitation,
+          structure: simulation.form_data.structure,
+          options: simulation.form_data.options,
+          resultats: simulation.resultats,
+          pdfUrl: null,
+          currentStep: TOTAL_STEPS - 1,
+          status: 'success',
+        };
+
+        set({
+          scenarios: [loadedScenario],
+          activeScenarioId: loadedScenario.id,
+          currentStep: TOTAL_STEPS - 1,
+          status: 'success',
+          error: null,
+        });
       },
     };
   },

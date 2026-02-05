@@ -121,28 +121,28 @@ export function useSimulationMutations() {
 ## 7. Critères d'acceptation
 
 ### Sauvegarde
-- [ ] Bouton "Sauvegarder" sur page résultats
-- [ ] Modale avec champ nom (obligatoire) et description (optionnel)
-- [ ] Sauvegarde appelle l'API
-- [ ] Feedback utilisateur (toast)
+- [x] Bouton "Sauvegarder" sur page résultats
+- [x] Modale avec champ nom (obligatoire) et description (optionnel)
+- [x] Sauvegarde appelle l'API
+- [x] Feedback utilisateur (toast)
 
 ### Liste
-- [ ] Page `/simulations` accessible
-- [ ] Liste paginée (20 par page)
-- [ ] Tri par date/score/nom
-- [ ] Filtre favoris
-- [ ] Filtre archivés
+- [x] Page `/simulations` accessible
+- [x] Liste paginée (20 par page) (Réalisé via TECH-024)
+- [x] Tri par date/score/nom (Réalisé via TECH-024)
+- [x] Filtre favoris (Réalisé via TECH-024)
+- [x] Filtre archivés (Réalisé via TECH-024)
 
 ### Actions
-- [ ] Marquer/démarquer favori
-- [ ] Archiver/désarchiver
-- [ ] Renommer
-- [ ] Supprimer (avec confirmation)
+- [x] Marquer/démarquer favori (Réalisé via TECH-024)
+- [x] Archiver/désarchiver (Réalisé via TECH-024)
+- [x] Renommer (Réalisé via TECH-024)
+- [x] Supprimer (avec confirmation)
 
 ### Détail
-- [ ] Page `/simulations/[id]` affiche les résultats
-- [ ] Bouton recalculer
-- [ ] Bouton PDF
+- [x] Page `/simulations/[id]` affiche les résultats
+- [x] Bouton recalculer
+- [x] Bouton PDF
 
 ### UX
 - [ ] États loading/error/empty gérés

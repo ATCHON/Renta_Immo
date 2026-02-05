@@ -9,6 +9,7 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:regression": "vitest run src/server/calculations/__tests__/regression.test.ts",
     "test:regression:watch": "vitest src/server/calculations/__tests__/regression.test.ts"
   },
@@ -32,12 +33,14 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.1",
     "@types/node": "^22.10.7",
     "@types/pg": "^8.16.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^5.1.2",
+    "@vitest/coverage-v8": "^4.0.18",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.21",

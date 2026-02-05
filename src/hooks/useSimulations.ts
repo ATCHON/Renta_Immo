@@ -4,10 +4,12 @@ import type { Simulation } from '@/types/database';
 interface QueryOptions {
     limit?: number;
     offset?: number;
-    sort?: 'created_at' | 'updated_at' | 'score_global';
+    sort?: 'created_at' | 'updated_at' | 'score_global' | 'name';
     order?: 'asc' | 'desc';
     favorite?: boolean;
     archived?: boolean;
+    status?: 'all' | 'favorites' | 'archived';
+    search?: string;
 }
 
 export function useSimulations(options: QueryOptions = {}) {
@@ -16,8 +18,12 @@ export function useSimulations(options: QueryOptions = {}) {
     if (options.offset) params.set('offset', String(options.offset));
     if (options.sort) params.set('sort', options.sort);
     if (options.order) params.set('order', options.order);
-    if (options.favorite) params.set('favorite', 'true');
-    if (options.archived) params.set('archived', 'true');
+
+    // Legacy support + new status param
+    if (options.status === 'favorites' || options.favorite) params.set('favorite', 'true');
+    if (options.status === 'archived' || options.archived) params.set('archived', 'true');
+
+    if (options.search) params.set('search', options.search);
 
     return useQuery({
         queryKey: ['simulations', options],

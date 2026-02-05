@@ -1,0 +1,38 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] [chromium] › e2e\tests\simulation-complete.spec.ts:8:9 › Parcours Simulation Complète › Simulation Nom Propre - Location Nue
+[1A[2K  1) [chromium] › e2e\tests\simulation-complete.spec.ts:8:9 › Parcours Simulation Complète › Simulation Nom Propre - Location Nue 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Financement')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Financement')[22m
+
+
+      17 |
+      18 |         // Validation étape 2: Financement
+    > 19 |         await expect(page.getByText('Financement')).toBeVisible();
+         |                                                     ^
+      20 |         await page.getByLabel(/Apport personnel/i).fill('30000');
+      21 |         await page.getByLabel(/Durée de l'emprunt/i).fill('20');
+      22 |         await page.getByLabel(/Taux d'intérêt/i).first().fill('3.5'); // first() car 2 taux possibles?
+        at D:\Devs\Renta_Immo\e2e\tests\simulation-complete.spec.ts:19:53
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\simulation-complete-Parcou-159a3-n-Nom-Propre---Location-Nue-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\simulation-complete-Parcou-159a3-n-Nom-Propre---Location-Nue-chromium\error-context.md
+
+
+[1A[2K  1 failed
+    [chromium] › e2e\tests\simulation-complete.spec.ts:8:9 › Parcours Simulation Complète › Simulation Nom Propre - Location Nue 
+
+[36m  Serving HTML report at http://localhost:50954. Press Ctrl+C to quit.[39m
