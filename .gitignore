@@ -51,6 +51,7 @@ _bmad
 gha-creds-*.json
 
 # Playwright
+coverage/
 /test-results/
 /playwright-report/
 /blob-report/
