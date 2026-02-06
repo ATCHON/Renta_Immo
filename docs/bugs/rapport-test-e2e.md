@@ -82,7 +82,7 @@ Failed to save simulation: JSHandle@error
 
 ```diff
 - # SUPABASE_SERVICE_ROLE_KEY= (Please add manually...)
-+ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6...VOTRE_CLE_ICI
++ SUPABASE_SERVICE_ROLE_KEY=<VOTRE_CLE_ICI>
 ```
 
 #### Étape 3: Redémarrer le serveur dev

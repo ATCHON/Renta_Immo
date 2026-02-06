@@ -21,7 +21,7 @@ export function InvestmentBreakdown({ bien, financement, resultats }: Investment
     const totalBesoin = (apport || 0) + (resultats.montant_emprunt || 0);
     const safeTotal = totalBesoin || 1;
 
-    const apportPart = (apport / safeTotal) * 100;
+    const apportPart = ((apport || 0) / safeTotal) * 100;
     const empruntPart = (resultats.montant_emprunt / safeTotal) * 100;
 
     return (
