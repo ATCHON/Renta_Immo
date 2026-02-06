@@ -282,8 +282,8 @@ const empruntPart = (resultats.montant_emprunt / safeTotal) * 100;
    - [x] ~~Corriger BUG-007~~ ✅ Déjà corrigé (bouton `Nouveau calcul` navigue vers /calculateur)
 
 3. **Sécurité BDD:**
-   - [ ] Créer policies RLS pour table `simulations`
-   - [ ] Investiguer AMÉLIO-001 (calculs TRI/Patrimoine)
+   - [x] ~~Créer policies RLS pour table `simulations`~~ ✅ Déjà implémentées dans migration `20260204_create_simulations_table.sql`
+   - [ ] Investiguer AMÉLIO-001 (TRI/Patrimoine) - _Priorité basse, types existent, vérifier calculs dans `/server/calculations/`_
 
 ---
 
