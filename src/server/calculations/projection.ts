@@ -252,7 +252,7 @@ export function genererProjections(
             capitalRembourse: Math.round(capitalRembourseAnnuel),
             capitalRestant: Math.round(capitalRestant),
             valeurBien: Math.round(valeurBien),
-            patrimoineNet: Math.round(valeurBien - capitalRestant),
+            patrimoineNet: Math.round(valeurBien - capitalRestant) || 0,
             impot: Math.round(impot),
             cashflowNetImpot: Math.round(cashflowNet)
         });
@@ -262,8 +262,9 @@ export function genererProjections(
     }
 
     // Calcul du TRI
-    // Flux 0 : -Apport
-    const flux: number[] = [-input.financement.apport];
+    // Flux 0 : -Apport (si 0, on simule 1€ pour permettre le calcul TRI)
+    const flux: number[] = [-(input.financement.apport > 0 ? input.financement.apport : 1)];
+
     // Flux 1 à horizon-1 : Cashflow Net
     for (let i = 0; i < projections.length - 1; i++) {
         flux.push(projections[i].cashflowNetImpot);
@@ -272,7 +273,7 @@ export function genererProjections(
     const derniereProjection = projections[projections.length - 1];
     flux.push(derniereProjection.cashflowNetImpot + derniereProjection.patrimoineNet);
 
-    const tri = input.financement.apport > 0 ? calculerTRI(flux) : 0;
+    const tri = calculerTRI(flux);
 
     return {
         horizon,

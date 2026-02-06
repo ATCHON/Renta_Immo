@@ -13,7 +13,8 @@ export function ProgressStepper({
     currentStep,
     totalSteps,
     onStepClick,
-}: ProgressStepperProps) {
+    isAllEnabled = false,
+}: ProgressStepperProps & { isAllEnabled?: boolean }) {
     const steps = Array.from({ length: totalSteps }, (_, i) => i + 1);
 
     return (
@@ -36,8 +37,8 @@ export function ProgressStepper({
                     return (
                         <div key={step} className="relative z-10 flex flex-col items-center">
                             <button
-                                onClick={() => isCompleted && onStepClick?.(step)}
-                                disabled={!isCompleted}
+                                onClick={() => (isCompleted || isCurrent || isAllEnabled) && onStepClick?.(step)}
+                                disabled={!isCompleted && !isCurrent && !isAllEnabled}
                                 className={cn(
                                     'w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300',
                                     isCompleted && 'bg-forest text-white hover:bg-forest/90',

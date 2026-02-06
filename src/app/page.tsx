@@ -21,11 +21,12 @@ export default function HomePage() {
           </div>
 
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-300">
-            <Link href="/calculateur" passHref>
-              <Button variant="primary" size="lg" className="rounded-full px-10 py-7 text-lg shadow-xl shadow-forest/20 group">
-                Lancer l&apos;analyse
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+            <Link
+              href="/calculateur"
+              className="inline-flex items-center justify-center gap-2 font-semibold transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed bg-forest text-white hover:bg-forest-dark focus:ring-forest rounded-full px-10 py-7 text-lg shadow-xl shadow-forest/20 group"
+            >
+              Lancer l&apos;analyse
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <div className="flex items-center gap-2 text-pebble font-medium px-4 py-2 bg-white/50 backdrop-blur-sm rounded-full border border-sand/50">
               <span className="flex h-2 w-2 rounded-full bg-forest animate-pulse"></span>
