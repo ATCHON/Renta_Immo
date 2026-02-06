@@ -31,7 +31,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
       apport: financement.apport ?? 0,
       taux_interet: financement.taux_interet ?? 3.5,
       duree_emprunt: financement.duree_emprunt ?? 20,
-      assurance_pret: financement.assurance_pret ?? 0.3,
+      assurance_pret: Number((financement.assurance_pret ?? 0.3).toFixed(2)),
       frais_dossier: financement.frais_dossier ?? 0,
       frais_garantie: financement.frais_garantie ?? 2000,
     },
@@ -43,7 +43,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
       apport: financement.apport ?? 0,
       taux_interet: financement.taux_interet ?? 3.5,
       duree_emprunt: financement.duree_emprunt ?? 20,
-      assurance_pret: financement.assurance_pret ?? 0.3,
+      assurance_pret: Number((financement.assurance_pret ?? 0.3).toFixed(2)),
       frais_dossier: financement.frais_dossier ?? 0,
       frais_garantie: financement.frais_garantie ?? 2000,
     });

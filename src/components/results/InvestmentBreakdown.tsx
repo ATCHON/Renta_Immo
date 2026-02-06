@@ -18,7 +18,7 @@ export function InvestmentBreakdown({ bien, financement, resultats }: Investment
     const fraisDossier = financement.frais_dossier || 0;
     const fraisGarantie = financement.frais_garantie || 0;
 
-    const totalBesoin = prixAchat + montantTravaux + fraisDossier + fraisGarantie;
+    const totalBesoin = (apport || 0) + (resultats.montant_emprunt || 0);
     const safeTotal = totalBesoin || 1;
 
     const apportPart = (apport / safeTotal) * 100;

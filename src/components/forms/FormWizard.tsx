@@ -62,7 +62,7 @@ export function FormWizard() {
     : STEP_LABELS;
 
   // Ajuster le currentStep pour l'affichage si nom propre
-  const displayStep = structure.type === 'nom_propre' && currentStep >= 4
+  const displayStep = structure.type === 'nom_propre' && currentStep > 4
     ? currentStep - 1
     : currentStep;
 
@@ -110,6 +110,7 @@ export function FormWizard() {
             : step - 1;
           setStep(actualIndex);
         }}
+        isAllEnabled={status === 'success'}
       />
 
       {/* Carte du formulaire */}

@@ -9,11 +9,12 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
+import { useCalculateurStore } from '@/stores/calculateur.store';
 
 const navItems = [
     {
         name: 'Calculateur',
-        href: '/',
+        href: '/calculateur',
         icon: Calculator,
     },
     {
@@ -38,6 +39,12 @@ export function Header() {
                 },
             },
         });
+    };
+
+    const resetStore = useCalculateurStore((state) => state.reset);
+    const handleNewCalculation = () => {
+        resetStore();
+        router.push('/calculateur');
     };
 
     const currentNavItems = [
@@ -110,11 +117,9 @@ export function Header() {
                             </Link>
                         )}
 
-                        <Link href="/" passHref>
-                            <Button variant="primary" size="sm">
-                                Nouveau calcul
-                            </Button>
-                        </Link>
+                        <Button variant="primary" size="sm" onClick={handleNewCalculation}>
+                            Nouveau calcul
+                        </Button>
                     </div>
 
                     {/* Mobile menu button */}
@@ -133,8 +138,8 @@ export function Header() {
 
             {/* Mobile Navigation */}
             {isMenuOpen && (
-                <div className="md:hidden border-t border-sand bg-white animate-in slide-in-from-top-2 duration-300">
-                    <div className="px-4 py-6 space-y-2">
+                <div className="fixed inset-x-0 top-16 bottom-0 z-40 md:hidden bg-white overflow-y-auto border-t border-sand animate-in slide-in-from-top-5 duration-300">
+                    <div className="px-4 py-6 space-y-2 pb-20">
                         {session && (
                             <div className="flex items-center space-x-4 px-4 py-4 mb-2 bg-sand/20 rounded-xl">
                                 {session.user.image ? (
@@ -170,16 +175,14 @@ export function Header() {
                                 )}
                             >
                                 <item.icon className="mr-4 h-5 w-5" />
-                                {item.name}
+                                <span className="flex-1">{item.name}</span>
                             </Link>
                         ))}
 
                         <div className="pt-4 space-y-3">
-                            <Link href="/" onClick={() => setIsMenuOpen(false)} passHref>
-                                <Button variant="primary" className="w-full py-6 text-lg rounded-2xl shadow-lg shadow-forest/10">
-                                    Nouveau calcul
-                                </Button>
-                            </Link>
+                            <Button variant="primary" className="w-full py-6 text-lg rounded-2xl shadow-lg shadow-forest/10" onClick={() => { handleNewCalculation(); setIsMenuOpen(false); }}>
+                                Nouveau calcul
+                            </Button>
 
                             {session ? (
                                 <Button
