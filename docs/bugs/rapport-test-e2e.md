@@ -80,10 +80,6 @@ Failed to save simulation: JSHandle@error
 
 #### Étape 2: Configurer `.env.local`
 
-```diff
-- # SUPABASE_SERVICE_ROLE_KEY= (Please add manually...)
-+ SUPABASE_SERVICE_ROLE_KEY=<VOTRE_CLE_ICI>
-```
 
 #### Étape 3: Redémarrer le serveur dev
 
