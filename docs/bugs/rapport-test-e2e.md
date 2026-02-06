@@ -283,7 +283,7 @@ const empruntPart = (resultats.montant_emprunt / safeTotal) * 100;
 
 3. **Sécurité BDD:**
    - [x] ~~Créer policies RLS pour table `simulations`~~ ✅ Déjà implémentées dans migration `20260204_create_simulations_table.sql`
-   - [ ] Investiguer AMÉLIO-001 (TRI/Patrimoine) - _Priorité basse, types existent, vérifier calculs dans `/server/calculations/`_
+   - [x] ~~Investiguer AMÉLIO-001 (TRI/Patrimoine)~~ ✅ Corrigé: TRI gère l'apport nul (simule 1€ pour calcul), Patrimoine Net sécurisé.
 
 ---
 
