@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Calculator, Info, Menu, X, LogOut, User, FolderOpen, LogIn } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
@@ -46,6 +46,11 @@ export function Header() {
         resetStore();
         router.push('/calculateur');
     };
+
+    // Fermer le menu mobile lors du changement de route
+    useEffect(() => {
+        setIsMenuOpen(false);
+    }, [pathname]);
 
     const currentNavItems = [
         ...navItems,
