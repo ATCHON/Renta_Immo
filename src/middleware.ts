@@ -10,9 +10,9 @@ export default async function middleware(request: NextRequest) {
     const isAuthPage = request.nextUrl.pathname.startsWith("/auth");
     const isSimulationsPage = request.nextUrl.pathname.startsWith("/simulations");
 
-    if (!sessionCookie && isSimulationsPage) {
-        return NextResponse.redirect(new URL("/auth/login", request.url));
-    }
+    // if (!sessionCookie && isSimulationsPage) {
+    //     return NextResponse.redirect(new URL("/auth/login", request.url));
+    // }
 
 
     return NextResponse.next();

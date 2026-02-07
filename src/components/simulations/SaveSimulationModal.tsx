@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSimulationMutations } from '@/hooks/useSimulationMutations';
 import type { CalculateurFormData, CalculResultats } from '@/types/calculateur';
 
@@ -20,6 +21,7 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const { createSimulation } = useSimulationMutations();
+    const router = useRouter();
 
     if (!isOpen) return null;
 
@@ -35,6 +37,7 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
                 resultats: resultats as any,
             });
             onClose();
+            router.push('/simulations');
         } catch (error) {
             console.error('Failed to save simulation:', error);
         }
