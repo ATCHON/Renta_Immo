@@ -4,7 +4,8 @@
  */
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
-import { colors } from '../styles';
+import { styles as globalStyles, colors } from '../styles';
+import { formatCurrency, formatPercent, formatCurrencyWithSign } from '../utils/formatters';
 
 interface KeyMetricsProps {
     rentaBrute: number;
@@ -14,111 +15,110 @@ interface KeyMetricsProps {
     mensualite?: number;
 }
 
-import { formatCurrency, formatPercent, formatCurrencyWithSign } from '../utils/formatters';
-
-const metricsStyles = StyleSheet.create({
+const localStyles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 10,
-        marginBottom: 15,
+        gap: 12,
+        marginBottom: 20,
     },
-    metric: {
+    metricCard: {
         width: '48%',
-        padding: 12,
+        padding: 15,
         backgroundColor: colors.surface,
-        borderRadius: 4,
-        marginBottom: 8,
+        borderRadius: 8,
+        borderLeftWidth: 4,
+        borderColor: colors.primary,
     },
-    metricFull: {
+    metricCardFull: {
         width: '100%',
-        padding: 12,
-        backgroundColor: colors.surface,
-        borderRadius: 4,
-        marginBottom: 8,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 15,
+        backgroundColor: colors.surfaceHighlight,
+        borderRadius: 8,
+        marginTop: 5,
+        borderWidth: 1,
+        borderColor: colors.border,
     },
     label: {
-        fontSize: 9,
-        color: colors.stone,
-        marginBottom: 4,
+        fontSize: 10,
+        color: colors.textLight,
+        marginBottom: 6,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
     },
     value: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: colors.charcoal,
-    },
-    valuePositive: {
-        color: colors.sage,
-    },
-    valueNegative: {
-        color: colors.terracotta,
-    },
-    valueWarning: {
-        color: colors.amber,
+        fontSize: 20,
+        fontWeight: 'extrabold',
+        color: colors.textMain,
+        marginBottom: 2,
     },
     subtext: {
-        fontSize: 8,
-        color: colors.stone,
-        marginTop: 2,
+        fontSize: 9,
+        color: colors.textMuted,
     },
 });
-
-
 
 export function KeyMetrics({ rentaBrute, rentaNette, cashflow, tauxHCSF, mensualite }: KeyMetricsProps) {
     const isHcsfConform = tauxHCSF <= 35;
     const isCashflowPositive = cashflow >= 0;
 
     return (
-        <View style={metricsStyles.container}>
+        <View style={localStyles.container}>
             {/* Rentabilité Brute */}
-            <View style={metricsStyles.metric}>
-                <Text style={metricsStyles.label}>Rentabilité Brute</Text>
-                <Text style={metricsStyles.value}>{formatPercent(rentaBrute)}</Text>
-                <Text style={metricsStyles.subtext}>Loyer / Prix achat</Text>
+            <View style={[localStyles.metricCard, { borderColor: colors.chart1 }]}>
+                <Text style={localStyles.label}>Rentabilité Brute</Text>
+                <Text style={[localStyles.value, { color: colors.chart1 }]}>{formatPercent(rentaBrute)}</Text>
+                <Text style={localStyles.subtext}>Loyer / Prix achat</Text>
             </View>
 
             {/* Rentabilité Nette */}
-            <View style={metricsStyles.metric}>
-                <Text style={metricsStyles.label}>Rentabilité Nette</Text>
-                <Text style={[metricsStyles.value, rentaNette > 5 ? metricsStyles.valuePositive : {}]}>
+            <View style={[localStyles.metricCard, { borderColor: colors.chart2 }]}>
+                <Text style={localStyles.label}>Rentabilité Nette</Text>
+                <Text style={[localStyles.value, { color: colors.chart2 }]}>
                     {formatPercent(rentaNette)}
                 </Text>
-                <Text style={metricsStyles.subtext}>Après charges</Text>
+                <Text style={localStyles.subtext}>Après charges</Text>
             </View>
 
             {/* Cashflow */}
-            <View style={metricsStyles.metric}>
-                <Text style={metricsStyles.label}>Cashflow Mensuel</Text>
+            <View style={[localStyles.metricCard, { borderColor: isCashflowPositive ? colors.success : colors.error }]}>
+                <Text style={localStyles.label}>Cashflow Mensuel</Text>
                 <Text style={[
-                    metricsStyles.value,
-                    isCashflowPositive ? metricsStyles.valuePositive : metricsStyles.valueNegative
+                    localStyles.value,
+                    { color: isCashflowPositive ? colors.success : colors.error }
                 ]}>
                     {formatCurrencyWithSign(cashflow)}
                 </Text>
-                <Text style={metricsStyles.subtext}>Par mois</Text>
+                <Text style={localStyles.subtext}>Net avant impôts</Text>
             </View>
 
             {/* Taux HCSF */}
-            <View style={metricsStyles.metric}>
-                <Text style={metricsStyles.label}>Taux HCSF</Text>
+            <View style={[localStyles.metricCard, { borderColor: isHcsfConform ? colors.success : colors.warning }]}>
+                <Text style={localStyles.label}>Taux HCSF</Text>
                 <Text style={[
-                    metricsStyles.value,
-                    isHcsfConform ? metricsStyles.valuePositive : metricsStyles.valueNegative
+                    localStyles.value,
+                    { color: isHcsfConform ? colors.success : colors.warning }
                 ]}>
                     {formatPercent(tauxHCSF)}
                 </Text>
-                <Text style={metricsStyles.subtext}>
-                    {isHcsfConform ? 'Conforme (≤ 35%)' : 'Non conforme (> 35%)'}
+                <Text style={localStyles.subtext}>
+                    {isHcsfConform ? 'Conforme (≤ 35%)' : 'Attention (> 35%)'}
                 </Text>
             </View>
 
             {/* Mensualité si présente */}
             {mensualite !== undefined && (
-                <View style={metricsStyles.metricFull}>
-                    <Text style={metricsStyles.label}>Mensualité Crédit</Text>
-                    <Text style={metricsStyles.value}>{mensualite.toLocaleString('fr-FR')} €</Text>
-                    <Text style={metricsStyles.subtext}>Capital + Intérêts + Assurance</Text>
+                <View style={localStyles.metricCardFull}>
+                    <View>
+                        <Text style={localStyles.label}>Mensualité de Crédit</Text>
+                        <Text style={localStyles.subtext}>Assurance incluse</Text>
+                    </View>
+                    <Text style={[localStyles.value, { fontSize: 16, color: colors.primary }]}>
+                        {formatCurrency(mensualite)}/mois
+                    </Text>
                 </View>
             )}
         </View>

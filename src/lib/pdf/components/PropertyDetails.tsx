@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
-import { colors } from '../styles';
+import { styles, colors } from '../styles';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import type { BienData, FinancementData, ExploitationData, TypeBien, TypeLocation } from '@/types/calculateur';
 
@@ -15,51 +15,6 @@ interface PropertyDetailsProps {
     montantEmprunt: number;
     mensualite: number;
 }
-
-const detailStyles = StyleSheet.create({
-    section: {
-        marginBottom: 15,
-    },
-    sectionTitle: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        color: colors.forest,
-        marginBottom: 8,
-        paddingBottom: 4,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.border,
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: 4,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.border,
-    },
-    rowAlt: {
-        backgroundColor: colors.surface,
-    },
-    label: {
-        fontSize: 9,
-        color: colors.stone,
-        flex: 1,
-    },
-    value: {
-        fontSize: 9,
-        fontWeight: 'bold',
-        color: colors.charcoal,
-        textAlign: 'right',
-    },
-    grid: {
-        flexDirection: 'row',
-        gap: 15,
-    },
-    column: {
-        flex: 1,
-    },
-});
-
-
 
 function getTypeBienLabel(type: TypeBien): string {
     const labels: Record<TypeBien, string> = {
@@ -82,92 +37,78 @@ function getTypeLocationLabel(type: TypeLocation): string {
 
 export function PropertyDetails({ bien, financement, exploitation, montantEmprunt, mensualite }: PropertyDetailsProps) {
     return (
-        <View style={detailStyles.grid}>
-            {/* Colonne gauche : Le bien */}
-            <View style={detailStyles.column}>
-                <Text style={detailStyles.sectionTitle}>Le Bien</Text>
-
-                <View style={detailStyles.row}>
-                    <Text style={detailStyles.label}>Type</Text>
-                    <Text style={detailStyles.value}>{getTypeBienLabel(bien.type_bien)}</Text>
-                </View>
-                <View style={[detailStyles.row, detailStyles.rowAlt]}>
-                    <Text style={detailStyles.label}>{"Prix d'achat"}</Text>
-                    <Text style={detailStyles.value}>{formatCurrency(bien.prix_achat)}</Text>
-                </View>
-                {bien.surface && (
-                    <View style={detailStyles.row}>
-                        <Text style={detailStyles.label}>Surface</Text>
-                        <Text style={detailStyles.value}>{bien.surface} m²</Text>
-                    </View>
-                )}
-                <View style={[detailStyles.row, detailStyles.rowAlt]}>
-                    <Text style={detailStyles.label}>Travaux</Text>
-                    <Text style={detailStyles.value}>{formatCurrency(bien.montant_travaux)}</Text>
-                </View>
-                <View style={detailStyles.row}>
-                    <Text style={detailStyles.label}>Mobilier</Text>
-                    <Text style={detailStyles.value}>{formatCurrency(bien.valeur_mobilier)}</Text>
-                </View>
-
-                <Text style={[detailStyles.sectionTitle, { marginTop: 15 }]}>Exploitation</Text>
-
-                <View style={detailStyles.row}>
-                    <Text style={detailStyles.label}>Type location</Text>
-                    <Text style={detailStyles.value}>{getTypeLocationLabel(exploitation.type_location)}</Text>
-                </View>
-                <View style={[detailStyles.row, detailStyles.rowAlt]}>
-                    <Text style={detailStyles.label}>Loyer mensuel</Text>
-                    <Text style={detailStyles.value}>{formatCurrency(exploitation.loyer_mensuel)}</Text>
-                </View>
-                <View style={detailStyles.row}>
-                    <Text style={detailStyles.label}>Vacance locative</Text>
-                    <Text style={detailStyles.value}>{formatPercent(exploitation.provision_vacance)}</Text>
-                </View>
+        <View style={styles.card}>
+            <View style={styles.cardHeader}>
+                <Text style={styles.cardTitle}>Détails du Projet</Text>
             </View>
 
-            {/* Colonne droite : Financement */}
-            <View style={detailStyles.column}>
-                <Text style={detailStyles.sectionTitle}>Financement</Text>
+            <View style={styles.col2}>
+                {/* Colonne gauche : Le bien & Exploitation */}
+                <View style={styles.flex1}>
+                    <Text style={[styles.h3, { fontSize: 10, color: colors.textMuted }]}>Le Bien</Text>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Type</Text>
+                        <Text style={styles.value}>{getTypeBienLabel(bien.type_bien)}</Text>
+                    </View>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Surface</Text>
+                        <Text style={styles.value}>{bien.surface ? `${bien.surface} m²` : 'N/C'}</Text>
+                    </View>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Prix d'achat</Text>
+                        <Text style={styles.value}>{formatCurrency(bien.prix_achat)}</Text>
+                    </View>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Travaux</Text>
+                        <Text style={styles.value}>{formatCurrency(bien.montant_travaux)}</Text>
+                    </View>
 
-                <View style={detailStyles.row}>
-                    <Text style={detailStyles.label}>Apport</Text>
-                    <Text style={detailStyles.value}>{formatCurrency(financement.apport)}</Text>
-                </View>
-                <View style={[detailStyles.row, detailStyles.rowAlt]}>
-                    <Text style={detailStyles.label}>{"Montant emprunté"}</Text>
-                    <Text style={detailStyles.value}>{formatCurrency(montantEmprunt)}</Text>
-                </View>
-                <View style={detailStyles.row}>
-                    <Text style={detailStyles.label}>{"Taux d'intérêt"}</Text>
-                    <Text style={detailStyles.value}>{formatPercent(financement.taux_interet)}</Text>
-                </View>
-                <View style={[detailStyles.row, detailStyles.rowAlt]}>
-                    <Text style={detailStyles.label}>Durée</Text>
-                    <Text style={detailStyles.value}>{financement.duree_emprunt} ans</Text>
-                </View>
-                <View style={detailStyles.row}>
-                    <Text style={detailStyles.label}>{"Mensualité"}</Text>
-                    <Text style={detailStyles.value}>{formatCurrency(mensualite)}</Text>
+                    <Text style={[styles.h3, { fontSize: 10, color: colors.textMuted, marginTop: 12 }]}>Exploitation</Text>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Mode</Text>
+                        <Text style={styles.value}>{getTypeLocationLabel(exploitation.type_location)}</Text>
+                    </View>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Loyer Mensuel</Text>
+                        <Text style={[styles.value, { color: colors.success }]}>{formatCurrency(exploitation.loyer_mensuel)}</Text>
+                    </View>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Vacance</Text>
+                        <Text style={styles.value}>{formatPercent(exploitation.provision_vacance)}</Text>
+                    </View>
                 </View>
 
-                <Text style={[detailStyles.sectionTitle, { marginTop: 15 }]}>Charges</Text>
+                {/* Colonne droite : Financement & Charges */}
+                <View style={styles.flex1}>
+                    <Text style={[styles.h3, { fontSize: 10, color: colors.textMuted }]}>Financement</Text>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Montant emprunté</Text>
+                        <Text style={styles.value}>{formatCurrency(montantEmprunt)}</Text>
+                    </View>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Taux / Durée</Text>
+                        <Text style={styles.value}>{formatPercent(financement.taux_interet)} / {financement.duree_emprunt} ans</Text>
+                    </View>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Mensualité</Text>
+                        <Text style={styles.value}>{formatCurrency(mensualite)}</Text>
+                    </View>
 
-                <View style={detailStyles.row}>
-                    <Text style={detailStyles.label}>Charges copro</Text>
-                    <Text style={detailStyles.value}>{formatCurrency(exploitation.charges_copro)}</Text>
-                </View>
-                <View style={[detailStyles.row, detailStyles.rowAlt]}>
-                    <Text style={detailStyles.label}>{"Taxe foncière"}</Text>
-                    <Text style={detailStyles.value}>{formatCurrency(exploitation.taxe_fonciere)}</Text>
-                </View>
-                <View style={detailStyles.row}>
-                    <Text style={detailStyles.label}>Assurance PNO</Text>
-                    <Text style={detailStyles.value}>{formatCurrency(exploitation.assurance_pno)}</Text>
-                </View>
-                <View style={[detailStyles.row, detailStyles.rowAlt]}>
-                    <Text style={detailStyles.label}>Gestion locative</Text>
-                    <Text style={detailStyles.value}>{formatPercent(exploitation.gestion_locative)}</Text>
+                    <Text style={[styles.h3, { fontSize: 10, color: colors.textMuted, marginTop: 12 }]}>Charges Mensuelles</Text>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Copro</Text>
+                        <Text style={styles.value}>{formatCurrency(exploitation.charges_copro)}</Text>
+                    </View>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Taxe Foncière</Text>
+                        <Text style={styles.value}>{formatCurrency(exploitation.taxe_fonciere / 12)}/mois</Text>
+                    </View>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Autres (PNO, Gestion)</Text>
+                        <Text style={styles.value}>
+                            {formatCurrency(exploitation.assurance_pno / 12 + (exploitation.loyer_mensuel * exploitation.gestion_locative / 100))}
+                        </Text>
+                    </View>
                 </View>
             </View>
         </View>
