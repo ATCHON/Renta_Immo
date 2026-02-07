@@ -63,7 +63,11 @@
       "Bash(npm ls:*)",
       "Bash(npm install:*)",
       "Bash(npx vitest:*)",
-      "Bash(npx next build:*)"
+      "Bash(npx next build:*)",
+      "Bash(npx next dev:*)",
+      "Bash(if not exist \"D:\\\\Devs\\\\Renta_Immo\\\\test-screenshots\" mkdir \"D:\\\\Devs\\\\Renta_Immo\\\\test-screenshots\")",
+      "Bash(dir:*)",
+      "Bash(npx next start:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
