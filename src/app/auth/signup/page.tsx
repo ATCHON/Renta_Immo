@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { UserPlus, Mail, Lock, User, Chrome } from "lucide-react";
 import { Suspense } from "react";
+import { getValidatedRedirect } from "@/lib/auth/redirect";
 
 function SignupContent() {
     const [name, setName] = useState("");
@@ -18,7 +19,7 @@ function SignupContent() {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
-    const redirect = searchParams.get("redirect") || "/";
+    const redirect = getValidatedRedirect(searchParams.get("redirect"));
 
     const handleGoogleSignup = async () => {
         setIsLoading(true);
