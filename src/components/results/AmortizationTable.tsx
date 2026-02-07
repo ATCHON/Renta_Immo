@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { TableauAmortissement } from '@/types/calculateur';
-import { formatCurrency, cn } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 import { Card, CardHeader, CardContent, Button } from '@/components/ui';
 import { X } from 'lucide-react';
 

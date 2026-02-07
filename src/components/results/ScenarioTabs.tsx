@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useHasHydrated } from '@/hooks/useHasHydrated';

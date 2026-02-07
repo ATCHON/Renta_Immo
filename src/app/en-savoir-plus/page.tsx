@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Info, PieChart, TrendingUp, Calculator, ShieldCheck, Zap, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Info, PieChart, TrendingUp, Calculator, ShieldCheck, Zap } from 'lucide-react';
 import { Card, CardHeader, CardContent, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 

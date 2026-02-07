@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Test script for RapportSimulation template
  * Generates a full simulation report PDF
@@ -93,6 +94,55 @@ const mockResultats: CalculResultats = {
             "Prévoir une épargne de précaution pour les travaux",
         ],
     },
+    projections: {
+        horizon: 20,
+        totaux: {
+            cashflowCumule: 35000,
+            enrichissementTotal: 250000,
+            capitalRembourse: 180000,
+            impotCumule: 50000,
+            tri: 4.5
+        },
+        projections: [] // aligned with interface property name 'projections' not 'annees'
+    },
+    comparaisonFiscalite: {
+        items: [
+            {
+                regime: 'LMNP Réel',
+                impotAnnuelMoyen: 800,
+                cashflowNetMoyen: 1500,
+                rentabiliteNetteNette: 5.5,
+                isOptimal: true,
+                isSelected: true,
+                description: 'Régime réel',
+                avantages: ['Amortissement'],
+                inconvenients: ['Comptabilité']
+            },
+            {
+                regime: 'LMNP Micro',
+                impotAnnuelMoyen: 1200,
+                cashflowNetMoyen: 1100,
+                rentabiliteNetteNette: 4.8,
+                isOptimal: false,
+                isSelected: false,
+                description: 'Micro-bic',
+                avantages: ['Simplicité'],
+                inconvenients: ['Pas d\'amortissement']
+            },
+            {
+                regime: 'SCI IS',
+                impotAnnuelMoyen: 1500,
+                cashflowNetMoyen: 800,
+                rentabiliteNetteNette: 4.2,
+                isOptimal: false,
+                isSelected: false,
+                description: 'SCI à l\'IS',
+                avantages: ['Fiscalité société'],
+                inconvenients: ['Complexité']
+            }
+        ],
+        conseil: 'Le LMNP au réel est le plus avantageux.'
+    }
 };
 
 async function generateTestReport() {
@@ -104,7 +154,7 @@ async function generateTestReport() {
         generatedAt: new Date(),
     });
 
-    const buffer = await renderToBuffer(doc as any);
+    const buffer = await renderToBuffer(doc);
     const outputPath = path.join(__dirname, 'rapport-simulation-test.pdf');
     fs.writeFileSync(outputPath, buffer);
 

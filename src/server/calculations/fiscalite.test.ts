@@ -44,7 +44,7 @@ describe('calculerToutesFiscalites', () => {
         associes: [],
     };
 
-    const mockRentabilite: any = {
+    const mockRentabilite = {
         loyer_annuel: 14400,
         charges: {
             total_charges_annuelles: 2200, // 100*12 + 1000

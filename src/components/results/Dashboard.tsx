@@ -5,9 +5,6 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Info } from 'lucide-react';
 import { Button, Card, Collapsible } from '@/components/ui';
-import { MetricCard } from './MetricCard';
-import { RentabiliteCard } from './RentabiliteCard';
-import { CashflowCard } from './CashflowCard';
 import { HCSFIndicator } from './HCSFIndicator';
 import { ProjectionTable } from './ProjectionTable';
 import { AmortizationTable } from './AmortizationTable';
@@ -197,7 +194,6 @@ export function Dashboard() {
         <OperationalBalance
           exploitation={exploitation}
           cashflow={resultats.cashflow}
-          rentabilite={resultats.rentabilite}
           financement={resultats.financement}
           impotMensuel={impotMensuelMoyen}
         />

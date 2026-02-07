@@ -63,26 +63,19 @@ describe('Calculations Validation', () => {
 
   it('should apply default values for optional fields', () => {
     // We need to provide minimum valid data for Zod first
-    const dataWithZeroValues = {
-      ...validBaseData,
-      financement: {
-        ...validBaseData.financement,
-        taux_interet: 0, // In our logic, 0 might trigger default
-        duree_emprunt: 0,
-      }
-    };
+    // dataWithZeroValues removed as it was unused
 
     // Actually, looking at validation.ts, it uses `data.financement.taux_interet || DEFAULTS...`
     // But Zod schema says min(1) for duree_emprunt.
     // Let's test fields that are truly optional in Zod but have defaults in normalize
 
     const dataForDefaults = {
-        ...validBaseData,
-        financement: {
-            ...validBaseData.financement,
-            taux_interet: 0, // will trigger || default
-            duree_emprunt: 10,
-        }
+      ...validBaseData,
+      financement: {
+        ...validBaseData.financement,
+        taux_interet: 0, // will trigger || default
+        duree_emprunt: 10,
+      }
     };
 
     const result = validateAndNormalize(dataForDefaults);

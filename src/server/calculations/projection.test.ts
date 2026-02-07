@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculerTRI, genererProjections } from './projection';
-import { CalculationInput } from './types';
+import { calculerTRI } from './projection';
 
 describe('Calculateur TRI', () => {
     it('doit calculer un TRI correct pour un flux simple', () => {

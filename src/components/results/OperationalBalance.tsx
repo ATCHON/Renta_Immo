@@ -1,14 +1,13 @@
 'use client';
 
 import { Card, CardHeader, CardContent } from '@/components/ui';
-import { formatCurrency, formatPercent } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 import { cn } from '@/lib/utils';
-import type { ExploitationData, CashflowResultat, RentabiliteResultat, FinancementResultat } from '@/types';
+import type { ExploitationData, CashflowResultat, FinancementResultat } from '@/types';
 
 interface OperationalBalanceProps {
     exploitation: Partial<ExploitationData>;
     cashflow: CashflowResultat;
-    rentabilite: RentabiliteResultat;
     financement: FinancementResultat;
     impotMensuel: number;
 }
@@ -16,7 +15,6 @@ interface OperationalBalanceProps {
 export function OperationalBalance({
     exploitation,
     cashflow,
-    rentabilite,
     financement,
     impotMensuel
 }: OperationalBalanceProps) {
