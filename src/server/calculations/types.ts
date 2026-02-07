@@ -54,6 +54,8 @@ export interface FinancementCalculations {
   remboursement_annuel: number;
   cout_total_credit: number;
   cout_total_interets: number;
+  cout_total_acquisition: number;
+  taux_interet: number;
 }
 
 /**

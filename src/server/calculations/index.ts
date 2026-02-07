@@ -4,6 +4,7 @@
  */
 
 import type { CalculResultats } from '@/types/calculateur';
+import { logger } from '@/lib/logger';
 import { validateAndNormalize, ValidationError } from './validation';
 import { calculerRentabilite } from './rentabilite';
 import { calculerFiscalite, calculerToutesFiscalites } from './fiscalite';
@@ -158,7 +159,7 @@ export function performCalculations(
     }
 
     // Autres erreurs
-    console.error('Erreur de calcul:', error);
+    logger.error('Erreur de calcul:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Erreur inconnue',

@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { Input, CurrencyInput, PercentInput } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { useCalculateurStore } from '@/stores/calculateur.store';
+import { useScenarioFormReset } from '@/hooks/useScenarioFormReset';
 import { useHasHydrated } from '@/hooks/useHasHydrated';
 import { cn } from '@/lib/utils';
 import type { AssocieData } from '@/types';
@@ -59,15 +60,11 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
     },
   });
 
-  // Réinitialiser le formulaire quand le scénario change
-  useEffect(() => {
-    reset({
-      associes: structure.associes?.length
-        ? structure.associes
-        : [{ nom: '', parts: 100, revenus: 0, mensualites: 0, charges: 0 }],
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeScenarioId, reset]);
+  useScenarioFormReset(reset, {
+    associes: structure.associes?.length
+      ? structure.associes
+      : [{ nom: '', parts: 100, revenus: 0, mensualites: 0, charges: 0 }],
+  }, activeScenarioId);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -75,7 +72,7 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
   });
 
   const watchedAssocies = watch('associes');
-  const totalParts = watchedAssocies?.reduce((sum: number, a: any) => sum + (a.parts || 0), 0) || 0;
+  const totalParts = watchedAssocies?.reduce((sum: number, a: { parts?: number }) => sum + (a.parts || 0), 0) || 0;
 
   // Si nom propre, passer directement à l'étape suivante
   useEffect(() => {

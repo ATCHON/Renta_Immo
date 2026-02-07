@@ -28,7 +28,9 @@ describe('HCSF Precision Calculations', () => {
         mensualite_totale: 625,
         remboursement_annuel: 7500,
         cout_total_credit: 50000,
-        cout_total_interets: 15000
+        cout_total_interets: 15000,
+        cout_total_acquisition: 120000,
+        taux_interet: 4
     };
 
     it('should use TMI-based estimation when revenus_activite is 0 or missing', () => {

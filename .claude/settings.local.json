@@ -54,7 +54,15 @@
       "Bash(cmd //c \"taskkill /PID 27948 /F\")",
       "Bash(cmd //c \"taskkill /PID 25332 /F\")",
       "Bash(Get-ChildItem -Path \"D:\\\\Devs\\\\Renta_Immo\\\\src\" -Recurse -Include \"*.tsx\")",
-      "Bash(Select-Object -ExpandProperty FullName)"
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "mcp__chrome-devtools__wait_for",
+      "Bash(gh pr list:*)",
+      "Bash(where:*)",
+      "mcp__github__list_pull_requests",
+      "mcp__github__pull_request_read",
+      "Bash(npm ls:*)",
+      "Bash(npm install:*)",
+      "Bash(npx vitest:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

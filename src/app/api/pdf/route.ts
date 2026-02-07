@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { z, ZodError } from 'zod';
 import { RapportSimulation } from '@/lib/pdf/templates/RapportSimulation';
+import { logger } from '@/lib/logger';
 import type { CalculateurFormData, CalculResultats } from '@/types/calculateur';
 
 // Validation schemas
@@ -165,7 +166,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         // Handle validation errors
         if (error instanceof ZodError) {
-            console.error('PDF validation error:', error.issues);
+            logger.error('PDF validation error:', error.issues);
             return NextResponse.json(
                 {
                     success: false,
@@ -180,7 +181,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Handle generation errors
-        console.error('PDF generation error:', error);
+        logger.error('PDF generation error:', error);
         return NextResponse.json(
             {
                 success: false,

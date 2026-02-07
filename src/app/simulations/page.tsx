@@ -6,6 +6,7 @@ import { SimulationFilters } from '@/components/simulations/SimulationFilters';
 import { Pagination } from '@/components/ui/Pagination';
 import { useSimulations } from '@/hooks/useSimulations';
 import { useSimulationMutations } from '@/hooks/useSimulationMutations';
+import { logger } from '@/lib/logger';
 import { SimulationCard } from '@/components/simulations/SimulationCard';
 import type { Simulation } from '@/types/database';
 
@@ -44,37 +45,14 @@ export default function SimulationsPage() {
 
     const { deleteSimulation, toggleFavorite, renameSimulation, toggleArchive } = useSimulationMutations();
 
-    const handleDelete = async (id: string) => {
-        try {
-            await deleteSimulation.mutateAsync(id);
-        } catch (error) {
-            console.error('Failed to delete simulation:', error);
-        }
+    const safeMutate = async <T,>(fn: () => Promise<T>, label: string) => {
+        try { await fn(); } catch (error) { logger.error(`Failed to ${label}:`, error); }
     };
 
-    const handleToggleFavorite = async (id: string, isFavorite: boolean) => {
-        try {
-            await toggleFavorite.mutateAsync({ id, isFavorite });
-        } catch (error) {
-            console.error('Failed to toggle favorite:', error);
-        }
-    };
-
-    const handleRename = async (id: string, newName: string) => {
-        try {
-            await renameSimulation.mutateAsync({ id, name: newName });
-        } catch (error) {
-            console.error('Failed to rename:', error);
-        }
-    };
-
-    const handleToggleArchive = async (id: string, isArchived: boolean) => {
-        try {
-            await toggleArchive.mutateAsync({ id, isArchived });
-        } catch (error) {
-            console.error('Failed to toggle archive:', error);
-        }
-    };
+    const handleDelete = (id: string) => safeMutate(() => deleteSimulation.mutateAsync(id), 'delete simulation');
+    const handleToggleFavorite = (id: string, isFavorite: boolean) => safeMutate(() => toggleFavorite.mutateAsync({ id, isFavorite }), 'toggle favorite');
+    const handleRename = (id: string, newName: string) => safeMutate(() => renameSimulation.mutateAsync({ id, name: newName }), 'rename');
+    const handleToggleArchive = (id: string, isArchived: boolean) => safeMutate(() => toggleArchive.mutateAsync({ id, isArchived }), 'toggle archive');
 
     const simulations = response?.data || [];
     const total = response?.meta?.total || 0;

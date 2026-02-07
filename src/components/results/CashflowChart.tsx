@@ -14,8 +14,13 @@ import {
 } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
 
+interface CashflowDataPoint {
+    name: string;
+    cashflowNetImpot: number;
+}
+
 interface CashflowChartProps {
-    data: any[];
+    data: CashflowDataPoint[];
 }
 
 export const CashflowChart: React.FC<CashflowChartProps> = ({ data }) => {
@@ -47,7 +52,7 @@ export const CashflowChart: React.FC<CashflowChartProps> = ({ data }) => {
                             border: '1px solid #E2E8F0',
                             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                         }}
-                        formatter={(value: any) => [formatCurrency(Number(value)), 'Cash-flow']}
+                        formatter={(value: number | undefined) => [formatCurrency(Number(value ?? 0)), 'Cash-flow']}
                     />
                     <ReferenceLine y={0} stroke="#CBD5E1" />
                     <Bar dataKey="cashflowNetImpot" radius={[4, 4, 0, 0]}>

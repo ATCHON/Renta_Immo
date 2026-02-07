@@ -10,7 +10,7 @@ interface TableColumn<T> {
     header: string;
     width?: string | number;
     align?: 'left' | 'center' | 'right';
-    render?: (value: any, row: T) => string;
+    render?: (value: T[keyof T], row: T) => string;
 }
 
 interface TableProps<T> {
@@ -20,7 +20,7 @@ interface TableProps<T> {
     striped?: boolean;
 }
 
-export function Table<T extends Record<string, any>>({
+export function Table<T extends Record<string, unknown>>({
     data,
     columns,
     showHeader = true,

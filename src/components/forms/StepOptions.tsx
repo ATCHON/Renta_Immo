@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input, Select, PercentInput } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { optionsSchema, type OptionsFormData } from '@/lib/validators';
 import { useCalculateurStore } from '@/stores/calculateur.store';
+import { useScenarioFormReset } from '@/hooks/useScenarioFormReset';
 import { cn } from '@/lib/utils';
 
 interface StepOptionsProps {
@@ -38,22 +38,18 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
     },
   });
 
-  // Réinitialiser le formulaire quand le scénario change
-  useEffect(() => {
-    reset({
-      generer_pdf: options.generer_pdf ?? true,
-      envoyer_email: options.envoyer_email ?? false,
-      email: options.email || '',
-      horizon_projection: options.horizon_projection ?? 20,
-      taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
-      taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeScenarioId, reset]);
+  useScenarioFormReset(reset, {
+    generer_pdf: options.generer_pdf ?? true,
+    envoyer_email: options.envoyer_email ?? false,
+    email: options.email || '',
+    horizon_projection: options.horizon_projection ?? 20,
+    taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
+    taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
+  }, activeScenarioId);
 
   const watchedValues = watch();
 
-  const handleFormSubmit = (data: any) => {
+  const handleFormSubmit = (data: OptionsFormData) => {
     updateOptions({
       generer_pdf: data.generer_pdf,
       envoyer_email: data.envoyer_email,

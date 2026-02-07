@@ -140,9 +140,8 @@ export function calculerFinancement(
     remboursement_annuel: round(detailMensualite.mensualite_totale * 12),
     cout_total_credit: round(cout_total_credit),
     cout_total_interets: round(cout_total_interets),
-    // Ajout interne pour les calculs suivants (non exposé dans l'interface de base si non nécessaire)
-    // @ts-ignore
-    cout_total_acquisition: round(coutTotalAcquisition)
+    cout_total_acquisition: round(coutTotalAcquisition),
+    taux_interet: financement.taux_interet
   };
 }
 
@@ -208,7 +207,6 @@ export function calculerRentabilite(
   const revenu_net_avant_impots = loyer_annuel - charges.total_charges_annuelles;
 
   // Correction Audit : Rentabilité nette calculée sur COÛT TOTAL ACQUISITION
-  // @ts-ignore
   const coutTotal = financementCalc.cout_total_acquisition || (bien.prix_achat * 1.08); // Fallback sécu
 
   const rentabilite_nette = coutTotal > 0

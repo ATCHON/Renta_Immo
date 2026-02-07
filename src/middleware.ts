@@ -10,10 +10,17 @@ export default async function middleware(request: NextRequest) {
     const isAuthPage = request.nextUrl.pathname.startsWith("/auth");
     const isSimulationsPage = request.nextUrl.pathname.startsWith("/simulations");
 
-    // if (!sessionCookie && isSimulationsPage) {
-    //     return NextResponse.redirect(new URL("/auth/login", request.url));
-    // }
+    // Redirect unauthenticated users away from protected pages (Audit 1.4)
+    if (!sessionCookie && isSimulationsPage) {
+        const loginUrl = new URL("/auth/login", request.url);
+        loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
+        return NextResponse.redirect(loginUrl);
+    }
 
+    // Redirect authenticated users away from auth pages
+    if (sessionCookie && isAuthPage) {
+        return NextResponse.redirect(new URL("/", request.url));
+    }
 
     return NextResponse.next();
 }

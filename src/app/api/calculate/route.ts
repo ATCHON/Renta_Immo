@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { performCalculations } from '@/server/calculations';
+import { logger } from '@/lib/logger';
 import type { CalculationResult, CalculationError } from '@/server/calculations';
 
 // ============================================================================
@@ -58,8 +59,11 @@ const CONFIG = {
   VERSION: '1.0.0',
   /** Timeout en ms */
   TIMEOUT_MS: 30000,
-  /** Origines autorisées (configurable via env) */
-  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS?.split(',') || ['*'],
+  /** Origines autorisées (configurable via env, pas de wildcard par défaut - Audit 1.5) */
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS
+    ?.split(',')
+    .map(o => o.trim())
+    .filter(Boolean) || ['https://renta-immo.vercel.app'],
 } as const;
 
 /**
@@ -211,7 +215,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     );
   } catch (error) {
     // Erreur serveur inattendue
-    console.error('[API /api/calculate] Erreur serveur:', error);
+    logger.error('[API /api/calculate] Erreur serveur:', error);
 
     const executionTime = Math.round(performance.now() - startTime);
 
