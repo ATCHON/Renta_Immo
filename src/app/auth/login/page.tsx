@@ -28,8 +28,9 @@ function LoginContent() {
                 provider: "google",
                 callbackURL: redirect,
             });
-        } catch (err: any) {
-            setError(err.message || "Une erreur est survenue lors de la connexion avec Google.");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Une erreur est survenue lors de la connexion avec Google.";
+            setError(message);
             setIsLoading(false);
         }
     };
@@ -52,7 +53,7 @@ function LoginContent() {
                 router.push(redirect);
                 router.refresh();
             }
-        } catch (err: any) {
+        } catch {
             setError("Une erreur technique est survenue.");
             setIsLoading(false);
         }

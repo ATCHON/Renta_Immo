@@ -327,7 +327,6 @@ export function calculerFiscalite(
   const prixAchat = bien.prix_achat;
 
   // Estimation plus précise des intérêts Année 1 (Payer assurance + Intérêts calculés sur capital initial)
-  // @ts-ignore
   const tauxInteret = (rentabilite.financement.taux_interet || 3.5) / 100;
   const interetsAnnuels = rentabilite.financement.montant_emprunt * tauxInteret;
   const assuranceAnnuelle = rentabilite.financement.mensualite_assurance * 12;

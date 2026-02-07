@@ -13,6 +13,8 @@ describe('Calculations Synthese', () => {
       remboursement_annuel: 6360,
       cout_total_credit: 127200,
       cout_total_interets: 27200,
+      cout_total_acquisition: 120000,
+      taux_interet: 3.5,
     },
     charges: {
       charges_fixes_annuelles: 2000,

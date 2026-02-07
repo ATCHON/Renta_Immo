@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,6 +8,7 @@ import { CurrencyInput, Select } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { STRUCTURE_OPTIONS, TMI_OPTIONS, REGIME_FISCAL_OPTIONS } from '@/lib/constants';
 import { useCalculateurStore } from '@/stores/calculateur.store';
+import { useScenarioFormReset } from '@/hooks/useScenarioFormReset';
 import { cn } from '@/lib/utils';
 import type { TypeStructure, RegimeFiscal } from '@/types';
 
@@ -51,22 +52,19 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
     currentRegime?.startsWith('lmnp') ? 'meublee' : 'nue'
   );
 
-  // Réinitialiser le formulaire quand le scénario change
-  useEffect(() => {
-    reset({
-      type: structure.type || 'nom_propre',
-      tmi: structure.tmi ?? 30,
-      associes: structure.associes || [],
-      regime_fiscal: structure.regime_fiscal ?? 'micro_foncier',
-      credits_immobiliers: structure.credits_immobiliers ?? 0,
-      loyers_actuels: structure.loyers_actuels ?? 0,
-      revenus_activite: structure.revenus_activite ?? 0,
-      distribution_dividendes: structure.distribution_dividendes ?? false,
-      autres_charges: structure.autres_charges ?? 0,
-    });
+  useScenarioFormReset(reset, {
+    type: structure.type || 'nom_propre',
+    tmi: structure.tmi ?? 30,
+    associes: structure.associes || [],
+    regime_fiscal: structure.regime_fiscal ?? 'micro_foncier',
+    credits_immobiliers: structure.credits_immobiliers ?? 0,
+    loyers_actuels: structure.loyers_actuels ?? 0,
+    revenus_activite: structure.revenus_activite ?? 0,
+    distribution_dividendes: structure.distribution_dividendes ?? false,
+    autres_charges: structure.autres_charges ?? 0,
+  }, activeScenarioId, () => {
     setTypeExploitation(structure.regime_fiscal?.startsWith('lmnp') ? 'meublee' : 'nue');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeScenarioId, reset]);
+  });
 
   const selectedType = watch('type');
   const selectedRegime = watch('regime_fiscal');

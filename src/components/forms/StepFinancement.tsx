@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CurrencyInput, PercentInput, Input } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { financementSchema, type FinancementFormDataInput, type FinancementFormData } from '@/lib/validators';
 import { useCalculateurStore } from '@/stores/calculateur.store';
+import { useScenarioFormReset } from '@/hooks/useScenarioFormReset';
 import { calculateMensualite, formatCurrency } from '@/lib/utils';
 import type { FinancementData } from '@/types';
 
@@ -37,18 +37,14 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
     },
   });
 
-  // Réinitialiser le formulaire quand le store est hydraté
-  useEffect(() => {
-    reset({
-      apport: financement.apport ?? 0,
-      taux_interet: financement.taux_interet ?? 3.5,
-      duree_emprunt: financement.duree_emprunt ?? 20,
-      assurance_pret: Number((financement.assurance_pret ?? 0.3).toFixed(2)),
-      frais_dossier: financement.frais_dossier ?? 0,
-      frais_garantie: financement.frais_garantie ?? 2000,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeScenarioId, reset]);
+  useScenarioFormReset(reset, {
+    apport: financement.apport ?? 0,
+    taux_interet: financement.taux_interet ?? 3.5,
+    duree_emprunt: financement.duree_emprunt ?? 20,
+    assurance_pret: Number((financement.assurance_pret ?? 0.3).toFixed(2)),
+    frais_dossier: financement.frais_dossier ?? 0,
+    frais_garantie: financement.frais_garantie ?? 2000,
+  }, activeScenarioId);
 
   const watchedValues = watch() as unknown as FinancementFormData;
   const prixAchat = bien.prix_achat || 0;

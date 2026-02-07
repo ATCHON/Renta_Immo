@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { logger } from '@/lib/logger';
 import { X } from 'lucide-react';
 
 interface RenameSimulationModalProps {
@@ -39,7 +40,7 @@ export const RenameSimulationModal: React.FC<RenameSimulationModalProps> = ({
             await onRename(name.trim());
             onClose();
         } catch (error) {
-            console.error('Failed to rename:', error);
+            logger.error('Failed to rename:', error);
         } finally {
             setIsLoading(false);
         }

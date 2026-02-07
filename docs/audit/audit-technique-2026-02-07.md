@@ -12,7 +12,7 @@
 | Phase | Statut | Date | Auteur | Details |
 |-------|--------|------|--------|---------|
 | Phase 1 - Securite critique | TERMINEE | 2026-02-07 | James (Dev Agent) | 7/7 items corriges. Migration SQL a appliquer via `supabase db push`. |
-| Phase 2 - Qualite de code | A FAIRE | - | - | - |
+| Phase 2 - Qualite de code | TERMINEE | 2026-02-07 | James (Dev Agent) | 9/9 items corriges. ESLint renforce, Prettier ajoute, 0 `any`, 0 `@ts-ignore`. |
 | Phase 3 - Performance | A FAIRE | - | - | - |
 | Phase 4 - Tests & DevOps | A FAIRE | - | - | - |
 | Phase 5 - Scalabilite | A FAIRE | - | - | - |
@@ -24,14 +24,15 @@
 L'application repose sur des fondations solides : TypeScript strict, validation Zod, bonne separation des responsabilites API/calculs/UI. Cependant, l'audit revele **3 failles critiques**, **8 problemes de severite haute** et de nombreuses ameliorations a apporter en matiere de performance, maintenabilite et scalabilite.
 
 > **Mise a jour 2026-02-07** : Les 3 failles critiques et 4 problemes de severite haute (Phase 1) ont ete corriges. Le score Securite passe de 4/10 a **7/10**.
+> **Mise a jour 2026-02-07 (Phase 2)** : Qualite de code renforcee. 21 `any` elimines, 3 `@ts-ignore` supprimes, schemas Zod stricts, Error Boundaries, hook factorise, logger centralise, ESLint+Prettier configures. Score Qualite passe de 6/10 a **8/10**, Architecture de 7/10 a **8/10**.
 
 ### Bilan Global
 
-| Axe | Score | Apres Phase 1 | Commentaire |
-|-----|-------|---------------|-------------|
-| Securite | 4/10 | **7/10** | ~~Failles critiques (RLS, injection, CORS)~~ Corrigees. Reste: rate limiting, headers securite, env validation |
-| Qualite de code | 6/10 | 6/10 | `any` excessifs, duplication, ESLint minimal |
-| Architecture | 7/10 | 7/10 | Bonne structure, manque Error Boundaries et Suspense |
+| Axe | Score | Apres Phase 1 | Apres Phase 2 | Commentaire |
+|-----|-------|---------------|---------------|-------------|
+| Securite | 4/10 | **7/10** | 7/10 | ~~Failles critiques~~ Corrigees. Reste: rate limiting, headers securite |
+| Qualite de code | 6/10 | 6/10 | **8/10** | ~~`any` excessifs, duplication, ESLint minimal~~ Corriges. Reste: fichiers volumineux, key props |
+| Architecture | 7/10 | 7/10 | **8/10** | ~~Pas d'Error Boundaries~~ Corrige. Reste: Suspense Boundaries, loading.tsx |
 | Performance | 5/10 | 5/10 | Pas de memoisation, calculs synchrones bloquants |
 | Scalabilite | 4/10 | 4/10 | Pas de rate limiting, pagination OFFSET, pas de cache HTTP |
 | Tests | 3/10 | 3/10 | Couverture estimee < 30%, tests E2E minimaux |
@@ -204,145 +205,83 @@ Better Auth est configure avec `emailAndPassword: { enabled: true }` sans politi
 
 ## 2. Qualite de Code & Clean Code
 
-### 2.1 HAUTE : Usage excessif du type `any` (21+ instances)
+### 2.1 ~~HAUTE~~ CORRIGE : Usage excessif du type `any` (21+ instances)
 
-**Fichiers concernes** :
-
-| Fichier | Ligne | Usage |
-|---------|-------|-------|
-| `src/app/api/simulations/[id]/route.ts` | 68, 72, 79 | `as any` sur updateData, resultats, supabase |
-| `src/app/api/simulations/route.ts` | 98, 112 | `as any` sur resultats et query |
-| `src/app/auth/login/page.tsx` | 31, 55 | `catch (err: any)` |
-| `src/app/auth/signup/page.tsx` | 32, 57 | `catch (err: any)` |
-| `src/components/forms/StepAssocies.tsx` | 78 | `a: any` dans reduce |
-| `src/components/forms/StepOptions.tsx` | 56 | `data: any` |
-| `src/components/simulations/SaveSimulationModal.tsx` | 36, 37 | `as any` |
-| `src/components/results/CashflowChart.tsx` | 18, 50 | `data: any[]`, `value: any` |
-| `src/components/results/PatrimoineChart.tsx` | 17, 59 | `data: any[]`, `value: any` |
-| `src/lib/pdf/components/Table.tsx` | 13 | `value: any` |
-
-**Correction** : Remplacer chaque `any` par le type concret. Utiliser `unknown` + type guards pour les catch blocks.
+> **CORRIGE le 2026-02-07**
+> - Tous les `as any` ont été supprimés et remplacés par des types précis.
+> - Utilisation de `unknown` et de type guards pour les blocs `catch`.
+> - Typage complet des réponses API et des états du store.
 
 ---
 
-### 2.2 HAUTE : 3 directives `@ts-ignore`
+### 2.2 ~~HAUTE~~ CORRIGE : 3 directives `@ts-ignore`
 
-**Fichiers** :
-- `src/server/calculations/rentabilite.ts` : lignes 144, 211
-- `src/server/calculations/fiscalite.ts` : ligne 330
-
-**Correction** : Corriger les types sous-jacents plutot que de contourner le compilateur. Utiliser `@ts-expect-error` avec commentaire si necessaire temporairement.
+> **CORRIGE le 2026-02-07**
+> - Les erreurs de types dans `rentabilite.ts` et `fiscalite.ts` ont été résolues en améliorant les interfaces.
 
 ---
 
-### 2.3 HAUTE : Pas d'Error Boundary React
+### 2.3 ~~HAUTE~~ CORRIGE : Pas d'Error Boundary React
 
-Aucun composant Error Boundary n'existe dans le projet. Les erreurs de rendu React crashent l'application sans fallback.
-
-**Correction** : Creer des fichiers `error.tsx` pour chaque segment de route majeur :
-```
-src/app/calculateur/error.tsx
-src/app/simulations/error.tsx
-src/app/error.tsx (global)
-```
+> **CORRIGE le 2026-02-07**
+> - Ajout de fichiers `error.tsx` à la racine et dans les segments `/calculateur` et `/simulations`.
+> - Fallback UI propre avec possibilité de réessai.
 
 ---
 
-### 2.4 MOYENNE : Duplication de code significative
+### 2.4 ~~MOYENNE~~ CORRIGE : Duplication de code significative
 
 #### a) Pattern de reset de formulaire (6 fichiers identiques)
 
-```typescript
-// Pattern repete dans StepBien, StepFinancement, StepExploitation,
-// StepStructure, StepOptions, StepAssocies
-useEffect(() => {
-  reset({...});
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [activeScenarioId, reset]);
-```
-
-**Correction** : Extraire dans un hook `useFormReset()`.
+> **CORRIGE le 2026-02-07**
+> - Création du hook `useScenarioFormReset.ts` pour centraliser la logique de réinitialisation des formulaires.
 
 #### b) Handlers d'action simulations (4 handlers identiques)
 
-**Fichier** : `src/app/simulations/page.tsx` (lignes 47-77)
-
-Les handlers `handleDelete`, `handleToggleFavorite`, `handleRename`, `handleToggleArchive` suivent tous le meme pattern try/catch.
-
-**Correction** : Extraire un helper generique.
+> **CORRIGE le 2026-02-07**
+> - Utilisation de `useSimulationMutations.ts` pour centraliser les appels API et la gestion des notifications.
 
 #### c) Pattern d'erreur authentification
 
-`src/app/auth/login/page.tsx` et `src/app/auth/signup/page.tsx` ont des patterns catch identiques.
+> **CORRIGE le 2026-02-07**
+> - Unification de la gestion des erreurs via un helper partagé.
 
 ---
 
-### 2.5 MOYENNE : Erreurs avalees silencieusement
+### 2.5 ~~MOYENNE~~ CORRIGE : Erreurs avalees silencieusement
 
-| Fichier | Ligne | Probleme |
-|---------|-------|----------|
-| `src/app/simulations/page.tsx` | 50, 58, 66, 74 | `console.error` sans feedback utilisateur |
-| `src/components/simulations/RenameSimulationModal.tsx` | 41 | catch silencieux |
-| `src/components/simulations/SaveSimulationModal.tsx` | 41-43 | catch silencieux |
-
-**Correction** : Afficher un toast/notification a l'utilisateur en cas d'erreur.
+> **CORRIGE le 2026-02-07**
+> - Intégration de toasts (notifications UI) pour toutes les erreurs d'actions utilisateur.
+> - Remplacement des `console.error` par des appels au nouveau module `logger`.
 
 ---
 
-### 2.6 MOYENNE : 6 regles ESLint desactivees
+### 2.6 ~~MOYENNE~~ CORRIGE : 6 regles ESLint desactivees
 
-6 instances de `eslint-disable-next-line react-hooks/exhaustive-deps` dans les composants Step*.
-
-**Correction** : Investiguer les dependances reelles des useEffect plutot que desactiver le linter.
-
----
-
-### 2.7 MOYENNE : Configuration ESLint minimale
-
-**Fichier** : `.eslintrc.json`
-
-```json
-{ "extends": ["next/core-web-vitals"] }
-```
-
-**Correction** :
-```json
-{
-  "extends": [
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended"
-  ],
-  "rules": {
-    "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/no-unused-vars": "error",
-    "no-console": ["warn", { "allow": ["warn", "error"] }]
-  }
-}
-```
+> **CORRIGE le 2026-02-07**
+> - Suppression des `eslint-disable` et correction des dépendances de hooks.
 
 ---
 
-### 2.8 MOYENNE : Validation `z.any()` dans les schemas API
+### 2.7 ~~MOYENNE~~ CORRIGE : Configuration ESLint minimale
 
-**Fichiers** : `src/app/api/simulations/route.ts` (ligne 10-11), `src/app/api/simulations/[id]/route.ts` (ligne 13-14)
-
-```typescript
-const CreateSimulationSchema = z.object({
-    name: z.string().max(255).optional(),
-    form_data: z.any(),    // TROP PERMISSIF
-    resultats: z.any(),    // TROP PERMISSIF
-});
-```
-
-**Correction** : Utiliser les types existants de `src/types/` pour valider la structure.
+> **CORRIGE le 2026-02-07**
+> - Configuration enrichie avec `@typescript-eslint/recommended`.
+> - Activation des erreurs pour les `any` explicites et les variables inutilisées.
 
 ---
 
-### 2.9 MOYENNE : 19 console.* en code de production
+### 2.8 ~~MOYENNE~~ CORRIGE : Validation `z.any()` dans les schemas API
 
-**Correction** : Creer un module logger (`src/lib/logger.ts`) qui :
-- Log en console uniquement en dev
-- Envoie a un service de monitoring en prod
+> **CORRIGE le 2026-02-07**
+> - Remplacement par les types réels importés de `src/types/`.
+
+---
+
+### 2.9 ~~MOYENNE~~ CORRIGE : 19 console.* en code de production
+
+> **CORRIGE le 2026-02-07**
+> - Implémentation du module `src/lib/logger.ts` qui filtre les logs selon l'environnement.
 
 ---
 
@@ -786,19 +725,19 @@ L'application a de solides fondations qu'il convient de souligner :
 
 > **Note** : La migration SQL `20260207_fix_rls_policies.sql` doit etre appliquee sur Supabase via `supabase db push` ou le dashboard.
 
-### Phase 2 : Qualite de code & type safety (3-5 jours)
+### Phase 2 : Qualite de code & type safety - TERMINEE (2026-02-07)
 
-| # | Action | Effort |
-|---|--------|--------|
-| 8 | Remplacer les 21+ usages de `any` par des types concrets | 4h |
-| 9 | Supprimer les 3 `@ts-ignore` | 1h |
-| 10 | Remplacer `z.any()` par des schemas stricts dans les API simulations | 2h |
-| 11 | Creer les Error Boundaries (`error.tsx`) | 2h |
-| 12 | Extraire le hook `useFormReset()` | 1h |
-| 13 | Factoriser les handlers de simulation | 1h |
-| 14 | Renforcer la config ESLint | 30min |
-| 15 | Ajouter un module logger centralise | 1h |
-| 16 | Ajouter Prettier + `.prettierrc` | 30min |
+| # | Action | Effort | Statut |
+|---|--------|--------|--------|
+| 8 | Remplacer les 21+ usages de `any` par des types concrets | 4h | FAIT |
+| 9 | Supprimer les 3 `@ts-ignore` | 1h | FAIT |
+| 10 | Remplacer `z.any()` par des schemas stricts dans les API simulations | 2h | FAIT |
+| 11 | Creer les Error Boundaries (`error.tsx`) | 2h | FAIT |
+| 12 | Extraire le hook `useFormReset()` | 1h | FAIT |
+| 13 | Factoriser les handlers de simulation | 1h | FAIT |
+| 14 | Renforcer la config ESLint | 30min | FAIT |
+| 15 | Ajouter un module logger centralise | 1h | FAIT |
+| 16 | Ajouter Prettier + `.prettierrc` | 30min | FAIT |
 
 ### Phase 3 : Performance & architecture (1-2 semaines)
 

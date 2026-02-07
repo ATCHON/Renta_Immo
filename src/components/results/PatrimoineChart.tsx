@@ -13,8 +13,15 @@ import {
 } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
 
+interface PatrimoineDataPoint {
+    name: string;
+    valeurBien: number;
+    capitalRestant: number;
+    patrimoineNet: number;
+}
+
 interface PatrimoineChartProps {
-    data: any[];
+    data: PatrimoineDataPoint[];
 }
 
 export const PatrimoineChart: React.FC<PatrimoineChartProps> = ({ data }) => {
@@ -56,7 +63,7 @@ export const PatrimoineChart: React.FC<PatrimoineChartProps> = ({ data }) => {
                             border: '1px solid #E2E8F0',
                             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                         }}
-                        formatter={(value: any) => formatCurrency(Number(value))}
+                        formatter={(value: number | undefined) => formatCurrency(Number(value ?? 0))}
                     />
                     <Legend iconType="circle" />
                     <Area

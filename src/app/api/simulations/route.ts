@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import type { CalculResultats } from '@/types/calculateur';
+import type { Json } from '@/types/database.types';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
+import { logger } from '@/lib/logger';
 
 const CreateSimulationSchema = z.object({
     name: z.string().max(255).optional(),
     description: z.string().optional(),
-    form_data: z.any(),
-    resultats: z.any(),
+    form_data: z.record(z.string(), z.unknown()),
+    resultats: z.record(z.string(), z.unknown()),
 });
 
 // Safe integer parsing with bounds (Audit 1.8)
@@ -113,7 +116,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const validated = CreateSimulationSchema.parse(body);
 
-        const resultats = validated.resultats as any;
+        const res = validated.resultats as unknown as Partial<CalculResultats>;
 
         const { data, error } = await supabase
             .from('simulations')
@@ -121,13 +124,13 @@ export async function POST(request: NextRequest) {
                 user_id: user.id,
                 name: validated.name || 'Simulation sans titre',
                 description: validated.description,
-                form_data: validated.form_data,
-                resultats: validated.resultats,
-                rentabilite_brute: resultats.rentabilite?.brute,
-                rentabilite_nette: resultats.rentabilite?.nette,
-                cashflow_mensuel: resultats.cashflow?.mensuel,
-                score_global: resultats.synthese?.score_global,
-            } as any)
+                form_data: validated.form_data as unknown as Json,
+                resultats: validated.resultats as unknown as Json,
+                rentabilite_brute: res.rentabilite?.brute,
+                rentabilite_nette: res.rentabilite?.nette,
+                cashflow_mensuel: res.cashflow?.mensuel,
+                score_global: res.synthese?.score_global,
+            })
             .select()
             .single();
 
@@ -141,7 +144,7 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-        console.error('API Error:', error);
+        logger.error('API Error:', error);
         return NextResponse.json(
             { success: false, error: { code: 'SERVER_ERROR', message: 'Erreur serveur' } },
             { status: 500 }

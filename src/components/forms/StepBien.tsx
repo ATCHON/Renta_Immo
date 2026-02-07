@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input, CurrencyInput, Select } from '@/components/ui';
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { bienSchema, type BienFormDataInput, type BienFormData } from '@/lib/validators';
 import { TYPE_BIEN_OPTIONS } from '@/lib/constants';
 import { useCalculateurStore } from '@/stores/calculateur.store';
+import { useScenarioFormReset } from '@/hooks/useScenarioFormReset';
 import type { BienData } from '@/types';
 
 interface StepBienProps {
@@ -37,20 +37,16 @@ export function StepBien({ onNext }: StepBienProps) {
     },
   });
 
-  // Réinitialiser le formulaire quand le scénario change
-  useEffect(() => {
-    reset({
-      adresse: bien.adresse || '',
-      prix_achat: bien.prix_achat || undefined,
-      surface: bien.surface || undefined,
-      type_bien: bien.type_bien || 'appartement',
-      annee_construction: bien.annee_construction || undefined,
-      etat_bien: bien.etat_bien || 'ancien',
-      montant_travaux: bien.montant_travaux || 0,
-      valeur_mobilier: bien.valeur_mobilier || 0,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeScenarioId, reset]);
+  useScenarioFormReset(reset, {
+    adresse: bien.adresse || '',
+    prix_achat: bien.prix_achat || undefined,
+    surface: bien.surface || undefined,
+    type_bien: bien.type_bien || 'appartement',
+    annee_construction: bien.annee_construction || undefined,
+    etat_bien: bien.etat_bien || 'ancien',
+    montant_travaux: bien.montant_travaux || 0,
+    valeur_mobilier: bien.valeur_mobilier || 0,
+  }, activeScenarioId);
 
   const onSubmit = (data: BienFormData) => {
     updateBien(data as BienData);

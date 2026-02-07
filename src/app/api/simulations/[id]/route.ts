@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
-import type { SimulationUpdate } from '@/types/database';
+import type { CalculResultats } from '@/types/calculateur';
+import type { Json, TablesUpdate } from '@/types/database.types';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 
@@ -10,8 +11,8 @@ const UpdateSimulationSchema = z.object({
     description: z.string().optional(),
     is_favorite: z.boolean().optional(),
     is_archived: z.boolean().optional(),
-    form_data: z.any().optional(),
-    resultats: z.any().optional(),
+    form_data: z.record(z.string(), z.unknown()).optional(),
+    resultats: z.record(z.string(), z.unknown()).optional(),
 });
 
 export async function GET(
@@ -65,18 +66,25 @@ export async function PATCH(
         const body = await request.json();
         const validated = UpdateSimulationSchema.parse(body);
 
-        const updateData: SimulationUpdate = { ...validated } as any;
+        const updateData: TablesUpdate<'simulations'> = {
+            name: validated.name,
+            description: validated.description,
+            is_favorite: validated.is_favorite,
+            is_archived: validated.is_archived,
+            form_data: validated.form_data as unknown as Json,
+            resultats: validated.resultats as unknown as Json,
+        };
 
         // Update denormalized fields if resultats is provided
         if (validated.resultats) {
-            const res = validated.resultats as any;
+            const res = validated.resultats as unknown as Partial<CalculResultats>;
             updateData.rentabilite_brute = res.rentabilite?.brute;
             updateData.rentabilite_nette = res.rentabilite?.nette;
             updateData.cashflow_mensuel = res.cashflow?.mensuel;
             updateData.score_global = res.synthese?.score_global;
         }
 
-        const { data, error } = await (supabase.from('simulations') as any)
+        const { data, error } = await supabase.from('simulations')
             .update(updateData)
             .eq('id', params.id)
             .eq('user_id', user.id)

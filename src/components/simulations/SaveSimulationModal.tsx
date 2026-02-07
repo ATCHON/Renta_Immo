@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSimulationMutations } from '@/hooks/useSimulationMutations';
+import { logger } from '@/lib/logger';
 import type { CalculateurFormData, CalculResultats } from '@/types/calculateur';
 
 interface SaveSimulationModalProps {
@@ -33,13 +34,13 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
                 user_id: '',
                 name: name.trim(),
                 description: description.trim(),
-                form_data: formData as any,
-                resultats: resultats as any,
+                form_data: formData,
+                resultats: resultats,
             });
             onClose();
             router.push('/simulations');
         } catch (error) {
-            console.error('Failed to save simulation:', error);
+            logger.error('Failed to save simulation:', error);
         }
     };
 

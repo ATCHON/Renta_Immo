@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { performCalculations } from '@/server/calculations';
+import { logger } from '@/lib/logger';
 import type { CalculationResult, CalculationError } from '@/server/calculations';
 
 // ============================================================================
@@ -214,7 +215,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     );
   } catch (error) {
     // Erreur serveur inattendue
-    console.error('[API /api/calculate] Erreur serveur:', error);
+    logger.error('[API /api/calculate] Erreur serveur:', error);
 
     const executionTime = Math.round(performance.now() - startTime);
 

@@ -29,8 +29,9 @@ function SignupContent() {
                 provider: "google",
                 callbackURL: redirect,
             });
-        } catch (err: any) {
-            setError(err.message || "Une erreur est survenue lors de l'inscription avec Google.");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Une erreur est survenue lors de l'inscription avec Google.";
+            setError(message);
             setIsLoading(false);
         }
     };
@@ -54,7 +55,7 @@ function SignupContent() {
                 router.push(redirect);
                 router.refresh();
             }
-        } catch (err: any) {
+        } catch {
             setError("Une erreur technique est survenue.");
             setIsLoading(false);
         }

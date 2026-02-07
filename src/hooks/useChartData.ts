@@ -20,7 +20,6 @@ export const useChartData = (projections: ProjectionAnnuelle[] = []) => {
     }, [projections]);
 
     const cumulativeData = useMemo(() => {
-        let interetsCumules = 0;
         let capitalCumule = 0;
 
         // Note: Pour un graphique cumulé précis, on pourrait avoir besoin des données d'intérêts annuels
