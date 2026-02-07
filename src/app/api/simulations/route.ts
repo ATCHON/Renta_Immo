@@ -11,6 +11,16 @@ const CreateSimulationSchema = z.object({
     resultats: z.any(),
 });
 
+// Safe integer parsing with bounds (Audit 1.8)
+function safeInt(val: string | null, def: number, min: number, max: number): number {
+    const num = parseInt(val || '', 10);
+    return isNaN(num) || num < min ? def : Math.min(num, max);
+}
+
+// Whitelist sort columns (Audit 1.2)
+const ALLOWED_SORTS = ['created_at', 'updated_at', 'name', 'is_favorite', 'rentabilite_nette', 'score_global'] as const;
+type AllowedSort = typeof ALLOWED_SORTS[number];
+
 export async function GET(request: NextRequest) {
     const session = await auth.api.getSession({
         headers: await headers(),
@@ -28,18 +38,11 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
 
-    // Safe integer parsing with bounds (Audit 1.8)
-    const safeInt = (val: string | null, def: number, min: number, max: number) => {
-        const num = parseInt(val || '', 10);
-        return isNaN(num) || num < min ? def : Math.min(num, max);
-    };
     const limit = safeInt(searchParams.get('limit'), 20, 1, 100);
     const offset = safeInt(searchParams.get('offset'), 0, 0, 100000);
 
-    // Whitelist sort columns (Audit 1.2)
-    const ALLOWED_SORTS = ['created_at', 'updated_at', 'name', 'is_favorite', 'rentabilite_nette', 'score_global'] as const;
     const rawSort = searchParams.get('sort') || '';
-    const sortBy = (ALLOWED_SORTS as readonly string[]).includes(rawSort) ? rawSort : 'created_at';
+    const sortBy: AllowedSort = (ALLOWED_SORTS as readonly string[]).includes(rawSort) ? rawSort as AllowedSort : 'created_at';
 
     const order = searchParams.get('order') === 'asc';
     const favoriteOnly = searchParams.get('favorite') === 'true';

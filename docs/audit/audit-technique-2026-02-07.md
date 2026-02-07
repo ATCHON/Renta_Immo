@@ -7,33 +7,47 @@
 
 ---
 
+## Suivi des Corrections
+
+| Phase | Statut | Date | Auteur | Details |
+|-------|--------|------|--------|---------|
+| Phase 1 - Securite critique | TERMINEE | 2026-02-07 | James (Dev Agent) | 7/7 items corriges. Migration SQL a appliquer via `supabase db push`. |
+| Phase 2 - Qualite de code | A FAIRE | - | - | - |
+| Phase 3 - Performance | A FAIRE | - | - | - |
+| Phase 4 - Tests & DevOps | A FAIRE | - | - | - |
+| Phase 5 - Scalabilite | A FAIRE | - | - | - |
+
+---
+
 ## Resume Executif
 
 L'application repose sur des fondations solides : TypeScript strict, validation Zod, bonne separation des responsabilites API/calculs/UI. Cependant, l'audit revele **3 failles critiques**, **8 problemes de severite haute** et de nombreuses ameliorations a apporter en matiere de performance, maintenabilite et scalabilite.
 
+> **Mise a jour 2026-02-07** : Les 3 failles critiques et 4 problemes de severite haute (Phase 1) ont ete corriges. Le score Securite passe de 4/10 a **7/10**.
+
 ### Bilan Global
 
-| Axe | Score | Commentaire |
-|-----|-------|-------------|
-| Securite | 4/10 | Failles critiques (RLS, injection, CORS) |
-| Qualite de code | 6/10 | `any` excessifs, duplication, ESLint minimal |
-| Architecture | 7/10 | Bonne structure, manque Error Boundaries et Suspense |
-| Performance | 5/10 | Pas de memoisation, calculs synchrones bloquants |
-| Scalabilite | 4/10 | Pas de rate limiting, pagination OFFSET, pas de cache HTTP |
-| Tests | 3/10 | Couverture estimee < 30%, tests E2E minimaux |
-| DevOps | 3/10 | CI/CD incomplet, pas de pre-commit hooks |
-| Accessibilite | 7/10 | Bonnes bases (labels, aria, skip-to-content) |
-| Documentation | 4/10 | README obsolete, pas de doc API |
+| Axe | Score | Apres Phase 1 | Commentaire |
+|-----|-------|---------------|-------------|
+| Securite | 4/10 | **7/10** | ~~Failles critiques (RLS, injection, CORS)~~ Corrigees. Reste: rate limiting, headers securite, env validation |
+| Qualite de code | 6/10 | 6/10 | `any` excessifs, duplication, ESLint minimal |
+| Architecture | 7/10 | 7/10 | Bonne structure, manque Error Boundaries et Suspense |
+| Performance | 5/10 | 5/10 | Pas de memoisation, calculs synchrones bloquants |
+| Scalabilite | 4/10 | 4/10 | Pas de rate limiting, pagination OFFSET, pas de cache HTTP |
+| Tests | 3/10 | 3/10 | Couverture estimee < 30%, tests E2E minimaux |
+| DevOps | 3/10 | 3/10 | CI/CD incomplet, pas de pre-commit hooks |
+| Accessibilite | 7/10 | 7/10 | Bonnes bases (labels, aria, skip-to-content) |
+| Documentation | 4/10 | 4/10 | README obsolete, pas de doc API |
 
 ### Synthese des Problemes
 
-| Severite | Nombre |
-|----------|--------|
-| Critique | 3 |
-| Haute | 8 |
-| Moyenne | 18 |
-| Basse | 8 |
-| **Total** | **37** |
+| Severite | Total | Corriges | Restants |
+|----------|-------|----------|----------|
+| Critique | 3 | 3 | **0** |
+| Haute | 8 | 4 | **4** |
+| Moyenne | 18 | 0 | **18** |
+| Basse | 8 | 0 | **8** |
+| **Total** | **37** | **7** | **30** |
 
 ---
 
@@ -55,130 +69,58 @@ L'application repose sur des fondations solides : TypeScript strict, validation 
 
 ## 1. Securite
 
-### 1.1 CRITIQUE : Politiques RLS Supabase cassees apres migration Better Auth
+### 1.1 ~~CRITIQUE~~ CORRIGE : Politiques RLS Supabase cassees apres migration Better Auth
 
-**Fichier** : `supabase/migrations/20260204_better_auth_setup.sql` (lignes 65-71)
+> **CORRIGE le 2026-02-07** - Migration `supabase/migrations/20260207_fix_rls_policies.sql`
+> - Suppression des anciennes policies cassees (`auth.uid()`)
+> - RLS "deny all" pour les connexions non-service-role (defense en profondeur)
+> - RLS active egalement sur les tables Better Auth (`user`, `session`, `account`, `verification`)
+> - Index composite `idx_simulations_user_archived` ajoute (item 4.3 anticipe)
+> - **Action requise** : Appliquer la migration via `supabase db push`
 
-La migration active RLS sur la table `simulations` mais ne definit **aucune politique** compatible avec Better Auth. Les anciennes policies referencaient `auth.uid()` (Supabase Auth) qui n'existe plus.
+**Fichier original** : `supabase/migrations/20260204_better_auth_setup.sql` (lignes 65-71)
 
-```sql
--- RLS active mais AUCUNE politique valide
-ALTER TABLE public.simulations ENABLE ROW LEVEL SECURITY;
--- Les anciennes policies auth.uid() sont cassees
-```
+La migration activait RLS sur la table `simulations` mais ne definissait **aucune politique** compatible avec Better Auth. Les anciennes policies referencaient `auth.uid()` (Supabase Auth) qui n'existe plus.
 
-**Impact** : Le controle d'acces repose **uniquement** sur les routes API. Si un attaquant contourne les API (ou utilise la service role key), la base est ouverte.
-
-**Correction recommandee** :
-```sql
--- Creer une fonction helper pour Better Auth
-CREATE OR REPLACE FUNCTION get_current_user_id()
-RETURNS TEXT AS $$
-  SELECT user_id FROM session
-  WHERE token = current_setting('app.current_token', true)
-$$ LANGUAGE SQL SECURITY DEFINER;
-
--- Politiques RLS pour Better Auth
-CREATE POLICY "select_own_simulations" ON public.simulations
-  FOR SELECT USING (user_id = get_current_user_id());
-
-CREATE POLICY "insert_own_simulations" ON public.simulations
-  FOR INSERT WITH CHECK (user_id = get_current_user_id());
-
-CREATE POLICY "update_own_simulations" ON public.simulations
-  FOR UPDATE USING (user_id = get_current_user_id());
-
-CREATE POLICY "delete_own_simulations" ON public.simulations
-  FOR DELETE USING (user_id = get_current_user_id());
-```
+**Approche retenue** : Plutot que de creer des policies RLS avec `current_setting()` (complexe a maintenir), l'architecture repose sur le service role key via `createAdminClient()` qui bypass le RLS. Le RLS sert uniquement de defense en profondeur : si la cle anon fuite, aucun acces n'est possible.
 
 ---
 
-### 1.2 CRITIQUE : Injection SQL via ORDER BY non valide
+### 1.2 ~~CRITIQUE~~ CORRIGE : Injection SQL via ORDER BY non valide
 
-**Fichier** : `src/app/api/simulations/route.ts` (lignes 32, 42)
-
-```typescript
-const sortBy = searchParams.get('sort') || 'created_at';
-// ...
-.order(sortBy, { ascending: order })  // sortBy = input utilisateur non valide !
-```
-
-Le parametre `sort` est passe directement a Supabase sans aucune validation.
-
-**Correction recommandee** :
-```typescript
-const ALLOWED_SORTS = ['created_at', 'name', 'updated_at', 'is_favorite', 'rentabilite_nette', 'score_global'];
-const sortBy = ALLOWED_SORTS.includes(searchParams.get('sort') || '')
-    ? searchParams.get('sort')!
-    : 'created_at';
-```
+> **CORRIGE le 2026-02-07** - `src/app/api/simulations/route.ts`
+> Whitelist de 6 colonnes autorisees : `created_at`, `updated_at`, `name`, `is_favorite`, `rentabilite_nette`, `score_global`. Toute valeur non reconnue est remplacee par `created_at`.
 
 ---
 
-### 1.3 CRITIQUE : Injection LIKE via recherche non echappee
+### 1.3 ~~CRITIQUE~~ CORRIGE : Injection LIKE via recherche non echappee
 
-**Fichier** : `src/app/api/simulations/route.ts` (lignes 35, 47)
-
-```typescript
-const search = searchParams.get('search');
-if (search) {
-    query = query.ilike('name', `%${search}%`);  // Pas d'echappement !
-}
-```
-
-Les caracteres `%` et `_` ne sont pas echappes, permettant des patterns de recherche malveillants.
-
-**Correction recommandee** :
-```typescript
-if (search && search.trim()) {
-    const escapedSearch = search.replace(/[%_\\]/g, '\\$&');
-    query = query.ilike('name', `%${escapedSearch}%`);
-}
-```
+> **CORRIGE le 2026-02-07** - `src/app/api/simulations/route.ts`
+> Echappement des caracteres `%`, `_` et `\` via `replace(/[%_\\]/g, '\\$&')`. Les recherches vides/whitespace sont ignorees.
 
 ---
 
-### 1.4 HAUTE : Middleware d'authentification desactive
+### 1.4 ~~HAUTE~~ CORRIGE : Middleware d'authentification desactive
 
-**Fichier** : `src/middleware.ts` (lignes 13-15)
-
-```typescript
-// if (!sessionCookie && isSimulationsPage) {
-//     return NextResponse.redirect(new URL("/auth/login", request.url));
-// }
-```
-
-La protection des pages `/simulations` est commentee. Les utilisateurs non authentifies peuvent acceder aux pages protegees (meme si les API renvoient 401).
-
-**Correction** : Decommenter et tester la redirection.
+> **CORRIGE le 2026-02-07** - `src/middleware.ts`
+> - Redirection vers `/auth/login?callbackUrl=...` pour les utilisateurs non authentifies sur `/simulations/*`
+> - Redirection vers `/` pour les utilisateurs authentifies sur les pages `/auth/*`
 
 ---
 
-### 1.5 HAUTE : CORS trop permissif (wildcard par defaut)
+### 1.5 ~~HAUTE~~ CORRIGE : CORS trop permissif (wildcard par defaut)
 
-**Fichier** : `src/app/api/calculate/route.ts` (lignes 56-63, 80-92)
-
-```typescript
-ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS?.split(',') || ['*'],
-```
-
-Par defaut, **toute origine** peut appeler `/api/calculate`.
-
-**Correction** :
-```typescript
-ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS?.split(',') || ['https://renta-immo.vercel.app'],
-```
+> **CORRIGE le 2026-02-07** - `src/app/api/calculate/route.ts`
+> Valeur par defaut changee de `['*']` a `['https://renta-immo.vercel.app']`. Toujours configurable via `ALLOWED_ORIGINS` env var.
 
 ---
 
-### 1.6 HAUTE : Validation redirect insuffisante
+### 1.6 ~~HAUTE~~ CORRIGE : Validation redirect insuffisante
 
-**Fichier** : `src/lib/auth/redirect.ts` (lignes 1-13)
-
-La validation ne verifie que le prefixe `/` et `//`. Pas de whitelist, pas de protection contre path traversal (`/../..`), pas de validation des caracteres speciaux.
-
-**Correction** : Implementer une whitelist de chemins autorises + bloquer `..` dans le path.
+> **CORRIGE le 2026-02-07** - `src/lib/auth/redirect.ts`
+> - Whitelist de prefixes autorises (`/`, `/calculateur`, `/simulations`, `/auth`)
+> - Blocage des path traversal (`..`), URLs protocol-relative (`//`), backslashes (`\`)
+> - Blocage des encodages malveillants (`%2e`, `%2f`)
 
 ---
 
@@ -201,26 +143,10 @@ const ratelimit = new Ratelimit({
 
 ---
 
-### 1.8 HAUTE : Overflow entier sur la pagination
+### 1.8 ~~HAUTE~~ CORRIGE : Overflow entier sur la pagination
 
-**Fichier** : `src/app/api/simulations/route.ts` (lignes 30-31)
-
-```typescript
-const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
-const offset = parseInt(searchParams.get('offset') || '0');
-```
-
-`parseInt` retourne `NaN` si l'input est invalide. Pas de borne superieure sur `offset`.
-
-**Correction** :
-```typescript
-const safeInt = (val: string | null, def: number, min: number, max: number) => {
-    const num = parseInt(val || '', 10);
-    return isNaN(num) || num < min ? def : Math.min(num, max);
-};
-const limit = safeInt(searchParams.get('limit'), 20, 1, 100);
-const offset = safeInt(searchParams.get('offset'), 0, 0, 100000);
-```
+> **CORRIGE le 2026-02-07** - `src/app/api/simulations/route.ts`
+> Fonction `safeInt()` avec gestion NaN et bornes : `limit` [1, 100] (defaut 20), `offset` [0, 100000] (defaut 0).
 
 ---
 
@@ -478,7 +404,7 @@ Aucun `<Suspense>` dans :
 
 ### 3.4 HAUTE : Pas de memoisation sur les composants couteux
 
-Les composants de graphiques (`CashflowChart`, `PatrimoineChart`) et tableaux (`ProjectionTable`, `AmortizationTable`) ne sont pas wrapes dans `React.memo()`.
+Les composants de graphiques (`CashflowChart`, `PatrimoineChart`) et tableaux (`ProjectionTable`, `AmortizationTable`) ne sont pas wrappés dans `React.memo()`.
 
 **Correction** :
 ```typescript
@@ -545,7 +471,7 @@ Les filtres (search, status, sort) sont en state local au lieu de searchParams. 
 
 **Fichier** : `src/app/layout.tsx`
 
-Pas de Open Graph, pas de schema.org, pas de robots.txt configure, pas de hreflang.
+Pas d'Open Graph, pas de schema.org, pas de robots.txt configure, pas de hreflang.
 
 ---
 
@@ -846,17 +772,19 @@ L'application a de solides fondations qu'il convient de souligner :
 
 ## 11. Plan d'Action Priorise
 
-### Phase 1 : Securite critique (1-2 jours)
+### Phase 1 : Securite critique - TERMINEE (2026-02-07)
 
-| # | Action | Fichier(s) | Effort |
+| # | Action | Fichier(s) | Statut |
 |---|--------|-----------|--------|
-| 1 | Implementer les politiques RLS pour Better Auth | `supabase/migrations/` | 2h |
-| 2 | Whitelister le parametre `sort` | `src/app/api/simulations/route.ts` | 15min |
-| 3 | Echapper les wildcards LIKE dans la recherche | `src/app/api/simulations/route.ts` | 15min |
-| 4 | Reactiver le middleware d'authentification | `src/middleware.ts` | 30min |
-| 5 | Restreindre les origines CORS | `src/app/api/calculate/route.ts` | 15min |
-| 6 | Valider les entiers de pagination | `src/app/api/simulations/route.ts` | 30min |
-| 7 | Securiser la validation de redirect | `src/lib/auth/redirect.ts` | 30min |
+| 1 | ~~Implementer les politiques RLS pour Better Auth~~ | `supabase/migrations/20260207_fix_rls_policies.sql` | FAIT |
+| 2 | ~~Whitelister le parametre `sort`~~ | `src/app/api/simulations/route.ts` | FAIT |
+| 3 | ~~Echapper les wildcards LIKE dans la recherche~~ | `src/app/api/simulations/route.ts` | FAIT |
+| 4 | ~~Reactiver le middleware d'authentification~~ | `src/middleware.ts` | FAIT |
+| 5 | ~~Restreindre les origines CORS~~ | `src/app/api/calculate/route.ts` | FAIT |
+| 6 | ~~Valider les entiers de pagination~~ | `src/app/api/simulations/route.ts` | FAIT |
+| 7 | ~~Securiser la validation de redirect~~ | `src/lib/auth/redirect.ts` | FAIT |
+
+> **Note** : La migration SQL `20260207_fix_rls_policies.sql` doit etre appliquee sur Supabase via `supabase db push` ou le dashboard.
 
 ### Phase 2 : Qualite de code & type safety (3-5 jours)
 
@@ -913,3 +841,11 @@ L'application a de solides fondations qu'il convient de souligner :
 **Estimation totale** : ~80-100 heures de travail reparties sur 6-8 semaines.
 
 Les phases 1 et 2 sont **imperatives avant la mise en production**. Les phases 3-5 ameliorent progressivement la qualite et la scalabilite.
+
+---
+
+## Historique des Corrections
+
+| Date | Phase | Items corriges | Fichiers modifies | Auteur |
+|------|-------|----------------|-------------------|--------|
+| 2026-02-07 | Phase 1 | 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8 | `supabase/migrations/20260207_fix_rls_policies.sql` (nouveau), `src/app/api/simulations/route.ts`, `src/middleware.ts`, `src/app/api/calculate/route.ts`, `src/lib/auth/redirect.ts` | James (Dev Agent) |

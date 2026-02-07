@@ -6,23 +6,8 @@ export function getValidatedRedirect(path: string | null): string {
         return "/";
     }
 
-    // Block protocol-relative URLs (//evil.com)
-    if (path.startsWith("//")) {
-        return "/";
-    }
-
-    // Must start with /
-    if (!path.startsWith("/")) {
-        return "/";
-    }
-
-    // Block path traversal (/../..)
-    if (path.includes("..")) {
-        return "/";
-    }
-
-    // Block encoded characters that could bypass checks
-    if (path.includes("%2e") || path.includes("%2E") || path.includes("%2f") || path.includes("%2F")) {
+    // Block protocol-relative URLs (//evil.com) and non-root-relative paths
+    if (!path.startsWith("/") || path.startsWith("//")) {
         return "/";
     }
 
@@ -31,9 +16,22 @@ export function getValidatedRedirect(path: string | null): string {
         return "/";
     }
 
-    // Verify path matches allowed prefixes
+    // Normalize: decode percent-encoded characters then resolve path segments
+    let decoded: string;
+    try {
+        decoded = decodeURIComponent(path);
+    } catch {
+        return "/";
+    }
+
+    // Block path traversal after decoding
+    if (decoded.includes("..") || decoded.includes("\\")) {
+        return "/";
+    }
+
+    // Validate decoded path against allowed prefixes
     const isAllowed = ALLOWED_PREFIXES.some(
-        prefix => path === prefix || path.startsWith(prefix + "/") || path.startsWith(prefix + "?")
+        prefix => decoded === prefix || decoded.startsWith(prefix + "/") || decoded.startsWith(prefix + "?")
     );
 
     return isAllowed ? path : "/";
