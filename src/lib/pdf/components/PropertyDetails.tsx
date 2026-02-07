@@ -3,7 +3,7 @@
  * Displays property, financing, and exploitation information
  */
 import React from 'react';
-import { View, Text, StyleSheet } from '@react-pdf/renderer';
+import { View, Text } from '@react-pdf/renderer';
 import { styles, colors } from '../styles';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import type { BienData, FinancementData, ExploitationData, TypeBien, TypeLocation } from '@/types/calculateur';
@@ -55,7 +55,7 @@ export function PropertyDetails({ bien, financement, exploitation, montantEmprun
                         <Text style={styles.value}>{bien.surface ? `${bien.surface} m²` : 'N/C'}</Text>
                     </View>
                     <View style={styles.rowBetween}>
-                        <Text style={styles.label}>Prix d'achat</Text>
+                        <Text style={styles.label}>Prix d&apos;achat</Text>
                         <Text style={styles.value}>{formatCurrency(bien.prix_achat)}</Text>
                     </View>
                     <View style={styles.rowBetween}>

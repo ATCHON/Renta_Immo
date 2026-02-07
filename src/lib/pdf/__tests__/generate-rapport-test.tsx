@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Test script for RapportSimulation template
  * Generates a full simulation report PDF
@@ -153,7 +154,7 @@ async function generateTestReport() {
         generatedAt: new Date(),
     });
 
-    const buffer = await renderToBuffer(doc as any);
+    const buffer = await renderToBuffer(doc);
     const outputPath = path.join(__dirname, 'rapport-simulation-test.pdf');
     fs.writeFileSync(outputPath, buffer);
 

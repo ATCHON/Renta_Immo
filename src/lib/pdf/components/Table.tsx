@@ -2,7 +2,7 @@
  * PDF Table Component
  */
 import React from 'react';
-import { View, Text, StyleSheet } from '@react-pdf/renderer';
+import { View, Text } from '@react-pdf/renderer';
 import { styles as baseStyles, colors } from '../styles';
 
 interface TableColumn<T> {

@@ -90,7 +90,7 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
                         </Text>
                     </View>
                     <View style={styles.rowBetween}>
-                        <Text style={styles.label}>TMI de l'investisseur</Text>
+                        <Text style={styles.label}>TMI de l&apos;investisseur</Text>
                         <Text style={styles.value}>{structure.tmi}%</Text>
                     </View>
                     {structure.regime_fiscal && (
@@ -158,7 +158,7 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
                     <Text style={styles.h2}>Avis & Recommandations</Text>
                     <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: colors.primary }]}>
                         <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.primary, marginBottom: 5 }}>
-                            Avis de l'analyste
+                            Avis de l&apos;analyste
                         </Text>
                         <Text style={{ fontSize: 10, color: colors.textMain, lineHeight: 1.5 }}>
                             {synthese.recommandation}
