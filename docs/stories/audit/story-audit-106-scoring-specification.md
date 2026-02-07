@@ -2,7 +2,7 @@
 
 > **Priorite** : P2 (Enrichissement metier)
 > **Effort** : 1 jour
-> **Statut** : A faire
+> **Statut** : Done (2026-02-07)
 > **Source** : Audit methodologies calculs 2026-02-07, Section 8.1 / Proposition P6
 > **Dependance** : AUDIT-100 (pour utiliser la rentabilite nette-nette)
 

@@ -231,7 +231,7 @@ export function Dashboard() {
               <div className="flex items-end justify-between">
                 <div>
                   <p className="nordic-label-xs !text-amber">Impact Levier</p>
-                  <p className="text-2xl font-black tabular-nums">{resultats.rentabilite.effet_levier?.toFixed(2) || '0.00'}x</p>
+                  <p className="text-2xl font-black tabular-nums">{resultats.rentabilite.effet_levier !== null && resultats.rentabilite.effet_levier !== undefined ? `${resultats.rentabilite.effet_levier.toFixed(2)}x` : 'Max (sans apport)'}</p>
                 </div>
               </div>
             </div>

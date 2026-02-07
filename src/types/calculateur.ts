@@ -17,6 +17,12 @@ export type TypeStructure = 'nom_propre' | 'sci_is';
 // Types de régimes fiscaux
 export type RegimeFiscal = 'micro_foncier' | 'reel' | 'lmnp_micro' | 'lmnp_reel';
 
+// Diagnostic de Performance Énergétique (AUDIT-106)
+export type DPE = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
+
+// Mode d'amortissement (AUDIT-104)
+export type ModeAmortissement = 'simplifie' | 'composants';
+
 // Statut du formulaire
 export type FormStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -33,6 +39,10 @@ export interface BienData {
   etat_bien: EtatBien;
   montant_travaux: number;
   valeur_mobilier: number;
+  // Audit 2026-02-07 : part terrain paramètrée
+  part_terrain?: number;
+  // Audit Phase 2 : DPE pour scoring (AUDIT-106)
+  dpe?: DPE;
 }
 
 /**
@@ -92,6 +102,8 @@ export interface StructureData {
   revenus_activite?: number;
   distribution_dividendes?: boolean;
   autres_charges?: number;
+  // Audit Phase 2 : mode amortissement (AUDIT-104)
+  mode_amortissement?: ModeAmortissement;
 }
 
 /**
@@ -142,7 +154,7 @@ export interface RentabiliteResultat {
   nette: number;
   nette_nette: number;
   effort_epargne_mensuel?: number;
-  effet_levier?: number;
+  effet_levier?: number | null;
 }
 
 /**

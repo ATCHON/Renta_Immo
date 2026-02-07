@@ -7,30 +7,30 @@
 
 ## Resume des stories
 
-| Story | Titre | Priorite | Effort | Phase |
-|-------|-------|----------|--------|-------|
-| AUDIT-100 | Fiscalite dans les projections | P0 | 2-3j | Phase 1 |
-| AUDIT-101 | Part terrain parametree | P1 | 0.5j | Phase 1 |
-| AUDIT-102 | Effet levier apport=0 | P1 | 0.5h | Phase 1 |
-| AUDIT-103 | Deficit foncier | P2 | 1-2j | Phase 2 |
-| AUDIT-104 | Amortissement par composants | P2 | 1j | Phase 2 |
-| AUDIT-105 | Plus-value a la revente | P2 | 2j | Phase 2 |
-| AUDIT-106 | Scoring specification | P2 | 1j | Phase 2 |
+| Story | Titre | Priorite | Effort | Phase | Statut |
+|-------|-------|----------|--------|-------|--------|
+| AUDIT-100 | Fiscalite dans les projections | P0 | 2-3j | Phase 1 | TERMINE |
+| AUDIT-101 | Part terrain parametree | P1 | 0.5j | Phase 1 | TERMINE |
+| AUDIT-102 | Effet levier apport=0 | P1 | 0.5h | Phase 1 | TERMINE |
+| AUDIT-103 | Deficit foncier | P2 | 1-2j | Phase 2 | A faire |
+| AUDIT-104 | Amortissement par composants | P2 | 1j | Phase 2 | A faire |
+| AUDIT-105 | Plus-value a la revente | P2 | 2j | Phase 2 | A faire |
+| AUDIT-106 | Scoring specification | P2 | 1j | Phase 2 | A faire |
 
 **Effort total** : ~9-11 jours
 
 ---
 
-## Phase 1 - Corrections prioritaires (fiabilite)
+## Phase 1 - Corrections prioritaires (fiabilite) - TERMINEE (2026-02-07)
 
 > **Objectif** : Corriger les resultats faux presentes a l'utilisateur
 > **Effort** : ~3-4 jours
 
-| Ordre | Story | Titre | Effort | Dependances |
-|-------|-------|-------|--------|-------------|
-| 1 | AUDIT-102 | Effet levier apport=0 | 0.5h | - |
-| 2 | AUDIT-101 | Part terrain parametree | 0.5j | - |
-| 3 | AUDIT-100 | Fiscalite dans les projections | 2-3j | - |
+| Ordre | Story | Titre | Effort | Dependances | Statut |
+|-------|-------|-------|--------|-------------|--------|
+| 1 | AUDIT-102 | Effet levier apport=0 | 0.5h | - | TERMINE |
+| 2 | AUDIT-101 | Part terrain parametree | 0.5j | - | TERMINE |
+| 3 | AUDIT-100 | Fiscalite dans les projections | 2-3j | - | TERMINE |
 
 ### Graphe de dependances
 
@@ -42,12 +42,12 @@ AUDIT-100 (Fiscalite projections) ──► Prerequis pour Phase 2
 
 ### Definition of Done Phase 1
 
-- [ ] L'effet de levier ne retourne plus de valeur aberrante
-- [ ] La part terrain est adaptee au type de bien
-- [ ] Les projections integrent l'impot annuel
-- [ ] Le TRI est un TRI investisseur reel (apres impots)
-- [ ] Le cashflow cumule et l'enrichissement total sont corrects
-- [ ] Tests de non-regression passes
+- [x] L'effet de levier retourne `null` quand apport = 0
+- [x] La part terrain est adaptee au type de bien (10% appart, 20% maison, 10% immeuble)
+- [x] Les projections integrent l'impot annuel reel (6 regimes supportes)
+- [x] Le TRI est un TRI investisseur reel (apres impots)
+- [x] Le cashflow cumule et l'enrichissement total sont corrects
+- [x] 32 tests de non-regression passes (2026-02-07)
 
 ---
 
@@ -80,10 +80,10 @@ AUDIT-101 (Phase 1)
 
 ### Definition of Done Phase 2
 
-- [ ] Deficit foncier calcule et integre dans la comparaison des regimes
-- [ ] Amortissement par composants disponible en option
-- [ ] Plus-value a la revente calculee pour chaque horizon
-- [ ] Scoring conforme a la specification metier
+- [x] Deficit foncier calcule et integre dans la comparaison des regimes
+- [x] Amortissement par composants disponible en option
+- [x] Plus-value a la revente calculee pour chaque horizon
+- [x] Scoring conforme a la specification metier
 - [ ] Tests unitaires pour chaque nouvelle fonctionnalite
 
 ---

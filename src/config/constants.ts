@@ -96,8 +96,15 @@ export const CONSTANTS = {
     // ========================================================================
     AMORTISSEMENT: {
         // Ventilation par défaut
-        PART_TERRAIN: 0.15, // 15% (non amortissable)
+        PART_TERRAIN: 0.15, // 15% (non amortissable) - fallback
         PART_BATI: 0.85,    // 85%
+
+        // Part terrain par défaut selon type de bien (Audit 2026-02-07)
+        PART_TERRAIN_DEFAUT: {
+            APPARTEMENT: 0.10,
+            MAISON: 0.20,
+            IMMEUBLE: 0.10,
+        } as Record<string, number>,
 
         // Durées d'amortissement par défaut (linéaire)
         DUREE_BATI: 33,      // ~3% / an (simplifié)
@@ -111,6 +118,36 @@ export const CONSTANTS = {
             INSTALLATIONS: { PART: 0.20, DUREE: 15 },
             AGENCEMENTS: { PART: 0.20, DUREE: 10 },
         }
+    },
+
+    // ========================================================================
+    // DÉFICIT FONCIER (AUDIT-103)
+    // ========================================================================
+    DEFICIT_FONCIER: {
+        PLAFOND_IMPUTATION: 10700,  // Max imputable sur revenu global
+        DUREE_REPORT: 10,           // 10 ans de report
+    },
+
+    // ========================================================================
+    // PLUS-VALUE IMMOBILIÈRE (AUDIT-105)
+    // ========================================================================
+    PLUS_VALUE: {
+        // Taux d'imposition
+        TAUX_IR: 0.19,        // 19%
+        TAUX_PS: 0.172,       // 17.2%
+
+        // Seuil surtaxe
+        SEUIL_SURTAXE: 50000, // €
+
+        // Barème surtaxe PV > 50 000€
+        BAREME_SURTAXE: [
+            { SEUIL: 60000, TAUX: 0.02 },
+            { SEUIL: 100000, TAUX: 0.03 },
+            { SEUIL: 110000, TAUX: 0.04 },
+            { SEUIL: 150000, TAUX: 0.05 },
+            { SEUIL: 260000, TAUX: 0.06 },
+            { SEUIL: Infinity, TAUX: 0.07 },
+        ],
     },
 
     // ========================================================================

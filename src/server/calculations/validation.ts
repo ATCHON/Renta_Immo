@@ -4,6 +4,7 @@
  */
 
 import { calculateurFormSchema } from '@/lib/validators';
+import { CONSTANTS } from '@/config/constants';
 import type { CalculateurFormData } from '@/types/calculateur';
 import type { ValidatedFormData } from './types';
 
@@ -89,8 +90,16 @@ export function normalizeFormData(data: CalculateurFormData): ValidatedFormData 
     associes: data.structure.type === 'sci_is' ? data.structure.associes : [],
   };
 
+  // Part terrain : valeur saisie ou défaut selon type de bien
+  const partTerrainDefaut = CONSTANTS.AMORTISSEMENT.PART_TERRAIN_DEFAUT[data.bien.type_bien.toUpperCase()]
+    ?? CONSTANTS.AMORTISSEMENT.PART_TERRAIN;
+  const bien = {
+    ...data.bien,
+    part_terrain: data.bien.part_terrain ?? partTerrainDefaut,
+  };
+
   return {
-    bien: data.bien,
+    bien,
     financement,
     exploitation,
     structure,

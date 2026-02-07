@@ -2,7 +2,7 @@
 
 > **Priorite** : P2 (Enrichissement metier)
 > **Effort** : 1-2 jours
-> **Statut** : A faire
+> **Statut** : Done (2026-02-07)
 > **Source** : Audit methodologies calculs 2026-02-07, Section 5.2 / Proposition P3
 > **Dependance** : AUDIT-100 (pour l'integration dans les projections)
 

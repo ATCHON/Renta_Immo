@@ -42,6 +42,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
       revenus_activite: structure.revenus_activite ?? 0,
       distribution_dividendes: structure.distribution_dividendes ?? false,
       autres_charges: structure.autres_charges ?? 0,
+      mode_amortissement: structure.mode_amortissement ?? 'simplifie',
     },
   });
 
@@ -62,6 +63,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
     revenus_activite: structure.revenus_activite ?? 0,
     distribution_dividendes: structure.distribution_dividendes ?? false,
     autres_charges: structure.autres_charges ?? 0,
+    mode_amortissement: structure.mode_amortissement ?? 'simplifie',
   }, activeScenarioId, () => {
     setTypeExploitation(structure.regime_fiscal?.startsWith('lmnp') ? 'meublee' : 'nue');
   });
@@ -75,10 +77,13 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
   });
 
   const onSubmit = (data: StructureFormData) => {
+    // mode_amortissement pertinent seulement pour LMNP réel et SCI IS
+    const needsAmortissement = data.regime_fiscal === 'lmnp_reel' || data.type === 'sci_is';
     updateStructure({
       ...data,
       regime_fiscal: data.type === 'nom_propre' ? data.regime_fiscal : undefined,
       associes: data.type === 'nom_propre' ? [] : structure.associes || [],
+      mode_amortissement: needsAmortissement ? data.mode_amortissement : 'simplifie',
     });
     onNext();
   };
@@ -225,6 +230,27 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
             )}
           </div>
 
+          {/* Mode amortissement (AUDIT-104) - visible pour LMNP réel */}
+          {selectedRegime === 'lmnp_reel' && (
+            <div className="bg-forest/5 rounded-xl p-4 border border-forest/10 space-y-3">
+              <Select
+                label="Mode d'amortissement"
+                options={[
+                  { value: 'simplifie', label: 'Simplifié (linéaire 33 ans)' },
+                  { value: 'composants', label: 'Par composants (plus précis)' },
+                ]}
+                error={errors.mode_amortissement?.message}
+                {...register('mode_amortissement')}
+              />
+              {watch('mode_amortissement') === 'composants' && (
+                <p className="text-xs text-forest/70">
+                  Gros oeuvre 40% sur 50 ans, Façade 20% sur 25 ans, Installations 20% sur 15 ans, Agencements 20% sur 10 ans.
+                  L&apos;amortissement diminue progressivement.
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Info sur le regime selectionne */}
           {selectedRegime && (
             <div className="bg-forest/5 rounded-xl p-4 border border-forest/10">
@@ -295,9 +321,27 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
           </div>
 
           <p className="text-xs text-pebble">
-            L&apos;IS permet de déduire l&apos;amortissement du bien (2%/an) et d&apos;être imposé
-            à 15% jusqu&apos;a 42 500 euros puis 25% au-delà.
+            L&apos;IS permet de déduire l&apos;amortissement du bien et d&apos;être imposé
+            à 15% jusqu&apos;à 42 500 euros puis 25% au-delà.
           </p>
+
+          {/* Mode amortissement (AUDIT-104) - aussi pour SCI IS */}
+          <div className="bg-forest/5 rounded-xl p-4 border border-forest/10 space-y-3">
+            <Select
+              label="Mode d'amortissement"
+              options={[
+                { value: 'simplifie', label: 'Simplifié (linéaire 33 ans)' },
+                { value: 'composants', label: 'Par composants (plus précis)' },
+              ]}
+              error={errors.mode_amortissement?.message}
+              {...register('mode_amortissement')}
+            />
+            {watch('mode_amortissement') === 'composants' && (
+              <p className="text-xs text-forest/70">
+                Gros oeuvre 40% sur 50 ans, Façade 20% sur 25 ans, Installations 20% sur 15 ans, Agencements 20% sur 10 ans.
+              </p>
+            )}
+          </div>
         </div>
       )}
 

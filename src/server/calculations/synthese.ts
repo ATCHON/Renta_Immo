@@ -12,6 +12,7 @@
 
 import type {
   StructureData,
+  BienData,
   RentabiliteCalculations,
   HCSFCalculations,
   FiscaliteCalculations,
@@ -19,32 +20,9 @@ import type {
   ScoreDetail,
   PointAttention,
   Recommandation,
+  DPE,
 } from './types';
 import { SEUILS } from './types';
-
-/**
- * Constantes de scoring
- */
-const SCORING = {
-  // Autofinancement (30 points max)
-  AUTOFINANCEMENT_MAX: 30,
-  CASHFLOW_EXCELLENT: 200, // €/mois pour score max
-  CASHFLOW_SEUIL_POSITIF: 0,
-
-  // Rentabilité (30 points max)
-  RENTABILITE_MAX: 30,
-  RENTABILITE_CIBLE: 7, // %
-  RENTABILITE_EXCELLENT: 10, // %
-
-  // HCSF (25 points max)
-  HCSF_MAX: 25,
-  HCSF_SEUIL: 35, // %
-  HCSF_CONFORTABLE: 30, // %
-
-  // Bonus (15 points max)
-  BONUS_MAX: 15,
-  BONUS_SEUIL: 10, // % rentabilité pour bonus
-} as const;
 
 /**
  * Évaluations qualitatives
@@ -56,96 +34,128 @@ const EVALUATIONS = {
   faible: { min: 0, max: 39, label: 'Faible' as const, color: 'red' },
 };
 
+// ========================================================================
+// AUDIT-106 : Nouveau système de scoring (base 40 + ajustements)
+// ========================================================================
+
+const SCORE_BASE = 40;
+
 /**
- * Calcule le score d'autofinancement (0-30 points)
- * Score linéaire basé sur le cashflow mensuel
+ * Interpolation linéaire entre deux bornes
  */
-export function calculerScoreAutofinancement(cashflowMensuel: number): number {
-  if (cashflowMensuel <= -SCORING.CASHFLOW_EXCELLENT) {
-    return 0;
-  }
-
-  if (cashflowMensuel >= SCORING.CASHFLOW_EXCELLENT) {
-    return SCORING.AUTOFINANCEMENT_MAX;
-  }
-
-  // Score linéaire entre -200€ et +200€
-  const ratio = (cashflowMensuel + SCORING.CASHFLOW_EXCELLENT) / (2 * SCORING.CASHFLOW_EXCELLENT);
-  return Math.round(ratio * SCORING.AUTOFINANCEMENT_MAX);
+function interpoler(valeur: number, min: number, max: number, scoreMin: number, scoreMax: number): number {
+  if (valeur <= min) return scoreMin;
+  if (valeur >= max) return scoreMax;
+  return scoreMin + (valeur - min) / (max - min) * (scoreMax - scoreMin);
 }
 
 /**
- * Calcule le score de rentabilité (0-30 points)
- * Score progressif jusqu'à 10% de rentabilité nette
+ * Ajustement cashflow net impôt (-20 / +20)
  */
-export function calculerScoreRentabilite(rentabiliteNette: number): number {
-  if (rentabiliteNette <= 0) {
-    return 0;
-  }
-
-  if (rentabiliteNette >= SCORING.RENTABILITE_EXCELLENT) {
-    return SCORING.RENTABILITE_MAX;
-  }
-
-  // Score linéaire jusqu'à 10%
-  const ratio = rentabiliteNette / SCORING.RENTABILITE_EXCELLENT;
-  return Math.round(ratio * SCORING.RENTABILITE_MAX);
+export function ajustementCashflow(cashflowMensuel: number): number {
+  if (cashflowMensuel >= 200) return 20;
+  if (cashflowMensuel >= 0) return interpoler(cashflowMensuel, 0, 200, 0, 20);
+  if (cashflowMensuel >= -200) return interpoler(cashflowMensuel, -200, 0, -20, 0);
+  return -20;
 }
 
 /**
- * Calcule le score HCSF (0-25 points)
- * Score basé sur la conformité et le confort du taux
+ * Ajustement rentabilité nette-nette (-15 / +20)
  */
-export function calculerScoreHcsf(tauxEndettement: number, conforme: boolean): number {
-  if (!conforme) {
-    return 0;
-  }
-
-  if (tauxEndettement <= SCORING.HCSF_CONFORTABLE) {
-    return SCORING.HCSF_MAX;
-  }
-
-  // Score dégressif entre 30% et 35%
-  const depassement = tauxEndettement - SCORING.HCSF_CONFORTABLE;
-  const penalite = (depassement / 5) * 5;
-  return Math.max(SCORING.HCSF_MAX - 5 - Math.round(penalite), SCORING.HCSF_MAX - 10);
+export function ajustementRentabilite(rentabiliteNetteNette: number): number {
+  if (rentabiliteNetteNette >= 7) return 20;
+  if (rentabiliteNetteNette >= 3) return interpoler(rentabiliteNetteNette, 3, 7, 0, 20);
+  if (rentabiliteNetteNette >= 0) return interpoler(rentabiliteNetteNette, 0, 3, -15, 0);
+  return -15;
 }
 
 /**
- * Calcule le bonus rentabilité (0-15 points)
- * Bonus accordé si rentabilité >= 10%
+ * Ajustement HCSF (-25 / +20)
  */
-export function calculerBonusRentabilite(rentabiliteNette: number): number {
-  if (rentabiliteNette < SCORING.BONUS_SEUIL) {
-    return 0;
-  }
-
-  // Bonus progressif au-delà de 10% (+3 points par % au-delà)
-  const surplus = rentabiliteNette - SCORING.BONUS_SEUIL;
-  const bonus = Math.min(surplus * 3, SCORING.BONUS_MAX);
-  return Math.round(bonus);
+export function ajustementHcsf(tauxEndettement: number, conforme: boolean): number {
+  if (!conforme && tauxEndettement > 50) return -25;
+  if (tauxEndettement <= 25) return 20;
+  if (tauxEndettement <= 35) return interpoler(tauxEndettement, 25, 35, 0, 20);
+  if (tauxEndettement <= 50) return interpoler(tauxEndettement, 35, 50, -15, 0);
+  return -25;
 }
 
 /**
- * Calcule le score global détaillé
+ * Ajustement DPE (-10 / +5)
  */
-export function calculerScoreGlobal(
-  cashflowMensuel: number,
-  rentabiliteNette: number,
-  tauxEndettement: number,
-  hcsfConforme: boolean
-): ScoreDetail {
-  const autofinancement = calculerScoreAutofinancement(cashflowMensuel);
-  const rentabilite = calculerScoreRentabilite(rentabiliteNette);
-  const hcsf = calculerScoreHcsf(tauxEndettement, hcsfConforme);
-  const bonus_rentabilite = calculerBonusRentabilite(rentabiliteNette);
+export function ajustementDpe(dpe?: DPE): number {
+  if (!dpe) return 0; // Neutre si non renseigné
+  switch (dpe) {
+    case 'A': case 'B': return 5;
+    case 'C': case 'D': return 0;
+    case 'E': return -3;
+    case 'F': case 'G': return -10;
+    default: return 0;
+  }
+}
+
+/**
+ * Ajustement ratio prix/loyer (-5 / +10)
+ */
+export function ajustementRatioPrixLoyer(prixAchat: number, loyerAnnuel: number): number {
+  if (loyerAnnuel <= 0) return -5;
+  const ratio = prixAchat / loyerAnnuel;
+  if (ratio <= 15) return 10;
+  if (ratio <= 20) return interpoler(ratio, 15, 20, 0, 10);
+  if (ratio <= 25) return interpoler(ratio, 20, 25, -5, 0);
+  return -5;
+}
+
+/**
+ * Ajustement reste à vivre (-10 / +5)
+ * Basé sur les revenus d'activité et les charges
+ */
+export function ajustementResteAVivre(revenusActivite?: number, totalChargesMensuelles?: number): number {
+  if (!revenusActivite || revenusActivite <= 0) return 0; // Non calculable
+  const charges = totalChargesMensuelles ?? 0;
+  const resteAVivre = revenusActivite - charges;
+  // Seuils : min = 800€/personne, confort = 1500€
+  if (resteAVivre >= 1500) return 5;
+  if (resteAVivre >= 800) return 0;
+  return -10;
+}
+
+/**
+ * Calcule le score global selon la spécification métier (AUDIT-106)
+ * Base 40 + ajustements par critère, borné entre 0 et 100
+ */
+export function calculerScoreGlobal(params: {
+  cashflowMensuel: number;
+  rentabiliteNetteNette: number;
+  tauxEndettement: number;
+  hcsfConforme: boolean;
+  dpe?: DPE;
+  prixAchat: number;
+  loyerAnnuel: number;
+  revenusActivite?: number;
+  totalChargesMensuelles?: number;
+}): ScoreDetail {
+  const ajCashflow = round(ajustementCashflow(params.cashflowMensuel), 1);
+  const ajRentabilite = round(ajustementRentabilite(params.rentabiliteNetteNette), 1);
+  const ajHcsf = round(ajustementHcsf(params.tauxEndettement, params.hcsfConforme), 1);
+  const ajDpe = ajustementDpe(params.dpe);
+  const ajRatio = round(ajustementRatioPrixLoyer(params.prixAchat, params.loyerAnnuel), 1);
+  const ajRav = ajustementResteAVivre(params.revenusActivite, params.totalChargesMensuelles);
+
+  const sommeAjustements = ajCashflow + ajRentabilite + ajHcsf + ajDpe + ajRatio + ajRav;
+  const total = Math.max(0, Math.min(100, SCORE_BASE + sommeAjustements));
 
   return {
-    autofinancement,
-    rentabilite,
-    hcsf,
-    bonus_rentabilite,
-    total: autofinancement + rentabilite + hcsf + bonus_rentabilite,
+    base: SCORE_BASE,
+    ajustements: {
+      cashflow: ajCashflow,
+      rentabilite: ajRentabilite,
+      hcsf: ajHcsf,
+      dpe: ajDpe,
+      ratio_prix_loyer: ajRatio,
+      reste_a_vivre: ajRav,
+    },
+    total: round(total),
   };
 }
 
@@ -413,18 +423,19 @@ function getRecommandationPrincipale(scoreInterne: number): string {
 }
 
 /**
- * Génère la synthèse complète de l'investissement
+ * Génère la synthèse complète de l'investissement (AUDIT-106 : nouveau scoring)
  */
 export function genererSynthese(
   rentabilite: RentabiliteCalculations,
   hcsf: HCSFCalculations,
   fiscalite?: FiscaliteCalculations,
-  structure?: StructureData
+  structure?: StructureData,
+  bien?: BienData
 ): SyntheseCalculations {
   const points_attention_messages: string[] = [];
   let scoreInterne = 0;
 
-  // Critère 1 : Autofinancement (cash-flow >= 0)
+  // Score interne 0-4 (rétrocompatibilité)
   const critere_autofinancement = evaluerCritere(
     rentabilite.cashflow_mensuel >= 0,
     rentabilite.cashflow_mensuel
@@ -437,7 +448,6 @@ export function genererSynthese(
     );
   }
 
-  // Critère 2 : Rentabilité nette >= 7%
   const critere_rentabilite = evaluerCritere(
     rentabilite.rentabilite_nette >= SEUILS.RENTABILITE_BRUTE_MIN,
     rentabilite.rentabilite_nette
@@ -450,40 +460,48 @@ export function genererSynthese(
     );
   }
 
-  // Critère 3 : Conformité HCSF
   const critere_hcsf = evaluerCritere(hcsf.conforme, hcsf.taux_endettement);
   if (critere_hcsf.status === 'OK') {
     scoreInterne += 1;
   }
 
-  // Bonus : Rentabilité > 10%
   if (rentabilite.rentabilite_nette >= SEUILS.RENTABILITE_BRUTE_BONNE) {
     scoreInterne += 1;
   }
 
-  // Ajout des alertes HCSF aux points d'attention
   points_attention_messages.push(...hcsf.alertes);
 
-  // Calcul du score détaillé sur 100
-  const scoreDetail = calculerScoreGlobal(
-    rentabilite.cashflow_mensuel,
-    rentabilite.rentabilite_nette,
-    hcsf.taux_endettement,
-    hcsf.conforme
-  );
+  // Cashflow net impôt mensuel (pour scoring)
+  const cashflowNetImpotMensuel = fiscalite
+    ? Math.round((rentabilite.cashflow_annuel - fiscalite.impot_total) / 12)
+    : rentabilite.cashflow_mensuel;
 
-  // Évaluation qualitative
+  // Rentabilité nette-nette (après impôts)
+  const rentabiliteNetteNette = fiscalite?.rentabilite_nette_nette ?? rentabilite.rentabilite_nette;
+
+  // Charges mensuelles HCSF pour reste à vivre
+  const chargesMensuellesHcsf = hcsf.charges_detail?.total_mensuelles ?? 0;
+
+  // Calcul du score détaillé sur 100 (AUDIT-106)
+  const scoreDetail = calculerScoreGlobal({
+    cashflowMensuel: cashflowNetImpotMensuel,
+    rentabiliteNetteNette,
+    tauxEndettement: hcsf.taux_endettement,
+    hcsfConforme: hcsf.conforme,
+    dpe: bien?.dpe,
+    prixAchat: bien?.prix_achat ?? 0,
+    loyerAnnuel: rentabilite.loyer_annuel,
+    revenusActivite: structure?.revenus_activite,
+    totalChargesMensuelles: chargesMensuellesHcsf,
+  });
+
   const { evaluation, couleur } = genererEvaluation(scoreDetail.total);
-
-  // Recommandation principale
   const recommandation = getRecommandationPrincipale(scoreInterne);
 
-  // Points d'attention détaillés
   const points_attention_detail = fiscalite
     ? genererPointsAttention(rentabilite, hcsf, fiscalite)
     : [];
 
-  // Recommandations détaillées
   const recommandations_detail = structure
     ? genererRecommandations(structure, rentabilite, hcsf, scoreDetail)
     : [];

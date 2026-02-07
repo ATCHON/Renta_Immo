@@ -77,8 +77,8 @@ export function performCalculations(
 
 
 
-    // Étape 5 : Synthèse et scoring
-    const synthese = genererSynthese(rentabilite, hcsf, fiscalite, data.structure);
+    // Étape 5 : Synthèse et scoring (AUDIT-106 : nouveau scoring avec DPE et ratio)
+    const synthese = genererSynthese(rentabilite, hcsf, fiscalite, data.structure, data.bien);
 
     // Étape 6 : Projections pluriannuelles
     const projections = genererProjections(data, data.options.horizon_projection);

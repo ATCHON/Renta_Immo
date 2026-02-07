@@ -11,7 +11,7 @@
  */
 
 import { CONSTANTS } from '@/config/constants';
-import type { FiscaliteCalculations, StructureData, RentabiliteCalculations, RegimeFiscal, BienData, ExploitationData, FinancementData, FiscaliteComparaison } from './types';
+import type { FiscaliteCalculations, StructureData, RentabiliteCalculations, RegimeFiscal, BienData, ExploitationData, FinancementData, FiscaliteComparaison, DeficitFoncierDetail, PlusValueDetail, ModeAmortissement } from './types';
 
 // Re-export pour compatibilité
 export const PRELEVEMENTS_SOCIAUX = CONSTANTS.FISCALITE.PRELEVEMENTS_SOCIAUX_FONCIER;
@@ -91,25 +91,46 @@ export function calculerFoncierReel(
   revenusBruts: number,
   chargesDeductibles: number,
   tmi: number,
-  interetsAssurance: number = 0
+  interetsAssurance: number = 0,
+  deficitReportableEntrant: number = 0
 ): FiscaliteDetail {
   const alertes: string[] = [];
+  let deficitFoncier: DeficitFoncierDetail | null = null;
 
-  // Calcul base imposable (incluant les frais financiers)
-  const baseImposable = Math.max(0, revenusBruts - chargesDeductibles - interetsAssurance);
-
-  // Déficit foncier (non géré en MVP)
-  if (revenusBruts < chargesDeductibles + interetsAssurance) {
-    alertes.push(
-      `Déficit foncier de ${round(chargesDeductibles + interetsAssurance - revenusBruts)}€ (imputable sur le revenu global jusqu'à 10 700€/an)`
-    );
+  // Appliquer le déficit reportable des années précédentes
+  let revenuApresReport = revenusBruts;
+  let deficitConsomme = 0;
+  if (deficitReportableEntrant > 0) {
+    deficitConsomme = Math.min(deficitReportableEntrant, revenusBruts);
+    revenuApresReport = revenusBruts - deficitConsomme;
+    if (deficitConsomme > 0) {
+      alertes.push(`Déficit foncier reporté consommé : ${round(deficitConsomme)}€`);
+    }
   }
 
-  // IR + Prélèvements sociaux
+  // Calcul base imposable
+  const baseImposable = Math.max(0, revenuApresReport - chargesDeductibles - interetsAssurance);
+
+  // Calcul du déficit foncier (AUDIT-103)
+  if (revenuApresReport < chargesDeductibles + interetsAssurance) {
+    deficitFoncier = calculerDeficitFoncier(revenuApresReport, chargesDeductibles, interetsAssurance, tmi);
+    if (deficitFoncier) {
+      alertes.push(
+        `Déficit foncier : ${round(deficitFoncier.deficit_total)}€ (économie IR : ${round(deficitFoncier.economie_impot)}€, reportable : ${round(deficitFoncier.reportable)}€)`
+      );
+    }
+  }
+
+  // IR + Prélèvements sociaux (sur base imposable positive uniquement)
   const tauxTmi = tmi / 100;
   const impotRevenu = baseImposable * tauxTmi;
   const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.PRELEVEMENTS_SOCIAUX_FONCIER;
-  const impotTotal = impotRevenu + prelevementsSociaux;
+  let impotTotal = impotRevenu + prelevementsSociaux;
+
+  // L'économie du déficit foncier réduit l'impôt (imputation sur revenu global)
+  if (deficitFoncier) {
+    impotTotal = Math.max(0, impotTotal - deficitFoncier.economie_impot);
+  }
 
   const revenuNetApresImpot = revenusBruts - chargesDeductibles - interetsAssurance - impotTotal;
 
@@ -123,6 +144,7 @@ export function calculerFoncierReel(
     revenu_net_apres_impot: round(revenuNetApresImpot),
     rentabilite_nette_nette: 0,
     alertes,
+    deficit_foncier: deficitFoncier ?? undefined,
   };
 }
 
@@ -191,26 +213,41 @@ export function calculerLmnpReel(
   tmi: number,
   montantTravaux: number = 0,
   valeurMobilier: number = 0,
-  interetsAssurance: number = 0
+  interetsAssurance: number = 0,
+  partTerrain?: number,
+  modeAmortissement: ModeAmortissement = 'simplifie',
+  annee: number = 1
 ): FiscaliteDetail {
   const alertes: string[] = [];
 
-  // Amortissement simplifié
-  // 1. Immobilier
-  const valeurBati = prixAchat * CONSTANTS.AMORTISSEMENT.PART_BATI;
-  const amortissementImmo = valeurBati / CONSTANTS.AMORTISSEMENT.DUREE_BATI;
+  const partTerrainEffective = partTerrain ?? CONSTANTS.AMORTISSEMENT.PART_TERRAIN;
+  const valeurBati = prixAchat * (1 - partTerrainEffective);
 
-  // 2. Mobilier
-  const amortissementMobilier = valeurMobilier / CONSTANTS.AMORTISSEMENT.DUREE_MOBILIER;
+  // 1. Amortissement immobilier selon le mode (AUDIT-104)
+  let amortissementImmo: number;
+  if (modeAmortissement === 'composants') {
+    amortissementImmo = calculerAmortissementComposants(valeurBati, annee);
+  } else {
+    // Simplifié : linéaire sur DUREE_BATI ans
+    amortissementImmo = annee <= CONSTANTS.AMORTISSEMENT.DUREE_BATI
+      ? valeurBati / CONSTANTS.AMORTISSEMENT.DUREE_BATI
+      : 0;
+  }
 
-  // 3. Travaux
-  const amortissementTravaux = montantTravaux / CONSTANTS.AMORTISSEMENT.DUREE_TRAVAUX;
+  // 2. Mobilier (durée fixe)
+  const amortissementMobilier = annee <= CONSTANTS.AMORTISSEMENT.DUREE_MOBILIER
+    ? valeurMobilier / CONSTANTS.AMORTISSEMENT.DUREE_MOBILIER
+    : 0;
+
+  // 3. Travaux (durée fixe)
+  const amortissementTravaux = annee <= CONSTANTS.AMORTISSEMENT.DUREE_TRAVAUX
+    ? montantTravaux / CONSTANTS.AMORTISSEMENT.DUREE_TRAVAUX
+    : 0;
 
   const amortissementTotal = amortissementImmo + amortissementMobilier + amortissementTravaux;
 
   // Base imposable = revenus - charges - interets - amortissement
   // L'amortissement ne peut pas créer de déficit fiscal BIC
-  // Mais les charges et intérêts peuvent créer un déficit BIC reportable
   const resultatAvantAmortissement = revenusBruts - chargesDeductibles - interetsAssurance;
   const amortissementDeductible = Math.min(Math.max(0, resultatAvantAmortissement), amortissementTotal);
   const baseImposable = Math.max(0, resultatAvantAmortissement - amortissementDeductible);
@@ -219,8 +256,9 @@ export function calculerLmnpReel(
     alertes.push(`Amortissement excédentaire reportable : ${round(amortissementTotal - amortissementDeductible)}€`);
   }
 
+  const modeLabel = modeAmortissement === 'composants' ? ' (composants)' : '';
   alertes.push(
-    `Amortissement annuel : ${round(amortissementTotal)}€`
+    `Amortissement annuel${modeLabel} : ${round(amortissementTotal)}€`
   );
 
   // IR + Prélèvements sociaux
@@ -254,13 +292,25 @@ export function calculerFiscaliteSciIs(
   revenuNetAvantImpots: number,
   prixAchat: number,
   interetsAssurance: number = 0,
-  distribuerDividendes: boolean = false
+  distribuerDividendes: boolean = false,
+  partTerrain?: number,
+  modeAmortissement: ModeAmortissement = 'simplifie',
+  annee: number = 1
 ): FiscaliteDetail {
   const alertes: string[] = [];
 
-  // Amortissement annuel (linéaire simplifié)
-  const valeurBati = prixAchat * CONSTANTS.AMORTISSEMENT.PART_BATI;
-  const amortissementAnnuel = valeurBati / CONSTANTS.AMORTISSEMENT.DUREE_BATI;
+  // Amortissement annuel (AUDIT-104 : mode simplifié ou composants)
+  const partTerrainEffective = partTerrain ?? CONSTANTS.AMORTISSEMENT.PART_TERRAIN;
+  const valeurBati = prixAchat * (1 - partTerrainEffective);
+
+  let amortissementAnnuel: number;
+  if (modeAmortissement === 'composants') {
+    amortissementAnnuel = calculerAmortissementComposants(valeurBati, annee);
+  } else {
+    amortissementAnnuel = annee <= CONSTANTS.AMORTISSEMENT.DUREE_BATI
+      ? valeurBati / CONSTANTS.AMORTISSEMENT.DUREE_BATI
+      : 0;
+  }
 
   // Base imposable = revenu net (exploitation) - intérêts/assurance - amortissement
   const baseImposable = Math.max(0, revenuNetAvantImpots - interetsAssurance - amortissementAnnuel);
@@ -313,6 +363,267 @@ export function calculerFiscaliteSciIs(
   };
 }
 
+// ========================================================================
+// AUDIT-103 : Déficit foncier
+// ========================================================================
+
+/**
+ * Calcule le déficit foncier avec séparation hors intérêts / intérêts
+ *
+ * @ref docs/core/specification-calculs.md#53-déficit-foncier
+ * @param revenusBruts - Loyer annuel brut
+ * @param chargesHorsInterets - Charges déductibles hors intérêts d'emprunt
+ * @param interetsAssurance - Intérêts + assurance du crédit
+ * @param tmi - Taux marginal d'imposition (%)
+ */
+export function calculerDeficitFoncier(
+  revenusBruts: number,
+  chargesHorsInterets: number,
+  interetsAssurance: number,
+  tmi: number
+): DeficitFoncierDetail | null {
+  const totalCharges = chargesHorsInterets + interetsAssurance;
+  if (revenusBruts >= totalCharges) {
+    return null; // Pas de déficit
+  }
+
+  const deficitTotal = totalCharges - revenusBruts;
+
+  // Séparation : déficit hors intérêts vs lié aux intérêts
+  const deficitHorsInterets = Math.max(0, chargesHorsInterets - revenusBruts);
+  const deficitInterets = deficitTotal - deficitHorsInterets;
+
+  // Imputation sur revenu global (max 10 700€, hors intérêts uniquement)
+  const plafond = CONSTANTS.DEFICIT_FONCIER.PLAFOND_IMPUTATION;
+  const imputationRevenuGlobal = Math.min(deficitHorsInterets, plafond);
+
+  // Économie d'impôt = imputation × TMI (l'imputation réduit le revenu global)
+  const economieImpot = imputationRevenuGlobal * (tmi / 100);
+
+  // Reportable = tout le reste (y compris l'excès hors intérêts au-delà du plafond + intérêts)
+  const reportable = deficitTotal - imputationRevenuGlobal;
+
+  return {
+    deficit_total: round(deficitTotal),
+    deficit_hors_interets: round(deficitHorsInterets),
+    deficit_interets: round(deficitInterets),
+    imputable_revenu_global: round(imputationRevenuGlobal),
+    economie_impot: round(economieImpot),
+    reportable: round(reportable),
+    duree_report: CONSTANTS.DEFICIT_FONCIER.DUREE_REPORT,
+  };
+}
+
+// ========================================================================
+// AUDIT-104 : Amortissement par composants
+// ========================================================================
+
+/**
+ * Calcule l'amortissement par composants pour une année donnée
+ * Chaque composant a sa propre durée : gros œuvre 50 ans, façade 25 ans, etc.
+ *
+ * @param valeurAmortissable - Valeur du bâti (hors terrain)
+ * @param annee - Année courante (1-indexed)
+ * @returns Amortissement total pour l'année
+ */
+export function calculerAmortissementComposants(
+  valeurAmortissable: number,
+  annee: number
+): number {
+  const composants = CONSTANTS.AMORTISSEMENT.COMPOSANTS;
+  let total = 0;
+
+  // Gros œuvre
+  if (annee <= composants.GROS_OEUVRE.DUREE) {
+    total += valeurAmortissable * composants.GROS_OEUVRE.PART / composants.GROS_OEUVRE.DUREE;
+  }
+  // Façade / toiture
+  if (annee <= composants.FACADE_TOITURE.DUREE) {
+    total += valeurAmortissable * composants.FACADE_TOITURE.PART / composants.FACADE_TOITURE.DUREE;
+  }
+  // Installations techniques
+  if (annee <= composants.INSTALLATIONS.DUREE) {
+    total += valeurAmortissable * composants.INSTALLATIONS.PART / composants.INSTALLATIONS.DUREE;
+  }
+  // Agencements
+  if (annee <= composants.AGENCEMENTS.DUREE) {
+    total += valeurAmortissable * composants.AGENCEMENTS.PART / composants.AGENCEMENTS.DUREE;
+  }
+
+  return total;
+}
+
+// ========================================================================
+// AUDIT-105 : Plus-value à la revente
+// ========================================================================
+
+/**
+ * Calcule l'abattement IR pour durée de détention (plus-value immobilière)
+ * Exonération totale après 22 ans
+ */
+export function abattementIR(dureeDetention: number): number {
+  if (dureeDetention <= 5) return 0;
+  if (dureeDetention <= 21) return (dureeDetention - 5) * 0.06;
+  return 1; // Exonéré à partir de 22 ans
+}
+
+/**
+ * Calcule l'abattement PS pour durée de détention (plus-value immobilière)
+ * Exonération totale après 30 ans
+ */
+export function abattementPS(dureeDetention: number): number {
+  if (dureeDetention <= 5) return 0;
+  if (dureeDetention <= 21) return (dureeDetention - 5) * 0.0165;
+  if (dureeDetention === 22) return 0.264 + 0.016; // = 28%
+  if (dureeDetention <= 30) return 0.28 + (dureeDetention - 22) * 0.09;
+  return 1; // Exonéré à partir de 30 ans
+}
+
+/**
+ * Calcule la surtaxe sur plus-value > 50 000€
+ */
+function calculerSurtaxePV(pvNetteIR: number): number {
+  if (pvNetteIR <= CONSTANTS.PLUS_VALUE.SEUIL_SURTAXE) return 0;
+
+  const bareme = CONSTANTS.PLUS_VALUE.BAREME_SURTAXE;
+  for (const tranche of bareme) {
+    if (pvNetteIR <= tranche.SEUIL) {
+      return pvNetteIR * tranche.TAUX;
+    }
+  }
+  return pvNetteIR * 0.07; // Tranche max
+}
+
+/**
+ * Calcule la plus-value en nom propre (IR)
+ * Applicable à la location nue et LMNP
+ *
+ * @param prixVente - Prix de revente (valeur revalorisée)
+ * @param prixAchat - Prix d'achat initial
+ * @param dureeDetention - Durée de détention en années
+ * @param amortissementsCumules - Amortissements cumulés (LMNP réintégration LF 2025)
+ */
+export function calculerPlusValueIR(
+  prixVente: number,
+  prixAchat: number,
+  dureeDetention: number,
+  amortissementsCumules: number = 0
+): PlusValueDetail {
+  // Plus-value brute (avec réintégration amortissements pour LMNP)
+  const pvBrute = prixVente - prixAchat + amortissementsCumules;
+
+  if (pvBrute <= 0) {
+    return {
+      prix_vente: round(prixVente),
+      prix_achat: round(prixAchat),
+      plus_value_brute: round(pvBrute),
+      amortissements_reintegres: round(amortissementsCumules),
+      duree_detention: dureeDetention,
+      abattement_ir: 0, abattement_ps: 0,
+      plus_value_nette_ir: 0, plus_value_nette_ps: 0,
+      impot_ir: 0, impot_ps: 0, surtaxe: 0, impot_total: 0,
+      net_revente: round(prixVente),
+    };
+  }
+
+  // Abattements pour durée de détention
+  const abIR = abattementIR(dureeDetention);
+  const abPS = abattementPS(dureeDetention);
+
+  const pvNetteIR = pvBrute * (1 - abIR);
+  const pvNettePS = pvBrute * (1 - abPS);
+
+  const impotIR = pvNetteIR * CONSTANTS.PLUS_VALUE.TAUX_IR;
+  const impotPS = pvNettePS * CONSTANTS.PLUS_VALUE.TAUX_PS;
+  const surtaxe = calculerSurtaxePV(pvNetteIR);
+  const impotTotal = impotIR + impotPS + surtaxe;
+
+  return {
+    prix_vente: round(prixVente),
+    prix_achat: round(prixAchat),
+    plus_value_brute: round(pvBrute),
+    amortissements_reintegres: round(amortissementsCumules),
+    duree_detention: dureeDetention,
+    abattement_ir: round(abIR * 100, 1),
+    abattement_ps: round(abPS * 100, 1),
+    plus_value_nette_ir: round(pvNetteIR),
+    plus_value_nette_ps: round(pvNettePS),
+    impot_ir: round(impotIR),
+    impot_ps: round(impotPS),
+    surtaxe: round(surtaxe),
+    impot_total: round(impotTotal),
+    net_revente: round(prixVente - impotTotal),
+  };
+}
+
+/**
+ * Calcule la plus-value en SCI à l'IS
+ * PV = prix_vente - valeur_nette_comptable (VNC = prix_achat - amortissements_cumules)
+ * Imposée à l'IS puis flat tax si distribution
+ *
+ * @param prixVente - Prix de revente
+ * @param prixAchat - Prix d'achat initial
+ * @param amortissementsCumules - Amortissements comptables cumulés
+ * @param distribuer - Si les associés distribuent le produit de cession
+ */
+export function calculerPlusValueSciIs(
+  prixVente: number,
+  prixAchat: number,
+  amortissementsCumules: number,
+  distribuer: boolean = false
+): PlusValueDetail {
+  const vnc = prixAchat - amortissementsCumules;
+  const pvBrute = prixVente - vnc;
+
+  if (pvBrute <= 0) {
+    return {
+      prix_vente: round(prixVente),
+      prix_achat: round(prixAchat),
+      plus_value_brute: round(pvBrute),
+      amortissements_reintegres: round(amortissementsCumules),
+      duree_detention: 0,
+      abattement_ir: 0, abattement_ps: 0,
+      plus_value_nette_ir: 0, plus_value_nette_ps: 0,
+      impot_ir: 0, impot_ps: 0, surtaxe: 0, impot_total: 0,
+      net_revente: round(prixVente),
+    };
+  }
+
+  // IS progressif sur la PV
+  const { SEUIL_TAUX_REDUIT, TAUX_REDUIT, TAUX_NORMAL } = CONSTANTS.FISCALITE.IS;
+  let impotIS: number;
+  if (pvBrute <= SEUIL_TAUX_REDUIT) {
+    impotIS = pvBrute * TAUX_REDUIT;
+  } else {
+    impotIS = SEUIL_TAUX_REDUIT * TAUX_REDUIT + (pvBrute - SEUIL_TAUX_REDUIT) * TAUX_NORMAL;
+  }
+
+  // Flat tax si distribution aux associés
+  let flatTax = 0;
+  if (distribuer && pvBrute - impotIS > 0) {
+    flatTax = (pvBrute - impotIS) * CONSTANTS.FISCALITE.FLAT_TAX;
+  }
+
+  const impotTotal = impotIS + flatTax;
+
+  return {
+    prix_vente: round(prixVente),
+    prix_achat: round(prixAchat),
+    plus_value_brute: round(pvBrute),
+    amortissements_reintegres: round(amortissementsCumules),
+    duree_detention: 0,
+    abattement_ir: 0,
+    abattement_ps: 0,
+    plus_value_nette_ir: round(pvBrute),
+    plus_value_nette_ps: 0,
+    impot_ir: round(impotIS),
+    impot_ps: round(flatTax),
+    surtaxe: 0,
+    impot_total: round(impotTotal),
+    net_revente: round(prixVente - impotTotal),
+  };
+}
+
 /**
  * Calcule la fiscalité selon la structure et le régime choisi
  */
@@ -332,13 +643,19 @@ export function calculerFiscalite(
   const assuranceAnnuelle = rentabilite.financement.mensualite_assurance * 12;
   const coutFinancierAn1 = interetsAnnuels + assuranceAnnuelle;
 
+  const partTerrain = bien.part_terrain;
+
+  const modeAmortissement = structure.mode_amortissement ?? 'simplifie';
+
   // SCI à l'IS
   if (structure.type === 'sci_is') {
     const result = calculerFiscaliteSciIs(
       rentabilite.revenu_net_avant_impots,
       prixAchat,
       coutFinancierAn1,
-      structure.distribution_dividendes || false
+      structure.distribution_dividendes || false,
+      partTerrain,
+      modeAmortissement
     );
 
     result.rentabilite_nette_nette = prixAchat > 0
@@ -371,7 +688,9 @@ export function calculerFiscalite(
         tmi,
         bien.montant_travaux,
         bien.valeur_mobilier,
-        coutFinancierAn1
+        coutFinancierAn1,
+        partTerrain,
+        modeAmortissement
       );
       break;
     default:
@@ -424,6 +743,9 @@ export function calculerToutesFiscalites(
   const assuranceAnnuelle = rentabilite.financement.mensualite_assurance * 12;
   const coutFinancierAn1 = interetsAnnuels + assuranceAnnuelle;
 
+  const partTerrain = input.bien.part_terrain;
+  const modeAmortissement = input.structure.mode_amortissement ?? 'simplifie';
+
   const resultatsRaw = [
     {
       id: 'micro_foncier',
@@ -459,7 +781,9 @@ export function calculerToutesFiscalites(
         tmi,
         input.bien.montant_travaux,
         input.bien.valeur_mobilier,
-        coutFinancierAn1
+        coutFinancierAn1,
+        partTerrain,
+        modeAmortissement
       ),
       desc: 'Le régime "ROI" grâce à l\'amortissement. Souvent zéro impôt pendant 10 ans.',
       avantages: ['Amortissement du bien', 'Gommer l\'imposition sur des années'],
@@ -472,7 +796,9 @@ export function calculerToutesFiscalites(
         rentabilite.revenu_net_avant_impots,
         prixAchat,
         coutFinancierAn1,
-        false
+        false,
+        partTerrain,
+        modeAmortissement
       ),
       desc: 'Fiscalité de l\'entreprise. Idéal pour capitaliser et transmettre.',
       avantages: ['Taux IS réduit (15%)', 'Pas d\'IR immédiat sur les bénéfices'],
@@ -485,7 +811,9 @@ export function calculerToutesFiscalites(
         rentabilite.revenu_net_avant_impots,
         prixAchat,
         coutFinancierAn1,
-        true
+        true,
+        partTerrain,
+        modeAmortissement
       ),
       desc: 'Distribution des bénéfices via Flat Tax. Pour générer des revenus immédiats.',
       avantages: ['Revenus disponibles immédiatement', 'Flat Tax de 30% libératoire'],
