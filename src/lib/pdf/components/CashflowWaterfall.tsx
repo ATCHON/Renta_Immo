@@ -59,7 +59,7 @@ export function CashflowWaterfall({
 
             <View style={{ padding: 4 }}>
                 <Row label="Loyer cc" value={loyerMensuel} />
-                <Row label="Charges & Taxe foncière (lisée)" value={chargesMensuelles} isNegative />
+                <Row label="Charges & Taxe foncière (lissée)" value={chargesMensuelles} isNegative />
 
                 <Row label="Cashflow Brut" value={loyerMensuel - chargesMensuelles} isResult />
 

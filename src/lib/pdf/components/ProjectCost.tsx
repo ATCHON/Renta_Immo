@@ -80,7 +80,7 @@ export function ProjectCost({
 
                     <View style={[styles.mt10, { padding: 8, backgroundColor: colors.surfaceHighlight, borderRadius: 4 }]}>
                         <Text style={[styles.small, { textAlign: 'center', color: colors.textLight }]}>
-                            L&apos;emprunt couvre {((montantEmprunt / totalProjet) * 100).toFixed(0)}% du projet
+                            L&apos;emprunt couvre {(totalProjet > 0 ? (montantEmprunt / totalProjet) * 100 : 0).toFixed(0)}% du projet
                         </Text>
                     </View>
                 </View>
