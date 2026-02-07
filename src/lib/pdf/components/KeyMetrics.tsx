@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
-import { styles as globalStyles, colors } from '../styles';
+import { colors } from '../styles';
 import { formatCurrency, formatPercent, formatCurrencyWithSign } from '../utils/formatters';
 
 interface KeyMetricsProps {

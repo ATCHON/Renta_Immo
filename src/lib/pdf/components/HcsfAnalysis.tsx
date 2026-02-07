@@ -3,7 +3,7 @@
  * Displays HCSF compliance analysis and details
  */
 import React from 'react';
-import { View, Text, StyleSheet } from '@react-pdf/renderer';
+import { View, Text } from '@react-pdf/renderer';
 import { styles, colors } from '../styles';
 import { formatPercent } from '../utils/formatters';
 import type { HCSFResultat } from '@/types/calculateur';
@@ -11,55 +11,6 @@ import type { HCSFResultat } from '@/types/calculateur';
 interface HcsfAnalysisProps {
     hcsf: HCSFResultat;
 }
-
-const hcsfStyles = StyleSheet.create({
-    statusCard: {
-        padding: 15,
-        borderRadius: 8,
-        marginBottom: 15,
-        alignItems: 'center',
-        borderWidth: 1,
-    },
-    statusConforme: {
-        backgroundColor: '#F0FDF4', // Green 50
-        borderColor: colors.success,
-    },
-    statusNonConforme: {
-        backgroundColor: '#FEF2F2', // Red 50
-        borderColor: colors.error,
-    },
-    statusTitle: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        marginBottom: 5,
-    },
-    gaugeContainer: {
-        width: '100%',
-        marginTop: 15,
-        marginBottom: 5,
-    },
-    gaugeTrack: {
-        height: 8,
-        backgroundColor: '#E5E7EB',
-        borderRadius: 4,
-        marginTop: 5,
-        overflow: 'hidden',
-        position: 'relative',
-    },
-    gaugeFill: {
-        height: '100%',
-        borderRadius: 4,
-    },
-    gaugeThreshold: {
-        position: 'absolute',
-        top: -2,
-        bottom: -2,
-        width: 2,
-        backgroundColor: colors.textMain,
-        left: '70%', // 35% / 50% = 0.7
-        zIndex: 10,
-    },
-});
 
 export function HcsfAnalysis({ hcsf }: HcsfAnalysisProps) {
     const { details_associes } = hcsf;
@@ -107,7 +58,7 @@ export function HcsfAnalysis({ hcsf }: HcsfAnalysisProps) {
                     Règle HCSF
                 </Text>
                 <Text style={{ fontSize: 9, color: colors.textLight, lineHeight: 1.4 }}>
-                    Le taux d'endettement ne doit pas dépasser 35% des revenus, assurance emprunteur incluse.
+                    Le taux d&apos;endettement ne doit pas dépasser 35% des revenus, assurance emprunteur incluse.
                     Le calcul prend en compte le différentiel de revenus fonciers (méthode non compensatoire).
                 </Text>
             </View>

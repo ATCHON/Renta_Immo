@@ -72,7 +72,7 @@ export function Table<T extends Record<string, unknown>>({
                     key={rowIndex}
                     style={[
                         baseStyles.tableRow,
-                        striped && rowIndex % 2 === 1 ? baseStyles.tableRowAlt : {},
+                        striped && rowIndex % 2 === 1 ? { backgroundColor: colors.surface } : {},
                     ]}
                 >
                     {columns.map((col, colIndex) => (

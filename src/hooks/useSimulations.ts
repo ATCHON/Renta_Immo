@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { Simulation } from '@/types/database';
+
 
 interface QueryOptions {
     limit?: number;

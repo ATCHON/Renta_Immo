@@ -1,8 +1,8 @@
 'use client';
 
 import { Card, CardHeader, CardContent } from '@/components/ui';
-import { formatCurrency, formatPercent } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
+
 import type { BienData, FinancementData, FinancementResultat } from '@/types';
 
 interface InvestmentBreakdownProps {
@@ -15,8 +15,7 @@ export function InvestmentBreakdown({ bien, financement, resultats }: Investment
     const prixAchat = bien.prix_achat || 0;
     const montantTravaux = bien.montant_travaux || 0;
     const apport = financement.apport || 0;
-    const fraisDossier = financement.frais_dossier || 0;
-    const fraisGarantie = financement.frais_garantie || 0;
+
 
     const totalBesoin = (apport || 0) + (resultats.montant_emprunt || 0);
     const safeTotal = totalBesoin || 1;

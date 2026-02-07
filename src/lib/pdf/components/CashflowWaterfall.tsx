@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from '@react-pdf/renderer';
 import { styles, colors } from '../styles';
 import { formatCurrency } from '../utils/formatters';
-import type { CashflowResultat, ExploitationData, FinancementResultat, FiscaliteResultat } from '@/types/calculateur';
+import type { CashflowResultat } from '@/types/calculateur';
 
 interface CashflowWaterfallProps {
     loyerMensuel: number;
@@ -20,7 +20,15 @@ export function CashflowWaterfall({
     cashflow
 }: CashflowWaterfallProps) {
 
-    const Row = ({ label, value, isNegative = false, isResult = false, isLast = false }: any) => (
+    interface RowProps {
+        label: string;
+        value: number;
+        isNegative?: boolean;
+        isResult?: boolean;
+        isLast?: boolean;
+    }
+
+    const Row = ({ label, value, isNegative = false, isResult = false, isLast = false }: RowProps) => (
         <View style={[
             styles.rowBetween,
             { paddingVertical: 4 },

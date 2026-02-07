@@ -26,7 +26,7 @@ export function ProjectCost({
 }: ProjectCostProps) {
 
     const totalProjet = prixAchat + fraisNotaire + travaux + mobilier + fraisDossier + fraisGarantie;
-    const totalFinancement = apport + montantEmprunt;
+
 
     return (
         <View style={styles.card}>
