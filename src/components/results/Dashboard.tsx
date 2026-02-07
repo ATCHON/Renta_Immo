@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Download, Info } from 'lucide-react';
-import { Button, Card, CardHeader, CardContent, Collapsible } from '@/components/ui';
+import { ArrowLeft, Info } from 'lucide-react';
+import { Button, Card, Collapsible } from '@/components/ui';
 import { MetricCard } from './MetricCard';
 import { RentabiliteCard } from './RentabiliteCard';
 import { CashflowCard } from './CashflowCard';
@@ -17,11 +17,23 @@ import {
   OperationalBalance,
   FiscalComparator,
   ScenarioTabs,
-  CashflowChart,
-  PatrimoineChart,
   DownloadPdfButton
 } from './';
 import { SaveSimulationButton } from '../simulations/SaveSimulationButton';
+
+const ChartSkeleton = () => (
+  <div className="h-[300px] w-full bg-surface/50 rounded-xl animate-pulse" />
+);
+
+const CashflowChart = dynamic(
+  () => import('./CashflowChart').then(mod => ({ default: mod.CashflowChart })),
+  { loading: () => <ChartSkeleton /> }
+);
+
+const PatrimoineChart = dynamic(
+  () => import('./PatrimoineChart').then(mod => ({ default: mod.PatrimoineChart })),
+  { loading: () => <ChartSkeleton /> }
+);
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useChartData } from '@/hooks/useChartData';
 import { useHasHydrated } from '@/hooks/useHasHydrated';

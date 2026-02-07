@@ -66,15 +66,15 @@ export default function HomePage() {
       </section>
 
       {/* Trust Banner / Social Proof */}
-      <section className="py-20 bg-charcoal text-white rounded-[3rem] mx-4 md:mx-12 overflow-hidden relative">
+      <section className="py-20 bg-forest text-white rounded-[3rem] mx-4 md:mx-12 overflow-hidden relative">
         <div className="max-w-4xl mx-auto px-8 text-center space-y-8 animate-in zoom-in-95 duration-700">
           <h2 className="text-3xl md:text-5xl font-bold leading-tight">Prêt à sécuriser votre prochain investissement ?</h2>
-          <p className="text-forest-light/60 text-lg max-w-xl mx-auto">
+          <p className="text-white/80 text-lg max-w-xl mx-auto font-medium">
             Rejoignez les investisseurs qui utilisent RentaImmo pour valider leurs opportunités.
           </p>
           <div className="pt-4">
             <Link href="/calculateur" passHref>
-              <Button variant="secondary" className="bg-white text-charcoal border-none hover:bg-cream px-12 py-6 rounded-full text-lg font-bold">
+              <Button variant="secondary" className="bg-white text-forest border-none hover:bg-surface px-12 py-6 rounded-full text-lg font-bold shadow-xl shadow-black/10">
                 Commencer maintenant
               </Button>
             </Link>

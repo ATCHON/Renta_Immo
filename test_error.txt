@@ -1,7 +1,0 @@
-
-Running 1 test using 1 worker
-
-Terminer le programme de commandes (O/N)�?   -  1 [chromium] › e2e\tests\simulation-complete.spec.ts:10:9 › Parcours Simulation Complète › Simulation Nom Propre - Location Nue
-
-  1 did not run
-Terminer le programme de commandes (O/N)�? 

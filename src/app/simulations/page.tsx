@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { SimulationFilters } from '@/components/simulations/SimulationFilters';
 import { Pagination } from '@/components/ui/Pagination';
 import { useSimulations } from '@/hooks/useSimulations';
@@ -10,38 +11,73 @@ import { logger } from '@/lib/logger';
 import { SimulationCard } from '@/components/simulations/SimulationCard';
 import type { Simulation } from '@/types/database';
 
-export default function SimulationsPage() {
-    // Filter States
-    const [search, setSearch] = React.useState('');
-    const [status, setStatus] = React.useState<'all' | 'favorites' | 'archived'>('all');
-    const [sort, setSort] = React.useState<'created_at' | 'score_global' | 'name'>('created_at');
-    const [order, setOrder] = React.useState<'asc' | 'desc'>('desc');
+const VALID_STATUSES = ['all', 'favorites', 'archived'] as const;
+type StatusFilter = typeof VALID_STATUSES[number];
 
-    // Pagination State
-    const [page, setPage] = React.useState(1);
-    const limit = 9; // 9 cards per page
+const VALID_SORTS = ['created_at', 'score_global', 'name'] as const;
+type SortField = typeof VALID_SORTS[number];
+
+export default function SimulationsPage() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
+
+    // Read filters from URL search params
+    const rawStatus = searchParams.get('status') || 'all';
+    const status: StatusFilter = (VALID_STATUSES as readonly string[]).includes(rawStatus)
+        ? rawStatus as StatusFilter : 'all';
+
+    const rawSort = searchParams.get('sort') || 'created_at';
+    const sort: SortField = (VALID_SORTS as readonly string[]).includes(rawSort)
+        ? rawSort as SortField : 'created_at';
+
+    const order = searchParams.get('order') === 'asc' ? 'asc' as const : 'desc' as const;
+    const search = searchParams.get('q') || '';
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
+
+    const limit = 9;
     const offset = (page - 1) * limit;
 
-    // Debounce search
-    const [debouncedSearch, setDebouncedSearch] = React.useState(search);
+    // Helper to update URL params (shallow navigation)
+    const updateParams = React.useCallback((updates: Record<string, string | null>) => {
+        const params = new URLSearchParams(searchParams.toString());
+        for (const [key, value] of Object.entries(updates)) {
+            if (value === null || value === '') {
+                params.delete(key);
+            } else {
+                params.set(key, value);
+            }
+        }
+        const qs = params.toString();
+        router.replace(`${pathname}${qs ? `?${qs}` : ''}`);
+    }, [searchParams, router, pathname]);
+
+    // Local search state for responsive input (debounced sync to URL)
+    const [localSearch, setLocalSearch] = React.useState(search);
+
+    // Sync URL → local when URL changes externally (back/forward)
     React.useEffect(() => {
-        const timer = setTimeout(() => setDebouncedSearch(search), 500);
-        return () => clearTimeout(timer);
+        setLocalSearch(search);
     }, [search]);
+
+    // Debounce local search → URL
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            if (localSearch !== search) {
+                updateParams({ q: localSearch || null, page: null });
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [localSearch, search, updateParams]);
 
     const { data: response, isLoading, error } = useSimulations({
         sort,
         order,
         status,
-        search: debouncedSearch,
+        search,
         limit,
         offset
     });
-
-    // Reset page when filters change
-    React.useEffect(() => {
-        setPage(1);
-    }, [status, search, sort, order]);
 
     const { deleteSimulation, toggleFavorite, renameSimulation, toggleArchive } = useSimulationMutations();
 
@@ -67,26 +103,26 @@ export default function SimulationsPage() {
                 </div>
                 <Link
                     href="/calculateur"
-                    className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:transform active:scale-95 transition-all text-sm uppercase tracking-wider"
+                    className="px-6 py-3 bg-forest text-white font-bold rounded-xl shadow-lg shadow-forest/20 hover:bg-forest-dark active:transform active:scale-95 transition-all text-sm uppercase tracking-wider"
                 >
                     Nouvelle simulation
                 </Link>
             </div>
 
             <SimulationFilters
-                search={search}
-                onSearchChange={setSearch}
+                search={localSearch}
+                onSearchChange={setLocalSearch}
                 status={status}
-                onStatusChange={setStatus}
+                onStatusChange={(s) => updateParams({ status: s === 'all' ? null : s, page: null })}
                 sort={sort}
-                onSortChange={setSort}
+                onSortChange={(s) => updateParams({ sort: s === 'created_at' ? null : s, page: null })}
                 order={order}
-                onOrderChange={setOrder}
+                onOrderChange={(o) => updateParams({ order: o === 'desc' ? null : o, page: null })}
             />
 
             {isLoading ? (
                 <div className="container mx-auto px-4 py-12 text-center">
-                    <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mb-4" />
+                    <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-forest rounded-full animate-spin mb-4" />
                     <p className="text-slate-500 font-medium">Chargement de vos simulations...</p>
                 </div>
             ) : error ? (
@@ -110,7 +146,7 @@ export default function SimulationsPage() {
                     {(status === 'all' && !search) && (
                         <Link
                             href="/calculateur"
-                            className="text-blue-600 font-bold hover:underline"
+                            className="text-forest font-bold hover:underline"
                         >
                             Lancer ma première analyse →
                         </Link>
@@ -134,7 +170,7 @@ export default function SimulationsPage() {
                     <Pagination
                         currentPage={page}
                         totalPages={totalPages}
-                        onPageChange={setPage}
+                        onPageChange={(p) => updateParams({ page: p <= 1 ? null : String(p) })}
                     />
                 </>
             )}

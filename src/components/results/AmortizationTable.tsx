@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { TableauAmortissement } from '@/types/calculateur';
 import { formatCurrency, cn } from '@/lib/utils';
 import { Card, CardHeader, CardContent, Button } from '@/components/ui';
@@ -10,7 +10,7 @@ interface AmortizationTableProps {
     data: TableauAmortissement;
 }
 
-export function AmortizationTable({ data }: AmortizationTableProps) {
+export const AmortizationTable = React.memo(function AmortizationTable({ data }: AmortizationTableProps) {
     const [showMonthly, setShowMonthly] = useState(false);
 
     if (!data || !data.annuel) return null;
@@ -151,4 +151,4 @@ export function AmortizationTable({ data }: AmortizationTableProps) {
             )}
         </Card>
     );
-}
+});

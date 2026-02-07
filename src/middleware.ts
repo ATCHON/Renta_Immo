@@ -4,14 +4,25 @@ export default async function middleware(request: NextRequest) {
     // On utilise une vérification simple du cookie pour le middleware afin d'éviter
     // un appel API supplémentaire à chaque requête, ce qui est suffisant pour
     // la redirection côté client. La sécurité réelle est assurée par les API Routes.
-    const sessionCookie = request.cookies.get("better-auth.session_token") ||
-        request.cookies.get("__secure-better-auth.session_token");
+    // Détection très robuste du cookie de session (Audit 1.4)
+    // On cherche n'importe quel cookie qui contient ".session_token" pour gérer
+    // les préfixes (__Secure-, __Host-), les suffixes (.0, .1) et tous les environnements.
+    const allCookies = request.cookies.getAll();
+    const sessionCookie = allCookies.find(c =>
+        c.name.includes("session_token")
+    );
+
+    // Pour le débogage si l'utilisateur a encore des soucis
+    if (!sessionCookie && request.nextUrl.pathname.startsWith("/simulations")) {
+        console.log("Middleware - No session cookie found. Cookie names:", allCookies.map(c => c.name));
+    }
 
     const isAuthPage = request.nextUrl.pathname.startsWith("/auth");
     const isSimulationsPage = request.nextUrl.pathname.startsWith("/simulations");
 
     // Redirect unauthenticated users away from protected pages (Audit 1.4)
     if (!sessionCookie && isSimulationsPage) {
+        console.log("Middleware - Redirecting unauthenticated user from", request.nextUrl.pathname);
         const loginUrl = new URL("/auth/login", request.url);
         loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
         return NextResponse.redirect(loginUrl);
@@ -26,5 +37,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/simulations/:path*", "/auth/:path*"],
+    matcher: ["/simulations", "/simulations/:path*", "/auth/:path*"],
 };

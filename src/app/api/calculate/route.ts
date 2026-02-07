@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { performCalculations } from '@/server/calculations';
 import { logger } from '@/lib/logger';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import type { CalculationResult, CalculationError } from '@/server/calculations';
 
 // ============================================================================
@@ -126,6 +127,29 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
   const startTime = performance.now();
   const origin = request.headers.get('origin');
   const corsHeaders = getCorsHeaders(origin);
+
+  // Rate limiting: 10 requests per minute per IP (CPU-intensive endpoint)
+  const ip = getClientIp(request);
+  const rl = rateLimit(`calculate:${ip}`, { limit: 10, window: 60_000 });
+  if (!rl.success) {
+    return NextResponse.json<ApiErrorResponse>(
+      {
+        success: false,
+        error: {
+          code: 'SERVER_ERROR',
+          message: 'Trop de requêtes. Réessayez dans quelques instants.',
+        },
+        timestamp: new Date().toISOString(),
+      },
+      {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+        },
+      }
+    );
+  }
 
   try {
     // 1. Parser le body JSON

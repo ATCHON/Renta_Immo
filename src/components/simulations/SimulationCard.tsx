@@ -38,7 +38,7 @@ export const SimulationCard: React.FC<SimulationCardProps> = ({
             </div>
 
             <Link href={`/simulations/${simulation.id}`} className="block">
-                <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors truncate">
+                <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-forest transition-colors truncate">
                     {simulation.name}
                 </h3>
                 <p className="text-slate-400 text-sm font-medium mb-6">

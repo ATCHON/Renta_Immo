@@ -13,8 +13,10 @@ export function QueryProvider({ children }: QueryProviderProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000, // 1 minute
-            retry: 1,
+            staleTime: 5 * 60 * 1000, // 5 minutes
+            gcTime: 30 * 60 * 1000, // 30 minutes
+            retry: (failureCount, error) =>
+              failureCount < 2 && error instanceof TypeError,
           },
           mutations: {
             retry: 0,
