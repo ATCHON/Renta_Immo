@@ -5,7 +5,7 @@ import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { UserPlus, Mail, Lock, User, Chrome } from "lucide-react";
 
@@ -16,6 +16,8 @@ export default function SignupPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirect = searchParams.get("redirect") || "/";
 
     const handleGoogleSignup = async () => {
         setIsLoading(true);
@@ -23,7 +25,7 @@ export default function SignupPage() {
         try {
             await authClient.signIn.social({
                 provider: "google",
-                callbackURL: "/",
+                callbackURL: redirect,
             });
         } catch (err: any) {
             setError(err.message || "Une erreur est survenue lors de l'inscription avec Google.");
@@ -47,7 +49,7 @@ export default function SignupPage() {
                 setError(signUpError.message || "Erreur lors de l'inscription.");
                 setIsLoading(false);
             } else {
-                router.push("/");
+                router.push(redirect);
                 router.refresh();
             }
         } catch (err: any) {
@@ -160,7 +162,7 @@ export default function SignupPage() {
 
                 <p className="mt-8 text-center text-sm text-stone-500">
                     Vous avez déjà un compte ?{" "}
-                    <Link href="/auth/login" className="text-forest hover:underline font-medium">
+                    <Link href={`/auth/login${redirect !== "/" ? `?redirect=${encodeURIComponent(redirect)}` : ""}`} className="text-forest hover:underline font-medium">
                         Se connecter
                     </Link>
                 </p>
