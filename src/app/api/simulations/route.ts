@@ -27,13 +27,29 @@ export async function GET(request: NextRequest) {
     const supabase = await createAdminClient();
 
     const { searchParams } = new URL(request.url);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
-    const offset = parseInt(searchParams.get('offset') || '0');
-    const sortBy = searchParams.get('sort') || 'created_at';
+
+    // Safe integer parsing with bounds (Audit 1.8)
+    const safeInt = (val: string | null, def: number, min: number, max: number) => {
+        const num = parseInt(val || '', 10);
+        return isNaN(num) || num < min ? def : Math.min(num, max);
+    };
+    const limit = safeInt(searchParams.get('limit'), 20, 1, 100);
+    const offset = safeInt(searchParams.get('offset'), 0, 0, 100000);
+
+    // Whitelist sort columns (Audit 1.2)
+    const ALLOWED_SORTS = ['created_at', 'updated_at', 'name', 'is_favorite', 'rentabilite_nette', 'score_global'] as const;
+    const rawSort = searchParams.get('sort') || '';
+    const sortBy = (ALLOWED_SORTS as readonly string[]).includes(rawSort) ? rawSort : 'created_at';
+
     const order = searchParams.get('order') === 'asc';
     const favoriteOnly = searchParams.get('favorite') === 'true';
-    const search = searchParams.get('search');
     const showArchived = searchParams.get('archived') === 'true';
+
+    // Escape LIKE wildcards (Audit 1.3)
+    const rawSearch = searchParams.get('search');
+    const search = rawSearch?.trim()
+        ? rawSearch.trim().replace(/[%_\\]/g, '\\$&')
+        : null;
 
     let query = supabase
         .from('simulations')
@@ -42,7 +58,6 @@ export async function GET(request: NextRequest) {
         .order(sortBy, { ascending: order })
         .range(offset, offset + limit - 1);
 
-    // Search
     if (search) {
         query = query.ilike('name', `%${search}%`);
     }

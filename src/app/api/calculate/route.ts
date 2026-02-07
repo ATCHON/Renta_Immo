@@ -58,8 +58,8 @@ const CONFIG = {
   VERSION: '1.0.0',
   /** Timeout en ms */
   TIMEOUT_MS: 30000,
-  /** Origines autorisées (configurable via env) */
-  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS?.split(',') || ['*'],
+  /** Origines autorisées (configurable via env, pas de wildcard par défaut - Audit 1.5) */
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS?.split(',') || ['https://renta-immo.vercel.app'],
 } as const;
 
 /**
