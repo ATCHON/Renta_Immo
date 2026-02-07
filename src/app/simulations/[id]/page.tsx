@@ -26,7 +26,7 @@ export default function SimulationDetailPage() {
     if (isLoading) {
         return (
             <div className="container mx-auto px-4 py-12 text-center">
-                <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mb-4" />
+                <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-forest rounded-full animate-spin mb-4" />
                 <p className="text-slate-500 font-medium">Chargement de votre simulation...</p>
             </div>
         );

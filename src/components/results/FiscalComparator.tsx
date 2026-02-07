@@ -9,7 +9,7 @@ interface FiscalComparatorProps {
     data: FiscaliteComparaison;
 }
 
-export const FiscalComparator: React.FC<FiscalComparatorProps> = ({ data }) => {
+export const FiscalComparator = React.memo(function FiscalComparator({ data }: FiscalComparatorProps) {
     if (!data || !data.items || data.items.length === 0) return null;
 
     return (
@@ -106,4 +106,4 @@ export const FiscalComparator: React.FC<FiscalComparatorProps> = ({ data }) => {
 
         </section>
     );
-};
+});

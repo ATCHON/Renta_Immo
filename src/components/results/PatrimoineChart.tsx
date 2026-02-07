@@ -24,7 +24,7 @@ interface PatrimoineChartProps {
     data: PatrimoineDataPoint[];
 }
 
-export const PatrimoineChart: React.FC<PatrimoineChartProps> = ({ data }) => {
+export const PatrimoineChart = React.memo(function PatrimoineChart({ data }: PatrimoineChartProps) {
     return (
         <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -98,4 +98,4 @@ export const PatrimoineChart: React.FC<PatrimoineChartProps> = ({ data }) => {
             </ResponsiveContainer>
         </div>
     );
-};
+});

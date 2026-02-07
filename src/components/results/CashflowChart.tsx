@@ -23,7 +23,7 @@ interface CashflowChartProps {
     data: CashflowDataPoint[];
 }
 
-export const CashflowChart: React.FC<CashflowChartProps> = ({ data }) => {
+export const CashflowChart = React.memo(function CashflowChart({ data }: CashflowChartProps) {
     return (
         <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -67,4 +67,4 @@ export const CashflowChart: React.FC<CashflowChartProps> = ({ data }) => {
             </ResponsiveContainer>
         </div>
     );
-};
+});

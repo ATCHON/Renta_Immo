@@ -62,7 +62,8 @@
       "mcp__github__pull_request_read",
       "Bash(npm ls:*)",
       "Bash(npm install:*)",
-      "Bash(npx vitest:*)"
+      "Bash(npx vitest:*)",
+      "Bash(npx next build:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

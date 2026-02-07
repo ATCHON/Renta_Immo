@@ -6,6 +6,7 @@ import type { Json } from '@/types/database.types';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { logger } from '@/lib/logger';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 const CreateSimulationSchema = z.object({
     name: z.string().max(255).optional(),
@@ -25,6 +26,16 @@ const ALLOWED_SORTS = ['created_at', 'updated_at', 'name', 'is_favorite', 'renta
 type AllowedSort = typeof ALLOWED_SORTS[number];
 
 export async function GET(request: NextRequest) {
+    // Rate limiting: 30 requests per minute per IP
+    const ip = getClientIp(request);
+    const rl = rateLimit(`simulations:${ip}`, { limit: 30, window: 60_000 });
+    if (!rl.success) {
+        return NextResponse.json(
+            { success: false, error: { code: 'RATE_LIMIT', message: 'Trop de requêtes. Réessayez dans quelques instants.' } },
+            { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+        );
+    }
+
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -57,9 +68,11 @@ export async function GET(request: NextRequest) {
         ? rawSearch.trim().replace(/[%_\\]/g, '\\$&')
         : null;
 
+    const listColumns = 'id, name, description, created_at, updated_at, rentabilite_brute, rentabilite_nette, cashflow_mensuel, score_global, is_favorite, is_archived';
+
     let query = supabase
         .from('simulations')
-        .select('*', { count: 'exact' })
+        .select(listColumns, { count: 'exact' })
         .eq('user_id', user.id)
         .order(sortBy, { ascending: order })
         .range(offset, offset + limit - 1);
@@ -98,6 +111,16 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+    // Rate limiting: shared bucket with GET
+    const ip = getClientIp(request);
+    const rl = rateLimit(`simulations:${ip}`, { limit: 30, window: 60_000 });
+    if (!rl.success) {
+        return NextResponse.json(
+            { success: false, error: { code: 'RATE_LIMIT', message: 'Trop de requêtes. Réessayez dans quelques instants.' } },
+            { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+        );
+    }
+
     const session = await auth.api.getSession({
         headers: await headers(),
     });

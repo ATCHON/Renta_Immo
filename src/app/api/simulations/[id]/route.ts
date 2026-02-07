@@ -5,6 +5,7 @@ import type { CalculResultats } from '@/types/calculateur';
 import type { Json, TablesUpdate } from '@/types/database.types';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 const UpdateSimulationSchema = z.object({
     name: z.string().max(255).optional(),
@@ -19,6 +20,15 @@ export async function GET(
     request: NextRequest,
     { params }: { params: { id: string } }
 ) {
+    const ip = getClientIp(request);
+    const rl = rateLimit(`simulations:${ip}`, { limit: 30, window: 60_000 });
+    if (!rl.success) {
+        return NextResponse.json(
+            { success: false, error: { code: 'RATE_LIMIT', message: 'Trop de requêtes.' } },
+            { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+        );
+    }
+
     const session = await auth.api.getSession({
         headers: await headers(),
     });

@@ -69,7 +69,7 @@ export const SimulationActions: React.FC<SimulationActionsProps> = ({
             {/* Rename */}
             <button
                 onClick={handleRenameClick}
-                className="p-2 hover:bg-blue-50 rounded-lg text-slate-300 hover:text-blue-600 transition-colors"
+                className="p-2 hover:bg-forest/5 rounded-lg text-slate-300 hover:text-forest transition-colors"
                 title="Renommer"
             >
                 <Pencil className="w-5 h-5" />

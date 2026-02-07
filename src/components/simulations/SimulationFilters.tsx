@@ -34,7 +34,7 @@ export const SimulationFilters: React.FC<SimulationFiltersProps> = ({
                     placeholder="Rechercher une simulation..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all text-sm font-medium"
+                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-forest/20 focus:bg-white transition-all text-sm font-medium"
                 />
             </div>
 
@@ -46,8 +46,8 @@ export const SimulationFilters: React.FC<SimulationFiltersProps> = ({
                             key={s}
                             onClick={() => onStatusChange(s)}
                             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${status === s
-                                    ? 'bg-white text-slate-900 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700'
+                                ? 'bg-white text-slate-900 shadow-sm'
+                                : 'text-slate-500 hover:text-slate-700'
                                 }`}
                         >
                             {s === 'all' && 'Tous'}

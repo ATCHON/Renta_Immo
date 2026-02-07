@@ -61,7 +61,7 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="ex: Appartement Lyon 3 - T2"
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-forest/20 focus:border-forest outline-none transition-all"
                                 autoFocus
                             />
                         </div>
@@ -76,7 +76,7 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
                                 onChange={(e) => setDescription(e.target.value)}
                                 placeholder="Détails additionnels..."
                                 rows={3}
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-forest/20 focus:border-forest outline-none transition-all resize-none"
                             />
                         </div>
                     </div>
@@ -92,7 +92,7 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
                     <button
                         onClick={handleSave}
                         disabled={!name.trim() || createSimulation.isPending}
-                        className={`px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 active:transform active:scale-95 transition-all flex items-center gap-2 ${(!name.trim() || createSimulation.isPending) ? 'opacity-50 cursor-not-allowed' : ''
+                        className={`px-6 py-2 bg-forest text-white font-semibold rounded-lg shadow-md hover:bg-forest-dark active:transform active:scale-95 transition-all flex items-center gap-2 ${(!name.trim() || createSimulation.isPending) ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                     >
                         {createSimulation.isPending ? (

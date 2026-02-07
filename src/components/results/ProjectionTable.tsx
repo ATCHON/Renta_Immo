@@ -1,3 +1,4 @@
+import React from 'react';
 import { ProjectionData } from '@/types/calculateur';
 import { formatCurrency, cn } from '@/lib/utils';
 import { Card, CardHeader, CardContent } from '@/components/ui';
@@ -6,7 +7,7 @@ interface ProjectionTableProps {
     data: ProjectionData;
 }
 
-export function ProjectionTable({ data }: ProjectionTableProps) {
+export const ProjectionTable = React.memo(function ProjectionTable({ data }: ProjectionTableProps) {
     if (!data || !data.projections) return null;
 
     return (
@@ -83,4 +84,4 @@ export function ProjectionTable({ data }: ProjectionTableProps) {
             </CardContent>
         </Card>
     );
-}
+});
