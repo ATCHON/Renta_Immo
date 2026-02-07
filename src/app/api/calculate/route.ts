@@ -19,7 +19,7 @@ import type { CalculationResult, CalculationError } from '@/server/calculations'
 /**
  * Codes d'erreur API
  */
-type ErrorCode = 'VALIDATION_ERROR' | 'CALCULATION_ERROR' | 'SERVER_ERROR';
+type ErrorCode = 'VALIDATION_ERROR' | 'CALCULATION_ERROR' | 'SERVER_ERROR' | 'RATE_LIMIT';
 
 /**
  * Réponse succès
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       {
         success: false,
         error: {
-          code: 'SERVER_ERROR',
+          code: 'RATE_LIMIT',
           message: 'Trop de requêtes. Réessayez dans quelques instants.',
         },
         timestamp: new Date().toISOString(),

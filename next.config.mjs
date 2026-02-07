@@ -38,7 +38,14 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://accounts.google.com; frame-ancestors 'self';",
+            value:
+              "default-src 'self'; " +
+              "script-src 'self' https://accounts.google.com; " +
+              "style-src 'self' 'unsafe-inline'; " +
+              "img-src 'self' https: data:; " +
+              "font-src 'self' data:; " +
+              "connect-src 'self' https://*.supabase.co https://accounts.google.com; " +
+              "frame-ancestors 'self';",
           },
           {
             key: 'Permissions-Policy',

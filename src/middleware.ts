@@ -12,17 +12,11 @@ export default async function middleware(request: NextRequest) {
         c.name.includes("session_token")
     );
 
-    // Pour le débogage si l'utilisateur a encore des soucis
-    if (!sessionCookie && request.nextUrl.pathname.startsWith("/simulations")) {
-        console.log("Middleware - No session cookie found. Cookie names:", allCookies.map(c => c.name));
-    }
-
     const isAuthPage = request.nextUrl.pathname.startsWith("/auth");
     const isSimulationsPage = request.nextUrl.pathname.startsWith("/simulations");
 
     // Redirect unauthenticated users away from protected pages (Audit 1.4)
     if (!sessionCookie && isSimulationsPage) {
-        console.log("Middleware - Redirecting unauthenticated user from", request.nextUrl.pathname);
         const loginUrl = new URL("/auth/login", request.url);
         loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
         return NextResponse.redirect(loginUrl);
