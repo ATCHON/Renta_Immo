@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Calculator, Info, Menu, X, LogOut, User, FolderOpen, LogIn } from 'lucide-react';
+import { Calculator, Info, Menu, X, LogOut, User, FolderOpen } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { authClient } from '@/lib/auth-client';

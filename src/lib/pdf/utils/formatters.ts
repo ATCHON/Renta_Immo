@@ -8,8 +8,9 @@
 export function formatCurrency(value: number): string {
     return `${value.toLocaleString('fr-FR', {
         minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    })} €`;
+        maximumFractionDigits: 0,
+        useGrouping: true,
+    }).replace(/\s/g, ' ')} €`;
 }
 
 /**

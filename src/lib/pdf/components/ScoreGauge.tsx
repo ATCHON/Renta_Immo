@@ -14,18 +14,18 @@ interface ScoreGaugeProps {
 const gaugeStyles = StyleSheet.create({
     container: {
         alignItems: 'center',
-        padding: 20,
+        padding: 15,
         backgroundColor: colors.forest,
         borderRadius: 4,
         marginBottom: 15,
     },
     scoreValue: {
-        fontSize: 42,
+        fontSize: 32,
         fontWeight: 'bold',
         color: colors.white,
     },
     scoreMax: {
-        fontSize: 18,
+        fontSize: 14,
         color: 'rgba(255, 255, 255, 0.7)',
     },
     label: {

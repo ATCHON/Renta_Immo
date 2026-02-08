@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Search, Filter, ArrowUpDown } from 'lucide-react';
+import { Search, ArrowUpDown } from 'lucide-react';
 
 interface SimulationFiltersProps {
     search: string;
@@ -63,7 +63,7 @@ export const SimulationFilters: React.FC<SimulationFiltersProps> = ({
                 <div className="flex items-center gap-2">
                     <select
                         value={sort}
-                        onChange={(e) => onSortChange(e.target.value as any)}
+                        onChange={(e) => onSortChange(e.target.value as 'created_at' | 'score_global' | 'name')}
                         className="bg-transparent text-sm font-medium text-slate-600 focus:outline-none cursor-pointer hover:text-slate-900"
                     >
                         <option value="created_at">Date de création</option>

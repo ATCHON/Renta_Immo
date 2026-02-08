@@ -19,8 +19,8 @@ export function Header({ title = 'Renta Immo', date = new Date() }: HeaderProps)
 
     return (
         <View style={styles.header}>
-            <Text style={styles.headerTitle}>{title}</Text>
-            <Text style={styles.headerDate}>Généré le {formattedDate}</Text>
+            <Text style={styles.headerLogo}>{title}</Text>
+            <Text style={styles.headerSub}>Généré le {formattedDate}</Text>
         </View>
     );
 }

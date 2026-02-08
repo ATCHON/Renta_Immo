@@ -12,6 +12,8 @@ import { KeyMetrics } from '../components/KeyMetrics';
 import { PropertyDetails } from '../components/PropertyDetails';
 import { FinancialTable } from '../components/FinancialTable';
 import { HcsfAnalysis } from '../components/HcsfAnalysis';
+import { ProjectCost } from '../components/ProjectCost';
+import { CashflowWaterfall } from '../components/CashflowWaterfall';
 import type { CalculateurFormData, CalculResultats } from '@/types/calculateur';
 
 interface RapportSimulationProps {
@@ -20,7 +22,7 @@ interface RapportSimulationProps {
     generatedAt?: Date;
 }
 
-const DISCLAIMER = "Ce document est fourni à titre informatif uniquement et ne constitue pas un conseil financier, fiscal ou juridique. Les résultats présentés sont des estimations basées sur les données saisies et ne garantissent pas les performances futures de l'investissement. Consultez un professionnel qualifié avant toute décision d'investissement.";
+const DISCLAIMER = "Ce document est fourni à titre informatif uniquement et ne constitue pas un conseil financier, fiscal ou juridique. Les résultats sont des estimations basées sur les données saisies. Consultez un professionnel avant toute décision d'investissement.";
 
 export function RapportSimulation({ formData, resultats, generatedAt = new Date() }: RapportSimulationProps) {
     const { bien, financement, exploitation, structure } = formData;
@@ -28,21 +30,19 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
 
     return (
         <Document>
-            {/* Page 1: Synthèse */}
+            {/* Page 1: Synthèse Exécutive */}
             <Page size="A4" style={styles.page}>
-                <Header title="Rapport de Simulation" date={generatedAt} />
+                <Header title="Synthèse Exécutive" date={generatedAt} />
 
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>{"Synthèse de l'investissement"}</Text>
-                    {bien.adresse && (
-                        <Text style={{ fontSize: 10, color: colors.stone, marginBottom: 10 }}>
-                            {bien.adresse}
-                        </Text>
-                    )}
-                </View>
+                {bien.adresse && (
+                    <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 15 }}>
+                        {bien.adresse}
+                    </Text>
+                )}
 
                 <ScoreGauge score={synthese.score_global} />
 
+                <Text style={styles.h2}>Indicateurs Clés</Text>
                 <KeyMetrics
                     rentaBrute={rentabilite.brute}
                     rentaNette={rentabilite.nette}
@@ -51,37 +51,28 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
                     mensualite={resultats.financement.mensualite}
                 />
 
-                {/* Recommandation */}
-                <View style={[styles.card, { backgroundColor: colors.surface }]}>
-                    <Text style={{ fontSize: 10, fontWeight: 'bold', color: colors.forest, marginBottom: 5 }}>
-                        Recommandation
-                    </Text>
-                    <Text style={{ fontSize: 9, color: colors.charcoal, lineHeight: 1.4 }}>
-                        {synthese.recommandation}
-                    </Text>
-                </View>
+                {/* Recommandations déplacées en fin de rapport */}
 
-                {/* Points d'attention */}
-                {synthese.points_attention && synthese.points_attention.length > 0 && (
-                    <View style={[styles.section, { marginTop: 10 }]}>
-                        <Text style={{ fontSize: 10, fontWeight: 'bold', color: colors.amber, marginBottom: 5 }}>
-                            {"Points d'attention"}
-                        </Text>
-                        {synthese.points_attention.map((point, index) => (
-                            <Text key={index} style={{ fontSize: 9, color: colors.charcoal, marginBottom: 3 }}>
-                                • {point}
-                            </Text>
-                        ))}
-                    </View>
-                )}
+                {/* Points d'attention déplacés aussi pour rester groupés avec l'avis */}
 
                 <Footer pageNumber={1} totalPages={4} />
             </Page>
 
-            {/* Page 2: Détail du bien */}
+            {/* Page 2: Le Projet & Financement */}
             <Page size="A4" style={styles.page}>
-                <Header title="Détail du Bien & Financement" date={generatedAt} />
+                <Header title="Projet & Financement" date={generatedAt} />
 
+                <ProjectCost
+                    prixAchat={bien.prix_achat}
+                    travaux={bien.montant_travaux}
+                    mobilier={bien.valeur_mobilier}
+                    fraisDossier={financement.frais_dossier || 0}
+                    fraisGarantie={financement.frais_garantie || 0}
+                    apport={financement.apport}
+                    montantEmprunt={resultats.financement.montant_emprunt}
+                />
+
+                <Text style={styles.h2}>Détails du Bien & Emprunt</Text>
                 <PropertyDetails
                     bien={bien}
                     financement={financement}
@@ -90,68 +81,109 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
                     mensualite={resultats.financement.mensualite}
                 />
 
+                <Text style={styles.h2}>Structure Juridique</Text>
+                <View style={styles.card}>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>Type</Text>
+                        <Text style={[styles.value, { textTransform: 'uppercase' }]}>
+                            {structure.type === 'nom_propre' ? 'Nom Propre' : 'SCI à l\'IS'}
+                        </Text>
+                    </View>
+                    <View style={styles.rowBetween}>
+                        <Text style={styles.label}>TMI de l&apos;investisseur</Text>
+                        <Text style={styles.value}>{structure.tmi}%</Text>
+                    </View>
+                    {structure.regime_fiscal && (
+                        <View style={styles.rowBetween}>
+                            <Text style={styles.label}>Régime Fiscal</Text>
+                            <Text style={[styles.value, { textTransform: 'uppercase', color: colors.primary }]}>
+                                {structure.regime_fiscal.replace(/_/g, ' ')}
+                            </Text>
+                        </View>
+                    )}
+                </View>
+
                 <Footer pageNumber={2} totalPages={4} />
             </Page>
 
-            {/* Page 3: Analyse financière */}
+            {/* Page 3: Analyse d'Exploitation & Cashflow */}
             <Page size="A4" style={styles.page}>
-                <Header title="Analyse Financière" date={generatedAt} />
+                <Header title="Performance Financière" date={generatedAt} />
 
+                <Text style={styles.h2}>Analyse du Cashflow</Text>
+                <CashflowWaterfall
+                    loyerMensuel={exploitation.loyer_mensuel}
+                    chargesMensuelles={
+                        (exploitation.charges_copro) +
+                        (exploitation.taxe_fonciere / 12) +
+                        (exploitation.assurance_pno / 12) +
+                        (exploitation.loyer_mensuel * (exploitation.gestion_locative / 100))
+                    }
+                    mensualite={resultats.financement.mensualite}
+                    impotMensuel={fiscalite.impot_estime / 12}
+                    cashflow={cashflow}
+                />
+
+                <Text style={styles.h2}>Détail de la Rentabilité & Fiscalité</Text>
                 <FinancialTable
                     rentabilite={rentabilite}
                     cashflow={cashflow}
                     fiscalite={fiscalite}
-                    projections={projections}
                     comparaison={comparaisonFiscalite}
+                    projections={undefined}
                 />
-
-                {/* Structure juridique */}
-                <View style={[styles.section, { marginTop: 10 }]}>
-                    <Text style={styles.sectionTitle}>Structure Juridique</Text>
-                    <View style={styles.card}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                            <Text style={{ fontSize: 9, color: colors.stone }}>Type</Text>
-                            <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.charcoal }}>
-                                {structure.type === 'nom_propre' ? 'Nom Propre' : 'SCI IS'}
-                            </Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                            <Text style={{ fontSize: 9, color: colors.stone }}>TMI</Text>
-                            <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.charcoal }}>
-                                {structure.tmi}%
-                            </Text>
-                        </View>
-                        {structure.regime_fiscal && (
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 9, color: colors.stone }}>Régime fiscal</Text>
-                                <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.charcoal }}>
-                                    {structure.regime_fiscal.replace('_', ' ').toUpperCase()}
-                                </Text>
-                            </View>
-                        )}
-                    </View>
-                </View>
 
                 <Footer pageNumber={3} totalPages={4} />
             </Page>
 
-            {/* Page 4: Conformité HCSF */}
+            {/* Page 4: Projections & Risques */}
             <Page size="A4" style={styles.page}>
-                <Header title="Conformité HCSF" date={generatedAt} />
+                <Header title="Projections Patrimoniales" date={generatedAt} />
 
+                {projections && projections.totaux && (
+                    <FinancialTable
+                        rentabilite={rentabilite}
+                        cashflow={cashflow}
+                        fiscalite={fiscalite}
+                        projections={projections}
+                        comparaison={undefined}
+                    />
+                )}
+
+                <Text style={[styles.h2, { color: colors.warning }]}>Analyse HCSF & Risques</Text>
                 <HcsfAnalysis hcsf={hcsf} />
 
-                {/* Disclaimer - Flux normal */}
-                <View style={{
-                    marginTop: 20,
-                    padding: 12,
-                    backgroundColor: colors.surface,
-                    borderRadius: 4,
-                }}>
-                    <Text style={{ fontSize: 8, fontWeight: 'bold', color: colors.stone, marginBottom: 4 }}>
+                {/* Recommandation & Avis Final */}
+                <View wrap={false}>
+                    <Text style={styles.h2}>Avis & Recommandations</Text>
+                    <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: colors.primary }]}>
+                        <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.primary, marginBottom: 5 }}>
+                            Avis de l&apos;analyste
+                        </Text>
+                        <Text style={{ fontSize: 10, color: colors.textMain, lineHeight: 1.5 }}>
+                            {synthese.recommandation}
+                        </Text>
+                    </View>
+
+                    {synthese.points_attention && synthese.points_attention.length > 0 && (
+                        <View style={[styles.card, { backgroundColor: '#FFF7ED', borderLeftWidth: 4, borderLeftColor: colors.warning }]}>
+                            <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.warning, marginBottom: 5 }}>
+                                Points de vigilance
+                            </Text>
+                            {synthese.points_attention.map((point, index) => (
+                                <Text key={index} style={{ fontSize: 10, color: colors.textMain, marginBottom: 3 }}>
+                                    • {point}
+                                </Text>
+                            ))}
+                        </View>
+                    )}
+                </View>
+
+                <View style={{ marginTop: 20, padding: 15, backgroundColor: colors.surface, borderRadius: 4 }}>
+                    <Text style={{ fontSize: 9, fontWeight: 'bold', color: colors.textMuted, marginBottom: 5 }}>
                         AVERTISSEMENT
                     </Text>
-                    <Text style={{ fontSize: 7, color: colors.stone, lineHeight: 1.4 }}>
+                    <Text style={{ fontSize: 8, color: colors.textMuted, textAlign: 'justify' }}>
                         {DISCLAIMER}
                     </Text>
                 </View>

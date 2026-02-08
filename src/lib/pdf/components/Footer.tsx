@@ -16,7 +16,7 @@ export function Footer({ pageNumber, totalPages }: FooterProps) {
             <Text style={styles.footerText}>
                 Rapport de simulation - Renta Immo
             </Text>
-            <Text style={styles.footerPage}>
+            <Text style={styles.footerText}>
                 {totalPages ? `Page ${pageNumber} / ${totalPages}` : `Page ${pageNumber}`}
             </Text>
         </View>

@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
-import { Card, Button } from '@/components/ui';
+
+import { Card } from '@/components/ui';
 import { ProgressStepper } from './ProgressStepper';
 import { StepBien } from './StepBien';
 import { StepFinancement } from './StepFinancement';
