@@ -3,7 +3,7 @@
  * Displays property, financing, and exploitation information
  */
 import React from 'react';
-import { View, Text, StyleSheet } from '@react-pdf/renderer';
+import { View, Text } from '@react-pdf/renderer';
 import { styles, colors } from '../styles';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import type { BienData, FinancementData, ExploitationData, TypeBien, TypeLocation } from '@/types/calculateur';

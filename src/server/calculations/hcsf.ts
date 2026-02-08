@@ -9,7 +9,6 @@
  */
 
 import type { CalculationInput, HCSFCalculations, AssocieData, FinancementCalculations } from './types';
-import { SEUILS } from './types';
 import { CONSTANTS } from '@/config/constants';
 
 // ============================================================================

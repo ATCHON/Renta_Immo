@@ -76,7 +76,7 @@ export const styles = StyleSheet.create({
     },
     headerLogo: {
         fontSize: 20,
-        fontWeight: 'extrabold',
+        fontWeight: 'bold',
         color: colors.primary,
         letterSpacing: 1,
     },
