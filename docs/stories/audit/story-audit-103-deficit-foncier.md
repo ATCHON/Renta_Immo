@@ -139,8 +139,8 @@ Verifier que le deficit reportable est bien consomme progressivement et expire a
 
 ## 6. Definition of Done
 
-- [ ] Calcul du deficit foncier correct (separation interets/hors interets)
-- [ ] Economie d'impot integree dans la comparaison des regimes
-- [ ] Deficit reportable gere dans les projections (si AUDIT-100 fait)
-- [ ] Tests unitaires couvrant tous les cas
-- [ ] TypeScript compile sans erreur
+- [x] Calcul du deficit foncier correct (separation interets/hors interets)
+- [x] Economie d'impot integree dans la comparaison des regimes
+- [x] Deficit reportable gere dans les projections (si AUDIT-100 fait)
+- [x] Tests unitaires couvrant tous les cas (12 tests - `deficit-foncier.test.ts`)
+- [x] TypeScript compile sans erreur

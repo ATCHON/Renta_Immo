@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
                 rentabilite_brute: res.rentabilite?.brute,
                 rentabilite_nette: res.rentabilite?.nette,
                 cashflow_mensuel: res.cashflow?.mensuel,
-                score_global: res.synthese?.score_global,
+                score_global: res.synthese?.score_global != null ? Math.round(res.synthese.score_global) : null,
             })
             .select()
             .single();

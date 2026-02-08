@@ -75,8 +75,8 @@ export function ajustementRentabilite(rentabiliteNetteNette: number): number {
 export function ajustementHcsf(tauxEndettement: number, conforme: boolean): number {
   if (!conforme && tauxEndettement > 50) return -25;
   if (tauxEndettement <= 25) return 20;
-  if (tauxEndettement <= 35) return interpoler(tauxEndettement, 25, 35, 0, 20);
-  if (tauxEndettement <= 50) return interpoler(tauxEndettement, 35, 50, -15, 0);
+  if (tauxEndettement <= 35) return interpoler(tauxEndettement, 25, 35, 20, 0);
+  if (tauxEndettement <= 50) return interpoler(tauxEndettement, 35, 50, 0, -15);
   return -25;
 }
 

@@ -12,10 +12,10 @@
 | AUDIT-100 | Fiscalite dans les projections | P0 | 2-3j | Phase 1 | TERMINE |
 | AUDIT-101 | Part terrain parametree | P1 | 0.5j | Phase 1 | TERMINE |
 | AUDIT-102 | Effet levier apport=0 | P1 | 0.5h | Phase 1 | TERMINE |
-| AUDIT-103 | Deficit foncier | P2 | 1-2j | Phase 2 | A faire |
-| AUDIT-104 | Amortissement par composants | P2 | 1j | Phase 2 | A faire |
-| AUDIT-105 | Plus-value a la revente | P2 | 2j | Phase 2 | A faire |
-| AUDIT-106 | Scoring specification | P2 | 1j | Phase 2 | A faire |
+| AUDIT-103 | Deficit foncier | P2 | 1-2j | Phase 2 | TERMINE |
+| AUDIT-104 | Amortissement par composants | P2 | 1j | Phase 2 | TERMINE |
+| AUDIT-105 | Plus-value a la revente | P2 | 2j | Phase 2 | TERMINE |
+| AUDIT-106 | Scoring specification | P2 | 1j | Phase 2 | TERMINE |
 
 **Effort total** : ~9-11 jours
 
@@ -51,18 +51,18 @@ AUDIT-100 (Fiscalite projections) ──► Prerequis pour Phase 2
 
 ---
 
-## Phase 2 - Enrichissements metier (precision)
+## Phase 2 - Enrichissements metier (precision) - TERMINEE (2026-02-08)
 
 > **Objectif** : Completer les calculs metier manquants
 > **Effort** : ~5-6 jours
 > **Prerequis** : Phase 1 terminee (AUDIT-100 en particulier)
 
-| Ordre | Story | Titre | Effort | Dependances |
-|-------|-------|-------|--------|-------------|
-| 1 | AUDIT-103 | Deficit foncier | 1-2j | AUDIT-100 |
-| 2 | AUDIT-104 | Amortissement par composants | 1j | AUDIT-101 |
-| 3 | AUDIT-105 | Plus-value a la revente | 2j | AUDIT-100 |
-| 4 | AUDIT-106 | Scoring specification | 1j | AUDIT-100 |
+| Ordre | Story | Titre | Effort | Dependances | Statut |
+|-------|-------|-------|--------|-------------|--------|
+| 1 | AUDIT-103 | Deficit foncier | 1-2j | AUDIT-100 | TERMINE |
+| 2 | AUDIT-104 | Amortissement par composants | 1j | AUDIT-101 | TERMINE |
+| 3 | AUDIT-105 | Plus-value a la revente | 2j | AUDIT-100 | TERMINE |
+| 4 | AUDIT-106 | Scoring specification | 1j | AUDIT-100 | TERMINE |
 
 ### Graphe de dependances
 
@@ -84,7 +84,13 @@ AUDIT-101 (Phase 1)
 - [x] Amortissement par composants disponible en option
 - [x] Plus-value a la revente calculee pour chaque horizon
 - [x] Scoring conforme a la specification metier
-- [ ] Tests unitaires pour chaque nouvelle fonctionnalite
+- [x] Tests unitaires pour chaque nouvelle fonctionnalite (80 tests - 2026-02-08)
+- [x] Test E2E sauvegarde simulation valide via Chrome DevTools (2026-02-08)
+
+### Bugs corriges pendant la validation Phase 2
+
+- **synthese.ts - Interpolation HCSF inversee** : `ajustementHcsf()` donnait +20 a 35% d'endettement au lieu de 0. Corrige en inversant les bornes de `interpoler()`.
+- **API simulations - score_global decimal vs integer** : Le score 24.5 causait une erreur Postgres `22P02`. Corrige avec `Math.round()` dans `src/app/api/simulations/route.ts`.
 
 ---
 

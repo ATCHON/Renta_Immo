@@ -62,13 +62,14 @@ describe('Calculations Synthese', () => {
     expect(synthese.points_attention).toHaveLength(0);
   });
 
-  it('should return "Moyen" and points of attention for negative cashflow', () => {
+  it('should return "Bon" with points of attention for negative cashflow', () => {
     const rentabilite = mockRentabilite(-100, 7); // Cashflow -100, Renta 7%
     const hcsf = mockHCSF(true, 33); // Conforme mais proche limite
 
     const synthese = genererSynthese(rentabilite, hcsf);
 
-    expect(synthese.evaluation).toBe('Moyen');
+    // Score: base 40 + cashflow(-10) + renta(+20) + hcsf(+4) + ratio(+10) = 64 → Bon
+    expect(synthese.evaluation).toBe('Bon');
     expect(synthese.points_attention).toContainEqual(expect.stringContaining('Cash-flow négatif'));
   });
 

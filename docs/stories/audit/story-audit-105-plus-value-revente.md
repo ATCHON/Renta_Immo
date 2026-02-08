@@ -146,9 +146,9 @@ Apres 22 ans de detention : impot PV IR = 0, seuls les PS restent (jusqu'a 30 an
 
 ## 6. Definition of Done
 
-- [ ] Plus-value calculee pour chaque horizon de projection
-- [ ] Trois regimes couverts (nom propre, LMNP avec reintegration, SCI IS)
-- [ ] Abattements pour duree de detention corrects
-- [ ] Integration dans le TRI et l'enrichissement total
-- [ ] Tests unitaires exhaustifs (abattements par duree)
-- [ ] TypeScript compile sans erreur
+- [x] Plus-value calculee pour chaque horizon de projection
+- [x] Trois regimes couverts (nom propre, LMNP avec reintegration, SCI IS)
+- [x] Abattements pour duree de detention corrects
+- [x] Integration dans le TRI et l'enrichissement total
+- [x] Tests unitaires exhaustifs (21 tests - `plus-value.test.ts`)
+- [x] TypeScript compile sans erreur
