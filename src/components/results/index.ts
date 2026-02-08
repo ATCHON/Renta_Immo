@@ -16,3 +16,7 @@ export { ScenarioTabs } from './ScenarioTabs';
 export { CashflowChart } from './CashflowChart';
 export { PatrimoineChart } from './PatrimoineChart';
 export { DownloadPdfButton } from './DownloadPdfButton';
+export { ScorePanel } from './ScorePanel';
+export { InputRecap } from './InputRecap';
+export { PointsAttention } from './PointsAttention';
+export { RecommandationsPanel } from './RecommandationsPanel';

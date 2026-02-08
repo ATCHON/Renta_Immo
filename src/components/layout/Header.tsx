@@ -143,7 +143,7 @@ export function Header() {
 
             {/* Mobile Navigation */}
             {isMenuOpen && (
-                <div className="fixed inset-x-0 top-16 bottom-0 z-40 md:hidden bg-white overflow-y-auto border-t border-sand animate-in slide-in-from-top-5 duration-300">
+                <div className="fixed inset-x-0 top-16 z-40 md:hidden bg-white overflow-y-auto border-t border-sand h-[calc(100dvh-4rem)]">
                     <div className="px-4 py-6 space-y-2 pb-20">
                         {session && (
                             <div className="flex items-center space-x-4 px-4 py-4 mb-2 bg-sand/20 rounded-xl">

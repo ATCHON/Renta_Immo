@@ -32,19 +32,19 @@ export function CashflowWaterfall({
         <View style={[
             styles.rowBetween,
             { paddingVertical: 4 },
-            isResult && { borderTopWidth: 1, borderTopColor: colors.border, marginTop: 4, paddingTop: 6 },
-            isLast && { backgroundColor: value >= 0 ? '#ECFDF5' : '#FEF2F2', padding: 8, borderRadius: 4, marginTop: 8 }
+            ...(isResult ? [{ borderTopWidth: 1, borderTopColor: colors.border, marginTop: 4, paddingTop: 6 }] : []),
+            ...(isLast ? [{ backgroundColor: value >= 0 ? '#ECFDF5' : '#FEF2F2', padding: 8, borderRadius: 4, marginTop: 8 }] : []),
         ]}>
             <Text style={[
                 isResult ? styles.textBold : styles.label,
-                isLast && { color: value >= 0 ? colors.success : colors.error, fontSize: 10, textTransform: 'uppercase' }
+                ...(isLast ? [{ color: value >= 0 ? colors.success : colors.error, fontSize: 10, textTransform: 'uppercase' as const }] : []),
             ]}>
                 {label}
             </Text>
             <Text style={[
                 isResult ? styles.value : styles.text,
-                isNegative && { color: colors.error },
-                isLast && { color: value >= 0 ? colors.success : colors.error, fontSize: 12, fontWeight: 'bold' }
+                ...(isNegative ? [{ color: colors.error }] : []),
+                ...(isLast ? [{ color: value >= 0 ? colors.success : colors.error, fontSize: 12, fontWeight: 'bold' as const }] : []),
             ]}>
                 {isNegative && value > 0 ? '-' : ''}{formatCurrency(value)}
             </Text>

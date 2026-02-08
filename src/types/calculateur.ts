@@ -257,12 +257,54 @@ export interface HCSFResultat {
 }
 
 /**
+ * Détail du scoring (base 40 + ajustements par critère)
+ */
+export interface ScoreDetailResultat {
+  base: number;
+  ajustements: {
+    cashflow: number;
+    rentabilite: number;
+    hcsf: number;
+    dpe: number;
+    ratio_prix_loyer: number;
+    reste_a_vivre: number;
+  };
+  total: number;
+}
+
+/**
+ * Point d'attention structuré
+ */
+export interface PointAttentionDetail {
+  type: 'error' | 'warning' | 'info';
+  categorie: string;
+  message: string;
+  conseil?: string;
+}
+
+/**
+ * Recommandation structurée avec actions
+ */
+export interface RecommandationDetail {
+  priorite: 'haute' | 'moyenne' | 'info';
+  categorie: string;
+  titre: string;
+  description: string;
+  actions: string[];
+}
+
+/**
  * Synthèse des résultats
  */
 export interface SyntheseResultat {
   score_global: number;
   recommandation: string;
   points_attention: string[];
+  evaluation?: 'Excellent' | 'Bon' | 'Moyen' | 'Faible';
+  couleur?: 'green' | 'blue' | 'orange' | 'red';
+  score_detail?: ScoreDetailResultat;
+  points_attention_detail?: PointAttentionDetail[];
+  recommandations_detail?: RecommandationDetail[];
 }
 
 /**

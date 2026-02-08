@@ -10,6 +10,7 @@ import {
     Tooltip,
     ResponsiveContainer,
     Legend,
+    ReferenceLine,
 } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
 
@@ -22,11 +23,41 @@ interface PatrimoineDataPoint {
 
 interface PatrimoineChartProps {
     data: PatrimoineDataPoint[];
+    loanEndYear?: number | null;
 }
 
-export const PatrimoineChart = React.memo(function PatrimoineChart({ data }: PatrimoineChartProps) {
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; dataKey: string; color: string }>; label?: string }) {
+    if (!active || !payload?.length) return null;
+
+    const items = [
+        { key: 'valeurBien', label: 'Valeur du bien', color: '#2D5A45' },
+        { key: 'capitalRestant', label: 'Capital restant dû', color: '#6B6B6B' },
+        { key: 'patrimoineNet', label: 'Patrimoine net', color: '#C4841D' },
+    ];
+
     return (
-        <div className="h-[300px] w-full">
+        <div className="bg-white rounded-xl border border-sand shadow-md p-3 text-xs">
+            <p className="font-bold text-charcoal mb-1.5">{label}</p>
+            {items.map(item => {
+                const entry = payload.find(p => p.dataKey === item.key);
+                if (!entry) return null;
+                return (
+                    <div key={item.key} className="flex items-center gap-2 mt-1">
+                        <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                        <span className="text-stone">{item.label} :</span>
+                        <span className="font-bold tabular-nums">{formatCurrency(entry.value)}</span>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+export const PatrimoineChart = React.memo(function PatrimoineChart({ data, loanEndYear }: PatrimoineChartProps) {
+    const loanEndLabel = loanEndYear ? `Année ${loanEndYear}` : null;
+
+    return (
+        <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                     data={data}
@@ -34,12 +65,16 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({ data }: Pat
                 >
                     <defs>
                         <linearGradient id="colorValeur" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#059669" stopOpacity={0.1} />
-                            <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                            <stop offset="5%" stopColor="#2D5A45" stopOpacity={0.1} />
+                            <stop offset="95%" stopColor="#2D5A45" stopOpacity={0} />
                         </linearGradient>
                         <linearGradient id="colorCapital" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#64748B" stopOpacity={0.1} />
-                            <stop offset="95%" stopColor="#64748B" stopOpacity={0} />
+                            <stop offset="5%" stopColor="#6B6B6B" stopOpacity={0.1} />
+                            <stop offset="95%" stopColor="#6B6B6B" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="colorPatrimoine" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#C4841D" stopOpacity={0.15} />
+                            <stop offset="95%" stopColor="#C4841D" stopOpacity={0} />
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
@@ -56,21 +91,22 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({ data }: Pat
                         tick={{ fill: '#64748B', fontSize: 10 }}
                         tickFormatter={(value) => `${value / 1000}k€`}
                     />
-                    <Tooltip
-                        contentStyle={{
-                            backgroundColor: '#FFFFFF',
-                            borderRadius: '12px',
-                            border: '1px solid #E2E8F0',
-                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                        }}
-                        formatter={(value: number | undefined) => formatCurrency(Number(value ?? 0))}
-                    />
+                    <Tooltip content={<CustomTooltip />} />
                     <Legend iconType="circle" />
+                    {loanEndLabel && (
+                        <ReferenceLine
+                            x={loanEndLabel}
+                            stroke="#6B6B6B"
+                            strokeDasharray="4 4"
+                            strokeOpacity={0.5}
+                            label={{ value: 'Fin crédit', position: 'top', fill: '#6B6B6B', fontSize: 10 }}
+                        />
+                    )}
                     <Area
                         type="monotone"
                         dataKey="valeurBien"
-                        name="Valeur du bien"
-                        stroke="#059669"
+                        name="Valeur du bien (estimée)"
+                        stroke="#2D5A45"
                         fillOpacity={1}
                         fill="url(#colorValeur)"
                         strokeWidth={2}
@@ -79,7 +115,7 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({ data }: Pat
                         type="monotone"
                         dataKey="capitalRestant"
                         name="Capital restant dû"
-                        stroke="#64748B"
+                        stroke="#6B6B6B"
                         fillOpacity={1}
                         fill="url(#colorCapital)"
                         strokeWidth={2}
@@ -88,9 +124,10 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({ data }: Pat
                         type="monotone"
                         dataKey="patrimoineNet"
                         name="Patrimoine net"
-                        stroke="#F59E0B"
-                        strokeOpacity={0.8}
-                        fill="transparent"
+                        stroke="#C4841D"
+                        strokeOpacity={0.9}
+                        fillOpacity={1}
+                        fill="url(#colorPatrimoine)"
                         strokeWidth={2}
                         strokeDasharray="5 5"
                     />

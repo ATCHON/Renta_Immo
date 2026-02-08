@@ -3,11 +3,16 @@ import { ProjectionAnnuelle } from '@/types';
 
 export const useChartData = (projections: ProjectionAnnuelle[] = []) => {
     const cashflowData = useMemo(() => {
-        return projections.map((p) => ({
-            name: `Année ${p.annee}`,
-            cashflow: p.cashflow,
-            cashflowNetImpot: p.cashflowNetImpot,
-        }));
+        let cumul = 0;
+        return projections.map((p) => {
+            cumul += p.cashflowNetImpot;
+            return {
+                name: `Année ${p.annee}`,
+                cashflow: p.cashflow,
+                cashflowNetImpot: p.cashflowNetImpot,
+                cashflowCumule: Math.round(cumul),
+            };
+        });
     }, [projections]);
 
     const patrimoineData = useMemo(() => {
@@ -21,23 +26,38 @@ export const useChartData = (projections: ProjectionAnnuelle[] = []) => {
 
     const cumulativeData = useMemo(() => {
         let capitalCumule = 0;
-
-        // Note: Pour un graphique cumulé précis, on pourrait avoir besoin des données d'intérêts annuels
-        // Si elles ne sont pas dans ProjectionAnnuelle, on peut les déduire ou ajouter au serveur plus tard.
-        // Pour l'instant on se base sur le capital remboursé.
         return projections.map((p) => {
             capitalCumule += p.capitalRembourse;
             return {
                 name: `Année ${p.annee}`,
                 capitalCumule: Math.round(capitalCumule),
-                // On pourrait ajouter les intérêts ici si on les avait
             };
         });
+    }, [projections]);
+
+    const breakEvenYear = useMemo(() => {
+        for (let i = 0; i < projections.length; i++) {
+            if (projections[i].cashflowNetImpot >= 0 && (i === 0 || projections[i - 1].cashflowNetImpot < 0)) {
+                return projections[i].annee;
+            }
+        }
+        return null;
+    }, [projections]);
+
+    const loanEndYear = useMemo(() => {
+        for (const p of projections) {
+            if (p.capitalRestant <= 0) {
+                return p.annee;
+            }
+        }
+        return null;
     }, [projections]);
 
     return {
         cashflowData,
         patrimoineData,
         cumulativeData,
+        breakEvenYear,
+        loanEndYear,
     };
 };

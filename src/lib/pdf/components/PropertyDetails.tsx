@@ -55,7 +55,7 @@ export function PropertyDetails({ bien, financement, exploitation, montantEmprun
                         <Text style={styles.value}>{bien.surface ? `${bien.surface} m²` : 'N/C'}</Text>
                     </View>
                     <View style={styles.rowBetween}>
-                        <Text style={styles.label}>Prix d'achat</Text>
+                        <Text style={styles.label}>Prix d&apos;achat</Text>
                         <Text style={styles.value}>{formatCurrency(bien.prix_achat)}</Text>
                     </View>
                     <View style={styles.rowBetween}>
