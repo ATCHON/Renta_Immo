@@ -34,7 +34,7 @@ export const ProjectionTable = React.memo(function ProjectionTable({ data }: Pro
                             {data.projections.map((row) => (
                                 <tr key={row.annee} className="hover:bg-sand/10 transition-colors">
                                     <td className="px-6 py-4 font-bold text-charcoal tabular-nums">
-                                        {row.annee}
+                                        {new Date().getFullYear() + row.annee - 1}
                                     </td>
                                     <td className="px-6 py-4 text-right tabular-nums text-pebble">
                                         {formatCurrency(row.loyer)}

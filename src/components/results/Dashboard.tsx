@@ -94,10 +94,6 @@ export function Dashboard() {
     router.push('/calculateur');
   };
 
-  const handleNewCalculation = () => {
-    resetScenario(scenario.id);
-    router.push('/calculateur');
-  };
 
   const impotMensuelMoyen = resultats.fiscalite.impot_estime / 12;
 
@@ -127,9 +123,6 @@ export function Dashboard() {
           )}
         </div>
         <div className="flex gap-4">
-          <Button variant="ghost" className="text-stone hover:text-charcoal" onClick={handleNewCalculation}>
-            Nouveau calcul
-          </Button>
           <SaveSimulationButton
             formData={formData}
             resultats={resultats}

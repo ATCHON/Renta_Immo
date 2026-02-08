@@ -24,7 +24,7 @@ export const SaveSimulationButton: React.FC<SaveSimulationButtonProps> = ({
         return (
             <Link
                 href="/auth/login?redirect=/calculateur/resultats"
-                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-indigo-200 active:transform active:scale-95 transition-all text-sm sm:text-base"
+                className="flex items-center gap-2 px-6 py-2.5 bg-forest text-white font-semibold rounded-xl shadow-lg hover:bg-forest-dark hover:shadow-forest/20 active:transform active:scale-95 transition-all text-sm sm:text-base"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
@@ -38,7 +38,7 @@ export const SaveSimulationButton: React.FC<SaveSimulationButtonProps> = ({
         <>
             <button
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-indigo-200 active:transform active:scale-95 transition-all text-sm sm:text-base"
+                className="flex items-center gap-2 px-6 py-2.5 bg-forest text-white font-semibold rounded-xl shadow-lg hover:bg-forest-dark hover:shadow-forest/20 active:transform active:scale-95 transition-all text-sm sm:text-base"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />

@@ -1,9 +1,23 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FormWizard } from '@/components/forms';
+import { useCalculateurStore } from '@/stores/calculateur.store';
 
 export default function CalculateurPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const reset = useCalculateurStore((state) => state.reset);
+
+  useEffect(() => {
+    if (searchParams.get('reset') === 'true') {
+      reset();
+      // Nettoyer l'URL pour éviter un reset au refresh
+      router.replace('/calculateur');
+    }
+  }, [searchParams, reset, router]);
   return (
     <main className="min-h-screen py-8 px-4">
       {/* Header */}

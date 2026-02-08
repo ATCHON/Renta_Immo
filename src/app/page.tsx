@@ -22,7 +22,7 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-300">
             <Link
-              href="/calculateur"
+              href="/calculateur?reset=true"
               className="inline-flex items-center justify-center gap-2 font-semibold transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed bg-forest text-white hover:bg-forest-dark focus:ring-forest rounded-full px-10 py-7 text-lg shadow-xl shadow-forest/20 group"
             >
               Lancer l&apos;analyse
@@ -72,13 +72,6 @@ export default function HomePage() {
           <p className="text-white/80 text-lg max-w-xl mx-auto font-medium">
             Rejoignez les investisseurs qui utilisent RentaImmo pour valider leurs opportunités.
           </p>
-          <div className="pt-4">
-            <Link href="/calculateur" passHref>
-              <Button variant="secondary" className="bg-white text-forest border-none hover:bg-surface px-12 py-6 rounded-full text-lg font-bold shadow-xl shadow-black/10">
-                Commencer maintenant
-              </Button>
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -90,11 +83,11 @@ export default function HomePage() {
           </div>
           <div className="flex gap-8">
             <Link href="/" className="hover:text-forest transition-colors">Accueil</Link>
-            <Link href="/calculateur" className="hover:text-forest transition-colors">Calculateur</Link>
+            <Link href="/calculateur?reset=true" className="hover:text-forest transition-colors">Calculateur</Link>
             <Link href="/en-savoir-plus" className="hover:text-forest transition-colors">Méthodologie</Link>
           </div>
           <div>
-            © 2024 Renta Immo • Design Nordic Minimal
+            © 2026 Renta Immo • Design Nordic Minimal
           </div>
         </div>
       </footer>

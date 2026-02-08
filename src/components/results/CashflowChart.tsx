@@ -38,7 +38,7 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
             <p className="font-bold text-charcoal mb-1.5">{label}</p>
             {cashflow && (
                 <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: (cashflow.value ?? 0) >= 0 ? '#2D5A45' : '#B54A32' }} />
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: (cashflow.value ?? 0) >= 0 ? '#2D5A45' : '#DC2626' }} />
                     <span className="text-stone">Cash-flow :</span>
                     <span className="font-bold tabular-nums">{formatCurrency(cashflow.value)}</span>
                 </div>
@@ -114,12 +114,13 @@ export const CashflowChart = React.memo(function CashflowChart({ data, breakEven
                         yAxisId="left"
                         dataKey="cashflowNetImpot"
                         name="Cash-flow net"
+                        fill="#2D5A45"
                         radius={[4, 4, 0, 0]}
                     >
                         {data.map((entry, index) => (
                             <Cell
                                 key={`cell-${index}`}
-                                fill={entry.cashflowNetImpot >= 0 ? '#2D5A45' : '#B54A32'}
+                                fill={entry.cashflowNetImpot >= 0 ? '#2D5A45' : '#DC2626'}
                             />
                         ))}
                     </Bar>
@@ -129,9 +130,9 @@ export const CashflowChart = React.memo(function CashflowChart({ data, breakEven
                             type="monotone"
                             dataKey="cashflowCumule"
                             name="Cumulé"
-                            stroke="#4A7C59"
-                            strokeOpacity={0.45}
-                            strokeWidth={1.5}
+                            stroke="#60A5FA"
+                            strokeOpacity={1}
+                            strokeWidth={3}
                             strokeDasharray="5 3"
                             dot={false}
                         />

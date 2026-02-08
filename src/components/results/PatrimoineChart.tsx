@@ -31,8 +31,8 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
 
     const items = [
         { key: 'valeurBien', label: 'Valeur du bien', color: '#2D5A45' },
-        { key: 'capitalRestant', label: 'Capital restant dû', color: '#6B6B6B' },
-        { key: 'patrimoineNet', label: 'Patrimoine net', color: '#C4841D' },
+        { key: 'capitalRestant', label: 'Capital restant dû (Dette)', color: '#DC2626' },
+        { key: 'patrimoineNet', label: 'Patrimoine net', color: '#2563EB' },
     ];
 
     return (
@@ -91,12 +91,12 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({ data, loanE
                             <stop offset="95%" stopColor="#2D5A45" stopOpacity={0.03} />
                         </linearGradient>
                         <linearGradient id="colorCapital" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#6B6B6B" stopOpacity={0.1} />
-                            <stop offset="95%" stopColor="#6B6B6B" stopOpacity={0} />
+                            <stop offset="5%" stopColor="#DC2626" stopOpacity={0.1} />
+                            <stop offset="95%" stopColor="#DC2626" stopOpacity={0} />
                         </linearGradient>
                         <linearGradient id="colorPatrimoine" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#C4841D" stopOpacity={0.15} />
-                            <stop offset="95%" stopColor="#C4841D" stopOpacity={0} />
+                            <stop offset="5%" stopColor="#2563EB" stopOpacity={0.15} />
+                            <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
@@ -114,14 +114,19 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({ data, loanE
                         tickFormatter={(value) => `${value / 1000}k€`}
                     />
                     <Tooltip content={<CustomTooltip />} />
-                    <Legend iconType="circle" />
+                    <Legend
+                        iconType="circle"
+                        formatter={(value: string) => (
+                            <span className="text-xs text-stone">{value}</span>
+                        )}
+                    />
                     {loanEndLabel && (
                         <ReferenceLine
                             x={loanEndLabel}
-                            stroke="#6B6B6B"
+                            stroke="#DC2626"
                             strokeDasharray="4 4"
                             strokeOpacity={0.5}
-                            label={{ value: 'Fin crédit', position: 'top', fill: '#6B6B6B', fontSize: 10 }}
+                            label={{ value: 'Fin crédit', position: 'top', fill: '#DC2626', fontSize: 10 }}
                         />
                     )}
                     <Area
@@ -139,7 +144,7 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({ data, loanE
                         type="monotone"
                         dataKey="capitalRestant"
                         name="Capital restant dû"
-                        stroke="#6B6B6B"
+                        stroke="#DC2626"
                         fillOpacity={1}
                         fill="url(#colorCapital)"
                         strokeWidth={2}
@@ -148,7 +153,7 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({ data, loanE
                         type="monotone"
                         dataKey="patrimoineNet"
                         name="Patrimoine net"
-                        stroke="#C4841D"
+                        stroke="#2563EB"
                         strokeOpacity={0.9}
                         fillOpacity={1}
                         fill="url(#colorPatrimoine)"

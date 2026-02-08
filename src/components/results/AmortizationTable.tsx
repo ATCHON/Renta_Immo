@@ -48,7 +48,7 @@ export const AmortizationTable = React.memo(function AmortizationTable({ data }:
                             {data.annuel.map((row) => (
                                 <tr key={row.periode} className="hover:bg-sand/10 transition-colors group">
                                     <td className="px-6 py-4 font-bold text-charcoal">
-                                        Année {row.periode}
+                                        {new Date().getFullYear() + row.periode - 1}
                                     </td>
                                     <td className="px-6 py-4 text-right tabular-nums text-pebble">
                                         {formatCurrency(row.echeance)}

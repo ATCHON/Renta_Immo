@@ -12,10 +12,7 @@ export default function SimulationDetailPage() {
     const { data: simulation, isLoading, error } = useSimulation(id);
     const { loadScenario, reset } = useCalculateurStore();
 
-    useEffect(() => {
-        // Reset store on unmount to avoid polluting other views
-        return () => reset();
-    }, [reset]);
+
 
     useEffect(() => {
         if (simulation && simulation.data) {

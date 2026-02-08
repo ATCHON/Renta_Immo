@@ -14,7 +14,7 @@ import { useCalculateurStore } from '@/stores/calculateur.store';
 const navItems = [
     {
         name: 'Calculateur',
-        href: '/calculateur',
+        href: '/calculateur?reset=true',
         icon: Calculator,
     },
     {
