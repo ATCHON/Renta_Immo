@@ -324,7 +324,8 @@ export function genererProjections(
 
     let cashflowCumule = 0;
     let capitalRembourseTotal = 0;
-    let deficitFoncierReportable = 0;  // AUDIT-103 : suivi du déficit reportable
+    // AUDIT-103 : suivi du déficit reportable par année (buckets FIFO avec expiration à DUREE_REPORT ans)
+    let deficitBuckets: { annee: number; montant: number }[] = [];
     let amortissementCumule = 0;       // AUDIT-105 : suivi pour calcul PV
 
     for (let annee = 1; annee <= horizon; annee++) {
@@ -381,6 +382,13 @@ export function genererProjections(
 
         const cashflowBrut = loyerAnnuel - chargesAnnuelles - remboursementCreditAnnuel;
 
+        // Expirer les buckets de déficit de plus de DUREE_REPORT ans (FIFO)
+        const dureeReport = CONSTANTS.DEFICIT_FONCIER.DUREE_REPORT;
+        deficitBuckets = deficitBuckets.filter(b => annee - b.annee <= dureeReport);
+
+        // Total reportable = somme des buckets actifs
+        const deficitReportableTotal = deficitBuckets.reduce((sum, b) => sum + b.montant, 0);
+
         // Calcul fiscal annuel (Audit 2026-02-07 + Phase 2)
         const impotResult = calculerImpotAnnuel({
             regime: regimeProjection,
@@ -396,11 +404,31 @@ export function genererProjections(
             distribuerDividendes: input.structure.distribution_dividendes || false,
             annee,
             modeAmortissement,
-            deficitReportableEntrant: deficitFoncierReportable,
+            deficitReportableEntrant: deficitReportableTotal,
         });
 
         const impot = impotResult.impot;
-        deficitFoncierReportable = impotResult.deficitReportableSortant;
+
+        // Mise à jour des buckets de déficit (FIFO : consommer les plus anciens d'abord)
+        if (regimeProjection === 'reel') {
+            const consumed = Math.min(deficitReportableTotal, loyerAnnuel);
+            let toConsume = consumed;
+            for (const bucket of deficitBuckets) {
+                if (toConsume <= 0) break;
+                const take = Math.min(bucket.montant, toConsume);
+                bucket.montant -= take;
+                toConsume -= take;
+            }
+            deficitBuckets = deficitBuckets.filter(b => b.montant > 0);
+
+            // Nouveau déficit généré cette année
+            const remainingOld = deficitBuckets.reduce((sum, b) => sum + b.montant, 0);
+            const newDeficit = impotResult.deficitReportableSortant - remainingOld;
+            if (newDeficit > 0) {
+                deficitBuckets.push({ annee, montant: newDeficit });
+            }
+        }
+
         amortissementCumule += impotResult.amortissementAnnuel;
 
         const cashflowNet = cashflowBrut - impot;

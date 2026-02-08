@@ -127,9 +127,10 @@ export function calculerFoncierReel(
   const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.PRELEVEMENTS_SOCIAUX_FONCIER;
   let impotTotal = impotRevenu + prelevementsSociaux;
 
-  // L'économie du déficit foncier réduit l'impôt (imputation sur revenu global)
+  // L'économie du déficit foncier réduit uniquement l'IR (imputation sur revenu global, pas les PS)
   if (deficitFoncier) {
-    impotTotal = Math.max(0, impotTotal - deficitFoncier.economie_impot);
+    const irReduit = Math.max(0, impotRevenu - deficitFoncier.economie_impot);
+    impotTotal = irReduit + prelevementsSociaux;
   }
 
   const revenuNetApresImpot = revenusBruts - chargesDeductibles - interetsAssurance - impotTotal;
