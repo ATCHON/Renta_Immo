@@ -8,13 +8,18 @@ import { styles } from '../styles';
 interface FooterProps {
     pageNumber: number;
     totalPages?: number;
+    adresse?: string;
 }
 
-export function Footer({ pageNumber, totalPages }: FooterProps) {
+export function Footer({ pageNumber, totalPages, adresse }: FooterProps) {
+    const leftText = adresse
+        ? `Rapport de simulation — ${adresse}`
+        : 'Rapport de simulation - Renta Immo';
+
     return (
         <View style={styles.footer}>
             <Text style={styles.footerText}>
-                Rapport de simulation - Renta Immo
+                {leftText}
             </Text>
             <Text style={styles.footerText}>
                 {totalPages ? `Page ${pageNumber} / ${totalPages}` : `Page ${pageNumber}`}

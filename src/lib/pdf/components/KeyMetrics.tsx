@@ -13,6 +13,7 @@ interface KeyMetricsProps {
     cashflow: number;
     tauxHCSF: number;
     mensualite?: number;
+    effortEpargne?: number;
 }
 
 const localStyles = StyleSheet.create({
@@ -61,7 +62,7 @@ const localStyles = StyleSheet.create({
     },
 });
 
-export function KeyMetrics({ rentaBrute, rentaNette, cashflow, tauxHCSF, mensualite }: KeyMetricsProps) {
+export function KeyMetrics({ rentaBrute, rentaNette, cashflow, tauxHCSF, mensualite, effortEpargne }: KeyMetricsProps) {
     const isHcsfConform = tauxHCSF <= 35;
     const isCashflowPositive = cashflow >= 0;
 
@@ -92,7 +93,14 @@ export function KeyMetrics({ rentaBrute, rentaNette, cashflow, tauxHCSF, mensual
                 ]}>
                     {formatCurrencyWithSign(cashflow)}
                 </Text>
-                <Text style={localStyles.subtext}>Net avant impôts</Text>
+                <Text style={[localStyles.subtext, { color: isCashflowPositive ? colors.success : colors.textMuted }]}>
+                    {isCashflowPositive
+                        ? 'Autofinancé'
+                        : effortEpargne !== undefined
+                            ? `Effort d'épargne : ${formatCurrency(effortEpargne)}/mois`
+                            : 'Net avant impôts'
+                    }
+                </Text>
             </View>
 
             {/* Taux HCSF */}

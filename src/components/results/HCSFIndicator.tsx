@@ -52,9 +52,10 @@ export function HCSFIndicator({ hcsf }: HCSFIndicatorProps) {
           </div>
         </div>
 
-        {/* Détails par associé (Masqués si conforme ou compactés) */}
-        {!isConforme && hcsf.details_associes && hcsf.details_associes.length > 0 && (
+        {/* Détails par associé */}
+        {hcsf.details_associes && hcsf.details_associes.length > 0 && (
           <div className="mt-4 pt-4 border-t border-sand/30">
+            <p className="nordic-label-xs mb-2">Détail par associé</p>
             <div className="space-y-2">
               {hcsf.details_associes.map((associe, index) => (
                 <div key={index} className="flex justify-between items-center text-[11px]">

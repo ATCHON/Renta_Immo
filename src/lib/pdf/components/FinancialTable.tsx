@@ -98,7 +98,7 @@ export function FinancialTable({ rentabilite, cashflow, fiscalite, projections, 
                             <View key={index} style={[
                                 styles.tableRow,
                                 index === comparaison.items.length - 1 ? styles.tableRowLast : {},
-                                item.isOptimal ? { backgroundColor: '#ECFDF5' } : {}
+                                item.isOptimal ? { backgroundColor: colors.surface, borderLeftWidth: 3, borderLeftColor: colors.accent } : {}
                             ]}>
                                 <Text style={[styles.tableCell, { flex: 2, fontWeight: item.isOptimal ? 'bold' : 'normal' }]}>
                                     {item.regime} {item.isOptimal && "(Recommandé)"}

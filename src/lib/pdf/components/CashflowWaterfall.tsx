@@ -33,7 +33,7 @@ export function CashflowWaterfall({
             styles.rowBetween,
             { paddingVertical: 4 },
             isResult ? { borderTopWidth: 1, borderTopColor: colors.border, marginTop: 4, paddingTop: 6 } : {},
-            isLast ? { backgroundColor: value >= 0 ? '#ECFDF5' : '#FEF2F2', padding: 8, borderRadius: 4, marginTop: 8 } : {}
+            isLast ? { backgroundColor: colors.surface, borderWidth: 1, borderColor: value >= 0 ? colors.success : colors.error, padding: 8, borderRadius: 4, marginTop: 8 } : {}
         ]}>
             <Text style={[
                 isResult ? styles.textBold : styles.label,

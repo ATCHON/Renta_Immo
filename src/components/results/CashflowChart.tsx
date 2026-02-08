@@ -45,7 +45,7 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
             )}
             {cumul && (
                 <div className="flex items-center gap-2 mt-1">
-                    <span className="h-2 w-2 rounded-full bg-stone/50" />
+                    <span className="h-2 w-2 rounded-full bg-sage/40" />
                     <span className="text-stone">Cumulé :</span>
                     <span className="font-bold tabular-nums">{formatCurrency(cumul.value)}</span>
                 </div>
@@ -129,8 +129,9 @@ export const CashflowChart = React.memo(function CashflowChart({ data, breakEven
                             type="monotone"
                             dataKey="cashflowCumule"
                             name="Cumulé"
-                            stroke="#6B6B6B"
-                            strokeWidth={2}
+                            stroke="#4A7C59"
+                            strokeOpacity={0.45}
+                            strokeWidth={1.5}
                             strokeDasharray="5 3"
                             dot={false}
                         />

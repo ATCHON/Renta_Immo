@@ -14,6 +14,7 @@ import { FinancialTable } from '../components/FinancialTable';
 import { HcsfAnalysis } from '../components/HcsfAnalysis';
 import { ProjectCost } from '../components/ProjectCost';
 import { CashflowWaterfall } from '../components/CashflowWaterfall';
+import { PointsAttention } from '../components/PointsAttention';
 import type { CalculateurFormData, CalculResultats } from '@/types/calculateur';
 
 interface RapportSimulationProps {
@@ -32,15 +33,9 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
         <Document>
             {/* Page 1: Synthèse Exécutive */}
             <Page size="A4" style={styles.page}>
-                <Header title="Synthèse Exécutive" date={generatedAt} />
+                <Header sectionTitle="Synthèse Exécutive" adresse={bien.adresse} date={generatedAt} />
 
-                {bien.adresse && (
-                    <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 15 }}>
-                        {bien.adresse}
-                    </Text>
-                )}
-
-                <ScoreGauge score={synthese.score_global} />
+                <ScoreGauge score={synthese.score_global} scoreDetail={synthese.score_detail} />
 
                 <Text style={styles.h2}>Indicateurs Clés</Text>
                 <KeyMetrics
@@ -49,18 +44,20 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
                     cashflow={cashflow.mensuel}
                     tauxHCSF={hcsf.taux_endettement}
                     mensualite={resultats.financement.mensualite}
+                    effortEpargne={rentabilite.effort_epargne_mensuel}
                 />
 
-                {/* Recommandations déplacées en fin de rapport */}
+                <PointsAttention
+                    points={synthese.points_attention}
+                    pointsDetail={synthese.points_attention_detail}
+                />
 
-                {/* Points d'attention déplacés aussi pour rester groupés avec l'avis */}
-
-                <Footer pageNumber={1} totalPages={4} />
+                <Footer pageNumber={1} totalPages={4} adresse={bien.adresse} />
             </Page>
 
             {/* Page 2: Le Projet & Financement */}
             <Page size="A4" style={styles.page}>
-                <Header title="Projet & Financement" date={generatedAt} />
+                <Header sectionTitle="Projet & Financement" date={generatedAt} />
 
                 <ProjectCost
                     prixAchat={bien.prix_achat}
@@ -103,12 +100,12 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
                     )}
                 </View>
 
-                <Footer pageNumber={2} totalPages={4} />
+                <Footer pageNumber={2} totalPages={4} adresse={bien.adresse} />
             </Page>
 
             {/* Page 3: Analyse d'Exploitation & Cashflow */}
             <Page size="A4" style={styles.page}>
-                <Header title="Performance Financière" date={generatedAt} />
+                <Header sectionTitle="Performance Financière" date={generatedAt} />
 
                 <Text style={styles.h2}>Analyse du Cashflow</Text>
                 <CashflowWaterfall
@@ -133,12 +130,12 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
                     projections={undefined}
                 />
 
-                <Footer pageNumber={3} totalPages={4} />
+                <Footer pageNumber={3} totalPages={4} adresse={bien.adresse} />
             </Page>
 
             {/* Page 4: Projections & Risques */}
             <Page size="A4" style={styles.page}>
-                <Header title="Projections Patrimoniales" date={generatedAt} />
+                <Header sectionTitle="Projections Patrimoniales" date={generatedAt} />
 
                 {projections && projections.totaux && (
                     <FinancialTable
@@ -164,19 +161,6 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
                             {synthese.recommandation}
                         </Text>
                     </View>
-
-                    {synthese.points_attention && synthese.points_attention.length > 0 && (
-                        <View style={[styles.card, { backgroundColor: '#FFF7ED', borderLeftWidth: 4, borderLeftColor: colors.warning }]}>
-                            <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.warning, marginBottom: 5 }}>
-                                Points de vigilance
-                            </Text>
-                            {synthese.points_attention.map((point, index) => (
-                                <Text key={index} style={{ fontSize: 10, color: colors.textMain, marginBottom: 3 }}>
-                                    • {point}
-                                </Text>
-                            ))}
-                        </View>
-                    )}
                 </View>
 
                 <View style={{ marginTop: 20, padding: 15, backgroundColor: colors.surface, borderRadius: 4 }}>
@@ -188,7 +172,7 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
                     </Text>
                 </View>
 
-                <Footer pageNumber={4} totalPages={4} />
+                <Footer pageNumber={4} totalPages={4} adresse={bien.adresse} />
             </Page>
         </Document>
     );

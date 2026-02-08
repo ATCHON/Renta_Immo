@@ -4,39 +4,39 @@
  */
 import { StyleSheet } from '@react-pdf/renderer';
 
-// Palette de couleurs "Nordic Minimal"
+// Palette de couleurs "Earthy" — alignée sur le design system Tailwind
 export const colors = {
     // Backgrounds
     background: '#FFFFFF',
-    surface: '#F8F9FA',
-    surfaceHighlight: '#F0F4F8',
+    surface: '#F5F3EF',
+    surfaceHighlight: '#F0EDE7',
 
     // Text & Borders
-    textMain: '#1F2937',     // Gris très foncé (presque noir) pour le texte principal
-    textLight: '#6B7280',    // Gris moyen pour les labels
-    textMuted: '#9CA3AF',    // Gris clair pour les détails secondaires
-    border: '#E5E7EB',       // Gris très clair pour les bordures
+    textMain: '#1F1F1F',     // Charcoal — texte principal
+    textLight: '#6B6B6B',    // Stone — labels
+    textMuted: '#9CA3A0',    // Pebble — détails secondaires
+    border: '#E8E4DD',       // Sand — bordures
 
-    // Accents (Professionnels & Modernes)
-    primary: '#0F172A',      // Bleu nuit très profond (Slate 900) - Titres, Headers
-    accent: '#3B82F6',       // Bleu vibrant mais pro (Blue 500) - Liens, Mises en avant
-    success: '#10B981',      // Vert émeraude (Emerald 500) - Indicateurs positifs
-    warning: '#F59E0B',      // Ambre (Amber 500) - Points d'attention
-    error: '#EF4444',        // Rouge (Red 500) - Indicateurs négatifs
+    // Accents
+    primary: '#1F1F1F',      // Charcoal — titres, headers
+    accent: '#2D5A45',       // Forest — liens, mises en avant
+    success: '#4A7C59',      // Sage — indicateurs positifs
+    warning: '#C4841D',      // Amber — points d'attention
+    error: '#B54A32',        // Terracotta — indicateurs négatifs
 
     // Charts & Graphs
-    chart1: '#3B82F6',
-    chart2: '#10B981',
-    chart3: '#6366F1',
-    chart4: '#F59E0B',
+    chart1: '#2D5A45',       // Forest
+    chart2: '#4A7C59',       // Sage
+    chart3: '#C4841D',       // Amber
+    chart4: '#B54A32',       // Terracotta
     white: '#FFFFFF',
 
     // Specific UI Colors
-    forest: '#1B4332',      // Deep green
-    sage: '#10B981',        // Fresh green (using success color)
-    amber: '#F59E0B',       // Amber
-    terracotta: '#E76F51',  // Muted red
-    charcoal: '#374151',    // Dark grey
+    forest: '#2D5A45',
+    sage: '#4A7C59',
+    amber: '#C4841D',
+    terracotta: '#B54A32',
+    charcoal: '#1F1F1F',
 } as const;
 
 // Styles globaux
@@ -68,11 +68,11 @@ export const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         marginBottom: 30,
         paddingBottom: 15,
-        borderBottomWidth: 2, // Ligne plus marquée
-        borderBottomColor: colors.primary,
+        borderBottomWidth: 2,
+        borderBottomColor: colors.accent,
     },
     headerLogo: {
         fontSize: 20,

@@ -71,7 +71,9 @@
       "mcp__chrome-devtools__resize_page",
       "mcp__chrome-devtools__emulate",
       "Bash(gh.exe pr list --head fix/audit-methode-calcul-dev --json number,title,url)",
-      "Bash(cmd.exe /c \"where gh\")"
+      "Bash(cmd.exe /c \"where gh\")",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -53,6 +53,28 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
     );
 }
 
+function formatCompact(value: number): string {
+    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M€`;
+    if (value >= 1_000) return `${Math.round(value / 1_000)}k€`;
+    return `${value}€`;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function ValeurBienLastDot(props: any) {
+    const { cx, cy, index, payload } = props;
+    if (!cx || !cy) return null;
+    // Only render on last data point
+    if (index !== props.totalPoints - 1) return null;
+    return (
+        <g>
+            <circle cx={cx} cy={cy} r={3.5} fill="#2D5A45" stroke="#fff" strokeWidth={1.5} />
+            <text x={cx} y={cy - 10} textAnchor="end" fill="#2D5A45" fontSize={10} fontWeight="bold">
+                {formatCompact(payload.valeurBien)}
+            </text>
+        </g>
+    );
+}
+
 export const PatrimoineChart = React.memo(function PatrimoineChart({ data, loanEndYear }: PatrimoineChartProps) {
     const loanEndLabel = loanEndYear ? `Année ${loanEndYear}` : null;
 
@@ -65,8 +87,8 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({ data, loanE
                 >
                     <defs>
                         <linearGradient id="colorValeur" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#2D5A45" stopOpacity={0.1} />
-                            <stop offset="95%" stopColor="#2D5A45" stopOpacity={0} />
+                            <stop offset="5%" stopColor="#2D5A45" stopOpacity={0.18} />
+                            <stop offset="95%" stopColor="#2D5A45" stopOpacity={0.03} />
                         </linearGradient>
                         <linearGradient id="colorCapital" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#6B6B6B" stopOpacity={0.1} />
@@ -110,6 +132,8 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({ data, loanE
                         fillOpacity={1}
                         fill="url(#colorValeur)"
                         strokeWidth={2}
+                        dot={<ValeurBienLastDot totalPoints={data.length} />}
+                        activeDot={{ r: 4, fill: '#2D5A45', stroke: '#fff' }}
                     />
                     <Area
                         type="monotone"
