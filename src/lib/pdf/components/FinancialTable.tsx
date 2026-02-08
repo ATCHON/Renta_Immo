@@ -9,9 +9,9 @@ import { formatCurrency, formatPercent } from '../utils/formatters';
 import type { RentabiliteResultat, CashflowResultat, FiscaliteResultat, ProjectionData, FiscaliteComparaison } from '@/types/calculateur';
 
 interface FinancialTableProps {
-    rentabilite: RentabiliteResultat;
-    cashflow: CashflowResultat;
-    fiscalite: FiscaliteResultat;
+    rentabilite?: RentabiliteResultat;
+    cashflow?: CashflowResultat;
+    fiscalite?: FiscaliteResultat;
     projections?: ProjectionData;
     comparaison?: FiscaliteComparaison;
 }
@@ -20,68 +20,72 @@ export function FinancialTable({ rentabilite, cashflow, fiscalite, projections, 
     return (
         <View style={styles.section}>
             {/* Récapitulatif Rentabilité */}
-            <View style={styles.card} wrap={false}>
-                <View style={styles.cardHeader}>
-                    <Text style={styles.cardTitle}>Indicateurs de Performance</Text>
-                </View>
-
-                <View style={[styles.col2, { marginBottom: 10 }]}>
-                    <View style={styles.flex1}>
-                        <Text style={[styles.h3, { fontSize: 10, color: colors.textMuted }]}>Rentabilité</Text>
-                        <View style={styles.rowBetween}>
-                            <Text style={styles.label}>Brute</Text>
-                            <Text style={styles.value}>{formatPercent(rentabilite.brute)}</Text>
-                        </View>
-                        <View style={styles.rowBetween}>
-                            <Text style={styles.label}>Nette (charges)</Text>
-                            <Text style={styles.value}>{formatPercent(rentabilite.nette)}</Text>
-                        </View>
-                        <View style={styles.rowBetween}>
-                            <Text style={styles.label}>Nette-Nette (impôts)</Text>
-                            <Text style={[styles.value, { color: colors.primary }]}>{formatPercent(rentabilite.nette_nette)}</Text>
-                        </View>
+            {rentabilite && cashflow && (
+                <View style={styles.card} wrap={false}>
+                    <View style={styles.cardHeader}>
+                        <Text style={styles.cardTitle}>Indicateurs de Performance</Text>
                     </View>
 
-                    <View style={styles.flex1}>
-                        <Text style={[styles.h3, { fontSize: 10, color: colors.textMuted }]}>Cashflow</Text>
-                        <View style={styles.rowBetween}>
-                            <Text style={styles.label}>Mensuel Net</Text>
-                            <Text style={[styles.value, cashflow.mensuel >= 0 ? styles.textSuccess : styles.textError]}>
-                                {formatCurrency(cashflow.mensuel)}
-                            </Text>
+                    <View style={[styles.col2, { marginBottom: 10 }]}>
+                        <View style={styles.flex1}>
+                            <Text style={[styles.h3, { fontSize: 10, color: colors.textMuted }]}>Rentabilité</Text>
+                            <View style={styles.rowBetween}>
+                                <Text style={styles.label}>Brute</Text>
+                                <Text style={styles.value}>{formatPercent(rentabilite.brute)}</Text>
+                            </View>
+                            <View style={styles.rowBetween}>
+                                <Text style={styles.label}>Nette (charges)</Text>
+                                <Text style={styles.value}>{formatPercent(rentabilite.nette)}</Text>
+                            </View>
+                            <View style={styles.rowBetween}>
+                                <Text style={styles.label}>Nette-Nette (impôts)</Text>
+                                <Text style={[styles.value, { color: colors.primary }]}>{formatPercent(rentabilite.nette_nette)}</Text>
+                            </View>
                         </View>
-                        <View style={styles.rowBetween}>
-                            <Text style={styles.label}>Annuel Net</Text>
-                            <Text style={[styles.value, cashflow.annuel >= 0 ? styles.textSuccess : styles.textError]}>
-                                {formatCurrency(cashflow.annuel)}
-                            </Text>
+
+                        <View style={styles.flex1}>
+                            <Text style={[styles.h3, { fontSize: 10, color: colors.textMuted }]}>Cashflow</Text>
+                            <View style={styles.rowBetween}>
+                                <Text style={styles.label}>Mensuel Net</Text>
+                                <Text style={[styles.value, cashflow.mensuel >= 0 ? styles.textSuccess : styles.textError]}>
+                                    {formatCurrency(cashflow.mensuel)}
+                                </Text>
+                            </View>
+                            <View style={styles.rowBetween}>
+                                <Text style={styles.label}>Annuel Net</Text>
+                                <Text style={[styles.value, cashflow.annuel >= 0 ? styles.textSuccess : styles.textError]}>
+                                    {formatCurrency(cashflow.annuel)}
+                                </Text>
+                            </View>
                         </View>
                     </View>
                 </View>
-            </View>
+            )}
 
             {/* Fiscalité */}
-            <View wrap={false}>
-                <Text style={styles.h2}>Fiscalité ({fiscalite.regime})</Text>
-                <View style={styles.card}>
-                    <View style={styles.rowBetween}>
-                        <Text style={styles.label}>Impôt annuel estimé (lissé)</Text>
-                        <Text style={[styles.value, styles.textError]}>{formatCurrency(fiscalite.impot_estime)}</Text>
-                    </View>
-                    {fiscalite.dividendes_bruts !== undefined && (
+            {fiscalite && (
+                <View wrap={false}>
+                    <Text style={styles.h2}>Fiscalité ({fiscalite.regime})</Text>
+                    <View style={styles.card}>
                         <View style={styles.rowBetween}>
-                            <Text style={styles.label}>Flat Tax (30%)</Text>
-                            <Text style={[styles.value, styles.textError]}>{formatCurrency(fiscalite.flat_tax || 0)}</Text>
+                            <Text style={styles.label}>Impôt annuel estimé (lissé)</Text>
+                            <Text style={[styles.value, styles.textError]}>{formatCurrency(fiscalite.impot_estime)}</Text>
                         </View>
-                    )}
-                    <View style={[styles.rowBetween, { marginTop: 4, paddingTop: 4, borderTopWidth: 1, borderTopColor: colors.border }]}>
-                        <Text style={[styles.label, styles.textBold]}>Revenu Net après impôt</Text>
-                        <Text style={[styles.valueLarge, styles.textSuccess]}>
-                            {formatCurrency(fiscalite.revenu_net_apres_impot)}
-                        </Text>
+                        {fiscalite.dividendes_bruts !== undefined && (
+                            <View style={styles.rowBetween}>
+                                <Text style={styles.label}>Flat Tax (30%)</Text>
+                                <Text style={[styles.value, styles.textError]}>{formatCurrency(fiscalite.flat_tax || 0)}</Text>
+                            </View>
+                        )}
+                        <View style={[styles.rowBetween, { marginTop: 4, paddingTop: 4, borderTopWidth: 1, borderTopColor: colors.border }]}>
+                            <Text style={[styles.label, styles.textBold]}>Revenu Net après impôt</Text>
+                            <Text style={[styles.valueLarge, styles.textSuccess]}>
+                                {formatCurrency(fiscalite.revenu_net_apres_impot)}
+                            </Text>
+                        </View>
                     </View>
                 </View>
-            </View>
+            )}
 
             {/* Comparaison Fiscale */}
             {comparaison && comparaison.items.length > 0 && (

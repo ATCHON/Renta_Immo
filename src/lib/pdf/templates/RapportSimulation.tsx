@@ -122,32 +122,41 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
                 />
 
                 <Text style={styles.h2}>Détail de la Rentabilité & Fiscalité</Text>
-                <FinancialTable
-                    rentabilite={rentabilite}
-                    cashflow={cashflow}
-                    fiscalite={fiscalite}
-                    comparaison={comparaisonFiscalite}
-                    projections={undefined}
-                />
-
-                <Footer pageNumber={3} totalPages={4} adresse={bien.adresse} />
-            </Page>
-
-            {/* Page 4: Projections & Risques */}
-            <Page size="A4" style={styles.page}>
-                <Header sectionTitle="Projections Patrimoniales" date={generatedAt} />
-
                 {projections && projections.totaux && (
                     <FinancialTable
                         rentabilite={rentabilite}
                         cashflow={cashflow}
                         fiscalite={fiscalite}
-                        projections={projections}
-                        comparaison={undefined}
                     />
                 )}
 
-                <Text style={[styles.h2, { color: colors.warning }]}>Analyse HCSF & Risques</Text>
+                <Footer pageNumber={3} totalPages={4} adresse={bien.adresse} />
+            </Page>
+
+            {/* Page 4: Analyse d'Exploitation & Cashflow */}
+            <Page size="A4" style={styles.page}>
+                <Header sectionTitle="Performance Financière" date={generatedAt} />
+
+                <Text style={styles.h2}>Détail de la Rentabilité & Fiscalité</Text>
+                {projections && projections.totaux && (
+                    <FinancialTable
+                        rentabilite={undefined}
+                        cashflow={undefined}
+                        fiscalite={undefined}
+                        projections={projections}
+                        comparaison={comparaisonFiscalite}
+                    />
+                )}
+
+                <Footer pageNumber={4} totalPages={5} adresse={bien.adresse} />
+            </Page>
+
+            {/* Page 5: Capacité d'emprunt & Recommandations */}
+            <Page size="A4" style={styles.page}>
+                <Header sectionTitle="Capacité d'emprunt & Recommandations" date={generatedAt} />
+
+
+                <Text style={[styles.h2, { color: colors.warning }]}>Analyse HCSF</Text>
                 <HcsfAnalysis hcsf={hcsf} />
 
                 {/* Recommandation & Avis Final */}
@@ -172,7 +181,7 @@ export function RapportSimulation({ formData, resultats, generatedAt = new Date(
                     </Text>
                 </View>
 
-                <Footer pageNumber={4} totalPages={4} adresse={bien.adresse} />
+                <Footer pageNumber={5} totalPages={5} adresse={bien.adresse} />
             </Page>
         </Document>
     );
