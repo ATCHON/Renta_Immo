@@ -4,9 +4,20 @@ import {
     ProjectionAnnuelle,
     ProjectionData,
     TableauAmortissement,
-    LigneAmortissement
+    LigneAmortissement,
+    RegimeFiscal
 } from './types';
 import { calculerFinancement } from './rentabilite';
+import {
+    calculerMicroFoncier,
+    calculerFoncierReel,
+    calculerLmnpMicro,
+    calculerLmnpReel,
+    calculerFiscaliteSciIs,
+    calculerPlusValueIR,
+    calculerPlusValueSciIs,
+} from './fiscalite';
+import type { ModeAmortissement, PlusValueDetail } from './types';
 
 /**
  * Calcule le Taux de Rendement Interne (TRI)
@@ -150,6 +161,118 @@ export function genererTableauAmortissement(
 }
 
 /**
+ * Résultat étendu du calcul d'impôt annuel
+ * Inclut le suivi du déficit foncier reportable et de l'amortissement
+ */
+interface ImpotAnnuelResult {
+    impot: number;
+    deficitReportableSortant: number;
+    amortissementAnnuel: number;
+}
+
+/**
+ * Calcule l'impôt annuel pour une année de projection donnée
+ * Gère le déficit foncier reportable (AUDIT-103) et l'amortissement composants (AUDIT-104)
+ *
+ * @param params Paramètres de calcul fiscal pour l'année
+ * @returns Résultat étendu avec impôt, déficit reportable et amortissement
+ */
+function calculerImpotAnnuel(params: {
+    regime: RegimeFiscal | 'sci_is' | 'sci_is_dividendes';
+    loyerAnnuel: number;
+    chargesDeductibles: number;
+    tmi: number;
+    coutFinancierAnnuel: number;
+    prixAchat: number;
+    montantTravaux: number;
+    valeurMobilier: number;
+    partTerrain?: number;
+    typeLocation: string;
+    distribuerDividendes: boolean;
+    annee: number;
+    modeAmortissement: ModeAmortissement;
+    deficitReportableEntrant: number;
+}): ImpotAnnuelResult {
+    const {
+        regime, loyerAnnuel, chargesDeductibles, tmi,
+        coutFinancierAnnuel, prixAchat, annee, partTerrain,
+        typeLocation, distribuerDividendes, modeAmortissement,
+        deficitReportableEntrant
+    } = params;
+
+    const mobilierEffectif = annee <= CONSTANTS.AMORTISSEMENT.DUREE_MOBILIER ? params.valeurMobilier : 0;
+    const travauxEffectif = annee <= CONSTANTS.AMORTISSEMENT.DUREE_TRAVAUX ? params.montantTravaux : 0;
+
+    switch (regime) {
+        case 'micro_foncier':
+            return {
+                impot: calculerMicroFoncier(loyerAnnuel, tmi).impot_total,
+                deficitReportableSortant: 0,
+                amortissementAnnuel: 0,
+            };
+
+        case 'reel': {
+            const result = calculerFoncierReel(
+                loyerAnnuel, chargesDeductibles, tmi, coutFinancierAnnuel,
+                deficitReportableEntrant
+            );
+            // Calculer le nouveau déficit reportable
+            let nouveauReportable = Math.max(0, deficitReportableEntrant - Math.min(deficitReportableEntrant, loyerAnnuel));
+            if (result.deficit_foncier) {
+                nouveauReportable += result.deficit_foncier.reportable;
+            }
+            return {
+                impot: result.impot_total,
+                deficitReportableSortant: nouveauReportable,
+                amortissementAnnuel: 0,
+            };
+        }
+
+        case 'lmnp_micro':
+            return {
+                impot: calculerLmnpMicro(loyerAnnuel, tmi, typeLocation).impot_total,
+                deficitReportableSortant: 0,
+                amortissementAnnuel: 0,
+            };
+
+        case 'lmnp_reel': {
+            const result = calculerLmnpReel(
+                loyerAnnuel, chargesDeductibles, prixAchat, tmi,
+                travauxEffectif, mobilierEffectif, coutFinancierAnnuel, partTerrain,
+                modeAmortissement, annee
+            );
+            return {
+                impot: result.impot_total,
+                deficitReportableSortant: 0,
+                amortissementAnnuel: result.abattement, // amortissement déductible
+            };
+        }
+
+        case 'sci_is':
+        case 'sci_is_dividendes': {
+            const revenuNetAvantImpots = loyerAnnuel - chargesDeductibles;
+            const result = calculerFiscaliteSciIs(
+                revenuNetAvantImpots, prixAchat, coutFinancierAnnuel,
+                distribuerDividendes, partTerrain,
+                modeAmortissement, annee
+            );
+            return {
+                impot: result.impot_total,
+                deficitReportableSortant: 0,
+                amortissementAnnuel: result.abattement, // amortissement
+            };
+        }
+
+        default:
+            return {
+                impot: calculerMicroFoncier(loyerAnnuel, tmi).impot_total,
+                deficitReportableSortant: 0,
+                amortissementAnnuel: 0,
+            };
+    }
+}
+
+/**
  * Génère les projections financières sur un horizon donné
  * @param input Données d'entrée validées
  * @param horizon Horizon de projection en années (défaut: 20)
@@ -170,6 +293,15 @@ export function genererProjections(
     // Générer l'amortissement
     const amortissement = genererTableauAmortissement(montantEmprunt, tauxCredit, dureeCredit, tauxAssurance);
 
+    // Déterminer le régime fiscal pour les projections
+    const regimeProjection: RegimeFiscal | 'sci_is' | 'sci_is_dividendes' =
+        input.structure.type === 'sci_is'
+            ? (input.structure.distribution_dividendes ? 'sci_is_dividendes' : 'sci_is')
+            : (input.structure.regime_fiscal ?? 'micro_foncier');
+    const tmi = input.structure.tmi ?? 30;
+    const partTerrain = input.bien.part_terrain;
+
+    const modeAmortissement: ModeAmortissement = input.structure.mode_amortissement ?? 'simplifie';
     const projections: ProjectionAnnuelle[] = [];
 
     // Valeurs initiales (Année 1)
@@ -192,6 +324,9 @@ export function genererProjections(
 
     let cashflowCumule = 0;
     let capitalRembourseTotal = 0;
+    // AUDIT-103 : suivi du déficit reportable par année (buckets FIFO avec expiration à DUREE_REPORT ans)
+    let deficitBuckets: { annee: number; montant: number }[] = [];
+    let amortissementCumule = 0;       // AUDIT-105 : suivi pour calcul PV
 
     for (let annee = 1; annee <= horizon; annee++) {
         // Appliquer l'inflation
@@ -222,23 +357,80 @@ export function genererProjections(
 
         const chargesAnnuelles = chargesFixesInflatees + chargesProp;
 
+        // Charges déductibles fiscales (nettes des charges récupérables sur le locataire)
+        const chargesRecuperablesInflatees = (input.exploitation.charges_copro_recuperables || 0) * 12 * facteurInflationCharges;
+        const chargesDeductiblesFiscales = chargesAnnuelles - chargesRecuperablesInflatees;
+
         // Crédit
         let capitalRembourseAnnuel = 0;
         let capitalRestant = 0;
         let remboursementCreditAnnuel = 0;
+
+        // Coût financier déductible (intérêts + assurance) tiré du tableau d'amortissement
+        let coutFinancierAnnuel = 0;
 
         if (annee <= dureeCredit) {
             const ligneAnnuelle = amortissement.annuel[annee - 1];
             capitalRembourseAnnuel = ligneAnnuelle?.capital || 0;
             capitalRestant = ligneAnnuelle?.capitalRestant || 0;
             remboursementCreditAnnuel = ligneAnnuelle?.echeance || 0;
+            coutFinancierAnnuel = (ligneAnnuelle?.interets || 0) + (ligneAnnuelle?.assurance || 0);
         } else {
             capitalRestant = 0;
             remboursementCreditAnnuel = 0;
         }
 
         const cashflowBrut = loyerAnnuel - chargesAnnuelles - remboursementCreditAnnuel;
-        const impot = 0;
+
+        // Expirer les buckets de déficit de plus de DUREE_REPORT ans (FIFO)
+        const dureeReport = CONSTANTS.DEFICIT_FONCIER.DUREE_REPORT;
+        deficitBuckets = deficitBuckets.filter(b => annee - b.annee <= dureeReport);
+
+        // Total reportable = somme des buckets actifs
+        const deficitReportableTotal = deficitBuckets.reduce((sum, b) => sum + b.montant, 0);
+
+        // Calcul fiscal annuel (Audit 2026-02-07 + Phase 2)
+        const impotResult = calculerImpotAnnuel({
+            regime: regimeProjection,
+            loyerAnnuel,
+            chargesDeductibles: chargesDeductiblesFiscales,
+            tmi,
+            coutFinancierAnnuel,
+            prixAchat: input.bien.prix_achat,
+            montantTravaux: input.bien.montant_travaux || 0,
+            valeurMobilier: input.bien.valeur_mobilier || 0,
+            partTerrain,
+            typeLocation: input.exploitation.type_location || 'nue',
+            distribuerDividendes: input.structure.distribution_dividendes || false,
+            annee,
+            modeAmortissement,
+            deficitReportableEntrant: deficitReportableTotal,
+        });
+
+        const impot = impotResult.impot;
+
+        // Mise à jour des buckets de déficit (FIFO : consommer les plus anciens d'abord)
+        if (regimeProjection === 'reel') {
+            const consumed = Math.min(deficitReportableTotal, loyerAnnuel);
+            let toConsume = consumed;
+            for (const bucket of deficitBuckets) {
+                if (toConsume <= 0) break;
+                const take = Math.min(bucket.montant, toConsume);
+                bucket.montant -= take;
+                toConsume -= take;
+            }
+            deficitBuckets = deficitBuckets.filter(b => b.montant > 0);
+
+            // Nouveau déficit généré cette année
+            const remainingOld = deficitBuckets.reduce((sum, b) => sum + b.montant, 0);
+            const newDeficit = impotResult.deficitReportableSortant - remainingOld;
+            if (newDeficit > 0) {
+                deficitBuckets.push({ annee, montant: newDeficit });
+            }
+        }
+
+        amortissementCumule += impotResult.amortissementAnnuel;
+
         const cashflowNet = cashflowBrut - impot;
 
         projections.push({
@@ -261,17 +453,41 @@ export function genererProjections(
         capitalRembourseTotal += capitalRembourseAnnuel;
     }
 
-    // Calcul du TRI
+    // AUDIT-105 : Calcul de la plus-value à la revente
+    const derniereProjection = projections[projections.length - 1];
+    let plusValue: PlusValueDetail | undefined;
+
+    const isSciIs = regimeProjection === 'sci_is' || regimeProjection === 'sci_is_dividendes';
+    const isLmnpReel = regimeProjection === 'lmnp_reel';
+
+    if (isSciIs) {
+        plusValue = calculerPlusValueSciIs(
+            derniereProjection.valeurBien,
+            input.bien.prix_achat,
+            amortissementCumule,
+            input.structure.distribution_dividendes || false
+        );
+    } else {
+        // Nom propre (IR) : réintégration amortissements uniquement pour LMNP réel (LF 2025)
+        plusValue = calculerPlusValueIR(
+            derniereProjection.valeurBien,
+            input.bien.prix_achat,
+            horizon,
+            isLmnpReel ? amortissementCumule : 0
+        );
+    }
+
+    // Calcul du TRI (flux nets d'impôts)
     // Flux 0 : -Apport (si 0, on simule 1€ pour permettre le calcul TRI)
     const flux: number[] = [-(input.financement.apport > 0 ? input.financement.apport : 1)];
 
-    // Flux 1 à horizon-1 : Cashflow Net
+    // Flux 1 à horizon-1 : Cashflow Net d'impôts
     for (let i = 0; i < projections.length - 1; i++) {
         flux.push(projections[i].cashflowNetImpot);
     }
-    // Flux horizon : Cashflow Net + Valeur Revente (Patrimoine Net)
-    const derniereProjection = projections[projections.length - 1];
-    flux.push(derniereProjection.cashflowNetImpot + derniereProjection.patrimoineNet);
+    // Flux horizon : Cashflow Net + Patrimoine Net - Impôt PV (AUDIT-105)
+    const impotPV = plusValue?.impot_total ?? 0;
+    flux.push(derniereProjection.cashflowNetImpot + derniereProjection.patrimoineNet - impotPV);
 
     const tri = calculerTRI(flux);
 
@@ -282,8 +498,9 @@ export function genererProjections(
             cashflowCumule: Math.round(cashflowCumule),
             capitalRembourse: Math.round(capitalRembourseTotal),
             impotCumule: Math.round(projections.reduce((sum, p) => sum + p.impot, 0)),
-            enrichissementTotal: Math.round(capitalRembourseTotal + cashflowCumule),
+            enrichissementTotal: Math.round(capitalRembourseTotal + cashflowCumule - impotPV),
             tri: tri > 0 ? Math.round(tri * 100) / 100 : 0
-        }
+        },
+        plusValue,
     };
 }

@@ -2,7 +2,7 @@
 
 > **Priorite** : P1 (Important)
 > **Effort** : 0.5 heure
-> **Statut** : A faire
+> **Statut** : Terminé (2026-02-07)
 > **Source** : Audit methodologies calculs 2026-02-07, Section 4.8 / Proposition P8
 > **Dependance** : Aucune
 
@@ -37,11 +37,11 @@ Retourner `null` quand l'apport est 0, avec un label explicatif cote frontend.
 
 ## 3. Criteres d'acceptation
 
-- [ ] Si `apport = 0`, `effet_levier` retourne `null` au lieu d'un nombre
-- [ ] Le type de `effet_levier` dans les types passe a `number | null`
-- [ ] Le frontend affiche "Levier maximum (pas d'apport)" ou equivalent quand `null`
-- [ ] Si `apport > 0`, le calcul reste inchange
-- [ ] Le PDF gere le cas `null` sans erreur
+- [x] Si `apport = 0`, `effet_levier` retourne `null` au lieu d'un nombre
+- [x] Le type de `effet_levier` dans les types passe a `number | null`
+- [x] Le frontend affiche "Max (sans apport)" quand `null`
+- [x] Si `apport > 0`, le calcul reste inchange
+- [x] Le PDF ne reference pas l'effet de levier (non impacte)
 
 ---
 
@@ -78,7 +78,8 @@ const effet_levier = financement.apport > 0
 
 ## 6. Definition of Done
 
-- [ ] `effet_levier` retourne `null` quand apport = 0
-- [ ] Affichage frontend adapte
-- [ ] PDF gere le cas null
-- [ ] TypeScript compile sans erreur
+- [x] `effet_levier` retourne `null` quand apport = 0
+- [x] Affichage frontend adapte
+- [x] PDF non impacte (n'affiche pas l'effet de levier)
+- [x] TypeScript compile sans erreur
+- [x] 32 tests passent sans regression

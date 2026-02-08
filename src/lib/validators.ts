@@ -32,6 +32,11 @@ export const bienSchema = z.object({
   }).default('ancien'),
   montant_travaux: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
   valeur_mobilier: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
+  part_terrain: z.coerce.number({ message: 'Veuillez saisir un pourcentage valide' }).min(0).max(40).optional(),
+  dpe: z.preprocess(
+    (val) => (val === '' ? undefined : val),
+    z.enum(['A', 'B', 'C', 'D', 'E', 'F', 'G']).optional()
+  ),
 });
 
 // Type d'entrée pour le formulaire (champs optionnels avec default)
@@ -158,6 +163,7 @@ export const structureSchema = z.object({
   revenus_activite: z.coerce.number({ message: 'Veuillez saisir un montant' }).min(0).default(0),
   distribution_dividendes: z.boolean().default(false),
   autres_charges: z.coerce.number({ message: 'Veuillez saisir un montant' }).min(0).default(0),
+  mode_amortissement: z.enum(['simplifie', 'composants']).default('simplifie'),
 });
 
 /**

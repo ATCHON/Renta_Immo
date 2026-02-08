@@ -77,8 +77,8 @@ export function performCalculations(
 
 
 
-    // Étape 5 : Synthèse et scoring
-    const synthese = genererSynthese(rentabilite, hcsf, fiscalite, data.structure);
+    // Étape 5 : Synthèse et scoring (AUDIT-106 : nouveau scoring avec DPE et ratio)
+    const synthese = genererSynthese(rentabilite, hcsf, fiscalite, data.structure, data.bien);
 
     // Étape 6 : Projections pluriannuelles
     const projections = genererProjections(data, data.options.horizon_projection);
@@ -132,6 +132,11 @@ export function performCalculations(
         score_global: synthese.score_global,
         recommandation: synthese.recommandation,
         points_attention: synthese.points_attention,
+        evaluation: synthese.evaluation,
+        couleur: synthese.couleur as 'green' | 'blue' | 'orange' | 'red',
+        score_detail: synthese.score_detail,
+        points_attention_detail: synthese.points_attention_detail,
+        recommandations_detail: synthese.recommandations_detail,
       },
       projections,
       tableauAmortissement,

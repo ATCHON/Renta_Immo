@@ -67,7 +67,11 @@
       "Bash(npx next dev:*)",
       "Bash(if not exist \"D:\\\\Devs\\\\Renta_Immo\\\\test-screenshots\" mkdir \"D:\\\\Devs\\\\Renta_Immo\\\\test-screenshots\")",
       "Bash(dir:*)",
-      "Bash(npx next start:*)"
+      "Bash(npx next start:*)",
+      "mcp__chrome-devtools__resize_page",
+      "mcp__chrome-devtools__emulate",
+      "Bash(gh.exe pr list --head fix/audit-methode-calcul-dev --json number,title,url)",
+      "Bash(cmd.exe /c \"where gh\")"
     ]
   },
   "enableAllProjectMcpServers": true,

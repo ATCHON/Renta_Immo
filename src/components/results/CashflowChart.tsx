@@ -2,8 +2,8 @@
 
 import React from 'react';
 import {
-    BarChart,
     Bar,
+    Line,
     XAxis,
     YAxis,
     CartesianGrid,
@@ -11,23 +11,59 @@ import {
     ResponsiveContainer,
     ReferenceLine,
     Cell,
+    Legend,
+    ComposedChart,
 } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
 
 interface CashflowDataPoint {
     name: string;
     cashflowNetImpot: number;
+    cashflowCumule?: number;
 }
 
 interface CashflowChartProps {
     data: CashflowDataPoint[];
+    breakEvenYear?: number | null;
 }
 
-export const CashflowChart = React.memo(function CashflowChart({ data }: CashflowChartProps) {
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; dataKey: string }>; label?: string }) {
+    if (!active || !payload?.length) return null;
+
+    const cashflow = payload.find(p => p.dataKey === 'cashflowNetImpot');
+    const cumul = payload.find(p => p.dataKey === 'cashflowCumule');
+
     return (
-        <div className="h-[300px] w-full">
+        <div className="bg-white rounded-xl border border-sand shadow-md p-3 text-xs">
+            <p className="font-bold text-charcoal mb-1.5">{label}</p>
+            {cashflow && (
+                <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: (cashflow.value ?? 0) >= 0 ? '#2D5A45' : '#B54A32' }} />
+                    <span className="text-stone">Cash-flow :</span>
+                    <span className="font-bold tabular-nums">{formatCurrency(cashflow.value)}</span>
+                </div>
+            )}
+            {cumul && (
+                <div className="flex items-center gap-2 mt-1">
+                    <span className="h-2 w-2 rounded-full bg-stone/50" />
+                    <span className="text-stone">Cumulé :</span>
+                    <span className="font-bold tabular-nums">{formatCurrency(cumul.value)}</span>
+                </div>
+            )}
+        </div>
+    );
+}
+
+export const CashflowChart = React.memo(function CashflowChart({ data, breakEvenYear }: CashflowChartProps) {
+    const hasCumul = data.some(d => d.cashflowCumule !== undefined);
+
+    // Find the breakeven index for the reference line
+    const breakEvenLabel = breakEvenYear ? `Année ${breakEvenYear}` : null;
+
+    return (
+        <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart
+                <ComposedChart
                     data={data}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 >
@@ -40,30 +76,66 @@ export const CashflowChart = React.memo(function CashflowChart({ data }: Cashflo
                         interval={Math.floor(data.length / 5)}
                     />
                     <YAxis
+                        yAxisId="left"
                         axisLine={false}
                         tickLine={false}
                         tick={{ fill: '#64748B', fontSize: 10 }}
                         tickFormatter={(value) => `${value / 1000}k€`}
                     />
-                    <Tooltip
-                        contentStyle={{
-                            backgroundColor: '#FFFFFF',
-                            borderRadius: '12px',
-                            border: '1px solid #E2E8F0',
-                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                        }}
-                        formatter={(value: number | undefined) => [formatCurrency(Number(value ?? 0)), 'Cash-flow']}
+                    {hasCumul && (
+                        <YAxis
+                            yAxisId="right"
+                            orientation="right"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: '#64748B', fontSize: 10 }}
+                            tickFormatter={(value) => `${value / 1000}k€`}
+                        />
+                    )}
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend
+                        iconType="circle"
+                        formatter={(value: string) => (
+                            <span className="text-xs text-stone">{value}</span>
+                        )}
                     />
-                    <ReferenceLine y={0} stroke="#CBD5E1" />
-                    <Bar dataKey="cashflowNetImpot" radius={[4, 4, 0, 0]}>
+                    <ReferenceLine yAxisId="left" y={0} stroke="#CBD5E1" />
+                    {breakEvenLabel && (
+                        <ReferenceLine
+                            yAxisId="left"
+                            x={breakEvenLabel}
+                            stroke="#2D5A45"
+                            strokeDasharray="4 4"
+                            strokeOpacity={0.6}
+                            label={{ value: 'Équilibre', position: 'top', fill: '#2D5A45', fontSize: 10 }}
+                        />
+                    )}
+                    <Bar
+                        yAxisId="left"
+                        dataKey="cashflowNetImpot"
+                        name="Cash-flow net"
+                        radius={[4, 4, 0, 0]}
+                    >
                         {data.map((entry, index) => (
                             <Cell
                                 key={`cell-${index}`}
-                                fill={entry.cashflowNetImpot >= 0 ? '#10B981' : '#EF4444'}
+                                fill={entry.cashflowNetImpot >= 0 ? '#2D5A45' : '#B54A32'}
                             />
                         ))}
                     </Bar>
-                </BarChart>
+                    {hasCumul && (
+                        <Line
+                            yAxisId="right"
+                            type="monotone"
+                            dataKey="cashflowCumule"
+                            name="Cumulé"
+                            stroke="#6B6B6B"
+                            strokeWidth={2}
+                            strokeDasharray="5 3"
+                            dot={false}
+                        />
+                    )}
+                </ComposedChart>
             </ResponsiveContainer>
         </div>
     );

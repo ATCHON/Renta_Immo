@@ -2,7 +2,7 @@
 
 > **Priorite** : P2 (Enrichissement metier)
 > **Effort** : 1 jour
-> **Statut** : A faire
+> **Statut** : Done (2026-02-07)
 > **Source** : Audit methodologies calculs 2026-02-07, Section 8.1 / Proposition P6
 > **Dependance** : AUDIT-100 (pour utiliser la rentabilite nette-nette)
 
@@ -176,10 +176,11 @@ Cashflow +50/mois, renta nette-nette 4%, HCSF 30%, DPE D, ratio 18 :
 
 ## 6. Definition of Done
 
-- [ ] Nouveau systeme de scoring base 40 + ajustements implemente
-- [ ] 6 criteres de scoring conformes a la specification
-- [ ] Selecteur DPE dans le formulaire
-- [ ] Detail du score visible dans les resultats
-- [ ] Score interne 0-4 preserve (retrocompatibilite)
-- [ ] Tests unitaires pour chaque critere et cas limites
-- [ ] TypeScript compile sans erreur
+- [x] Nouveau systeme de scoring base 40 + ajustements implemente
+- [x] 6 criteres de scoring conformes a la specification
+- [x] Selecteur DPE dans le formulaire
+- [x] Detail du score visible dans les resultats
+- [x] Score interne 0-4 preserve (retrocompatibilite)
+- [x] Tests unitaires pour chaque critere et cas limites (34 tests - `scoring.test.ts`)
+- [x] TypeScript compile sans erreur
+- [x] Bug corrige : interpolation HCSF inversee dans `ajustementHcsf()`

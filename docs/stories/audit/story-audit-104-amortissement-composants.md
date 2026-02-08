@@ -2,7 +2,7 @@
 
 > **Priorite** : P2 (Enrichissement metier)
 > **Effort** : 1 jour
-> **Statut** : A faire
+> **Statut** : Done (2026-02-07)
 > **Source** : Audit methodologies calculs 2026-02-07, Section 4.4 / Proposition P5
 > **Dependance** : AUDIT-101 (part terrain parametree)
 
@@ -129,9 +129,9 @@ An 16 : l'amortissement des installations (15 ans) s'arrete. Total encore reduit
 
 ## 6. Definition of Done
 
-- [ ] Selecteur mode amortissement dans le formulaire
-- [ ] Calcul par composants correct
-- [ ] Arret progressif des composants dans les projections
-- [ ] Non-regression du mode simplifie
-- [ ] Tests unitaires pour les deux modes
-- [ ] TypeScript compile sans erreur
+- [x] Selecteur mode amortissement dans le formulaire
+- [x] Calcul par composants correct
+- [x] Arret progressif des composants dans les projections
+- [x] Non-regression du mode simplifie
+- [x] Tests unitaires pour les deux modes (13 tests - `amortissement-composants.test.ts`)
+- [x] TypeScript compile sans erreur

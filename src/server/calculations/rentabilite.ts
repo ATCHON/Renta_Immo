@@ -218,9 +218,10 @@ export function calculerRentabilite(
   const effort_epargne_mensuel = cashflow_mensuel < 0 ? Math.abs(cashflow_mensuel) : 0;
 
   // Effet de levier = (Rentabilité nette - Taux crédit) * (Emprunt / Fonds propres)
-  const apport = financement.apport || 1;
   const tauxCredit = (financement.taux_interet + (financement.assurance_pret || 0));
-  const effet_levier = (rentabilite_nette - tauxCredit) * (financementCalc.montant_emprunt / apport);
+  const effet_levier = financement.apport > 0
+    ? (rentabilite_nette - tauxCredit) * (financementCalc.montant_emprunt / financement.apport)
+    : null;
 
   return {
     loyer_annuel: round(loyer_annuel),
@@ -232,7 +233,7 @@ export function calculerRentabilite(
     cashflow_annuel: round(cashflow_annuel),
     cashflow_mensuel: round(cashflow_mensuel),
     effort_epargne_mensuel: round(effort_epargne_mensuel),
-    effet_levier: round(effet_levier, 2),
+    effet_levier: effet_levier !== null ? round(effet_levier, 2) : null,
   };
 }
 

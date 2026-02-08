@@ -2,7 +2,7 @@
 
 > **Priorite** : P2 (Enrichissement metier)
 > **Effort** : 1-2 jours
-> **Statut** : A faire
+> **Statut** : Done (2026-02-07)
 > **Source** : Audit methodologies calculs 2026-02-07, Section 5.2 / Proposition P3
 > **Dependance** : AUDIT-100 (pour l'integration dans les projections)
 
@@ -139,8 +139,8 @@ Verifier que le deficit reportable est bien consomme progressivement et expire a
 
 ## 6. Definition of Done
 
-- [ ] Calcul du deficit foncier correct (separation interets/hors interets)
-- [ ] Economie d'impot integree dans la comparaison des regimes
-- [ ] Deficit reportable gere dans les projections (si AUDIT-100 fait)
-- [ ] Tests unitaires couvrant tous les cas
-- [ ] TypeScript compile sans erreur
+- [x] Calcul du deficit foncier correct (separation interets/hors interets)
+- [x] Economie d'impot integree dans la comparaison des regimes
+- [x] Deficit reportable gere dans les projections (si AUDIT-100 fait)
+- [x] Tests unitaires couvrant tous les cas (12 tests - `deficit-foncier.test.ts`)
+- [x] TypeScript compile sans erreur

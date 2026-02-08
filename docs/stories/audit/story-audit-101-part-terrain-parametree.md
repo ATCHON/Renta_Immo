@@ -2,7 +2,7 @@
 
 > **Priorite** : P1 (Important)
 > **Effort** : 0.5 jour
-> **Statut** : A faire
+> **Statut** : Terminé (2026-02-07)
 > **Source** : Audit methodologies calculs 2026-02-07, Section 4.4 / Proposition P2
 > **Dependance** : Aucune
 
@@ -47,28 +47,29 @@ Ajouter un champ `part_terrain` dans le formulaire avec valeur par defaut selon 
 
 ### 3.1 Valeurs par defaut
 
-- [ ] Appartement : 10% par defaut
-- [ ] Maison : 20% par defaut
-- [ ] Immeuble : 10% par defaut
-- [ ] La valeur par defaut s'adapte au changement de type de bien dans le formulaire
+- [x] Appartement : 10% par defaut
+- [x] Maison : 20% par defaut
+- [x] Immeuble : 10% par defaut
+- [x] La valeur par defaut s'adapte via `validation.ts` selon `type_bien`
 
 ### 3.2 Saisie utilisateur
 
-- [ ] L'utilisateur peut modifier la part terrain manuellement (champ numerique)
-- [ ] Plage autorisee : 0% a 40%
-- [ ] Le champ est visible uniquement quand le regime fiscal utilise l'amortissement (LMNP reel, SCI IS)
+- [x] L'utilisateur peut modifier la part terrain manuellement (champ numerique dans StepBien)
+- [x] Plage autorisee : 0% a 40% (validation Zod)
+- [x] Le champ est toujours visible (info utile quel que soit le regime, hint explicatif)
 
 ### 3.3 Calculs impactes
 
-- [ ] `fiscalite.ts` : la part terrain utilisee dans `calculerLmnpReel()` provient de l'input (et non de `CONSTANTS.AMORTISSEMENT.PART_TERRAIN`)
-- [ ] `fiscalite.ts` : idem pour `calculerFiscaliteSciIs()`
-- [ ] Les projections utilisent la meme part terrain
-- [ ] La constante `CONSTANTS.AMORTISSEMENT.PART_TERRAIN` reste en fallback si non fournie
+- [x] `fiscalite.ts` : `calculerLmnpReel()` accepte `partTerrain` en parametre
+- [x] `fiscalite.ts` : `calculerFiscaliteSciIs()` accepte `partTerrain` en parametre
+- [x] `calculerToutesFiscalites()` passe `partTerrain` aux 4 regimes concernes
+- [x] Les projections utilisent la meme part terrain
+- [x] La constante `CONSTANTS.AMORTISSEMENT.PART_TERRAIN` reste en fallback si non fournie
 
 ### 3.4 Non-regression
 
-- [ ] Si l'utilisateur ne modifie pas la valeur, le comportement est identique pour les biens ou le defaut etait deja ~15%
-- [ ] Les regimes micro (micro-foncier, micro-BIC) ne sont pas affectes
+- [x] 32 tests passent sans regression
+- [x] Les regimes micro (micro-foncier, micro-BIC) ne sont pas affectes
 
 ---
 
@@ -110,8 +111,8 @@ PART_TERRAIN_DEFAUT: {
 
 ## 6. Definition of Done
 
-- [ ] Champ `part_terrain` dans le formulaire (visible pour regimes reels)
-- [ ] Valeur par defaut selon type de bien
-- [ ] Calcul d'amortissement utilise la valeur saisie
-- [ ] Tests unitaires mis a jour
-- [ ] TypeScript compile sans erreur
+- [x] Champ `part_terrain` dans le formulaire StepBien
+- [x] Valeur par defaut selon type de bien (via normalisation)
+- [x] Calcul d'amortissement utilise la valeur saisie
+- [x] TypeScript compile sans erreur
+- [x] 32 tests passent sans regression

@@ -34,6 +34,8 @@ export function StepBien({ onNext }: StepBienProps) {
       etat_bien: bien.etat_bien || 'ancien',
       montant_travaux: bien.montant_travaux || 0,
       valeur_mobilier: bien.valeur_mobilier || 0,
+      part_terrain: bien.part_terrain != null ? bien.part_terrain * 100 : undefined,
+      dpe: bien.dpe || undefined,
     },
   });
 
@@ -46,10 +48,17 @@ export function StepBien({ onNext }: StepBienProps) {
     etat_bien: bien.etat_bien || 'ancien',
     montant_travaux: bien.montant_travaux || 0,
     valeur_mobilier: bien.valeur_mobilier || 0,
+    part_terrain: bien.part_terrain != null ? bien.part_terrain * 100 : undefined,
+    dpe: bien.dpe || undefined,
   }, activeScenarioId);
 
   const onSubmit = (data: BienFormData) => {
-    updateBien(data as BienData);
+    // Convertir part_terrain de % vers ratio (ex: 10 → 0.10)
+    const bienData: BienData = {
+      ...data as BienData,
+      part_terrain: data.part_terrain != null ? data.part_terrain / 100 : undefined,
+    };
+    updateBien(bienData);
     onNext();
   };
 
@@ -131,6 +140,34 @@ export function StepBien({ onNext }: StepBienProps) {
           placeholder="0"
           error={errors.valeur_mobilier?.message}
           {...register('valeur_mobilier', { valueAsNumber: true })}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input
+          label="Part terrain (%, pour amortissement)"
+          type="number"
+          placeholder="10"
+          rightAddon="%"
+          hint="Appart: 10%, Maison: 20%, Immeuble: 10%. Laissez vide pour la valeur par défaut."
+          error={errors.part_terrain?.message}
+          {...register('part_terrain', { valueAsNumber: true })}
+        />
+
+        <Select
+          label="Performance énergétique (DPE)"
+          options={[
+            { value: '', label: 'Non renseigné' },
+            { value: 'A', label: 'A - Excellent' },
+            { value: 'B', label: 'B - Très bon' },
+            { value: 'C', label: 'C - Bon' },
+            { value: 'D', label: 'D - Moyen' },
+            { value: 'E', label: 'E - Insuffisant' },
+            { value: 'F', label: 'F - Très insuffisant' },
+            { value: 'G', label: 'G - Extrêmement insuffisant' },
+          ]}
+          error={errors.dpe?.message}
+          {...register('dpe')}
         />
       </div>
 

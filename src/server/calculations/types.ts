@@ -12,6 +12,7 @@ import type {
   OptionsData,
   TableauAmortissement,
   LigneAmortissement,
+  DPE,
 } from '@/types/calculateur';
 
 // Re-export des types du frontend pour usage serveur
@@ -25,6 +26,7 @@ export type {
   OptionsData,
   TableauAmortissement,
   LigneAmortissement,
+  DPE,
 };
 
 /**
@@ -85,7 +87,7 @@ export interface RentabiliteCalculations {
   cashflow_annuel: number;
   cashflow_mensuel: number;
   effort_epargne_mensuel: number;
-  effet_levier: number;
+  effet_levier: number | null;
 }
 
 /**
@@ -103,6 +105,7 @@ export interface FiscaliteCalculations {
   dividendes_bruts?: number;
   flat_tax?: number;
   net_en_poche?: number;
+  deficit_foncier?: DeficitFoncierDetail;
 }
 
 /**
@@ -167,14 +170,57 @@ export interface HCSFCalculations {
 }
 
 /**
- * Détail du scoring
+ * Détail du déficit foncier (AUDIT-103)
+ */
+export interface DeficitFoncierDetail {
+  deficit_total: number;
+  deficit_hors_interets: number;
+  deficit_interets: number;
+  imputable_revenu_global: number;  // min(deficit_hors_interets, 10700)
+  economie_impot: number;           // imputable * TMI
+  reportable: number;               // deficit restant reportable
+  duree_report: number;             // 10 ans
+}
+
+/**
+ * Mode d'amortissement (AUDIT-104)
+ */
+export type ModeAmortissement = 'simplifie' | 'composants';
+
+/**
+ * Détail de la plus-value à la revente (AUDIT-105)
+ */
+export interface PlusValueDetail {
+  prix_vente: number;
+  prix_achat: number;
+  plus_value_brute: number;
+  amortissements_reintegres: number;
+  duree_detention: number;
+  abattement_ir: number;
+  abattement_ps: number;
+  plus_value_nette_ir: number;
+  plus_value_nette_ps: number;
+  impot_ir: number;
+  impot_ps: number;
+  surtaxe: number;
+  impot_total: number;
+  net_revente: number;
+}
+
+/**
+ * Détail du scoring (AUDIT-106 : base 40 + ajustements)
  */
 export interface ScoreDetail {
-  autofinancement: number; // 0-30 points
-  rentabilite: number; // 0-30 points
-  hcsf: number; // 0-25 points
-  bonus_rentabilite: number; // 0-15 points
-  total: number; // 0-100 points
+  base: number; // 40
+  ajustements: {
+    cashflow: number;        // -20 à +20
+    rentabilite: number;     // -15 à +20
+    hcsf: number;            // -25 à +20
+    dpe: number;             // -10 à +5
+    ratio_prix_loyer: number; // -5 à +10
+    reste_a_vivre: number;    // -10 à +5
+  };
+  total: number; // 0 à 100
 }
 
 /**
@@ -232,6 +278,7 @@ export interface ProjectionData {
     enrichissementTotal: number;
     tri: number;
   };
+  plusValue?: PlusValueDetail;
 }
 
 /**
