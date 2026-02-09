@@ -171,5 +171,21 @@ export const CONSTANTS = {
         INFLATION_CHARGES: 0.025, // 2.5%
         REVALORISATION_BIEN: 0.015, // 1.5%
         HORIZONS: [5, 10, 15, 20, 25], // Années
-    }
+    },
+
+    // ========================================================================
+    // RESTE À VIVRE (AUDIT-107)
+    // ========================================================================
+    RESTE_A_VIVRE: {
+        SEUIL_MIN: 700,       // €/mois - seuil minimum bancaire
+        SEUIL_CONFORT: 1500,  // €/mois - seuil confort
+    },
+
+    // ========================================================================
+    // FRAIS DE REVENTE (AUDIT-108)
+    // ========================================================================
+    FRAIS_REVENTE: {
+        TAUX_AGENCE_DEFAUT: 5,   // % du prix de vente
+        DIAGNOSTICS: 500,         // € forfaitaire
+    },
 } as const;

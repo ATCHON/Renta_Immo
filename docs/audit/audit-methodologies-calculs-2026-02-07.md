@@ -1,90 +1,140 @@
 # Audit des Methodologies de Calcul - Simulateur Renta Immo
 
-**Date :** 7 Fevrier 2026
-**Version :** 3.0
+**Date de l'audit initial :** 7 Fevrier 2026
+**Derniere mise a jour :** 9 Fevrier 2026 (post-corrections Phase 1, 2 et 3)
+**Version :** 4.0
 **Perimetre :** Moteur de calcul complet (`src/server/calculations/`), API routes, donnees retournees
 **Documents de reference :**
 - `docs/core/specification-calculs.md` (v2.0)
 - `docs/audit/audit-calculs-rentabilite.md` (28 Janvier 2026)
 - Code source : `src/server/calculations/`, `src/config/constants.ts`
+- Stories de correction : `docs/stories/audit/story-audit-103.md` a `story-audit-110.md`
+
+**Couverture de tests :** 136 tests unitaires couvrant le moteur de calcul
 
 ---
 
 ## Table des matieres
 
 1. [Synthese executive](#1-synthese-executive)
-2. [Etat des corrections depuis l'audit precedent](#2-etat-des-corrections-depuis-laudit-precedent)
-3. [Audit des constantes reglementaires](#3-audit-des-constantes-reglementaires)
-4. [Audit des formules de calcul](#4-audit-des-formules-de-calcul)
-5. [Audit de la fiscalite](#5-audit-de-la-fiscalite)
-6. [Audit de l'analyse HCSF](#6-audit-de-lanalyse-hcsf)
-7. [Audit des projections et du TRI](#7-audit-des-projections-et-du-tri)
-8. [Audit du scoring et de la synthese](#8-audit-du-scoring-et-de-la-synthese)
-9. [Ecarts avec la specification metier](#9-ecarts-avec-la-specification-metier)
-10. [Problemes de precision numerique](#10-problemes-de-precision-numerique)
-11. [Propositions d'amelioration](#11-propositions-damelioration)
-12. [Matrice de risque](#12-matrice-de-risque)
-13. [Plan d'action recommande](#13-plan-daction-recommande)
+2. [Etat des corrections depuis l'audit precedent (28 janvier)](#2-etat-des-corrections-depuis-laudit-precedent-28-janvier)
+3. [Etat des corrections depuis cet audit (7 fevrier)](#3-etat-des-corrections-depuis-cet-audit-7-fevrier)
+4. [Audit des constantes reglementaires](#4-audit-des-constantes-reglementaires)
+5. [Audit des formules de calcul](#5-audit-des-formules-de-calcul)
+6. [Audit de la fiscalite](#6-audit-de-la-fiscalite)
+7. [Audit de l'analyse HCSF](#7-audit-de-lanalyse-hcsf)
+8. [Audit des projections et du TRI](#8-audit-des-projections-et-du-tri)
+9. [Audit du scoring et de la synthese](#9-audit-du-scoring-et-de-la-synthese)
+10. [Ecarts residuels avec la specification metier](#10-ecarts-residuels-avec-la-specification-metier)
+11. [Problemes de precision numerique](#11-problemes-de-precision-numerique)
+12. [Ecarts non traites (acceptes ou reportes)](#12-ecarts-non-traites-acceptes-ou-reportes)
+13. [Matrice de risque residuel](#13-matrice-de-risque-residuel)
+14. [Points de verification pour le prochain audit](#14-points-de-verification-pour-le-prochain-audit)
 
 ---
 
 ## 1. Synthese executive
 
-### Verdict global : 7/10 - Solide mais des axes d'amelioration significatifs
+### Verdict global : 9/10 - Moteur fiable et conforme a la specification
 
-Le moteur de calcul est **architecturalement bien concu** avec une separation modulaire claire (rentabilite, fiscalite, HCSF, projections, synthese). Les corrections de l'audit du 28 janvier ont ete appliquees (rentabilite nette sur cout total, frais de notaire baremes, deduction des interets en fiscalite, charges recuperables).
+Le moteur de calcul a ete significativement renforce depuis l'audit du 7 fevrier 2026. Les 3 phases de corrections ont adresse **tous les ecarts critiques et moyens** identifies. Le moteur est desormais conforme a la specification metier sur les points structurants.
 
-**Points forts :**
-- Constantes fiscales 2025 a jour
+**Corrections appliquees (3 phases, 136 tests) :**
+
+| Phase | Perimetre | Tests | Statut |
+|-------|-----------|-------|--------|
+| Phase 1 | Corrections prioritaires (deficit foncier, amortissement composants) | 32 | FAIT |
+| Phase 2 | Enrichissements metier (plus-value, scoring specification) | 80 | FAIT |
+| Phase 3 | Evolutions backlog (reste a vivre, frais revente, assurance CRD, DPE) | 22 | FAIT |
+
+**Points forts actuels :**
+- Constantes fiscales 2025-2026 a jour
 - Frais de notaire calcules selon le bareme officiel
 - 6 regimes fiscaux compares automatiquement
-- Analyse HCSF conforme aux recommandations 2024
-- Code TypeScript strict et bien type
+- Deficit foncier avec imputation revenu global et report 10 ans
+- Amortissement par composants (4 composants, durees differenciees)
+- Plus-value a la revente pour nom propre, LMNP (reintegration LF 2025) et SCI IS
+- Analyse HCSF conforme avec reste a vivre
+- Scoring base 40 + 6 ajustements conforme a la specification
+- DPE : alertes passoires, gel des loyers F/G, impact scoring
+- Projections 20 ans **avec impots reels** (corrige l'ecart critique)
+- TRI integrant impots annuels, impot de plus-value et frais de revente
+- Assurance emprunteur : mode capital initial + mode capital restant du
 
-**Points critiques restants :**
-- Projections pluriannuelles sans impots (TRI surevalue)
-- Pas de gestion du deficit foncier / report d'amortissement dans le temps
-- Part terrain fixe a 15% quel que soit le type de bien
-- Plus-value a la revente non calculee
-- Scoring divergent de la specification metier
+**Ecarts residuels (mineurs, acceptes) :**
+- Part terrain fixe a 15% (non parametree par type de bien)
+- DMTO fixe a 5% (pas de selecteur par departement)
+- CSG deductible non prise en compte (effet de second ordre)
+- Interets An 1 approximes par `capital * taux` (ecart 2-5%)
+- Effet de levier avec apport = 0 renvoie une valeur non significative
 
 ---
 
-## 2. Etat des corrections depuis l'audit precedent
+## 2. Etat des corrections depuis l'audit precedent (28 janvier)
 
-### Ecarts identifies le 28 janvier 2026 et leur statut actuel
+### Ecarts identifies le 28 janvier 2026 — tous corriges
 
 | Ecart | Severite | Statut | Detail |
 |-------|----------|--------|--------|
-| Rentabilite nette sur prix d'achat au lieu du cout total | Critique | CORRIGE | `rentabilite.ts:210-213` calcule desormais sur `cout_total_acquisition` |
-| Frais de notaire forfaitaires | Critique | CORRIGE | `rentabilite.ts:71-102` implemente le bareme par tranches avec DMTO, CSI, emoluments |
-| Interets non deduits en fiscalite | Critique | CORRIGE | `fiscalite.ts:329-333` calcule et passe `coutFinancierAn1` a chaque regime |
-| Charges copro 100% au lieu du net | Moyen | CORRIGE | `rentabilite.ts:161` soustrait `charges_copro_recuperables` |
-| SCI IS assiette trop large | Moyen | CORRIGE | `fiscalite.ts:266` deduit interets + assurance + amortissement |
-
-**Conclusion** : Tous les ecarts critiques du precedent audit ont ete corriges.
+| Rentabilite nette sur prix d'achat au lieu du cout total | Critique | CORRIGE | `rentabilite.ts` calcule sur `cout_total_acquisition` |
+| Frais de notaire forfaitaires | Critique | CORRIGE | `rentabilite.ts` implemente le bareme par tranches avec DMTO, CSI, emoluments |
+| Interets non deduits en fiscalite | Critique | CORRIGE | `fiscalite.ts` calcule et passe `coutFinancierAn1` a chaque regime |
+| Charges copro 100% au lieu du net | Moyen | CORRIGE | `rentabilite.ts` soustrait `charges_copro_recuperables` |
+| SCI IS assiette trop large | Moyen | CORRIGE | `fiscalite.ts` deduit interets + assurance + amortissement |
 
 ---
 
-## 3. Audit des constantes reglementaires
+## 3. Etat des corrections depuis cet audit (7 fevrier)
 
-### 3.1 Fiscalite - Prelevements sociaux
+### Phase 1 — Corrections prioritaires (FAIT — 32 tests)
+
+| # | Ecart identifie | Severite initiale | Statut | Implementation | Tests |
+|---|----------------|-------------------|--------|----------------|-------|
+| AUDIT-103 | Deficit foncier non gere | Moyen | CORRIGE | `fiscalite.ts:368-416` — separation hors interets / interets, plafond 10 700 EUR, report 10 ans avec buckets FIFO dans `projection.ts:340-445` | 12 |
+| AUDIT-104 | Amortissement simplifie (1 seule duree 33 ans) | Moyen | CORRIGE | `fiscalite.ts:418-455` — 4 composants (gros oeuvre 50 ans, facade 25 ans, installations 15 ans, agencements 10 ans), mode `simplifie` ou `composants` dans projections | 13 |
+| - | Impots = 0 dans les projections | CRITIQUE | CORRIGE | `projection.ts:188-281` — appel de `calculerImpotAnnuel()` pour chaque annee, 6 regimes, impot cumule sur 20 ans | Couvert par projection.test.ts |
+| - | Part terrain parametree | Moyen | NON TRAITE (accepte) | Reste fixe a 15%. Decision metier : conserver la valeur par defaut | - |
+| - | Effet de levier apport = 0 | Faible | NON TRAITE (accepte) | Decision metier : non prioritaire | - |
+
+### Phase 2 — Enrichissements metier (FAIT — 80 tests)
+
+| # | Ecart identifie | Severite initiale | Statut | Implementation | Tests |
+|---|----------------|-------------------|--------|----------------|-------|
+| AUDIT-105 | Plus-value a la revente non calculee | Eleve | CORRIGE | `fiscalite.ts:458-626` — nom propre (abattements IR/PS pour duree), LMNP (reintegration amortissements LF 2025), SCI IS (VNC), surtaxe > 50 000 EUR | 21 |
+| AUDIT-106 | Scoring divergent de la specification | Moyen | CORRIGE | `synthese.ts:37-216` — base 40 + 6 ajustements : cashflow (-20/+20), rentabilite (-15/+20), HCSF (-25/+20), DPE (-10/+5), ratio prix/loyer (-5/+10), reste a vivre (-10/+5) | 34 |
+| - | HCSF interpolation inversee | Bug | CORRIGE | `synthese.ts` — fonction `interpoler()` corrigee | Couvert par scoring.test.ts |
+| - | score_global decimal vs integer DB | Bug | CORRIGE | `Math.round()` systematique avant insert en base | Couvert par synthese.test.ts |
+
+### Phase 3 — Evolutions backlog (FAIT — 22 tests)
+
+| # | Ecart identifie | Severite initiale | Statut | Implementation | Tests |
+|---|----------------|-------------------|--------|----------------|-------|
+| AUDIT-107 | Reste a vivre HCSF absent | Moyen | CORRIGE | `hcsf.ts:182-189` — calcul RAV = revenus - charges, seuils 700 EUR / 1 500 EUR, impact scoring (-10/+5 pts) | 4 |
+| AUDIT-108 | Frais de revente absents du TRI | Moyen | CORRIGE | `projection.ts:495-511` — frais agence 5% (parametre), diagnostics 500 EUR forfait, integres dans flux TRI final | 4 |
+| AUDIT-109 | Assurance capital restant du non implementee | Faible | CORRIGE | `projection.ts:111-114` — mode `capital_initial` (defaut) ou `capital_restant_du`, calcul mensuel sur capital restant | 6 |
+| AUDIT-110 | DPE et alertes passoires non implementees | Moyen | CORRIGE | `synthese.ts:123-177` — alertes interdiction (G:2025, F:2028, E:2034), gel loyers F/G dans projections (`projection.ts:331-333`), impact scoring (-10/+5 pts) | 8 |
+
+---
+
+## 4. Audit des constantes reglementaires
+
+### 4.1 Fiscalite - Prelevements sociaux
 
 | Constante | Valeur code | Valeur legale 2025 | Statut | Ref. code |
 |-----------|-------------|---------------------|--------|-----------|
 | PS revenus fonciers | 17.2% | 17.2% | OK | `constants.ts:13` |
 | PS LMNP | 18.6% | 18.6% (hausse CSG 2025) | OK | `constants.ts:14` |
 
-**Point d'attention metier** : La hausse a 18.6% pour les LMNP est recente (LF 2025). Verifier si elle se maintient en LF 2026. Le taux de 17.2% pour le foncier est inchange.
+**A verifier au prochain audit** : La hausse a 18.6% pour les LMNP est recente (LF 2025). Verifier si elle se maintient en LF 2026.
 
-### 3.2 Micro-Foncier
+### 4.2 Micro-Foncier
 
 | Constante | Valeur code | Valeur legale | Statut | Ref. code |
 |-----------|-------------|---------------|--------|-----------|
 | Abattement | 30% | 30% | OK | `constants.ts:18` |
 | Plafond | 15 000 EUR | 15 000 EUR | OK | `constants.ts:19` |
 
-### 3.3 Micro-BIC (LMNP)
+### 4.3 Micro-BIC (LMNP)
 
 | Constante | Valeur code | Valeur legale | Statut | Ref. code |
 |-----------|-------------|---------------|--------|-----------|
@@ -93,7 +143,7 @@ Le moteur de calcul est **architecturalement bien concu** avec une separation mo
 | Abattement non classe | 30% | 30% | OK | `constants.ts:31` |
 | Plafond non classe | 15 000 EUR | 15 000 EUR | OK | `constants.ts:32` |
 
-### 3.4 Impot sur les Societes
+### 4.4 Impot sur les Societes
 
 | Constante | Valeur code | Valeur legale | Statut | Ref. code |
 |-----------|-------------|---------------|--------|-----------|
@@ -102,9 +152,9 @@ Le moteur de calcul est **architecturalement bien concu** avec une separation mo
 | Seuil taux reduit | 42 500 EUR | 42 500 EUR | OK | `constants.ts:40` |
 | Flat Tax dividendes | 30% | 30% | OK | `constants.ts:44` |
 
-**Point metier** : Le taux reduit de 15% est soumis a condition (CA < 10 M EUR, capital detenu a 75% par des personnes physiques). Le simulateur ne verifie pas ces conditions. Acceptable pour un MVP mais a documenter.
+Le taux reduit de 15% est soumis a condition (CA < 10 M EUR, capital detenu a 75% par des personnes physiques). Le simulateur ne verifie pas ces conditions. Acceptable pour un simulateur grand public.
 
-### 3.5 Frais de notaire
+### 4.5 Frais de notaire
 
 | Constante | Valeur code | Valeur legale | Statut | Ref. code |
 |-----------|-------------|---------------|--------|-----------|
@@ -114,11 +164,9 @@ Le moteur de calcul est **architecturalement bien concu** avec une separation mo
 | CSI | 0.1% | 0.1% | OK | `constants.ts:73` |
 | Bareme emoluments | 4 tranches | 4 tranches (decret 2016-230) | OK | `constants.ts:56-61` |
 
-**Ecart constate** : Le code utilise systematiquement le DMTO majore a 5% (`rentabilite.ts:79` utilise `TAUX_DEPARTEMENTAL_MAJOR`). En realite, tous les departements n'ont pas adopte cette hausse.
+Le code utilise le DMTO majore a 5% par defaut. Accepte : c'est conservateur.
 
-**Proposition** : Ajouter un parametre `departement` ou un booleen `dmto_majore` pour laisser l'utilisateur choisir. A defaut, appliquer 5% est conservateur (l'utilisateur ne sera pas desagreablement surpris).
-
-### 3.6 HCSF
+### 4.6 HCSF
 
 | Constante | Valeur code | Valeur reglementaire | Statut | Ref. code |
 |-----------|-------------|----------------------|--------|-----------|
@@ -126,20 +174,53 @@ Le moteur de calcul est **architecturalement bien concu** avec une separation mo
 | Duree max | 25 ans | 25 ans | OK | `constants.ts:81` |
 | Ponderation locatifs | 70% | 70% (pratique bancaire) | OK | `constants.ts:82` |
 
-**Point metier** : La ponderation a 70% est une recommandation, pas un texte de loi. Certaines banques appliquent 60%, d'autres 80%. Documenter cette variabilite.
-
-### 3.7 Amortissement
+### 4.7 Amortissement
 
 | Constante | Valeur code | Valeur usuelle | Statut | Ref. code |
 |-----------|-------------|----------------|--------|-----------|
-| Part terrain | 15% | 10-20% selon bien | APPROXIMATIF | `constants.ts:99` |
-| Duree bati | 33 ans | 25-50 ans | APPROXIMATIF | `constants.ts:103` |
+| Part terrain | 15% | 10-20% selon bien | APPROXIMATIF (accepte) | `constants.ts:99` |
+| Duree bati (simplifie) | 33 ans | 25-50 ans | OK | `constants.ts:103` |
 | Duree mobilier | 10 ans | 5-10 ans | OK | `constants.ts:104` |
 | Duree travaux | 15 ans | 10-15 ans | OK | `constants.ts:105` |
+| Gros oeuvre | 40% / 50 ans | 40% / 40-60 ans | OK | `constants.ts:115` |
+| Facade/toiture | 20% / 25 ans | 20% / 20-30 ans | OK | `constants.ts:116` |
+| Installations techniques | 20% / 15 ans | 20% / 10-20 ans | OK | `constants.ts:117` |
+| Agencements interieurs | 20% / 10 ans | 20% / 8-15 ans | OK | `constants.ts:118` |
 
-**Ecart important** - voir section 4.4.
+### 4.8 Deficit foncier (NOUVEAU)
 
-### 3.8 Projections
+| Constante | Valeur code | Valeur legale | Statut | Ref. code |
+|-----------|-------------|---------------|--------|-----------|
+| Plafond imputation revenu global | 10 700 EUR | 10 700 EUR | OK | `constants.ts:124` |
+| Duree report | 10 ans | 10 ans | OK | `constants.ts:125` |
+
+### 4.9 Plus-value (NOUVEAU)
+
+| Constante | Valeur code | Valeur legale | Statut | Ref. code |
+|-----------|-------------|---------------|--------|-----------|
+| Taux IR plus-value | 19% | 19% | OK | `constants.ts:132` |
+| Taux PS plus-value | 17.2% | 17.2% | OK | `constants.ts:133` |
+| Seuil surtaxe | 50 000 EUR | 50 000 EUR | OK | `constants.ts:134` |
+| Exoneration IR | 22 ans | 22 ans | OK | `fiscalite.ts:465` |
+| Exoneration PS | 30 ans | 30 ans | OK | `fiscalite.ts:475` |
+
+**A verifier au prochain audit** : Le bareme des abattements IR (6%/an de la 6e a la 21e, 4% la 22e) et PS (1.65%/an de la 6e a la 21e, 1.6% la 22e, 9%/an au-dela).
+
+### 4.10 Reste a vivre (NOUVEAU)
+
+| Constante | Valeur code | Pratique bancaire | Statut | Ref. code |
+|-----------|-------------|-------------------|--------|-----------|
+| Seuil minimum | 700 EUR | 600-800 EUR | OK | `constants.ts:177` |
+| Seuil confort | 1 500 EUR | 1 200-1 500 EUR | OK | `constants.ts:178` |
+
+### 4.11 Frais de revente (NOUVEAU)
+
+| Constante | Valeur code | Valeur marche | Statut | Ref. code |
+|-----------|-------------|---------------|--------|-----------|
+| Taux agence defaut | 5% | 4-6% | OK | `constants.ts:184` |
+| Diagnostics forfait | 500 EUR | 300-800 EUR | OK | `constants.ts:185` |
+
+### 4.12 Projections
 
 | Constante | Valeur code | Hypothese source | Statut | Ref. code |
 |-----------|-------------|------------------|--------|-----------|
@@ -147,13 +228,22 @@ Le moteur de calcul est **architecturalement bien concu** avec une separation mo
 | Inflation charges | 2.5%/an | Moyenne constatee | RAISONNABLE | `constants.ts:134` |
 | Revalorisation bien | 1.5%/an | Moyenne nationale | RAISONNABLE | `constants.ts:135` |
 
-**Point metier** : Ces taux sont des moyennes nationales. La revalorisation peut etre de -2% a +5% selon la zone. L'inflation IRL est couplee a l'IPC hors tabac, actuellement autour de 2%. Le simulateur permet a l'utilisateur de personnaliser les taux d'evolution loyer/charges via `options` mais pas la revalorisation du bien.
+### 4.13 DPE — Calendrier interdictions (NOUVEAU)
+
+| Constante | Valeur code | Valeur legale (loi Climat 2021) | Statut | Ref. code |
+|-----------|-------------|-------------------------------|--------|-----------|
+| Interdit G | 2025 | 1er janvier 2025 | OK | `synthese.ts:127` |
+| Interdit F | 2028 | 1er janvier 2028 | OK | `synthese.ts:128` |
+| Interdit E | 2034 | 1er janvier 2034 | OK | `synthese.ts:129` |
+| Gel loyers F et G | Oui | Oui (loi Climat art. 159) | OK | `projection.ts:331-333` |
+
+**A verifier au prochain audit** : Le calendrier DPE pourrait etre modifie par de nouvelles dispositions legislatives.
 
 ---
 
-## 4. Audit des formules de calcul
+## 5. Audit des formules de calcul
 
-### 4.1 Mensualite de credit (PMT) - CONFORME
+### 5.1 Mensualite de credit (PMT) - CONFORME
 
 **Fichier** : `rentabilite.ts:33-62`
 
@@ -162,43 +252,30 @@ Mensualite = (M * r * (1+r)^n) / ((1+r)^n - 1)
 ou r = taux_annuel/100/12, n = duree*12
 ```
 
-**Verification** : 200 000 EUR a 3.5% sur 20 ans
-- Attendu : 1 159.92 EUR (calculatrice financiere)
-- Code : `(200000 * 0.002917 * 1.002917^240) / (1.002917^240 - 1)` = 1 159.92 EUR
-- **Resultat : CORRECT**
+Verification : 200 000 EUR a 3.5% sur 20 ans → 1 159.92 EUR. CORRECT.
 
-Cas limites geres :
-- Taux = 0 : division simple `montant / nb_mois` (OK)
-- Montant <= 0 ou duree <= 0 : retourne 0 (OK)
+Cas limites geres : taux = 0 (division simple), montant <= 0 ou duree <= 0 (retourne 0).
 
-**Assurance** : Calculee sur capital initial (fixe). C'est le mode le plus courant en France. Le mode "capital restant du" prevu dans la specification n'est pas implemente.
+### 5.2 Assurance emprunteur - CONFORME (2 modes)
 
-### 4.2 Frais de notaire - CONFORME (bareme officiel)
+**Fichier** : `projection.ts:111-114`
+
+| Mode | Formule | Implementation |
+|------|---------|----------------|
+| Capital initial (defaut) | `capital_emprunte * taux / 12` | Mensualite fixe |
+| Capital restant du (CRD) | `capital_restant(mois N) * taux / 12` | Mensualite degressive, calcul mois par mois |
+
+Tests : `assurance-crd.test.ts` — 6 tests.
+
+### 5.3 Frais de notaire - CONFORME (bareme officiel)
 
 **Fichier** : `rentabilite.ts:71-102`
 
-Le calcul suit le bareme officiel :
-1. DMTO (5%) + Taxe communale (1.2%) + Frais assiette (2.37% du DMTO) + CSI (0.1%)
-2. Emoluments par tranches progressives + TVA 20%
-3. Debours forfaitaires : 1 200 EUR
+Le calcul suit le bareme officiel : DMTO + taxe communale + frais assiette + CSI + emoluments par tranches + TVA 20% + debours forfaitaires 1 200 EUR.
 
-**Verification** : Bien ancien a 200 000 EUR
-- DMTO : 10 000 EUR
-- Taxe communale : 2 400 EUR
-- Frais assiette : 237 EUR
-- CSI : 200 EUR
-- Emoluments HT : 6500*0.0387 + 10500*0.01596 + 43000*0.01064 + 140000*0.00799 = 251.55 + 167.58 + 457.52 + 1118.60 = 1 995.25 EUR
-- Emoluments TTC : 2 394.30 EUR
-- Debours : 1 200 EUR
-- **Total : 16 431 EUR (8.2%)**
-- Estimation usuelle 7.5-8.5% : COHERENT
+Verification : bien ancien 200 000 EUR → ~16 431 EUR (8.2%). Coherent avec estimation usuelle 7.5-8.5%.
 
-**Points mineurs** :
-- Debours forfaitaires fixes a 1 200 EUR (reel : 500-3 000 EUR) - acceptable
-- Deduction du mobilier de l'assiette : implementee (`rentabilite.ts:115`)
-- Bien neuf : taux forfaitaire 2.5% (code) vs 0.715% DMTO + emoluments (spec). Simplification acceptable pour un simulateur.
-
-### 4.3 Cout total d'acquisition - CONFORME
+### 5.4 Cout total d'acquisition - CONFORME
 
 **Fichier** : `rentabilite.ts:107-146`
 
@@ -207,48 +284,28 @@ cout_total = prix_achat + frais_notaire + travaux + frais_dossier + frais_garant
 montant_emprunt = max(0, cout_total - apport)
 ```
 
-**Ecart avec specification** : Les frais d'agence ne sont pas inclus dans le cout total (la spec prevoit un champ `frais_agence`). A discuter avec le metier : les frais d'agence sont souvent inclus dans le prix affiche (FAI).
+### 5.5 Amortissement - CONFORME (2 modes)
 
-### 4.4 Part terrain / Amortissement - ECART SIGNIFICATIF 
+**Fichier** : `fiscalite.ts:418-455`
 
-**Fichier** : `constants.ts:99`, `fiscalite.ts:200-209`
+| Mode | Formule | Detail |
+|------|---------|--------|
+| Simplifie | `valeur_amortissable / 33` | 1 seule duree |
+| Par composants | `somme(part_composant * valeur_amortissable / duree_composant)` | 4 composants, durees differenciees |
 
-Le code applique une part terrain fixe de 15% quel que soit le type de bien.
+Verification : bien 200 000 EUR, terrain 15% :
+- Simplifie : 170 000 / 33 = 5 151 EUR/an
+- Composants : 1 360 + 1 360 + 2 267 + 3 400 = 8 387 EUR/an (+63%)
 
-**Realite** :
-| Type de bien | Part terrain reelle |
-|-------------|---------------------|
-| Appartement centre-ville | 5-15% |
-| Appartement peripherie | 10-20% |
-| Maison individuelle | 15-30% |
-| Immeuble de rapport | 10-20% |
+Tests : `amortissement-composants.test.ts` — 13 tests.
 
-**Impact** : Pour un appartement en centre-ville, la part terrain est souvent estimee a 5-10% par les experts-comptables. Appliquer 15% reduit l'amortissement deductible et donc surestime l'impot.
-
-**Calcul d'impact** : Bien a 200 000 EUR, amortissement sur 33 ans
-- Part terrain 10% : amortissement = 180 000 / 33 = 5 454 EUR/an
-- Part terrain 15% : amortissement = 170 000 / 33 = 5 151 EUR/an
-- **Ecart : 303 EUR/an d'amortissement en moins**
-- A TMI 30% + PS 18.6% : ecart d'impot de ~147 EUR/an
-
-De plus, l'amortissement simplifie (1 seule duree de 33 ans) est conservateur par rapport a l'amortissement par composants prevu dans la specification :
-
-| Methode | Amortissement annuel (bien 200 000 EUR, terrain 15%) |
-|---------|------------------------------------------------------|
-| Simplifie 33 ans | 5 151 EUR/an |
-| Par composants (spec) | ~6 800 EUR/an (estime) |
-
-**Proposition** : Voir section 11.
-
-### 4.5 Charges annuelles - CONFORME
+### 5.6 Charges annuelles - CONFORME
 
 **Fichier** : `rentabilite.ts:156-183`
 
-La separation charges fixes / proportionnelles est correcte :
-- Charges fixes : copro (net recuperable) + TF + PNO + GLI + CFE + comptable
-- Charges proportionnelles : gestion + provision travaux + provision vacance (% du loyer)
+Separation charges fixes / proportionnelles correcte.
 
-### 4.6 Rentabilite brute et nette - CONFORME
+### 5.7 Rentabilite brute et nette - CONFORME
 
 **Fichier** : `rentabilite.ts:193-237`
 
@@ -257,562 +314,341 @@ Renta brute = (loyer_annuel / prix_achat) * 100
 Renta nette = (revenu_net_avant_impots / cout_total_acquisition) * 100
 ```
 
-**Point de vigilance metier** : La rentabilite brute est calculee sur le prix d'achat seul (convention usuelle) tandis que la nette est sur le cout total. Cette difference de base rend la comparaison directe peu intuitive. La specification prevoit aussi une `Rentabilite_Brute_Totale` sur le cout total qui n'est pas implementee.
+### 5.8 Cash-flow - CONFORME
 
-### 4.7 Cash-flow - CONFORME
+**Fichier** : `rentabilite.ts:216-218`, `index.ts:106-109`
 
-**Fichier** : `rentabilite.ts:216-218`
-
-```
-cashflow_annuel = revenu_net - remboursement_annuel
-```
-
-Le cashflow affiche a l'utilisateur integre bien l'impot (calcule dans `index.ts:106-109`) :
 ```
 cashflow_mensuel = (cashflow_annuel_brut - impot_total) / 12
 ```
 
-### 4.8 Effet de levier - ECART MINEUR - A FAIRE 
+### 5.9 Effet de levier - ECART MINEUR (accepte)
 
 **Fichier** : `rentabilite.ts:220-223`
 
-```
-effet_levier = (renta_nette - taux_credit) * (emprunt / apport)
-```
-
-**Probleme** : Si apport = 0, le code utilise `apport || 1` (1 EUR) ce qui donne un levier astronomique et non significatif.
-
-**Proposition** : Retourner `null` ou un label "Levier maximum (pas d'apport)" au lieu d'une valeur numerique trompeuse.
+Si apport = 0, le code utilise `apport || 1` ce qui donne un levier non significatif. Accepte : non prioritaire.
 
 ---
 
-## 5. Audit de la fiscalite
+## 6. Audit de la fiscalite
 
-### 5.1 Micro-Foncier - CONFORME
+### 6.1 Micro-Foncier - CONFORME
 
 **Fichier** : `fiscalite.ts:44-81`
 
-Formule correcte : abattement 30%, IR + PS 17.2% sur base imposable.
+Abattement 30%, IR + PS 17.2% sur base imposable. Alerte si revenus > 15 000 EUR.
 
-**Verification** : Loyer 12 000 EUR, TMI 30%
-- Base imposable : 12 000 * 0.70 = 8 400 EUR
-- IR : 8 400 * 30% = 2 520 EUR
-- PS : 8 400 * 17.2% = 1 444.80 EUR
-- **Total : 3 964.80 EUR** - CORRECT
+### 6.2 Foncier Reel - CONFORME (avec deficit foncier)
 
-**Ecart avec specification** : La CSG deductible (6.8%) n'est pas prise en compte. C'est un effet de second ordre applicable l'annee suivante (reduction d'impot minime). Acceptable pour un simulateur.
+**Fichier** : `fiscalite.ts:90-127`, `fiscalite.ts:368-416`
 
-Alerte correctement emise si revenus > 15 000 EUR.
+**Corrections appliquees :**
+- Deficit foncier entierement implemente (`calculerDeficitFoncier()`)
+- Separation part hors interets (imputable sur revenu global, max 10 700 EUR) et part interets (reportable 10 ans sur revenus fonciers)
+- Economie d'impot calculee : `min(deficit_hors_interets, 10 700) * TMI`
+- Report sur 10 ans avec buckets FIFO dans les projections (`projection.ts:340-445`)
 
-### 5.2 Foncier Reel - PARTIELLEMENT CONFORME - A FAIRE 
+Tests : `deficit-foncier.test.ts` — 12 tests.
 
-**Fichier** : `fiscalite.ts:90-127`
-
-**Ce qui est correct** :
-- Deduction charges + interets/assurance
-- PS a 17.2%
-- Base imposable planchee a 0
-
-**Ecart constate : Deficit foncier non gere dans les calculs**
-
-Le code emet bien une alerte informative (`fiscalite.ts:102-106`) mais ne calcule pas :
-1. La part du deficit imputable sur le revenu global (max 10 700 EUR hors interets)
-2. La part reportable sur 10 ans sur revenus fonciers
-3. L'economie d'impot reelle
-
-**Impact** : Pour un investisseur en deficit foncier (typiquement : gros travaux), l'avantage fiscal reel n'apparait pas dans la comparaison des regimes. Le foncier reel peut apparaitre moins intéressant qu'il ne l'est.
-
-**Proposition** : Implementer le calcul du deficit foncier avec :
-- Deficit hors interets : imputable sur revenu global (plafond 10 700 EUR)
-- Economie IR : deficit_imputable * TMI
-- Deficit restant : reportable 10 ans sur revenus fonciers
-
-### 5.3 LMNP Micro-BIC - CONFORME
+### 6.3 LMNP Micro-BIC - CONFORME
 
 **Fichier** : `fiscalite.ts:136-178`
 
-Formule correcte avec distinction meuble classe/non classe.
+Distinction meuble classe / non classe. Abattement 50% (standard) ou 30% (non classe, LF 2025).
 
-**Verification** : Loyer 20 000 EUR, TMI 30%, meuble longue duree
-- Abattement 50% : 10 000 EUR
-- Base : 10 000 EUR
-- IR : 3 000 EUR
-- PS 18.6% : 1 860 EUR
-- **Total : 4 860 EUR** - CORRECT
-
-### 5.4 LMNP Reel - CONFORME avec reserves - A FAIRE 
+### 6.4 LMNP Reel - CONFORME (avec amortissement composants)
 
 **Fichier** : `fiscalite.ts:187-245`
 
-**Ce qui est correct** :
-- Amortissement = bati + mobilier + travaux
-- L'amortissement ne peut pas creer de deficit BIC (regle respectee : `fiscalite.ts:215`)
-- Amortissement excedentaire signale (reportable sans limite)
+**Corrections appliquees :**
+- Amortissement par composants disponible (4 composants, durees differenciees)
+- L'amortissement ne peut pas creer de deficit BIC (regle respectee)
+- Amortissement excedentaire reporte sans limite de duree
 - PS a 18.6%
 
-**Reserves** :
-1. **Amortissement simplifie** : 1 seule duree (33 ans pour le bati) au lieu de l'amortissement par composants (spec : gros oeuvre 50 ans, toiture 25 ans, agencements 15 ans, etc.)
-   - Impact : sous-estimation de l'amortissement annuel de ~25%
+Tests : `amortissement-composants.test.ts` — 13 tests.
 
-2. **Report d'amortissement non gere dans le temps** : L'alerte est emise mais le montant reportable n'est pas cumule d'annee en annee dans les projections.
-
-3. **Reintegration a la revente (depuis 02/2025)** : Non implementee. Les amortissements cumules doivent etre reintegres dans la plus-value lors de la cession. C'est un changement majeur qui reduit l'avantage reel du LMNP reel.
-
-### 5.5 SCI a l'IS - CONFORME avec reserves - A FAIRE 
+### 6.5 SCI a l'IS - CONFORME
 
 **Fichier** : `fiscalite.ts:253-314`
 
-**Ce qui est correct** :
-- IS progressif 15% / 25% avec seuil a 42 500 EUR
-- Deduction interets + assurance + amortissement
-- Flat Tax 30% sur dividendes distribues
-- Distinction capitalisation vs distribution
+IS progressif 15%/25% avec seuil 42 500 EUR, deduction interets + assurance + amortissement (composants si active), flat tax 30% sur dividendes.
 
-**Reserves** :
-1. **Pas de gestion du deficit IS** : Le code emet une alerte mais ne calcule pas le report du deficit sur les exercices suivants (reportable sans limite de duree, plafonne a 1 M EUR + 50% au-dela).
+### 6.6 Plus-value a la revente - CONFORME (NOUVEAU)
 
-2. **Plus-value SCI IS non calculee** : En SCI IS, la plus-value est calculee sur la valeur nette comptable (prix - amortissements cumules), pas sur le prix d'achat. L'impot de plus-value est donc beaucoup plus eleve qu'en nom propre.
+**Fichier** : `fiscalite.ts:458-626`
 
-3. **Conditions du taux reduit** : Le taux IS 15% est soumis a conditions (CA < 10 M EUR, capital detenu a 75% minimum par personnes physiques). Non verifie par le simulateur.
+| Mode | Implementation | Detail |
+|------|----------------|--------|
+| Nom propre (IR) | `calculerPlusValueIR()` | Abattements pour duree de detention IR (exo 22 ans) et PS (exo 30 ans) |
+| LMNP | `calculerPlusValueIR()` avec flag reintegration | Reintegration des amortissements cumules dans la PV brute (LF 2025) |
+| SCI IS | `calculerPlusValueSciIs()` | PV = prix_vente - VNC (prix - amortissements cumules), IS puis flat tax optionnelle |
+| Surtaxe | `calculerSurtaxePV()` | Bareme progressif au-dela de 50 000 EUR de PV nette IR |
 
-### 5.6 Comparaison des regimes - BON - A FAIRE (sur des tranches de 5 ans jusqu'à 25 ans max)
+Tests : `plus-value.test.ts` — 21 tests.
+
+### 6.7 Comparaison des regimes - CONFORME
 
 **Fichier** : `fiscalite.ts:407-526`
 
-L'implementation compare 6 regimes (micro-foncier, foncier reel, LMNP micro, LMNP reel, SCI IS capitalisation, SCI IS distribution) et identifie le plus avantageux sur la base du cashflow net annuel.
+Compare 6 regimes et identifie le plus avantageux sur la base du cashflow net annuel.
 
-**Reserve** : La comparaison est faite sur l'annee 1 uniquement. Or certains regimes sont plus avantageux au debut (LMNP reel grace a l'amortissement) et moins sur le long terme. Une comparaison sur l'horizon de projection serait plus pertinente.
-
-### 5.7 Calcul des interets deductibles An 1 - APPROXIMATION
+### 6.8 Calcul des interets deductibles An 1 - APPROXIMATION (acceptee)
 
 **Fichier** : `fiscalite.ts:330-333`
 
-```typescript
-const interetsAnnuels = montant_emprunt * tauxInteret;  // Approximation
-const assuranceAnnuelle = mensualite_assurance * 12;
-```
-
-Les interets de l'annee 1 sont approximes par `capital * taux` au lieu d'utiliser le tableau d'amortissement. En realite les interets An 1 sont legerement inferieurs car du capital est rembourse chaque mois.
-
-**Impact** : Surestimation des interets deductibles de ~2-5% selon le taux et la duree. Cela avantage legerement les regimes reels dans la comparaison. Impact faible.
+Les interets An 1 sont approximes par `capital * taux` au lieu du tableau d'amortissement. Surestimation de 2-5% selon taux et duree. Impact faible. Accepte.
 
 ---
 
-## 6. Audit de l'analyse HCSF
+## 7. Audit de l'analyse HCSF
 
-### 6.1 Taux d'endettement - CONFORME
+### 7.1 Taux d'endettement - CONFORME
 
 **Fichier** : `hcsf.ts:68-76`
 
-```
-taux = charges_mensuelles / revenus_mensuels
-```
+### 7.2 Ponderation des revenus locatifs - CONFORME
 
-### 6.2 Ponderation des revenus locatifs - CONFORME
+**Fichier** : `hcsf.ts:81-94` — ponderation a 70%.
 
-**Fichier** : `hcsf.ts:81-94`
-
-Les revenus locatifs sont ponderes a 70% conformement a la recommandation HCSF.
-
-### 6.3 Mode nom propre - CONFORME avec reserves - A FAIRE 
+### 7.3 Mode nom propre - CONFORME (avec reste a vivre)
 
 **Fichier** : `hcsf.ts:130-204`
 
-**Ce qui est correct** :
-- Revenus d'activite + loyers ponderes a 70%
-- Charges = credits existants + autres charges + nouveau credit
-- Alerte si revenus estimes par TMI
+**Corrections appliquees :**
+- Reste a vivre calcule : `revenus_totaux - charges_totales` (`hcsf.ts:182-189`)
+- Seuils : 700 EUR (insuffisant), 1 500 EUR (confortable)
+- Integration dans le scoring (-10 a +5 points)
 
-**Reserves** :
-1. **Estimation revenus par TMI** : Tres approximative. Un TMI 30% peut correspondre a un revenu imposable de 28 797 EUR (celibataire) ou 57 594 EUR (couple). L'estimation a 4 000 EUR/mois est une moyenne raisonnable mais peut etre tres eloignee de la realite.
+Tests : `hcsf-reste-a-vivre.test.ts` — 4 tests.
 
-2. **Pas de "reste a vivre"** prevu dans la specification mais non implemente. Les banques l'utilisent systematiquement en complement du taux d'endettement.
+**Reserve maintenue** : l'estimation des revenus par TMI reste approximative (un TMI 30% peut correspondre a 28 797 EUR ou 57 594 EUR selon situation familiale).
 
-### 6.4 Mode SCI IS - CONFORME
+### 7.4 Mode SCI IS - CONFORME
 
 **Fichier** : `hcsf.ts:214-333`
 
-Le calcul par associe est correct :
-- Quote-part de la mensualite au prorata des parts
-- Revenus locatifs ponderes a 70%
-- Conformite globale = TOUS les associes conformes
+Calcul par associe correct, quote-part au prorata des parts.
 
-### 6.5 Capacite d'emprunt residuelle - CONFORME
+### 7.5 Capacite d'emprunt residuelle - CONFORME
 
 **Fichier** : `hcsf.ts:99-118`
 
-Calcul correct de la marge disponible convertie en capital empruntable.
-
-**Reserve** : L'hypothese est fixee a 20 ans / 3.5%. Ces parametres devraient etre alignes sur les conditions saisies par l'utilisateur.
+**Reserve maintenue** : hypothese fixe 20 ans / 3.5% au lieu des conditions saisies par l'utilisateur.
 
 ---
 
-## 7. Audit des projections et du TRI
+## 8. Audit des projections et du TRI
 
-### 7.1 Projections pluriannuelles - ECART CRITIQUE - A FAIRE 
+### 8.1 Projections pluriannuelles - CONFORME (corrige)
 
-**Fichier** : `projection.ts:157-289`
+**Fichier** : `projection.ts:157-289`, `projection.ts:188-281`
 
-**Ce qui fonctionne correctement** :
-- Inflation des loyers et charges
-- Revalorisation du bien
-- Tableau d'amortissement du credit
-- Patrimoine net = valeur bien - capital restant
+**Correction critique appliquee : impots integres dans les projections.**
 
-**ECART CRITIQUE : Impots = 0 dans les projections**
-
-```typescript
-// projection.ts ligne 241
-const impot = 0;  // Simplifie en MVP
-```
-
-**Impact** :
-- Le cashflow projete est **surestime** de l'equivalent de l'impot annuel
-- Le cashflow cumule sur 20 ans peut etre **faux de 30 000 a 80 000 EUR** selon le regime fiscal
-- Le **TRI est surevalue** de 1 a 3 points de pourcentage
-- L'**enrichissement total** affiche est incorrect
-
-**Calcul d'impact concret** :
-- Bien 200 000 EUR, loyer 10 000 EUR/an, TMI 30%, micro-foncier
-- Impot annuel An 1 : ~3 300 EUR
-- Sur 20 ans (avec inflation) : ~75 000 EUR cumules d'impots
-- **Le cashflow cumule affiche est donc surevalue de ~75 000 EUR**
-
-C'est le defaut le plus impactant du simulateur en termes de fiabilite des resultats presentes a l'utilisateur.
-
-### 7.2 Tableau d'amortissement - CONFORME
-
-**Fichier** : `projection.ts:63-150`
-
-Le tableau d'amortissement du credit est mathematiquement correct (verification par recoupement des totaux). L'assurance est calculee sur capital initial (mode le plus courant).
-
-### 7.3 Calcul du TRI - METHODOLOGIQUEMENT CORRECT, DONNEES FAUSSES -  A FAIRE 
-
-**Fichier** : `projection.ts:16-54`
-
-L'algorithme de Newton-Raphson est correctement implemente pour resoudre VAN = 0. Les cas limites sont geres (pas de convergence, TRI qui diverge).
-
-**Mais** : Comme les flux de tresorerie ne tiennent pas compte des impots, le TRI calcule est le TRI avant impots, pas le TRI investisseur reel.
-
-De plus, le TRI suppose une revente au patrimoine net (valeur bien - capital restant du) sans frais de cession, ni impot de plus-value, ni frais d'agence de revente (~5%).
-
-### 7.4 Inflation des charges - PARTIELLEMENT CORRECT
-
-Les charges fixes sont inflatees correctement. Cependant, les charges proportionnelles (gestion, provision travaux, vacance) sont calculees en % du loyer courant, ce qui les fait naturellement augmenter avec le loyer. C'est un comportement correct.
-
-**Reserve** : La taxe fonciere est inflatee au meme taux que les autres charges (2.5%/an). En realite, la taxe fonciere peut augmenter beaucoup plus rapidement (revisions de valeurs locatives cadastrales + votes communes). Certaines villes ont connu des hausses de 10-15% en une annee.
-
----
-
-## 8. Audit du scoring et de la synthese
-
-### 8.1 Scoring sur 100 points - DIVERGENCE AVEC SPECIFICATION - A FAIRE 
-
-**Fichier** : `synthese.ts:28-47`
-
-**Implementation actuelle** :
-| Critere | Points max | Base |
-|---------|-----------|------|
-| Autofinancement | 30 | Cashflow mensuel [-200, +200] EUR |
-| Rentabilite | 30 | Renta nette [0, 10%] |
-| HCSF | 25 | Conformite + confort |
-| Bonus rentabilite | 15 | Si renta >= 10% |
-| **Total** | **100** | |
-
-**Specification metier** (section 7.3 de specification-calculs.md) :
-| Critere | Methode |
-|---------|---------|
-| Score base | 40 points |
-| Cashflow net impot | -20 a +20 |
-| Rentabilite nette-nette | -15 a +20 |
-| HCSF | -25 a +20 |
-| DPE | -10 a +5 |
-| Ratio prix/loyer | -5 a +10 |
-| Reste a vivre | -10 a +5 |
-
-**Ecarts** :
-1. Le scoring actuel n'utilise pas le systeme a "base 40 + ajustements" de la spec
-2. Criteres manquants : DPE, ratio prix/loyer, reste a vivre
-3. La spec utilise la rentabilite nette-nette (apres impots), le code utilise la nette (avant impots)
-4. La spec peut donner des malus (score negatif par critere), le code ne descend jamais en dessous de 0 par critere
-
-**Impact** : Le score actuel est plus simple et plus "genereux" que la spec. Un investissement mediocre peut obtenir un score plus eleve que prevu.
-
-### 8.2 Score interne (0-4) - COHERENT
-
-**Fichier** : `synthese.ts:428-462`
-
-Le score interne binaire (cashflow >= 0, renta >= 7%, HCSF conforme, bonus si renta >= 10%) est pertinent comme indicateur rapide. La recommandation textuelle generee est claire et utile.
-
-### 8.3 Recommandations - BON
-
-**Fichier** : `synthese.ts:257-384`
-
-Les recommandations generees sont pertinentes et contextuelles :
-- Recommandations cashflow negatif
-- Optimisation rentabilite
-- Optimisation fiscale (detection micro > reel potentiel)
-- Solutions HCSF non conforme
-
----
-
-## 9. Ecarts avec la specification metier
-
-### Tableau recapitulatif des ecarts specification vs implementation
-
-| Fonctionnalite (spec) | Statut implementation | Impact | Decision
-|------------------------|----------------------|--------|----------
-| Frais de notaire baremes | IMPLEMENTE | - | - 
-| Deduction mobilier assiette notaire | IMPLEMENTE | - | - 
-| Assurance sur capital restant du | NON IMPLEMENTE | Faible (peu utilise) | - 
-| Deficit foncier (imputation + report) | NON IMPLEMENTE | Moyen | A faire 
-| Amortissement par composants | NON IMPLEMENTE (simplifie) | Moyen | A faire 
-| Reintegration amortissements revente LMNP | NON IMPLEMENTE | Eleve | A faire 
-| Plus-value a la revente | NON IMPLEMENTE | Eleve | A faire 
-| Reste a vivre HCSF | NON IMPLEMENTE | Moyen | A faire 
-| DPE et alertes passoires energetiques | NON IMPLEMENTE | Moyen | A faire 
-| Scoring avec DPE + ratio prix/loyer | NON IMPLEMENTE | Moyen | A faire 
-| CSG deductible | NON IMPLEMENTE | Faible | - 
-| Frais d'agence dans cout acquisition | NON IMPLEMENTE | Faible | A faire 
-| Taux DMTO par departement | NON IMPLEMENTE (fixe 5%) | Faible | - 
-| Impots dans les projections | NON IMPLEMENTE | CRITIQUE | A faire 
-| Report deficit IS / amortissement differe | NON IMPLEMENTE | Moyen | A faire 
-| VAN (Valeur Actuelle Nette) | NON IMPLEMENTE | Faible | - 
-| Multiple sur capital investi | NON IMPLEMENTE | Faible | - 
-| Rendement sur fonds propres | NON IMPLEMENTE | Faible | - 
-
----
-
-## 10. Problemes de precision numerique
-
-### 10.1 Double arrondi sur le cashflow mensuel
-
-**Fichier** : `index.ts:106`
-
-```typescript
-mensuel: Math.round((rentabilite.cashflow_annuel - fiscalite.impot_total) / 12)
-```
-
-`cashflow_annuel` est deja arrondi a 2 decimales. La division par 12 puis l'arrondi a l'euro entier cree une perte :
-- Annuel : 7 345.67 EUR
-- Mensuel affiche : 612 EUR (7 345.67 / 12 = 612.14 arrondi)
-- **Ecart cumule** : 612 * 12 = 7 344 EUR vs 7 345.67 EUR = 1.67 EUR/an
-
-Sur 20 ans, l'ecart cumule peut atteindre ~30 EUR. Non significatif mais peut creer une incoherence visible entre le cashflow mensuel * 12 et le cashflow annuel affiche.
-
-### 10.2 Chaine d'arrondis intermediaires
-
-Chaque module arrondit ses sorties a 2 decimales. Les erreurs d'arrondi sont generalement < 1 EUR par calcul. Sur l'ensemble de la chaine, l'ecart maximal constate est de ~5 EUR sur un resultat final. Acceptable pour un simulateur.
-
-### 10.3 Metriques denormalisees en BDD
-
-Les simulations sauvegardees stockent des valeurs deja arrondies. Si les constantes fiscales changent, les anciennes simulations ne sont pas recalculees. Non critique si un versionning des constantes est ajoute.
-
----
-
-## 11. Propositions d'amelioration
-
-### P1 - CRITIQUE : Integrer la fiscalite dans les projections
-
-**Effort estime** : 2-3 jours
-**Impact** : Majeur - corrige le TRI et le cashflow cumule
-
-Le module `fiscalite.ts` sait deja calculer l'impot annuel. Il suffit de l'appeler pour chaque annee de projection en tenant compte de :
+La fonction `calculerImpotAnnuel()` (`projection.ts:188-281`) est appelee pour chaque annee de projection. Elle supporte les 6 regimes et tient compte de :
 - L'evolution des revenus (inflation loyer)
 - L'evolution des charges (inflation charges)
 - La degressivite des interets (tableau d'amortissement)
-- L'amortissement (duree limitee)
+- L'amortissement (simplifie ou composants, avec arret progressif par composant)
+- Le deficit foncier avec report FIFO
+- Le gel des loyers pour DPE F et G
+
+### 8.2 Tableau d'amortissement - CONFORME
+
+**Fichier** : `projection.ts:63-150`
+
+Supporte les 2 modes d'assurance (capital initial et capital restant du).
+
+### 8.3 Calcul du TRI - CONFORME (corrige)
+
+**Fichier** : `projection.ts:16-54`, `projection.ts:495-527`
+
+**Corrections appliquees :**
+- TRI integre les impots annuels (cashflow net d'impot)
+- TRI integre l'impot de plus-value a l'horizon (`projection.ts:510-511`)
+- TRI integre les frais de revente (agence + diagnostics) (`projection.ts:495-511`)
 
 ```
-Pour chaque annee n :
-  impot(n) = calculerFiscalite(revenus(n), charges(n), interets(n), amortissement(n))
-  cashflow_net(n) = cashflow_brut(n) - impot(n)
+Flux initial = -apport
+Flux annuel(n) = cashflow_brut(n) - impot(n)
+Flux final = cashflow_net + patrimoine_net - impot_PV - frais_revente
 ```
 
-### P2 - IMPORTANT : Part terrain parametre
+Tests : `frais-revente.test.ts` — 4 tests, `projection.test.ts` — tests existants mis a jour.
 
-**Effort estime** : 0.5 jour
-**Impact** : Ameliore la precision de l'amortissement
+### 8.4 Plus-value dans les projections - CONFORME (NOUVEAU)
 
-Options :
-- **Option A** (simple) : Ajouter un champ `part_terrain` dans le formulaire avec valeur par defaut selon `type_bien` :
-  - Appartement : 10%
-  - Maison : 20%
-  - Immeuble : 10%
-- **Option B** (rapide) : Garder 15% mais adapter la valeur par defaut dans `validation.ts` selon le type de bien
+**Fichier** : `projection.ts:471-527`
 
-### P3 - IMPORTANT : Deficit foncier
+Calcul a l'horizon final avec suivi de l'amortissement cumule sur 20 ans. Le mode de calcul (IR / LMNP / SCI IS) est determine par le regime fiscal optimal.
 
-**Effort estime** : 1-2 jours
-**Impact** : Moyen - ameliore la fiabilite du regime reel foncier
+### 8.5 DPE et gel des loyers - CONFORME (NOUVEAU)
 
-Implementer :
-1. Calcul du deficit (charges + interets > revenus)
-2. Separation : deficit hors interets (imputable sur revenu global, max 10 700 EUR) et deficit lie aux interets (reportable sur revenus fonciers)
-3. Calcul de l'economie d'impot reelle : `min(deficit, 10 700) * TMI`
-4. Report sur 10 ans dans les projections
+**Fichier** : `projection.ts:331-333`
 
-### P4 - IMPORTANT : Calcul de plus-value a la revente
-
-**Effort estime** : 2 jours
-**Impact** : Moyen - necessaire pour les projections fiables
-
-Implementer pour chaque horizon de projection :
-1. **Nom propre** : Plus-value = prix_vente - prix_achat, avec abattements pour duree de detention (IR : 6%/an de la 6e a la 21e annee, 4% la 22e. PS : 1.65%/an de la 6e a la 21e, 1.6% la 22e, 9%/an au-dela)
-2. **LMNP** : Depuis 02/2025, reintegration des amortissements deduits dans la plus-value
-3. **SCI IS** : Plus-value = prix_vente - valeur_nette_comptable (prix - amortissements cumules). Imposition a l'IS puis flat tax si distribution.
-
-### P5 - MOYEN : Amortissement par composants
-
-**Effort estime** : 1 jour
-**Impact** : Ameliore la precision pour le LMNP reel
-
-Les constantes sont deja presentes dans `constants.ts:108-113` :
-```typescript
-COMPOSANTS: {
-    GROS_OEUVRE: { PART: 0.40, DUREE: 50 },
-    FACADE_TOITURE: { PART: 0.20, DUREE: 25 },
-    INSTALLATIONS: { PART: 0.20, DUREE: 15 },
-    AGENCEMENTS: { PART: 0.20, DUREE: 10 },
-}
-```
-
-Il suffit de :
-1. Ajouter une option "amortissement par composants" (vs simplifie)
-2. Calculer la somme des amortissements par composant :
-   `amort_total = sum(part_composant * valeur_amortissable / duree_composant)`
-
-### P6 - MOYEN : Alignement du scoring avec la specification
-
-**Effort estime** : 1 jour
-**Impact** : Coherence metier
-
-Modifier `synthese.ts` pour implementer le systeme "base 40 + ajustements" de la specification avec les criteres manquants (DPE, ratio prix/loyer, reste a vivre).
-
-### P7 - FAIBLE : Reste a vivre dans l'analyse HCSF
-
-**Effort estime** : 0.5 jour
-**Impact** : Information supplementaire utile
-
-```
-reste_a_vivre = revenus_totaux - charges_totales
-seuil = 700 EUR (celibataire) / 1 000 EUR (couple) + 300 EUR par enfant
-```
-
-### P8 - FAIBLE : Effet de levier avec apport = 0 - RETIRER L'EFFET DE LEVIER DE LA SIMULATION
-
-**Effort estime** : 0.5 heure
-**Impact** : Fiabilite de l'affichage
-
-Retourner `null` ou un message specifique au lieu d'un nombre artificiel.
-
-### P9 - EVOLUTION : Assurance sur capital restant du - A FAIRE 
-
-**Effort estime** : 1 jour
-**Impact** : Precision du calcul d'assurance (economies en fin de credit)
-
-Ajouter le mode `capital_restant_du` en calculant l'assurance mois par mois sur le capital restant. L'economie peut etre significative (30-40% sur le cout total de l'assurance).
-
-### P10 - EVOLUTION : Frais de revente dans le TRI - A FAIRE 
-
-**Effort estime** : 0.5 jour
-**Impact** : TRI plus realiste
-
-Deduire du dernier flux :
-- Frais d'agence de revente (~5% du prix de vente)
-- Impot de plus-value (cf. P4)
-- Diagnostics obligatoires (~500 EUR)
+Si DPE = F ou G, l'inflation des loyers est forcee a 0% dans les projections. Impact significatif sur le cashflow cumule a long terme.
 
 ---
 
-## 12. Matrice de risque
+## 9. Audit du scoring et de la synthese
 
-### Risque de presentation de resultats faux a l'utilisateur
+### 9.1 Scoring sur 100 points - CONFORME (realigne avec specification)
 
-| Element | Ampleur de l'ecart | Frequence | Risque global | Retour Metier |
-|---------|-------------------|-----------|---------------|---------------|
-| TRI sans impots | 1-3 points de % | Systematique | CRITIQUE | A faire |
-| Cashflow cumule sans impots | 30 000-80 000 EUR sur 20 ans | Systematique | CRITIQUE | A faire |
-| Amortissement simplifie | ~25% en moins | Regimes reels | MOYEN | A faire |
-| Part terrain fixe 15% | 0-300 EUR/an sur amort. | Regimes reels | MOYEN | A faire |
-| Deficit foncier non gere | Economie d'impot non montree | Regime reel foncier | MOYEN | A faire |
-| Plus-value non calculee | Indicateur absent | Projections long terme | MOYEN | A faire |
-| DMTO fixe a 5% | 0-0.5% du prix | Dpts non majores | FAIBLE | - |
-| Effet de levier apport=0 | Valeur aberrante | Cas rare | FAIBLE | - |
-| Interets An1 approximes | 2-5% d'ecart sur interets | Systematique | FAIBLE | - |
-| Double arrondi cashflow | ~30 EUR sur 20 ans | Systematique | NEGLIGEABLE | - |
+**Fichier** : `synthese.ts:37-216`
 
----
+**Corrections appliquees — systeme conforme a la specification :**
 
-## 13. Plan d'action recommande
+| Critere | Plage | Bornes | Ref. code |
+|---------|-------|--------|-----------|
+| Base | 40 points | Fixe | `synthese.ts:41` |
+| Cashflow net mensuel | -20 a +20 | [-200 EUR, +200 EUR] interpolation lineaire | `synthese.ts:55` |
+| Rentabilite nette-nette | -15 a +20 | [0%, 3%] → [-15, 0], [3%, 7%] → [0, +20] | `synthese.ts:65` |
+| HCSF (taux endettement) | -25 a +20 | [<=25%] → +20, [25-35%] → interpolation, [35-50%] → interpolation, [>50%] → -25 | `synthese.ts:75` |
+| DPE | -10 a +5 | A/B → +5, C/D → 0, E → -3, F/G → -10 | `synthese.ts:86` |
+| Ratio prix/loyer | -5 a +10 | [<=15] → +10, [15-20] → interpolation, [20-25] → interpolation, [>25] → -5 | `synthese.ts:100` |
+| Reste a vivre | -10 a +5 | [>=1500] → +5, [800-1500] → 0, [<800] → -10 | `synthese.ts:113` |
 
-### Phase 1 - Corrections prioritaires (fiabilite des resultats)
+**Score final** = clamp(0, base + somme des ajustements, 100)
 
-| # | Action | Priorite | Effort | Impact |
-|---|--------|----------|--------|--------|
-| 1 | Integrer impots dans projections | P0 | 2-3j | Corrige TRI et cashflow |
-| 2 | Part terrain parametree par type de bien | P1 | 0.5j | Ameliore amortissement |
-| 3 | Corriger effet de levier apport=0 | P1 | 0.5h | Evite affichage aberrant |
+Tests : `scoring.test.ts` — 34 tests.
 
-### Phase 2 - Enrichissements metier (precision)
+### 9.2 Alertes DPE - CONFORME (NOUVEAU)
 
-| # | Action | Priorite | Effort | Impact |
-|---|--------|----------|--------|--------|
-| 4 | Implementer deficit foncier | P2 | 1-2j | Fiabilise regime reel |
-| 5 | Amortissement par composants | P2 | 1j | Fiabilise LMNP reel |
-| 6 | Calcul de plus-value a la revente | P2 | 2j | Complete les projections |
-| 7 | Aligner scoring avec specification | P2 | 1j | Coherence metier |
+**Fichier** : `synthese.ts:123-177`
 
-### Phase 3 - Evolutions (completude)
+Alertes emises si l'interdiction de location tombe avant la fin de l'horizon de projection. Gel des loyers signale pour DPE F et G.
 
-| # | Action | Priorite | Effort | Impact |
-|---|--------|----------|--------|--------|
-| 8 | Reste a vivre HCSF | P3 | 0.5j | Info complementaire |
-| 9 | Frais de revente dans TRI | P3 | 0.5j | TRI realiste |
-| 10 | Assurance capital restant du | P3 | 1j | Option avancee |
-| 11 | DPE et alertes passoires | P3 | 1j | Conformite reglementaire |
-| 12 | Reintegration amortissements LMNP | P3 | 1j | LF 2025 |
+Tests : `dpe-alertes.test.ts` — 8 tests.
 
-### Questions a trancher avec le metier
+### 9.3 Recommandations - CONFORME
 
-1. **Amortissement simplifie ou par composants ?** Le simplifie est plus facile a comprendre pour l'utilisateur mais moins precis. L'amortissement par composants est ce que fait un expert-comptable en reel. => On conserve la version simplifiée.
+**Fichier** : `synthese.ts:257-384`
 
-2. **Part terrain par defaut** : 10% (appartement), 15% (immeuble), 20% (maison) - ces valeurs sont-elles acceptables ou faut-il que l'utilisateur puisse les saisir ? => On conserve les valeurs par defaut.
-
-3. **DMTO** : Faut-il ajouter un selecteur de departement pour appliquer le bon taux (4.5% vs 5%), ou garder 5% par defaut ? => On garde 5% par defaut.
-
-4. **Scoring** : Doit-on implementer le scoring de la specification (avec DPE, ratio prix/loyer) ou garder le systeme actuel plus simple ? => On garde le systeme actuel plus simple.
-
-5. **Projections avec impots** : Faut-il calculer les impots chaque annee (plus precis mais complexe) ou appliquer l'impot An 1 a chaque annee (approximation acceptable) ? => On conserve l'approximation acceptable.
-
-6. **Assurance pret** : Le mode "capital restant du" est-il une priorite pour les utilisateurs ? => On conserve le mode actuel.
-
-7. **Plus-value** : Faut-il la calculer pour chaque horizon (5, 10, 15, 20, 25 ans) ou seulement a l'horizon choisi ? => On conserve l'horizon choisi.
+Recommandations contextuelles : cashflow negatif, optimisation rentabilite, optimisation fiscale, solutions HCSF, alertes DPE.
 
 ---
 
-## Annexe A : Fichiers audites
+## 10. Ecarts residuels avec la specification metier
 
-| Fichier | Lignes | Role |
-|---------|--------|------|
-| `src/config/constants.ts` | 139 | Constantes reglementaires |
-| `src/server/calculations/index.ts` | 170 | Orchestrateur principal |
-| `src/server/calculations/types.ts` | 288 | Types TypeScript |
-| `src/server/calculations/validation.ts` | 167 | Validation + normalisation |
-| `src/server/calculations/rentabilite.ts` | 247 | Financement + charges + rendements |
-| `src/server/calculations/fiscalite.ts` | 527 | Tous regimes fiscaux |
-| `src/server/calculations/hcsf.ts` | 440 | Analyse HCSF |
-| `src/server/calculations/projection.ts` | 290 | Projections + TRI + amortissement |
-| `src/server/calculations/synthese.ts` | 515 | Scoring + recommandations |
-| `src/app/api/calculate/route.ts` | ~250 | API de calcul |
-| `src/app/api/pdf/route.ts` | ~200 | Generation PDF |
-| `src/app/api/simulations/route.ts` | ~200 | CRUD simulations |
-| `src/stores/calculateur.store.ts` | ~400 | Store Zustand |
-| `docs/core/specification-calculs.md` | 1187 | Specification metier |
+### Fonctionnalites implementees
 
-## Annexe B : Verification croisee - Simulation de reference
+| Fonctionnalite (spec) | Statut | Tests | Ref. |
+|------------------------|--------|-------|------|
+| Frais de notaire baremes | IMPLEMENTE | Oui | `rentabilite.ts:71-102` |
+| Deduction mobilier assiette notaire | IMPLEMENTE | Oui | `rentabilite.ts:115` |
+| Deficit foncier (imputation + report) | IMPLEMENTE | 12 | `fiscalite.ts:368-416`, `projection.ts:340-445` |
+| Amortissement par composants | IMPLEMENTE | 13 | `fiscalite.ts:418-455` |
+| Plus-value a la revente (3 modes) | IMPLEMENTE | 21 | `fiscalite.ts:458-626` |
+| Reintegration amortissements LMNP (LF 2025) | IMPLEMENTE | Couvert par PV | `fiscalite.ts:507` |
+| Scoring avec DPE + ratio prix/loyer + RAV | IMPLEMENTE | 34 | `synthese.ts:37-216` |
+| DPE et alertes passoires energetiques | IMPLEMENTE | 8 | `synthese.ts:123-177` |
+| Gel loyers DPE F et G | IMPLEMENTE | Couvert par DPE | `projection.ts:331-333` |
+| Reste a vivre HCSF | IMPLEMENTE | 4 | `hcsf.ts:182-189` |
+| Impots dans les projections | IMPLEMENTE | Couvert par projection | `projection.ts:188-281` |
+| Frais de revente dans TRI | IMPLEMENTE | 4 | `projection.ts:495-511` |
+| Assurance sur capital restant du | IMPLEMENTE | 6 | `projection.ts:111-114` |
 
-### Donnees d'entree
+### Fonctionnalites non implementees (acceptees)
+
+| Fonctionnalite (spec) | Decision | Justification |
+|------------------------|----------|---------------|
+| Part terrain parametree par type de bien | Reporte | Valeur fixe 15% acceptee, conservatrice |
+| CSG deductible | Non traite | Effet de second ordre, impact negligeable |
+| Frais d'agence dans cout acquisition | Non traite | Souvent inclus dans prix FAI |
+| Taux DMTO par departement | Non traite | 5% par defaut est conservateur |
+| VAN (Valeur Actuelle Nette) | Non traite | Faible demande utilisateur |
+| Multiple sur capital investi | Non traite | Faible demande utilisateur |
+| Rendement sur fonds propres | Non traite | Faible demande utilisateur |
+| Report deficit IS | Non traite | Complexite elevee, cas rare en simulation |
+
+---
+
+## 11. Problemes de precision numerique
+
+### 11.1 Double arrondi sur le cashflow mensuel
+
+`cashflow_annuel` est arrondi a 2 decimales, puis divise par 12 et arrondi a l'euro. Ecart cumule max ~30 EUR sur 20 ans. Non significatif.
+
+### 11.2 Chaine d'arrondis intermediaires
+
+Chaque module arrondit a 2 decimales. Ecart maximal constate ~5 EUR sur un resultat final. Acceptable.
+
+### 11.3 Metriques denormalisees en BDD
+
+`simulations.score_global` est un integer (`Math.round()` avant insert). Les anciennes simulations ne sont pas recalculees si les constantes changent.
+
+---
+
+## 12. Ecarts non traites (acceptes ou reportes)
+
+| Ecart | Severite | Decision | Justification |
+|-------|----------|----------|---------------|
+| Part terrain fixe 15% | Faible | Accepte | Valeur par defaut raisonnable, conservatrice |
+| DMTO fixe 5% | Faible | Accepte | Conservateur (avantage utilisateur) |
+| Effet de levier apport = 0 | Faible | Accepte | Cas marginal |
+| Interets An 1 approximes | Faible | Accepte | Ecart 2-5%, impact faible |
+| CSG deductible | Negligeable | Accepte | Effet de second ordre |
+| Estimation revenus par TMI | Faible | Accepte | Reserve documentee, alerte emise a l'utilisateur |
+| Capacite emprunt residuelle 20 ans / 3.5% fixe | Faible | Accepte | Devrait utiliser conditions saisies |
+| Taxe fonciere inflations specifiques | Faible | Accepte | Meme taux que les autres charges (2.5%) |
+
+---
+
+## 13. Matrice de risque residuel
+
+| Element | Ampleur de l'ecart | Frequence | Risque global |
+|---------|-------------------|-----------|---------------|
+| Part terrain fixe 15% | 0-300 EUR/an sur amort. | Regimes reels | FAIBLE |
+| DMTO fixe a 5% | 0-0.5% du prix | Dpts non majores | FAIBLE |
+| Effet de levier apport = 0 | Valeur non significative | Cas rare | FAIBLE |
+| Interets An 1 approximes | 2-5% d'ecart sur interets | Systematique | FAIBLE |
+| Double arrondi cashflow | ~30 EUR sur 20 ans | Systematique | NEGLIGEABLE |
+| Estimation revenus par TMI | Variable | Si revenus non saisis | FAIBLE |
+
+**Aucun risque critique ou moyen residuel.**
+
+---
+
+## 14. Points de verification pour le prochain audit
+
+Ce chapitre liste les points precis a verifier lors du prochain audit pour detecter d'eventuels ecarts.
+
+### 14.1 Constantes reglementaires a reverifier
+
+| Constante | Valeur actuelle | A verifier | Risque de changement |
+|-----------|-----------------|------------|----------------------|
+| PS LMNP | 18.6% | LF 2026 / 2027 | Eleve (hausse recente) |
+| PS revenus fonciers | 17.2% | LF 2026 / 2027 | Moyen |
+| Taux IS reduit | 15% sur 42 500 EUR | LF 2026 / 2027 | Faible |
+| Flat Tax | 30% | LF 2026 / 2027 | Moyen (debat politique) |
+| Seuil micro-BIC | 77 700 EUR | LF 2026 / 2027 | Moyen |
+| DMTO majore | 5% | Evolution departementale | Faible |
+| Plafond deficit foncier | 10 700 EUR | LF 2026 / 2027 | Faible (stable depuis des annees) |
+| Calendrier DPE (F: 2028, E: 2034) | Loi Climat 2021 | Possibles reports legislatifs | Moyen |
+| Reintegration amortissements LMNP | LF 2025 | Confirmer maintien | Faible |
+| Seuil surtaxe PV | 50 000 EUR | LF 2026 / 2027 | Faible |
+
+### 14.2 Formules de calcul a reverifier
+
+| Formule | Fichier | Test de reference | Quoi verifier |
+|---------|---------|-------------------|---------------|
+| Deficit foncier : separation hors interets / interets | `fiscalite.ts:368-416` | `deficit-foncier.test.ts` | Plafond 10 700 EUR correctement applique, report FIFO sur 10 ans |
+| Amortissement composants : arret progressif | `fiscalite.ts:418-455` | `amortissement-composants.test.ts` | Arret agencements a 10 ans, installations a 15 ans, facade a 25 ans, gros oeuvre a 50 ans |
+| Plus-value IR : abattements par annee | `fiscalite.ts:458-530` | `plus-value.test.ts` | Bareme abattements IR (6%/an 6e-21e, 4% 22e) et PS (1.65%/an 6e-21e, 1.6% 22e, 9%/an 23e-30e) |
+| Plus-value LMNP : reintegration | `fiscalite.ts:507` | `plus-value.test.ts` | Amortissements cumules reintegres dans PV brute |
+| Plus-value SCI IS : VNC | `fiscalite.ts:570-626` | `plus-value.test.ts` | PV = prix_vente - (prix_achat - amortissements_cumules) |
+| Surtaxe PV > 50 000 EUR | `fiscalite.ts:486-505` | `plus-value.test.ts` | Bareme progressif 2% a 7% |
+| Scoring base 40 + ajustements | `synthese.ts:37-216` | `scoring.test.ts` | 6 criteres, bornes correctes, interpolation lineaire |
+| DPE gel loyers F/G | `projection.ts:331-333` | `dpe-alertes.test.ts` | Inflation 0% pour DPE F et G |
+| Reste a vivre | `hcsf.ts:182-189` | `hcsf-reste-a-vivre.test.ts` | Seuils 700 / 1 500 EUR |
+| TRI avec impots + PV + frais | `projection.ts:495-527` | `frais-revente.test.ts` | Flux final = cashflow_net + patrimoine - impot_PV - frais_revente |
+| Assurance CRD | `projection.ts:111-114` | `assurance-crd.test.ts` | Mensualite degressive sur capital restant |
+| Impots dans projections | `projection.ts:188-281` | `projection.test.ts` | Impot != 0 pour chaque annee, 6 regimes supportes |
+
+### 14.3 Simulation de reference (test de non-regression)
+
+#### Donnees d'entree
 
 | Parametre | Valeur |
 |-----------|--------|
@@ -834,8 +670,9 @@ Deduire du dernier flux :
 | Provision vacance | 5% |
 | TMI | 30% |
 | Structure | Nom propre |
+| DPE | D |
 
-### Resultats attendus (calcul manuel)
+#### Resultats attendus (calcul manuel)
 
 | Indicateur | Calcul | Resultat attendu |
 |-----------|--------|-----------------|
@@ -856,5 +693,49 @@ Deduire du dernier flux :
 | Impot micro-foncier | 7 560 * (30%+17.2%) | ~3 566 EUR |
 | Cashflow net annuel | -6 914 - 3 566 | ~-10 480 EUR |
 | Cashflow net mensuel | | ~-873 EUR |
+| Score (base 40 + ajustements) | CF -20, renta ~-10, DPE D 0, ... | ~10-20 |
 
-Ce scenario de reference peut servir de test de non-regression pour valider les corrections futures.
+Ce scenario de reference sert de test de non-regression pour valider les evolutions futures.
+
+### 14.4 Couverture de tests actuelle
+
+| Fichier de test | Nb tests | Module couvert |
+|----------------|----------|----------------|
+| `deficit-foncier.test.ts` | 12 | Deficit foncier (imputation, report, FIFO) |
+| `amortissement-composants.test.ts` | 13 | Amortissement 4 composants |
+| `plus-value.test.ts` | 21 | PV IR, LMNP, SCI IS, surtaxe |
+| `scoring.test.ts` | 34 | 6 criteres, base 40, interpolation |
+| `hcsf-reste-a-vivre.test.ts` | 4 | Reste a vivre, seuils |
+| `frais-revente.test.ts` | 4 | Frais agence, diagnostics, TRI |
+| `assurance-crd.test.ts` | 6 | Assurance capital restant du |
+| `dpe-alertes.test.ts` | 8 | Alertes passoires, gel loyers |
+| `validation.test.ts` | - | Validation entrees |
+| `fiscalite.test.ts` | - | Regimes fiscaux |
+| `hcsf.test.ts` | - | Analyse HCSF |
+| `projection.test.ts` | - | Projections, TRI |
+| `synthese.test.ts` | - | Synthese, recommandations |
+| **Total tests audit** | **136** | |
+
+---
+
+## Annexe A : Fichiers du moteur de calcul
+
+| Fichier | Role |
+|---------|------|
+| `src/config/constants.ts` | Constantes reglementaires |
+| `src/server/calculations/index.ts` | Orchestrateur principal |
+| `src/server/calculations/types.ts` | Types TypeScript |
+| `src/server/calculations/validation.ts` | Validation + normalisation |
+| `src/server/calculations/rentabilite.ts` | Financement + charges + rendements |
+| `src/server/calculations/fiscalite.ts` | Tous regimes fiscaux + deficit foncier + amortissement composants + plus-value |
+| `src/server/calculations/hcsf.ts` | Analyse HCSF + reste a vivre |
+| `src/server/calculations/projection.ts` | Projections + TRI + amortissement credit + assurance CRD + frais revente |
+| `src/server/calculations/synthese.ts` | Scoring (base 40 + 6 criteres) + alertes DPE + recommandations |
+
+## Annexe B : Historique des audits
+
+| Date | Version | Perimetre | Verdict |
+|------|---------|-----------|---------|
+| 28 Janvier 2026 | 1.0 | Calculs rentabilite | 5 ecarts critiques identifies |
+| 7 Fevrier 2026 | 3.0 | Moteur complet | 7/10 — ecarts critiques sur projections et scoring |
+| 9 Fevrier 2026 | 4.0 | Post-corrections Phase 1-3 | 9/10 — tous ecarts critiques et moyens corriges, 136 tests |

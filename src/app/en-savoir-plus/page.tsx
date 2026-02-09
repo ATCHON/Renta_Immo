@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, Info, PieChart, TrendingUp, Calculator, ShieldCheck,
   Zap, Building2, Clock, BarChart3, Scale, Layers, AlertTriangle,
-  BookOpen, ChevronRight
+  BookOpen, ChevronRight, ChevronDown
 } from 'lucide-react';
 import { Card, CardHeader, CardContent, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -60,6 +60,50 @@ function SectionHeader({ icon: Icon, title }: { icon: React.ElementType; title: 
   );
 }
 
+const PIPELINE_STEPS = [
+  { icon: ShieldCheck, label: "Validation", sub: "Normalisation des entrées", href: "#rentabilite" },
+  { icon: TrendingUp, label: "Rentabilité", sub: "Crédit, charges, rendements", href: "#rentabilite" },
+  { icon: Scale, label: "Fiscalité", sub: "6 régimes comparés", href: "#fiscalite" },
+  { icon: Building2, label: "HCSF", sub: "Endettement, reste à vivre", href: "#hcsf" },
+  { icon: PieChart, label: "Synthèse", sub: "Score 0-100, alertes", href: "#scoring" },
+  { icon: BarChart3, label: "Projections", sub: "20 ans, TRI, plus-value", href: "#projections" },
+];
+
+function CalculationPipeline() {
+  return (
+    <Card>
+      <CardHeader
+        title="Comment fonctionne le moteur de calcul"
+        description="Les 6 modules s'exécutent en séquence pour analyser votre investissement."
+      />
+      <CardContent>
+        <div className="flex flex-col md:flex-row items-center md:items-stretch gap-2 md:gap-0">
+          {PIPELINE_STEPS.map((step, index) => (
+            <div key={step.label} className="flex flex-col md:flex-row items-center">
+              <a
+                href={step.href}
+                className="group flex flex-col items-center text-center gap-2 px-4 py-3 rounded-xl hover:bg-forest/10 transition-colors w-full md:w-auto"
+              >
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-forest/5 group-hover:bg-forest/15 transition-colors">
+                  <step.icon className="h-5 w-5 text-forest" />
+                </div>
+                <span className="text-sm font-bold text-charcoal">{step.label}</span>
+                <span className="text-[11px] text-pebble leading-tight">{step.sub}</span>
+              </a>
+              {index < PIPELINE_STEPS.length - 1 && (
+                <>
+                  <ChevronRight className="hidden md:block h-5 w-5 text-pebble/40 shrink-0 mx-1" />
+                  <ChevronDown className="block md:hidden h-5 w-5 text-pebble/40 shrink-0" />
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function EnSavoirPlusPage() {
   return (
     <main className="min-h-screen py-8 px-4 animate-in fade-in duration-700">
@@ -76,7 +120,7 @@ export default function EnSavoirPlusPage() {
           <h1 className="text-4xl font-bold text-charcoal tracking-tight">Expertise & Méthodologie</h1>
           <p className="text-pebble mt-3 text-lg leading-relaxed max-w-2xl">
             Comprendre les calculs, formules et valeurs réglementaires utilisés par notre moteur d&apos;analyse immobilière.
-            Valeurs à jour pour <strong>2025</strong>.
+            Valeurs à jour pour <strong>2026</strong>.
           </p>
 
           {/* Sommaire */}
@@ -84,6 +128,7 @@ export default function EnSavoirPlusPage() {
             {[
               { label: "Rentabilité", href: "#rentabilite" },
               { label: "Crédit", href: "#credit" },
+              { label: "Assurance CRD", href: "#assurance-crd" },
               { label: "Fiscalité", href: "#fiscalite" },
               { label: "Déficit foncier", href: "#deficit-foncier" },
               { label: "Amortissement", href: "#amortissement" },
@@ -104,6 +149,8 @@ export default function EnSavoirPlusPage() {
             ))}
           </nav>
         </header>
+
+        <CalculationPipeline />
 
         <div className="space-y-10">
 
@@ -206,6 +253,68 @@ export default function EnSavoirPlusPage() {
                     l&apos;investissement locatif.
                   </ExpertTip>
                 </div>
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* ================================================================ */}
+          {/* Section Assurance CRD */}
+          {/* ================================================================ */}
+          <section id="assurance-crd" className="space-y-6 scroll-mt-8">
+            <SectionHeader icon={ShieldCheck} title="Assurance Emprunteur" />
+
+            <Card>
+              <CardHeader
+                title="Capital initial vs Capital restant dû"
+                description="Deux modes de calcul avec un impact significatif sur le coût total."
+              />
+              <CardContent className="space-y-6">
+                <p className="text-sm text-pebble leading-relaxed">
+                  L&apos;assurance emprunteur peut être calculée de deux façons. Le choix du mode impacte
+                  le coût total du crédit, le cash-flow mensuel et le TRI de votre investissement.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-surface p-5 rounded-xl border border-sand">
+                    <h4 className="text-sm font-bold text-charcoal mb-3">Capital initial (classique)</h4>
+                    <FormulaBox>Assurance/mois = Capital emprunté x Taux / 12</FormulaBox>
+                    <p className="text-sm text-pebble leading-relaxed mt-3">
+                      Mensualité <strong>constante</strong> sur toute la durée du crédit.
+                      C&apos;est le mode par défaut des contrats groupe bancaires.
+                    </p>
+                    <div className="bg-sand/20 p-3 rounded-lg text-center mt-3">
+                      <p className="text-xs text-pebble">200 000€ à 0.3% sur 20 ans</p>
+                      <p className="text-lg font-black text-charcoal">50€/mois fixe</p>
+                      <p className="text-xs text-pebble">Total : 12 000€</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-forest/5 p-5 rounded-xl border border-forest/10">
+                    <h4 className="text-sm font-bold text-charcoal mb-3">Capital restant dû (CRD)</h4>
+                    <FormulaBox>Assurance mois N = Capital restant(N) x Taux / 12</FormulaBox>
+                    <p className="text-sm text-pebble leading-relaxed mt-3">
+                      Mensualité <strong>dégressive</strong> : élevée au début, quasi nulle à la fin.
+                      Mode courant en délégation d&apos;assurance (loi Lemoine 2022).
+                    </p>
+                    <div className="bg-white/60 p-3 rounded-lg text-center mt-3">
+                      <p className="text-xs text-pebble">200 000€ à 0.3% sur 20 ans</p>
+                      <p className="text-lg font-black text-forest">50€ → 2.5€/mois</p>
+                      <p className="text-xs text-forest font-bold">Total : ~7 200€ (-40%)</p>
+                    </div>
+                  </div>
+                </div>
+
+                <ExpertTip variant="success">
+                  <strong>Impact sur l&apos;investissement :</strong> En mode CRD, l&apos;économie de ~4 800€ sur 20 ans
+                  améliore le cash-flow en fin de crédit et augmente le TRI de 0.1 à 0.2 point.
+                  En LMNP réel / SCI IS, l&apos;assurance déductible diminue chaque année,
+                  ce qui augmente légèrement la base imposable en fin de crédit.
+                </ExpertTip>
+
+                <ExpertTip variant="warning">
+                  <strong>HCSF :</strong> Pour l&apos;analyse d&apos;endettement, la mensualité maximale (An 1) est retenue
+                  dans les deux modes. Le mode CRD n&apos;offre donc pas d&apos;avantage pour le taux d&apos;endettement.
+                </ExpertTip>
               </CardContent>
             </Card>
           </section>
@@ -632,7 +741,7 @@ export default function EnSavoirPlusPage() {
           {/* Section HCSF */}
           {/* ================================================================ */}
           <section id="hcsf" className="space-y-6 scroll-mt-8">
-            <SectionHeader icon={ShieldCheck} title="Normes HCSF 2025" />
+            <SectionHeader icon={ShieldCheck} title="Normes HCSF 2026" />
 
             <Card>
               <CardContent className="pt-6">
@@ -682,10 +791,37 @@ export default function EnSavoirPlusPage() {
                     leurs dossiers. Cette marge est souvent réservée aux profils à haut reste à vivre (&gt;1 500€/mois après charges)
                     ou aux primo-accédants résidence principale. Les investisseurs locatifs y ont rarement accès.
                   </ExpertTip>
+                  <h4 className="text-sm font-bold text-charcoal uppercase tracking-widest px-3 border-l-4 border-forest mt-6">Reste à vivre</h4>
+                  <p className="text-sm text-pebble leading-relaxed">
+                    Le reste à vivre est le montant qui reste chaque mois après paiement de toutes vos charges et crédits.
+                    Les banques l&apos;utilisent systématiquement <strong>en complément du taux d&apos;endettement</strong> pour évaluer
+                    la faisabilité d&apos;un prêt.
+                  </p>
+                  <FormulaBox>
+                    Reste à vivre = Revenus totaux mensuels - Charges totales mensuelles
+                  </FormulaBox>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-terracotta/5 p-4 rounded-xl border border-terracotta/10 text-center">
+                      <p className="text-xs font-bold text-pebble uppercase tracking-wider">Insuffisant</p>
+                      <p className="text-2xl font-black text-terracotta">&lt; 700€</p>
+                      <p className="text-xs text-pebble mt-1">Refus de prêt probable</p>
+                    </div>
+                    <div className="bg-surface p-4 rounded-xl border border-sand text-center">
+                      <p className="text-xs font-bold text-pebble uppercase tracking-wider">Correct</p>
+                      <p className="text-2xl font-black text-charcoal">700 - 1 500€</p>
+                      <p className="text-xs text-pebble mt-1">Acceptable, marge limitée</p>
+                    </div>
+                    <div className="bg-forest/5 p-4 rounded-xl border border-forest/10 text-center">
+                      <p className="text-xs font-bold text-pebble uppercase tracking-wider">Confortable</p>
+                      <p className="text-2xl font-black text-forest">&gt; 1 500€</p>
+                      <p className="text-xs text-pebble mt-1">Profil premium bancaire</p>
+                    </div>
+                  </div>
                   <ExpertTip variant="success">
-                    <strong>Reste à vivre :</strong> C&apos;est le montant qui reste chaque mois après paiement de toutes vos charges
-                    et crédits. Les banques considèrent un minimum de <strong>800€/mois</strong> par adulte
-                    et <strong>300€ par enfant</strong>. Au-dessus de <strong>1 500€</strong>, votre dossier est considéré confortable.
+                    <strong>Scoring :</strong> Le reste à vivre impacte directement votre score d&apos;investissement :
+                    <strong> +5 points</strong> au-dessus de 1 500€, <strong>0 point</strong> entre 700 et 1 500€,
+                    et <strong>-10 points</strong> en dessous de 700€. Un investisseur peut être sous le seuil de 35%
+                    d&apos;endettement mais avoir un reste à vivre insuffisant, ce qui entraînerait un refus de prêt.
                   </ExpertTip>
                 </div>
               </CardContent>
@@ -744,16 +880,43 @@ export default function EnSavoirPlusPage() {
                   ))}
                 </div>
 
+                <h4 className="text-sm font-bold text-charcoal uppercase tracking-widest px-3 border-l-4 border-terracotta mt-2">
+                  Gel des loyers (DPE F et G)
+                </h4>
+                <p className="text-sm text-pebble leading-relaxed">
+                  Les logements classés <strong>F ou G</strong> ne peuvent plus faire l&apos;objet d&apos;une augmentation
+                  de loyer : l&apos;IRL (Indice de Référence des Loyers) est <strong>inapplicable</strong>.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-surface p-4 rounded-xl border border-sand">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">DPE A à E</p>
+                    <p className="text-sm text-charcoal">Loyer revalorisé selon l&apos;IRL chaque année (<strong>+2%/an</strong> en moyenne)</p>
+                  </div>
+                  <div className="bg-terracotta/5 p-4 rounded-xl border border-terracotta/10">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">DPE F ou G</p>
+                    <p className="text-sm text-charcoal">Loyer <strong>gelé</strong> — inflation forcée à 0% dans les projections</p>
+                  </div>
+                </div>
+                <ExpertTip variant="warning">
+                  <strong>Impact concret :</strong> Pour un loyer de 900€/mois, le gel représente un manque à gagner
+                  de <strong>~175€/mois à l&apos;horizon 10 ans</strong> par rapport à un DPE C avec inflation de 2%.
+                  Notre simulateur applique automatiquement le gel pour les DPE F et G.
+                </ExpertTip>
+
+                <h4 className="text-sm font-bold text-charcoal uppercase tracking-widest px-3 border-l-4 border-forest mt-2">
+                  Alertes et recommandations
+                </h4>
                 <ExpertTip variant="warning">
                   <strong>Impact sur le score :</strong> Un DPE A ou B apporte un bonus de <strong>+5 points</strong>,
                   un DPE E un malus de <strong>-3 points</strong>, et un DPE F ou G (passoire)
-                  un malus de <strong>-10 points</strong>. Les passoires thermiques nécessitent des travaux
-                  de rénovation énergétique pour rester louables.
+                  un malus de <strong>-10 points</strong>. Le simulateur émet des alertes spécifiques si l&apos;interdiction
+                  de location tombe avant la fin de votre horizon de projection.
                 </ExpertTip>
                 <ExpertTip variant="success">
                   <strong>Opportunité :</strong> Un bien en DPE F ou G acheté avec décote + travaux de rénovation énergétique
                   peut être une excellente opération : vous bénéficiez du <strong>déficit foncier</strong> sur les travaux
                   tout en augmentant la valeur et la performance du bien.
+                  Vérifiez votre éligibilité à <strong>MaPrimeRénov&apos;</strong> pour réduire le coût des travaux.
                 </ExpertTip>
               </CardContent>
             </Card>
@@ -936,8 +1099,11 @@ export default function EnSavoirPlusPage() {
                     <p className="text-sm text-pebble leading-relaxed">
                       Le TRI mesure la rentabilité annualisée de votre investissement en prenant en compte
                       <strong> tous les flux</strong> : apport initial, cash-flows annuels nets d&apos;impôt,
-                      et valeur de revente nette de plus-value.
+                      et valeur de revente nette de plus-value <strong>et de frais de cession</strong>.
                     </p>
+                    <FormulaBox>
+                      Flux final = Cash-flow net + Patrimoine net - Impôt PV - Frais de revente
+                    </FormulaBox>
                     <p className="text-sm text-pebble leading-relaxed mt-2">
                       C&apos;est l&apos;indicateur le plus complet pour comparer un investissement immobilier
                       avec un placement financier (assurance-vie, bourse, etc.).
@@ -949,12 +1115,36 @@ export default function EnSavoirPlusPage() {
                       C&apos;est ce que vous possédez réellement à une date donnée :
                     </p>
                     <FormulaBox>
-                      Patrimoine = Valeur du bien - Capital restant dû - Impôt PV
+                      Patrimoine = Valeur du bien - Capital restant dû - Impôt PV - Frais de revente
                     </FormulaBox>
                     <p className="text-sm text-pebble leading-relaxed mt-2">
-                      Intègre la revalorisation du bien, le remboursement progressif du crédit
-                      et l&apos;impôt de plus-value estimé en cas de revente.
+                      Intègre la revalorisation du bien, le remboursement progressif du crédit,
+                      l&apos;impôt de plus-value estimé et les frais de cession en cas de revente.
                     </p>
+                  </div>
+                </div>
+
+                <h4 className="text-sm font-bold text-charcoal uppercase tracking-widest px-3 border-l-4 border-forest">
+                  Frais de revente
+                </h4>
+                <p className="text-sm text-pebble leading-relaxed">
+                  Le simulateur intègre les frais réels de cession pour un TRI et un enrichissement total réalistes.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-surface p-4 rounded-xl border border-sand text-center">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider">Frais d&apos;agence</p>
+                    <p className="text-2xl font-black text-charcoal">5%<span className="text-xs font-normal text-pebble"> du prix de vente</span></p>
+                    <p className="text-xs text-pebble mt-1">Modifiable (0% si PAP)</p>
+                  </div>
+                  <div className="bg-surface p-4 rounded-xl border border-sand text-center">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider">Diagnostics</p>
+                    <p className="text-2xl font-black text-charcoal">500€<span className="text-xs font-normal text-pebble"> forfait</span></p>
+                    <p className="text-xs text-pebble mt-1">DPE, amiante, plomb, etc.</p>
+                  </div>
+                  <div className="bg-terracotta/5 p-4 rounded-xl border border-terracotta/10 text-center">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider">Exemple 230k€</p>
+                    <p className="text-2xl font-black text-terracotta">12 000€</p>
+                    <p className="text-xs text-pebble mt-1">Impact TRI : -0.3 à -0.5 pt</p>
                   </div>
                 </div>
 
@@ -979,12 +1169,12 @@ export default function EnSavoirPlusPage() {
               </div>
               <p className="text-stone-light/70 text-sm leading-relaxed max-w-3xl">
                 Ce simulateur fournit des estimations basées sur les informations renseignées et les valeurs réglementaires en vigueur.
-                Les calculs fiscaux sont conformes à la législation 2025, mais des particularités liées à votre situation personnelle
+                Les calculs fiscaux sont conformes à la législation 2025-2026, mais des particularités liées à votre situation personnelle
                 peuvent modifier les résultats.
               </p>
               <p className="text-stone-light/70 text-sm leading-relaxed max-w-3xl">
                 Pour un conseil personnalisé, consultez un expert-comptable ou un conseiller en gestion de patrimoine (CGP).
-                Les prélèvements sociaux, barèmes d&apos;abattement et seuils fiscaux sont ceux en vigueur au 1er janvier 2025.
+                Les prélèvements sociaux, barèmes d&apos;abattement et seuils fiscaux sont ceux en vigueur au 1er janvier 2026.
               </p>
             </div>
             <div className="absolute top-0 right-0 w-64 h-64 bg-forest/10 rounded-full blur-3xl -mr-32 -mt-32"></div>

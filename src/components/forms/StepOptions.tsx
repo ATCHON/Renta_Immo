@@ -38,6 +38,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       horizon_projection: options.horizon_projection ?? 20,
       taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
       taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
+      taux_agence_revente: options.taux_agence_revente ?? 5,
     },
   });
 
@@ -55,6 +56,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
     horizon_projection: options.horizon_projection ?? 20,
     taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
     taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
+    taux_agence_revente: options.taux_agence_revente ?? 5,
   }, activeScenarioId);
 
   const watchedValues = watch();
@@ -68,6 +70,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       horizon_projection: Number(data.horizon_projection),
       taux_evolution_loyer: Number(data.taux_evolution_loyer),
       taux_evolution_charges: Number(data.taux_evolution_charges),
+      taux_agence_revente: Number(data.taux_agence_revente),
     });
 
     onSubmit();
@@ -133,6 +136,16 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
             {...register('taux_evolution_charges', { valueAsNumber: true })}
           />
         </div>
+      </div>
+
+      {/* AUDIT-108 : Frais de revente */}
+      <div className="bg-surface p-4 rounded-xl border border-sand">
+        <PercentInput
+          label="Frais d'agence à la revente"
+          hint="Agence 5% par défaut (0% si vente entre particuliers)"
+          error={errors.taux_agence_revente?.message}
+          {...register('taux_agence_revente', { valueAsNumber: true })}
+        />
       </div>
 
       {/* Champ email si option activée */}

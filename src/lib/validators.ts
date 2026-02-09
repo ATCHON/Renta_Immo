@@ -65,6 +65,7 @@ export const financementSchema = z.object({
     .max(2, "Le taux d'assurance semble trop élevé"),
   frais_dossier: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
   frais_garantie: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
+  mode_assurance: z.enum(['capital_initial', 'capital_restant_du']).default('capital_initial'),
 });
 
 // Type d'entrée pour le formulaire (champs optionnels avec default)
@@ -180,6 +181,7 @@ export const optionsSchema = z.object({
   horizon_projection: z.number().default(20),
   taux_evolution_loyer: z.number().min(0).max(10).default(2),
   taux_evolution_charges: z.number().min(0).max(10).default(2.5),
+  taux_agence_revente: z.number().min(0).max(15).default(5),
 }).refine(
   (data) => {
     if (data.envoyer_email && !data.email) {

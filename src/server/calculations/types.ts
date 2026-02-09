@@ -152,6 +152,7 @@ export interface HCSFCalculations {
   capacite_emprunt_residuelle: number;
   details_associes: HCSFAssocie[];
   alertes: string[];
+  reste_a_vivre?: number;
 
   // Détails ajoutés pour une vision globale (agrégée)
   revenus_detail: {
@@ -277,6 +278,7 @@ export interface ProjectionData {
     impotCumule: number;
     enrichissementTotal: number;
     tri: number;
+    frais_revente?: number;
   };
   plusValue?: PlusValueDetail;
 }

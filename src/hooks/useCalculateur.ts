@@ -18,6 +18,9 @@ export function useCalculateur() {
       setError(null);
     },
     onSuccess: async (data, variables) => {
+      // Stocker les résultats et déclencher la redirection
+      setResultats(data.resultats, data.pdfUrl);
+
       // Gérer l'envoi d'email si demandé
       if (variables.options.envoyer_email && variables.options.email) {
         try {
