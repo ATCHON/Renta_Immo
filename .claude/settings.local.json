@@ -73,7 +73,9 @@
       "Bash(gh.exe pr list --head fix/audit-methode-calcul-dev --json number,title,url)",
       "Bash(cmd.exe /c \"where gh\")",
       "Bash(git pull:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(ls:*)",
+      "Bash(npx next lint --file src/app/en-savoir-plus/page.tsx)"
     ]
   },
   "enableAllProjectMcpServers": true,

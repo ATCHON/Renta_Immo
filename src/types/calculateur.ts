@@ -56,6 +56,8 @@ export interface FinancementData {
   // Nouveaux champs 2025
   frais_dossier: number;
   frais_garantie: number;
+  // AUDIT-109 : Mode d'assurance
+  mode_assurance?: 'capital_initial' | 'capital_restant_du';
 }
 
 /**
@@ -115,7 +117,9 @@ export interface OptionsData {
   email?: string;
   horizon_projection?: number;
   taux_evolution_loyer?: number;
-  taux_evolution_charges?: number; // Anticipating Story 2.3.4
+  taux_evolution_charges?: number;
+  // AUDIT-108 : Frais de revente
+  taux_agence_revente?: number;
 }
 
 /**
@@ -254,6 +258,7 @@ export interface HCSFResultat {
   taux_endettement: number;
   conforme: boolean;
   details_associes: HCSFDetailAssocie[];
+  reste_a_vivre?: number;
 }
 
 /**
@@ -351,6 +356,7 @@ export interface ProjectionData {
     impotCumule: number;
     enrichissementTotal: number;
     tri: number;
+    frais_revente?: number;
   };
 }
 

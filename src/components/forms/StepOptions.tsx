@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button';
 import { optionsSchema, type OptionsFormData } from '@/lib/validators';
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useScenarioFormReset } from '@/hooks/useScenarioFormReset';
+import { useEffect } from 'react';
+import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 
 interface StepOptionsProps {
@@ -18,6 +20,7 @@ interface StepOptionsProps {
 export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
   const { getActiveScenario, updateOptions, activeScenarioId } = useCalculateurStore();
   const { options } = getActiveScenario();
+  const { data: session } = authClient.useSession();
 
   const {
     register,
@@ -31,25 +34,35 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
     defaultValues: {
       generer_pdf: options.generer_pdf ?? true,
       envoyer_email: options.envoyer_email ?? false,
-      email: options.email || '',
+      email: session?.user?.email || options.email || '', // Priorité session
       horizon_projection: options.horizon_projection ?? 20,
       taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
       taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
+      taux_agence_revente: options.taux_agence_revente ?? 5,
     },
   });
+
+  // Mettre à jour l'email si la session change (connexion tardive)
+  useEffect(() => {
+    if (session?.user?.email) {
+      setValue('email', session.user.email);
+    }
+  }, [session, setValue]);
 
   useScenarioFormReset(reset, {
     generer_pdf: options.generer_pdf ?? true,
     envoyer_email: options.envoyer_email ?? false,
-    email: options.email || '',
+    email: session?.user?.email || options.email || '',
     horizon_projection: options.horizon_projection ?? 20,
     taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
     taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
+    taux_agence_revente: options.taux_agence_revente ?? 5,
   }, activeScenarioId);
 
   const watchedValues = watch();
 
-  const handleFormSubmit = (data: OptionsFormData) => {
+  const handleFormSubmit = async (data: OptionsFormData) => {
+    // Sauvegarde locale des options
     updateOptions({
       generer_pdf: data.generer_pdf,
       envoyer_email: data.envoyer_email,
@@ -57,7 +70,9 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       horizon_projection: Number(data.horizon_projection),
       taux_evolution_loyer: Number(data.taux_evolution_loyer),
       taux_evolution_charges: Number(data.taux_evolution_charges),
+      taux_agence_revente: Number(data.taux_agence_revente),
     });
+
     onSubmit();
   };
 
@@ -123,16 +138,30 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
         </div>
       </div>
 
+      {/* AUDIT-108 : Frais de revente */}
+      <div className="bg-surface p-4 rounded-xl border border-sand">
+        <PercentInput
+          label="Frais d'agence à la revente"
+          hint="Agence 5% par défaut (0% si vente entre particuliers)"
+          error={errors.taux_agence_revente?.message}
+          {...register('taux_agence_revente', { valueAsNumber: true })}
+        />
+      </div>
+
       {/* Champ email si option activée */}
       {watchedValues.envoyer_email && (
-        <div className="pl-4 border-l-2 border-forest/30">
+        <div className="pl-4 border-l-2 border-forest/30 transition-all animate-in fade-in slide-in-from-top-2">
           <Input
             label="Adresse email"
             type="email"
             placeholder="votre@email.com"
             error={errors.email?.message}
             {...register('email')}
+          // disabled={!!session?.user?.email} // Désactivé si connecté
           />
+          <p className="text-xs text-pebble mt-1">
+            {session?.user?.email ? "Email associé à votre compte" : "Saisissez l'email de réception"}
+          </p>
         </div>
       )}
 
@@ -162,7 +191,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
           )}
           {watchedValues.envoyer_email && (
             <li className="flex items-center gap-2">
-              <span className="text-forest">✓</span> Envoi par email
+              <span className="text-forest">✓</span> Envoi par email à {watchedValues.email || "..."}
             </li>
           )}
         </ul>

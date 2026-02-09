@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { ArrowRight, Shield, Zap, TrendingUp } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 
 export default function HomePage() {
   return (

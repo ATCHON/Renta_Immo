@@ -179,6 +179,15 @@ export function calculerHcsfNomPropre(
     mensualiteNouveauCredit
   );
 
+  // AUDIT-107 : Reste à vivre
+  const resteAVivre = revenusPonderes.total - chargesTotalesMensuelles;
+
+  if (resteAVivre < CONSTANTS.RESTE_A_VIVRE.SEUIL_MIN) {
+    alertes.push(
+      `Reste à vivre (${Math.round(resteAVivre)} €/mois) inférieur au seuil bancaire minimum (${CONSTANTS.RESTE_A_VIVRE.SEUIL_MIN} €/mois)`
+    );
+  }
+
   return {
     structure: 'nom_propre',
     taux_endettement: arrondir(tauxEndettement * 100, 2),
@@ -199,6 +208,7 @@ export function calculerHcsfNomPropre(
       total_mensuelles: arrondir(chargesTotalesMensuelles),
     },
     capacite_emprunt_residuelle: arrondir(capaciteResiduelle),
+    reste_a_vivre: arrondir(resteAVivre),
   };
 }
 
@@ -300,6 +310,17 @@ export function calculerHcsfSciIs(
     );
   }
 
+  // AUDIT-107 : Reste à vivre global (basé sur le total)
+  const revenusTotauxGlobal = totalRevenusActiviteMensuels + loyerMensuelBrut * HCSF_CONSTANTES.PONDERATION_LOCATIFS;
+  const chargesTotalesGlobal = resultatsAssocies.reduce((sum, a) => sum + a.charges_totales_mensuelles, 0);
+  const resteAVivre = revenusTotauxGlobal - chargesTotalesGlobal;
+
+  if (resteAVivre < CONSTANTS.RESTE_A_VIVRE.SEUIL_MIN) {
+    alertes.push(
+      `Reste à vivre (${Math.round(resteAVivre)} €/mois) inférieur au seuil bancaire minimum (${CONSTANTS.RESTE_A_VIVRE.SEUIL_MIN} €/mois)`
+    );
+  }
+
   return {
     structure: 'sci_is',
     taux_endettement: arrondir(tauxEndettementGlobal, 2),
@@ -328,6 +349,7 @@ export function calculerHcsfSciIs(
       ),
     },
     capacite_emprunt_residuelle: arrondir(capaciteResiduelleGlobale),
+    reste_a_vivre: arrondir(resteAVivre),
   };
 }
 

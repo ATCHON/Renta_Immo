@@ -52,6 +52,9 @@ export function calculerMensualite(
       (Math.pow(1 + tauxMensuel, nombreMois) - 1);
   }
 
+  // AUDIT-109 : Pour le résumé mensualité (An 1 / HCSF), on retourne
+  // l'assurance sur capital initial (= max), ce qui est conservateur.
+  // La différence CRD se matérialise dans le tableau d'amortissement.
   const mensualiteAssurance = (montant * (tauxAssurance / 100)) / 12;
 
   return {

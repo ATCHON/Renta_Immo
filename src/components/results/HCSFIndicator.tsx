@@ -69,6 +69,36 @@ export function HCSFIndicator({ hcsf }: HCSFIndicatorProps) {
           </div>
         )}
 
+        {/* AUDIT-107 : Reste à vivre */}
+        {hcsf.reste_a_vivre !== undefined && (
+          <div className="mt-4 pt-4 border-t border-sand/30">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="nordic-label-xs">Reste à vivre</p>
+                <p className="text-[10px] text-stone mt-0.5">
+                  {hcsf.reste_a_vivre >= 1500
+                    ? 'Confortable'
+                    : hcsf.reste_a_vivre >= 700
+                      ? 'Correct'
+                      : 'Insuffisant'}
+                </p>
+              </div>
+              <span
+                className={cn(
+                  'text-lg font-bold',
+                  hcsf.reste_a_vivre >= 1500
+                    ? 'text-forest'
+                    : hcsf.reste_a_vivre >= 700
+                      ? 'text-amber-600'
+                      : 'text-terracotta'
+                )}
+              >
+                {Math.round(hcsf.reste_a_vivre)} €/mois
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Information Rappel (Ultra-compact) */}
         <div className="mt-4 pt-4 border-t border-sand/50">
           <p className="text-[10px] text-stone leading-relaxed italic">

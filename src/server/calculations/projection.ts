@@ -75,7 +75,8 @@ export function genererTableauAmortissement(
     montant: number,
     tauxAnnuel: number,
     dureeAnnees: number,
-    tauxAssurance: number = 0
+    tauxAssurance: number = 0,
+    modeAssurance: 'capital_initial' | 'capital_restant_du' = 'capital_initial'
 ): TableauAmortissement {
     if (montant <= 0 || dureeAnnees <= 0) {
         return {
@@ -107,19 +108,26 @@ export function genererTableauAmortissement(
         const interetsMois = capitalRestant * (tauxAnnuel / 12);
         const capitalMois = mensualiteCredit - interetsMois;
 
+        // AUDIT-109 : Assurance sur capital restant dû
+        const assuranceMois = modeAssurance === 'capital_restant_du'
+            ? (capitalRestant * tauxAssurance) / 12
+            : mensualiteAssurance;
+
         totalInterets += interetsMois;
-        totalAssurance += mensualiteAssurance;
+        totalAssurance += assuranceMois;
         capitalRestant -= capitalMois;
 
         if (capitalRestant < 0) capitalRestant = 0;
 
+        const echeanceMois = mensualiteCredit + assuranceMois;
+
         lignesMensuelles.push({
             periode: mois,
-            echeance: Math.round(echeanceTotale * 100) / 100,
+            echeance: Math.round(echeanceMois * 100) / 100,
             capital: Math.round(capitalMois * 100) / 100,
             interets: Math.round(interetsMois * 100) / 100,
-            assurance: Math.round(mensualiteAssurance * 100) / 100,
-            capitalRestant: Math.round(capitalRestant * 100) / 100
+            assurance: Math.round(assuranceMois * 100) / 100,
+            capitalRestant: Math.round(capitalRestant < 0 ? 0 : capitalRestant * 100) / 100
         });
 
         // Agrégation annuelle
@@ -291,7 +299,8 @@ export function genererProjections(
     const tauxAssurance = (input.financement.assurance_pret || 0) / 100;
 
     // Générer l'amortissement
-    const amortissement = genererTableauAmortissement(montantEmprunt, tauxCredit, dureeCredit, tauxAssurance);
+    const modeAssurance = input.financement.mode_assurance ?? 'capital_initial';
+    const amortissement = genererTableauAmortissement(montantEmprunt, tauxCredit, dureeCredit, tauxAssurance, modeAssurance);
 
     // Déterminer le régime fiscal pour les projections
     const regimeProjection: RegimeFiscal | 'sci_is' | 'sci_is_dividendes' =
@@ -319,6 +328,10 @@ export function genererProjections(
 
     const revalorisationBien = CONSTANTS.PROJECTION.REVALORISATION_BIEN;
 
+    // AUDIT-110 : Gel des loyers pour DPE F et G
+    const dpe = input.bien.dpe;
+    const gelLoyer = dpe !== undefined && ['F', 'G'].includes(dpe);
+
     // Facteur d'inflation cumulée pour les charges fixes (commence à 1)
     let facteurInflationCharges = 1;
 
@@ -331,7 +344,9 @@ export function genererProjections(
     for (let annee = 1; annee <= horizon; annee++) {
         // Appliquer l'inflation
         if (annee > 1) {
-            loyerMensuel *= (1 + inflationLoyer);
+            if (!gelLoyer) {
+                loyerMensuel *= (1 + inflationLoyer);
+            }
             facteurInflationCharges *= (1 + inflationCharges);
             valeurBien *= (1 + revalorisationBien);
         }
@@ -477,6 +492,12 @@ export function genererProjections(
         );
     }
 
+    // AUDIT-108 : Frais de revente
+    const tauxAgenceRevente = (input.options.taux_agence_revente ?? CONSTANTS.FRAIS_REVENTE.TAUX_AGENCE_DEFAUT) / 100;
+    const fraisAgence = derniereProjection.valeurBien * tauxAgenceRevente;
+    const fraisDiagnostics = CONSTANTS.FRAIS_REVENTE.DIAGNOSTICS;
+    const fraisReventeTotal = Math.round(fraisAgence + fraisDiagnostics);
+
     // Calcul du TRI (flux nets d'impôts)
     // Flux 0 : -Apport (si 0, on simule 1€ pour permettre le calcul TRI)
     const flux: number[] = [-(input.financement.apport > 0 ? input.financement.apport : 1)];
@@ -487,7 +508,7 @@ export function genererProjections(
     }
     // Flux horizon : Cashflow Net + Patrimoine Net - Impôt PV (AUDIT-105)
     const impotPV = plusValue?.impot_total ?? 0;
-    flux.push(derniereProjection.cashflowNetImpot + derniereProjection.patrimoineNet - impotPV);
+    flux.push(derniereProjection.cashflowNetImpot + derniereProjection.patrimoineNet - impotPV - fraisReventeTotal);
 
     const tri = calculerTRI(flux);
 
@@ -498,8 +519,9 @@ export function genererProjections(
             cashflowCumule: Math.round(cashflowCumule),
             capitalRembourse: Math.round(capitalRembourseTotal),
             impotCumule: Math.round(projections.reduce((sum, p) => sum + p.impot, 0)),
-            enrichissementTotal: Math.round(capitalRembourseTotal + cashflowCumule - impotPV),
-            tri: tri > 0 ? Math.round(tri * 100) / 100 : 0
+            enrichissementTotal: Math.round(capitalRembourseTotal + cashflowCumule - impotPV - fraisReventeTotal),
+            tri: tri > 0 ? Math.round(tri * 100) / 100 : 0,
+            frais_revente: fraisReventeTotal,
         },
         plusValue,
     };

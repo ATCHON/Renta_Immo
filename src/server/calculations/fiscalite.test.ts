@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculerToutesFiscalites } from './fiscalite';
-import { BienData, FinancementData, ExploitationData, StructureData, RentabiliteCalculations } from './types';
+import { BienData, FinancementData, ExploitationData, StructureData, RentabiliteCalculations, FinancementCalculations } from './types';
 
 describe('calculerToutesFiscalites', () => {
     const mockBien: BienData = {
@@ -44,20 +44,39 @@ describe('calculerToutesFiscalites', () => {
         associes: [],
     };
 
-    const mockRentabilite = {
+    const mockFinancementCalculations: FinancementCalculations = {
+        montant_emprunt: 180000,
+        mensualite_credit: 1000,
+        mensualite_assurance: 50,
+        mensualite_totale: 1050,
+        remboursement_annuel: 12600,
+        cout_total_credit: 50000,
+        cout_total_interets: 40000,
+        cout_total_acquisition: 215000,
+        taux_interet: 4
+    };
+
+    const mockRentabilite: RentabiliteCalculations = {
         loyer_annuel: 14400,
         charges: {
-            total_charges_annuelles: 2200, // 100*12 + 1000
+            charges_fixes_annuelles: 2200,
+            charges_proportionnelles_annuelles: 0,
+            total_charges_annuelles: 2200,
         },
-        financement: mockFinancement,
-        cashflow_annuel: 2000,
+        financement: mockFinancementCalculations,
+        rentabilite_brute: 7,
+        rentabilite_nette: 5,
         revenu_net_avant_impots: 12200,
+        cashflow_annuel: 2000,
+        cashflow_mensuel: 166,
+        effort_epargne_mensuel: 0,
+        effet_levier: 1.5,
     };
 
     it('devrait retourner 6 régimes fiscaux', () => {
         const result = calculerToutesFiscalites(
             { bien: mockBien, financement: mockFinancement, exploitation: mockExploitation, structure: mockStructure },
-            mockRentabilite as RentabiliteCalculations
+            mockRentabilite
         );
 
         expect(result.items).toHaveLength(6);

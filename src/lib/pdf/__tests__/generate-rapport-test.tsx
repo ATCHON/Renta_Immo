@@ -148,12 +148,12 @@ const mockResultats: CalculResultats = {
 async function generateTestReport() {
     console.log('Generating simulation report PDF...');
 
-    const doc = React.createElement(RapportSimulation, {
-        formData: mockFormData,
-        resultats: mockResultats,
-        generatedAt: new Date(),
-    });
-
+    const doc = (
+        <RapportSimulation
+            formData={mockFormData as CalculateurFormData}
+            resultats={mockResultats as CalculResultats}
+        />
+    );
     const buffer = await renderToBuffer(doc);
     const outputPath = path.join(__dirname, 'rapport-simulation-test.pdf');
     fs.writeFileSync(outputPath, buffer);

@@ -121,6 +121,62 @@ export function ajustementResteAVivre(revenusActivite?: number, totalChargesMens
 }
 
 /**
+ * AUDIT-110 : Constantes DPE réglementaires
+ */
+const DPE_INTERDICTIONS = {
+  G: { annee: 2025, libelle: 'Interdit à la location depuis le 1er janvier 2025' },
+  F: { annee: 2028, libelle: 'Interdit à la location à partir du 1er janvier 2028' },
+  E: { annee: 2034, libelle: 'Interdit à la location à partir du 1er janvier 2034' },
+};
+
+const DPE_GEL_LOYER: string[] = ['F', 'G'];
+
+/**
+ * AUDIT-110 : Génère les alertes liées au DPE
+ */
+export function genererAlertesDpe(dpe?: DPE, horizon?: number): PointAttention[] {
+  if (!dpe) return [];
+  const alertes: PointAttention[] = [];
+  const anneeActuelle = new Date().getFullYear();
+
+  const interdiction = DPE_INTERDICTIONS[dpe as keyof typeof DPE_INTERDICTIONS];
+  if (interdiction) {
+    const dejaInterdit = anneeActuelle >= interdiction.annee;
+    alertes.push({
+      type: dejaInterdit ? 'error' : 'warning',
+      categorie: 'general',
+      message: 'DPE ' + dpe + ' : ' + interdiction.libelle,
+      conseil: dejaInterdit
+        ? "Ce bien ne peut pas être mis en location en l'état. Des travaux de rénovation énergétique sont obligatoires."
+        : "Anticipez les travaux de rénovation énergétique avant l'échéance.",
+    });
+
+    if (!dejaInterdit && horizon) {
+      const anneesRestantes = interdiction.annee - anneeActuelle;
+      if (anneesRestantes < horizon) {
+        alertes.push({
+          type: 'warning',
+          categorie: 'general',
+          message: "L'interdiction de location interviendra dans " + anneesRestantes + " ans, avant la fin de votre horizon de projection (" + horizon + " ans)",
+          conseil: 'Prévoyez un budget de rénovation énergétique pour maintenir la rentabilité du bien.',
+        });
+      }
+    }
+  }
+
+  if (DPE_GEL_LOYER.includes(dpe)) {
+    alertes.push({
+      type: 'warning',
+      categorie: 'general',
+      message: "Gel des loyers : l'IRL ne s'applique pas aux logements classés F ou G",
+      conseil: "L'évolution des loyers est bloquée tant que le DPE n'est pas amélioré.",
+    });
+  }
+
+  return alertes;
+}
+
+/**
  * Calcule le score global selon la spécification métier (AUDIT-106)
  * Base 40 + ajustements par critère, borné entre 0 et 100
  */
@@ -184,7 +240,9 @@ export function genererEvaluation(score: number): {
 export function genererPointsAttention(
   rentabilite: RentabiliteCalculations,
   hcsf: HCSFCalculations,
-  fiscalite: FiscaliteCalculations
+  fiscalite: FiscaliteCalculations,
+  dpe?: DPE,
+  horizon?: number
 ): PointAttention[] {
   const points: PointAttention[] = [];
 
@@ -258,6 +316,9 @@ export function genererPointsAttention(
     });
   }
 
+  // AUDIT-110 : Alertes DPE
+  points.push(...genererAlertesDpe(dpe, horizon));
+
   return points;
 }
 
@@ -268,7 +329,8 @@ export function genererRecommandations(
   structure: StructureData,
   rentabilite: RentabiliteCalculations,
   hcsf: HCSFCalculations,
-  score: ScoreDetail
+  score: ScoreDetail,
+  bien?: BienData
 ): Recommandation[] {
   const recommandations: Recommandation[] = [];
 
@@ -359,6 +421,23 @@ export function genererRecommandations(
         'Trouver un co-emprunteur',
         'Reporter le projet et augmenter les revenus',
         'Cibler un bien moins cher',
+      ],
+    });
+  }
+
+
+  // AUDIT-110 : Recommandations DPE passoires
+  if (bien?.dpe && ["F", "G"].includes(bien.dpe)) {
+    recommandations.push({
+      priorite: "haute",
+      categorie: "general",
+      titre: "Rénovation énergétique nécessaire",
+      description: "Votre bien est classé DPE " + bien.dpe + " (passoire énergétique)",
+      actions: [
+        "Prévoir un budget de rénovation énergétique pour améliorer le DPE",
+        "Vérifier l'éligibilité aux aides MaPrimeRénov'",
+        "Consulter un diagnostiqueur pour estimer les travaux nécessaires",
+        "Attention : le gel des loyers s'applique aux biens classés F et G",
       ],
     });
   }
@@ -499,11 +578,11 @@ export function genererSynthese(
   const recommandation = getRecommandationPrincipale(scoreInterne);
 
   const points_attention_detail = fiscalite
-    ? genererPointsAttention(rentabilite, hcsf, fiscalite)
+    ? genererPointsAttention(rentabilite, hcsf, fiscalite, bien?.dpe, 20)
     : [];
 
   const recommandations_detail = structure
-    ? genererRecommandations(structure, rentabilite, hcsf, scoreDetail)
+    ? genererRecommandations(structure, rentabilite, hcsf, scoreDetail, bien)
     : [];
 
   return {

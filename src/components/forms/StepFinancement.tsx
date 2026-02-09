@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CurrencyInput, PercentInput, Input } from '@/components/ui';
+import { CurrencyInput, PercentInput, Input, Select } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { financementSchema, type FinancementFormDataInput, type FinancementFormData } from '@/lib/validators';
 import { useCalculateurStore } from '@/stores/calculateur.store';
@@ -34,6 +34,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
       assurance_pret: Number((financement.assurance_pret ?? 0.3).toFixed(2)),
       frais_dossier: financement.frais_dossier ?? 0,
       frais_garantie: financement.frais_garantie ?? 2000,
+      mode_assurance: financement.mode_assurance ?? 'capital_initial',
     },
   });
 
@@ -44,6 +45,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
     assurance_pret: Number((financement.assurance_pret ?? 0.3).toFixed(2)),
     frais_dossier: financement.frais_dossier ?? 0,
     frais_garantie: financement.frais_garantie ?? 2000,
+    mode_assurance: financement.mode_assurance ?? 'capital_initial',
   }, activeScenarioId);
 
   const watchedValues = watch() as unknown as FinancementFormData;
@@ -113,12 +115,24 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
         />
       </div>
 
-      <PercentInput
-        label="Taux d'assurance prêt"
-        placeholder="0.3"
-        error={errors.assurance_pret?.message}
-        {...register('assurance_pret', { valueAsNumber: true })}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <PercentInput
+          label="Taux d'assurance prêt"
+          placeholder="0.3"
+          error={errors.assurance_pret?.message}
+          {...register('assurance_pret', { valueAsNumber: true })}
+        />
+
+        <Select
+          label="Mode d'assurance"
+          {...register('mode_assurance')}
+          options={[
+            { value: 'capital_initial', label: 'Capital initial (fixe)' },
+            { value: 'capital_restant_du', label: 'Capital restant dû (décroissant)' },
+          ]}
+          hint="L'assurance CRD diminue avec le remboursement"
+        />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CurrencyInput

@@ -32,6 +32,7 @@ const DEFAULT_FINANCEMENT: Partial<FinancementData> = {
   taux_interet: 3.5,
   duree_emprunt: 20,
   assurance_pret: 0.3,
+  mode_assurance: 'capital_initial',
 };
 
 /**
@@ -65,6 +66,7 @@ const DEFAULT_OPTIONS: OptionsData = {
   horizon_projection: 20,
   taux_evolution_loyer: 2,
   taux_evolution_charges: 2.5,
+  taux_agence_revente: 5,
 };
 
 /**
