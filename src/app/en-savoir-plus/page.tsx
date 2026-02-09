@@ -869,19 +869,22 @@ export default function EnSavoirPlusPage() {
                 <h4 className="text-sm font-bold text-charcoal uppercase tracking-widest px-3 border-l-4 border-forest">
                   Interprétation du score
                 </h4>
-                <div className="space-y-3 max-w-lg mx-auto bg-surface/30 p-6 rounded-2xl border border-sand/20 shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-surface/30 p-6 rounded-2xl border border-sand/20 shadow-sm">
                   {[
-                    { range: "80 - 100", label: "Excellent — Opportunité rare, tous les voyants sont au vert", color: "bg-forest" },
-                    { range: "60 - 79", label: "Bon — Dossier solide, quelques points d'optimisation", color: "bg-sage" },
-                    { range: "40 - 59", label: "Moyen — Investissement à optimiser avant de s'engager", color: "bg-amber" },
-                    { range: "0 - 39", label: "Faible — Projet risqué, reconsidérer ou revoir les paramètres", color: "bg-terracotta" }
+                    { range: "80 - 100", label: "Excellent", sub: "Opportunité rare, foncez", color: "bg-forest" },
+                    { range: "60 - 79", label: "Bon", sub: "Dossier solide à optimiser", color: "bg-sage" },
+                    { range: "40 - 59", label: "Moyen", sub: "Points bloquants à résoudre", color: "bg-amber" },
+                    { range: "0 - 39", label: "Faible", sub: "Risque élevé, revoir le projet", color: "bg-terracotta" }
                   ].map((level, id) => (
-                    <div key={id} className="flex items-center justify-between text-sm gap-4">
-                      <div className="flex items-center gap-3 shrink-0">
+                    <div key={id} className="flex flex-col items-center text-center gap-2">
+                      <div className="flex items-center gap-2">
                         <div className={cn("w-3 h-3 rounded-full shadow-sm", level.color)}></div>
-                        <span className="font-bold text-charcoal w-16 tabular-nums">{level.range}</span>
+                        <span className="font-bold text-charcoal tabular-nums text-lg">{level.range}</span>
                       </div>
-                      <span className="text-pebble font-medium text-right">{level.label}</span>
+                      <div>
+                        <p className="font-bold text-charcoal text-sm">{level.label}</p>
+                        <p className="text-pebble text-xs leading-tight">{level.sub}</p>
+                      </div>
                     </div>
                   ))}
                 </div>

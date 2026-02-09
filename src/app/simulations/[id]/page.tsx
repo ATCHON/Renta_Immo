@@ -10,7 +10,7 @@ export default function SimulationDetailPage() {
     const params = useParams();
     const id = params?.id as string;
     const { data: simulation, isLoading, error } = useSimulation(id);
-    const { loadScenario, reset } = useCalculateurStore();
+    const { loadScenario } = useCalculateurStore();
 
 
 

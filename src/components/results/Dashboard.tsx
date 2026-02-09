@@ -51,11 +51,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 export function Dashboard() {
   const router = useRouter();
-  const {
-    getActiveScenario,
-    resetScenario,
-    setStatus
-  } = useCalculateurStore();
+  const { getActiveScenario, setStatus } = useCalculateurStore();
 
   const hasHydrated = useHasHydrated();
   const scenario = getActiveScenario();
