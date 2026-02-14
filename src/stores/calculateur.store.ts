@@ -45,6 +45,7 @@ const DEFAULT_EXPLOITATION: Partial<ExploitationData> = {
   gestion_locative: 0,
   provision_travaux: 5,
   provision_vacance: 5,
+  taux_occupation: 0.92,
 };
 
 /**

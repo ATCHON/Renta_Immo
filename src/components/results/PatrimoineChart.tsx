@@ -116,8 +116,28 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({ data, loanE
                     <Tooltip content={<CustomTooltip />} />
                     <Legend
                         iconType="circle"
-                        formatter={(value: string) => (
-                            <span className="text-xs text-stone">{value}</span>
+                        content={({ payload }) => (
+                            <div className="flex justify-center gap-6 mt-2">
+                                {payload?.map((entry, index) => {
+                                    const tooltips: Record<string, string> = {
+                                        'Valeur du bien (estimée)': 'Prix d\'achat + revalorisation annuelle (+1,5%/an)',
+                                        'Capital restant dû': 'Montant d\'emprunt restant à rembourser',
+                                        'Patrimoine net': 'Valeur du bien − Capital restant + Cash-flow net cumulé',
+                                    };
+                                    return (
+                                        <span key={index} className="relative group inline-flex items-center gap-1.5 cursor-help">
+                                            <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
+                                            <span className="text-xs text-stone">{entry.value}</span>
+                                            {tooltips[entry.value as string] && (
+                                                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-charcoal text-white text-[10px] rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 shadow-lg">
+                                                    {tooltips[entry.value as string]}
+                                                    <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-charcoal" />
+                                                </span>
+                                            )}
+                                        </span>
+                                    );
+                                })}
+                            </div>
                         )}
                     />
                     {loanEndLabel && (

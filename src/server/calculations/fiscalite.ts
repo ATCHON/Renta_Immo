@@ -14,7 +14,7 @@ import { CONSTANTS } from '@/config/constants';
 import type { FiscaliteCalculations, StructureData, RentabiliteCalculations, RegimeFiscal, BienData, ExploitationData, FinancementData, FiscaliteComparaison, DeficitFoncierDetail, PlusValueDetail, ModeAmortissement } from './types';
 
 // Re-export pour compatibilité
-export const PRELEVEMENTS_SOCIAUX = CONSTANTS.FISCALITE.PRELEVEMENTS_SOCIAUX_FONCIER;
+export const PRELEVEMENTS_SOCIAUX = CONSTANTS.FISCALITE.TAUX_PS_FONCIER;
 export const TAUX_IS = {
   TAUX_REDUIT: CONSTANTS.FISCALITE.IS.TAUX_REDUIT,
   TAUX_NORMAL: CONSTANTS.FISCALITE.IS.TAUX_NORMAL,
@@ -62,7 +62,7 @@ export function calculerMicroFoncier(
   // IR + Prélèvements sociaux
   const tauxTmi = tmi / 100;
   const impotRevenu = baseImposable * tauxTmi;
-  const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.PRELEVEMENTS_SOCIAUX_FONCIER;
+  const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.TAUX_PS_FONCIER;
   const impotTotal = impotRevenu + prelevementsSociaux;
 
   const revenuNetApresImpot = revenusBruts - impotTotal;
@@ -124,7 +124,7 @@ export function calculerFoncierReel(
   // IR + Prélèvements sociaux (sur base imposable positive uniquement)
   const tauxTmi = tmi / 100;
   const impotRevenu = baseImposable * tauxTmi;
-  const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.PRELEVEMENTS_SOCIAUX_FONCIER;
+  const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.TAUX_PS_FONCIER;
   let impotTotal = impotRevenu + prelevementsSociaux;
 
   // L'économie du déficit foncier réduit uniquement l'IR (imputation sur revenu global, pas les PS)
@@ -179,10 +179,10 @@ export function calculerLmnpMicro(
   const abattement = revenusBruts * ABATTEMENT;
   const baseImposable = revenusBruts - abattement;
 
-  // IR + Prélèvements sociaux (18.6% pour 2025)
+  // IR + Prélèvements sociaux BIC LMNP (V2-S04 : 17.2% pour non-professionnels)
   const tauxTmi = tmi / 100;
   const impotRevenu = baseImposable * tauxTmi;
-  const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.PRELEVEMENTS_SOCIAUX_LMNP;
+  const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.TAUX_PS_REVENUS_BIC_LMNP;
   const impotTotal = impotRevenu + prelevementsSociaux;
 
   const revenuNetApresImpot = revenusBruts - impotTotal;
@@ -265,7 +265,7 @@ export function calculerLmnpReel(
   // IR + Prélèvements sociaux
   const tauxTmi = tmi / 100;
   const impotRevenu = baseImposable * tauxTmi;
-  const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.PRELEVEMENTS_SOCIAUX_LMNP;
+  const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.TAUX_PS_REVENUS_BIC_LMNP;
   const impotTotal = impotRevenu + prelevementsSociaux;
 
   const revenuNetApresImpot = revenusBruts - chargesDeductibles - interetsAssurance - impotTotal;
@@ -481,44 +481,85 @@ export function abattementPS(dureeDetention: number): number {
 }
 
 /**
- * Calcule la surtaxe sur plus-value > 50 000€
+ * Calcule la surtaxe sur plus-value > 50 000€ (V2-S03)
+ * Barème progressif par tranches conformes BOFiP
  */
 function calculerSurtaxePV(pvNetteIR: number): number {
   if (pvNetteIR <= CONSTANTS.PLUS_VALUE.SEUIL_SURTAXE) return 0;
 
-  const bareme = CONSTANTS.PLUS_VALUE.BAREME_SURTAXE;
-  for (const tranche of bareme) {
-    if (pvNetteIR <= tranche.SEUIL) {
-      return pvNetteIR * tranche.TAUX;
+  let surtaxe = 0;
+  for (const tranche of CONSTANTS.PLUS_VALUE.BAREME_SURTAXE) {
+    if (pvNetteIR >= tranche.MIN) {
+      const montantDansTranche = Math.min(pvNetteIR, tranche.MAX) - tranche.MIN + 1;
+      surtaxe += montantDansTranche * tranche.TAUX;
     }
   }
-  return pvNetteIR * 0.07; // Tranche max
+  return surtaxe;
+}
+
+/**
+ * Options LMNP pour le calcul de plus-value (V2-S05)
+ */
+export interface PlusValueLmnpOptions {
+  /** Type de résidence : 'classique' ou 'services' */
+  typeResidence?: 'classique' | 'services';
+  /** Amortissements mobilier cumulés (exclus de la réintégration) */
+  amortissementMobilierCumule?: number;
+  /** Date de cession (pour application Loi Le Meur) */
+  dateCession?: string; // Format ISO 'YYYY-MM-DD'
 }
 
 /**
  * Calcule la plus-value en nom propre (IR)
  * Applicable à la location nue et LMNP
  *
+ * V2-S01 : Prix d'acquisition corrigé = prix × (1 + 7.5%) + travaux × (1 + 15%)
+ * V2-S05 : Réintégration amortissements LMNP hors mobilier, exemption résidences de services
+ *
  * @param prixVente - Prix de revente (valeur revalorisée)
  * @param prixAchat - Prix d'achat initial
  * @param dureeDetention - Durée de détention en années
- * @param amortissementsCumules - Amortissements cumulés (LMNP réintégration LF 2025)
+ * @param amortissementsCumules - Amortissements immo cumulés (LMNP réintégration LF 2025)
+ * @param montantTravaux - Montant des travaux (pour forfait 15%)
+ * @param lmnpOptions - Options LMNP (V2-S05 : type résidence, mobilier, date cession)
  */
 export function calculerPlusValueIR(
   prixVente: number,
   prixAchat: number,
   dureeDetention: number,
-  amortissementsCumules: number = 0
+  amortissementsCumules: number = 0,
+  montantTravaux: number = 0,
+  lmnpOptions?: PlusValueLmnpOptions
 ): PlusValueDetail {
-  // Plus-value brute (avec réintégration amortissements pour LMNP)
-  const pvBrute = prixVente - prixAchat + amortissementsCumules;
+  // V2-S01 : Prix d'acquisition corrigé avec forfaits
+  const forfaitAcquisition = prixAchat * CONSTANTS.PLUS_VALUE.FORFAIT_FRAIS_ACQUISITION;
+  const forfaitTravaux = montantTravaux * CONSTANTS.PLUS_VALUE.FORFAIT_TRAVAUX_PV;
+  const prixAcquisitionCorrige = prixAchat + forfaitAcquisition + montantTravaux + forfaitTravaux;
+
+  // V2-S05 : Réintégration amortissements LMNP
+  let amortissementsReintegres = amortissementsCumules;
+  if (lmnpOptions) {
+    const dateCession = lmnpOptions.dateCession ? new Date(lmnpOptions.dateCession) : new Date();
+    const dateLoiLeMeur = new Date(CONSTANTS.PLUS_VALUE.DATE_LOI_LE_MEUR);
+
+    // Résidences de services : exemptées si cession après date Loi Le Meur
+    if (lmnpOptions.typeResidence === 'services' && dateCession >= dateLoiLeMeur) {
+      amortissementsReintegres = 0;
+    } else if (dateCession >= dateLoiLeMeur) {
+      // Exclure amortissements mobilier de la réintégration
+      amortissementsReintegres = Math.max(0, amortissementsCumules - (lmnpOptions.amortissementMobilierCumule || 0));
+    }
+  }
+
+  // Plus-value brute
+  const pvBrute = prixVente - prixAcquisitionCorrige + amortissementsReintegres;
 
   if (pvBrute <= 0) {
     return {
       prix_vente: round(prixVente),
       prix_achat: round(prixAchat),
       plus_value_brute: round(pvBrute),
-      amortissements_reintegres: round(amortissementsCumules),
+      amortissements_reintegres: round(amortissementsReintegres),
       duree_detention: dureeDetention,
       abattement_ir: 0, abattement_ps: 0,
       plus_value_nette_ir: 0, plus_value_nette_ps: 0,
@@ -543,7 +584,7 @@ export function calculerPlusValueIR(
     prix_vente: round(prixVente),
     prix_achat: round(prixAchat),
     plus_value_brute: round(pvBrute),
-    amortissements_reintegres: round(amortissementsCumules),
+    amortissements_reintegres: round(amortissementsReintegres),
     duree_detention: dureeDetention,
     abattement_ir: round(abIR * 100, 1),
     abattement_ps: round(abPS * 100, 1),

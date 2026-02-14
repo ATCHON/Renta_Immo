@@ -198,7 +198,8 @@ export function calculerRentabilite(
   financement: FinancementData,
   exploitation: ExploitationData
 ): RentabiliteCalculations {
-  const loyer_annuel = exploitation.loyer_mensuel * 12;
+  const tauxOccupation = exploitation.taux_occupation ?? 1;
+  const loyer_annuel = exploitation.loyer_mensuel * 12 * tauxOccupation;
   const financementCalc = calculerFinancement(bien, financement);
   const charges = calculerChargesAnnuelles(exploitation, loyer_annuel);
 

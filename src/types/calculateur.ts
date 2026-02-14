@@ -77,6 +77,8 @@ export interface ExploitationData {
   assurance_gli: number;
   cfe_estimee: number;
   comptable_annuel: number;
+  // V2-S06 : Taux d'occupation (vacance locative)
+  taux_occupation?: number; // 0-1, défaut 0.92
 }
 
 /**

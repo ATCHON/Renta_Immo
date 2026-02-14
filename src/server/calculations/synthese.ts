@@ -330,17 +330,21 @@ export function genererRecommandations(
   rentabilite: RentabiliteCalculations,
   hcsf: HCSFCalculations,
   score: ScoreDetail,
-  bien?: BienData
+  bien?: BienData,
+  cashflowNetImpotMensuel?: number
 ): Recommandation[] {
   const recommandations: Recommandation[] = [];
 
+  // Utiliser le cashflow net impôt si disponible, sinon le cashflow avant impôts
+  const cfReference = cashflowNetImpotMensuel ?? rentabilite.cashflow_mensuel;
+
   // Recommandations cashflow négatif
-  if (rentabilite.cashflow_mensuel < 0) {
+  if (cfReference < 0) {
     recommandations.push({
       priorite: 'haute',
       categorie: 'financement',
       titre: 'Améliorer le cashflow',
-      description: 'Votre investissement nécessite un effort d\'épargne mensuel',
+      description: `Votre investissement nécessite un effort d'épargne de ${Math.abs(round(cfReference))}€/mois`,
       actions: [
         'Négocier un taux de crédit plus bas',
         'Allonger la durée du prêt',
@@ -348,12 +352,12 @@ export function genererRecommandations(
         'Revoir le prix d\'achat à la baisse',
       ],
     });
-  } else if (rentabilite.cashflow_mensuel > 0) {
+  } else if (cfReference > 0) {
     recommandations.push({
       priorite: 'info',
       categorie: 'cashflow',
       titre: 'Cashflow positif',
-      description: `Votre investissement génère ${round(rentabilite.cashflow_mensuel)}€/mois`,
+      description: `Votre investissement génère ${round(cfReference)}€/mois`,
       actions: [
         'Constituer une épargne de précaution (3-6 mois de charges)',
         'Envisager un réinvestissement futur',
@@ -582,7 +586,7 @@ export function genererSynthese(
     : [];
 
   const recommandations_detail = structure
-    ? genererRecommandations(structure, rentabilite, hcsf, scoreDetail, bien)
+    ? genererRecommandations(structure, rentabilite, hcsf, scoreDetail, bien, cashflowNetImpotMensuel)
     : [];
 
   return {

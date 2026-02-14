@@ -75,7 +75,17 @@
       "Bash(git pull:*)",
       "Bash(git stash:*)",
       "Bash(ls:*)",
-      "Bash(npx next lint --file src/app/en-savoir-plus/page.tsx)"
+      "Bash(npx next lint --file src/app/en-savoir-plus/page.tsx)",
+      "Bash(\"D:/Devs/Renta_Immo/docs/stories/epic-v2-01-corrections-plus-value.md\":*)",
+      "Bash(\"D:/Devs/Renta_Immo/docs/stories/epic-v2-02-vacance-locative.md\":*)",
+      "Bash(\"D:/Devs/Renta_Immo/docs/stories/v2-s01-formule-prix-acquisition.md\":*)",
+      "Bash(\"D:/Devs/Renta_Immo/docs/stories/v2-s05-reintegration-amort-lmnp.md\":*)",
+      "Bash(\"D:/Devs/Renta_Immo/docs/stories/v2-s16-scoring-patrimonial.md\":*)",
+      "Bash(__NEW_LINE_c6e2b1ea9d8205bd__ cat)",
+      "Bash(\"D:/Devs/Renta_Immo/docs/stories/v2-s17-alerte-seuil-lmp.md\":*)",
+      "Bash(\"D:/Devs/Renta_Immo/docs/stories/v2-s18-hcsf-ponderation-configurable.md\":*)",
+      "Bash(\"D:/Devs/Renta_Immo/docs/stories/v2-s19-schema-config-param.md\":*)",
+      "Bash(python3:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
