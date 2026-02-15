@@ -20,6 +20,8 @@ import {
   InputRecap,
   PointsAttention,
   RecommandationsPanel,
+  ProfilInvestisseurToggle,
+  AlerteLmp,
 } from './';
 import { SaveSimulationButton } from '../simulations/SaveSimulationButton';
 
@@ -40,6 +42,8 @@ import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useChartData } from '@/hooks/useChartData';
 import { useHasHydrated } from '@/hooks/useHasHydrated';
 import { formatCurrency, formatPercent } from '@/lib/utils';
+import { useState } from 'react';
+import type { ProfilInvestisseur } from '@/types/calculateur';
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -58,6 +62,9 @@ export function Dashboard() {
   const { resultats, bien, financement, exploitation, structure, options } = scenario;
 
   const { cashflowData, patrimoineData, breakEvenYear, loanEndYear } = useChartData(resultats?.projections?.projections);
+  const [profilInvestisseur, setProfilInvestisseur] = useState<ProfilInvestisseur>(
+    (scenario.options?.profil_investisseur as ProfilInvestisseur) ?? 'rentier'
+  );
 
   if (!hasHydrated) return null;
 
@@ -145,10 +152,26 @@ export function Dashboard() {
         />
       </div>
 
-      {/* 4. ScorePanel */}
+      {/* 4. ScorePanel avec toggle profil investisseur (V2-S16) */}
       <div className="space-y-3">
-        <SectionTitle>Performance</SectionTitle>
-        <ScorePanel synthese={resultats.synthese} />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <SectionTitle>Performance</SectionTitle>
+          <ProfilInvestisseurToggle
+            profil={profilInvestisseur}
+            onChange={setProfilInvestisseur}
+          />
+        </div>
+        <ScorePanel
+          synthese={
+            resultats.synthese.scores_par_profil
+              ? {
+                  ...resultats.synthese,
+                  score_global: resultats.synthese.scores_par_profil[profilInvestisseur].total,
+                  score_detail: resultats.synthese.scores_par_profil[profilInvestisseur],
+                }
+              : resultats.synthese
+          }
+        />
       </div>
 
       {/* 5. KPI Cards */}
@@ -182,16 +205,24 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* 6. Points d'Attention */}
-      {(resultats.synthese.points_attention_detail?.length || resultats.synthese.points_attention?.length) ? (
-        <div className="space-y-3">
-          <SectionTitle>Points d&apos;Attention</SectionTitle>
-          <PointsAttention
-            points={resultats.synthese.points_attention}
-            pointsDetail={resultats.synthese.points_attention_detail}
-          />
-        </div>
-      ) : null}
+      {/* 6. Points d'Attention + Alerte LMP (V2-S17) */}
+      {(() => {
+        const isLmnp = structure?.regime_fiscal === 'lmnp_reel' || structure?.regime_fiscal === 'lmnp_micro';
+        const tauxOcc = (exploitation as { taux_occupation?: number }).taux_occupation ?? 0.92;
+        const recettesAnnuelles = ((exploitation as { loyer_mensuel?: number }).loyer_mensuel ?? 0) * 12 * tauxOcc;
+        const hasPoints = resultats.synthese.points_attention_detail?.length || resultats.synthese.points_attention?.length;
+        if (!hasPoints && !isLmnp) return null;
+        return (
+          <div className="space-y-3">
+            <SectionTitle>Points d&apos;Attention</SectionTitle>
+            {isLmnp && <AlerteLmp recettesLmnpAnnuelles={recettesAnnuelles} />}
+            <PointsAttention
+              points={resultats.synthese.points_attention}
+              pointsDetail={resultats.synthese.points_attention_detail}
+            />
+          </div>
+        );
+      })()}
 
       {/* 7. InvestmentBreakdown + OperationalBalance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

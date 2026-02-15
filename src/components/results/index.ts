@@ -20,3 +20,5 @@ export { ScorePanel } from './ScorePanel';
 export { InputRecap } from './InputRecap';
 export { PointsAttention } from './PointsAttention';
 export { RecommandationsPanel } from './RecommandationsPanel';
+export { ProfilInvestisseurToggle } from './ProfilInvestisseurToggle';
+export { AlerteLmp } from './AlerteLmp';

@@ -13,6 +13,7 @@ import type {
   TableauAmortissement,
   LigneAmortissement,
   DPE,
+  ProfilInvestisseur,
 } from '@/types/calculateur';
 
 // Re-export des types du frontend pour usage serveur
@@ -27,6 +28,7 @@ export type {
   TableauAmortissement,
   LigneAmortissement,
   DPE,
+  ProfilInvestisseur,
 };
 
 /**
@@ -299,6 +301,11 @@ export interface SyntheseCalculations {
     autofinancement: { status: 'OK' | 'KO'; valeur: number };
     rentabilite: { status: 'OK' | 'KO'; valeur: number };
     hcsf: { status: 'OK' | 'KO'; valeur: number };
+  };
+  // V2-S16 : Scores pré-calculés pour les deux profils investisseur
+  scores_par_profil?: {
+    rentier: ScoreDetail;
+    patrimonial: ScoreDetail;
   };
 }
 
