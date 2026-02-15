@@ -192,7 +192,7 @@ export function StepBien({ onNext }: StepBienProps) {
               Rénovation énergétique éligible
             </span>
             <span className="text-xs text-gray-500 mt-1">
-              Cochez cette case si les travaux permettent de passer d'une classe E/F/G à A/B/C/D.
+              Cochez cette case si les travaux permettent de passer d&apos;une classe E/F/G à A/B/C/D.
               <br />
               Le plafond du déficit foncier est doublé à <strong>21 400 €</strong> pour les paiements effectués entre 2023 et 2025.
             </span>
@@ -217,9 +217,9 @@ export function StepBien({ onNext }: StepBienProps) {
               if (annee && (annee < 2023 || annee > 2025)) {
                 return (
                   <Alert variant="warning" icon={AlertTriangle} title="Dispositif non applicable" className="mt-2 text-sm">
-                    Le plafond majoré de 21 400 € s'applique uniquement aux travaux payés entre le 01/01/2023 et le 31/12/2025.
+                    Le plafond majoré de 21 400 € s&apos;applique uniquement aux travaux payés entre le 01/01/2023 et le 31/12/2025.
                     <br />
-                    Pour l'année {annee}, le plafond standard de 10 700 € s'appliquera.
+                    Pour l&apos;année {annee}, le plafond standard de 10 700 € s&apos;appliquera.
                   </Alert>
                 );
               }
