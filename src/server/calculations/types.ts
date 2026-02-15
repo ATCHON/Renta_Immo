@@ -60,6 +60,7 @@ export interface FinancementCalculations {
   cout_total_interets: number;
   cout_total_acquisition: number;
   taux_interet: number;
+  frais_notaire: number;
 }
 
 /**

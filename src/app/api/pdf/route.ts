@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
         // 2. Create the React element for PDF
         const pdfElement = React.createElement(RapportSimulation, {
             formData: validated.formData as CalculateurFormData,
-            resultats: validated.resultats as CalculResultats,
+            resultats: validated.resultats as unknown as CalculResultats,
         });
 
         // 3. Generate PDF buffer - cast element to satisfy react-pdf types

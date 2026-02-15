@@ -15,6 +15,8 @@ export function InvestmentBreakdown({ bien, financement, resultats }: Investment
     const prixAchat = bien.prix_achat || 0;
     const montantTravaux = bien.montant_travaux || 0;
     const apport = financement.apport || 0;
+    const surface = bien.surface || 0;
+    const prixM2 = surface > 0 ? prixAchat / surface : null;
 
 
     const totalBesoin = (apport || 0) + (resultats.montant_emprunt || 0);
@@ -56,13 +58,22 @@ export function InvestmentBreakdown({ bien, financement, resultats }: Investment
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="p-3 bg-surface rounded-xl border border-sand/50">
-                        <p className="nordic-label-xs !tracking-wider mb-1">Prix & Frais</p>
+                        <p className="nordic-label-xs !tracking-wider mb-1">Prix d&apos;Achat</p>
                         <p className="text-lg font-bold text-charcoal">{formatCurrency(prixAchat)}</p>
-                        <p className="text-[10px] text-stone/80">Exclu. frais de notaire</p>
+                    </div>
+                    <div className="p-3 bg-surface rounded-xl border border-sand/50">
+                        <p className="nordic-label-xs !tracking-wider mb-1">Frais de Notaire</p>
+                        <p className="text-lg font-bold text-charcoal">{formatCurrency(resultats.frais_notaire)}</p>
                     </div>
                     <div className="p-3 bg-surface rounded-xl border border-sand/50">
                         <p className="nordic-label-xs !tracking-wider mb-1">Travaux & Mobilier</p>
                         <p className="text-lg font-bold text-charcoal">{formatCurrency(montantTravaux + (bien.valeur_mobilier || 0))}</p>
+                    </div>
+                    <div className="p-3 bg-surface rounded-xl border border-sand/50">
+                        <p className="nordic-label-xs !tracking-wider mb-1">Prix / m²</p>
+                        <p className="text-lg font-bold text-charcoal">
+                            {prixM2 !== null ? `${Math.round(prixM2).toLocaleString('fr-FR')} €/m²` : '—'}
+                        </p>
                     </div>
                     <div className="p-3 bg-forest/5 rounded-xl border border-forest/10">
                         <p className="nordic-label-xs !text-forest !tracking-wider mb-1">Apport Personnel</p>

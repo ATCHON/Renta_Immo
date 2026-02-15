@@ -172,6 +172,7 @@ export interface RentabiliteResultat {
   nette: number;
   nette_nette: number;
   loyer_annuel?: number;
+  charges_mensuelles?: number;
   effort_epargne_mensuel?: number;
   effet_levier?: number | null;
 }
@@ -193,6 +194,7 @@ export interface FinancementResultat {
   montant_emprunt: number;
   mensualite: number;
   cout_total_credit: number;
+  frais_notaire: number;
 }
 
 /**
@@ -217,6 +219,38 @@ export interface TableauAmortissement {
     totalInterets: number;
     totalAssurance: number;
     totalPaye: number;
+  };
+}
+
+/**
+ * Ligne d'un tableau d'amortissement fiscal (LMNP réel / SCI IS)
+ */
+export interface LigneAmortissementFiscal {
+  annee: number;
+  amortissementImmo: number;
+  amortissementTravaux: number;
+  amortissementMobilier: number;
+  amortissementTotal: number;
+  amortissementDeductible: number;
+  amortissementReporteCumule: number; // Excédent non déductible, reporté sans limite (LMNP réel)
+  amortissementCumule: number;
+  baseImposableAvant: number;
+  baseImposableApres: number;
+}
+
+/**
+ * Tableau d'amortissement fiscal complet
+ */
+export interface TableauAmortissementFiscal {
+  regime: string;
+  modeAmortissement: 'simplifie' | 'composants';
+  lignes: LigneAmortissementFiscal[];
+  totaux: {
+    totalAmortissements: number;
+    totalDeductible: number;
+    totalMobilierDeduit: number;
+    amortissementAReintegrer: number; // Sera ajouté à la PV imposable à la revente
+    economieImpotEstimee: number;
   };
 }
 
@@ -344,6 +378,7 @@ export interface CalculResultats {
   synthese: SyntheseResultat;
   projections?: ProjectionData;
   tableauAmortissement?: TableauAmortissement;
+  tableauAmortissementFiscal?: TableauAmortissementFiscal;
   comparaisonFiscalite?: FiscaliteComparaison;
 }
 

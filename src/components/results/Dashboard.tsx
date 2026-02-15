@@ -8,6 +8,7 @@ import { Button, Card, Collapsible } from '@/components/ui';
 import { HCSFIndicator } from './HCSFIndicator';
 import { ProjectionTable } from './ProjectionTable';
 import { AmortizationTable } from './AmortizationTable';
+import { FiscalAmortizationTable } from './FiscalAmortizationTable';
 import { MetricCard } from './MetricCard';
 import type { CalculateurFormData } from '@/types/calculateur';
 import {
@@ -173,16 +174,16 @@ export function Dashboard() {
           synthese={
             resultats.synthese.scores_par_profil
               ? (() => {
-                  const scoreDetail = resultats.synthese.scores_par_profil[profilInvestisseur];
-                  const { evaluation, couleur } = scoreToEvaluation(scoreDetail.total);
-                  return {
-                    ...resultats.synthese,
-                    score_global: scoreDetail.total,
-                    score_detail: scoreDetail,
-                    evaluation,
-                    couleur,
-                  };
-                })()
+                const scoreDetail = resultats.synthese.scores_par_profil[profilInvestisseur];
+                const { evaluation, couleur } = scoreToEvaluation(scoreDetail.total);
+                return {
+                  ...resultats.synthese,
+                  score_global: scoreDetail.total,
+                  score_detail: scoreDetail,
+                  evaluation,
+                  couleur,
+                };
+              })()
               : resultats.synthese
           }
         />
@@ -250,6 +251,7 @@ export function Dashboard() {
           exploitation={exploitation}
           cashflow={resultats.cashflow}
           financement={resultats.financement}
+          rentabilite={resultats.rentabilite}
           impotMensuel={impotMensuelMoyen}
         />
       </div>
@@ -318,9 +320,18 @@ export function Dashboard() {
           {resultats.tableauAmortissement && (
             <div className="pt-4">
               <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-forest/30 pl-3">
-                Tableau d&apos;amortissement
+                Remboursement du crédit
               </h3>
               <AmortizationTable data={resultats.tableauAmortissement} />
+            </div>
+          )}
+
+          {resultats.tableauAmortissementFiscal && (
+            <div className="pt-4">
+              <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-amber-500/40 pl-3">
+                Amortissement fiscal
+              </h3>
+              <FiscalAmortizationTable data={resultats.tableauAmortissementFiscal} />
             </div>
           )}
         </div>

@@ -144,7 +144,8 @@ export function calculerFinancement(
     cout_total_credit: round(cout_total_credit),
     cout_total_interets: round(cout_total_interets),
     cout_total_acquisition: round(coutTotalAcquisition),
-    taux_interet: financement.taux_interet
+    taux_interet: financement.taux_interet,
+    frais_notaire: round(fraisNotaire)
   };
 }
 
@@ -165,7 +166,7 @@ export function calculerChargesAnnuelles(
   const chargesCoproProprietaire = Math.max(0, exploitation.charges_copro - (exploitation.charges_copro_recuperables || 0));
 
   const charges_fixes_annuelles =
-    chargesCoproProprietaire * 12 +
+    chargesCoproProprietaire +
     exploitation.taxe_fonciere +
     exploitation.assurance_pno +
     (exploitation.assurance_gli || 0) +

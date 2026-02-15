@@ -3,12 +3,13 @@
 import { Card, CardHeader, CardContent } from '@/components/ui';
 import { formatCurrency } from '@/lib/utils';
 import { cn } from '@/lib/utils';
-import type { ExploitationData, CashflowResultat, FinancementResultat } from '@/types';
+import type { ExploitationData, CashflowResultat, FinancementResultat, RentabiliteResultat } from '@/types';
 
 interface OperationalBalanceProps {
     exploitation: Partial<ExploitationData>;
     cashflow: CashflowResultat;
     financement: FinancementResultat;
+    rentabilite: RentabiliteResultat;
     impotMensuel: number;
 }
 
@@ -16,14 +17,13 @@ export function OperationalBalance({
     exploitation,
     cashflow,
     financement,
+    rentabilite,
     impotMensuel
 }: OperationalBalanceProps) {
     const isPositive = cashflow.mensuel >= 0;
     const loyerMensuel = exploitation.loyer_mensuel || 0;
-    const cashflowMensuelBrut = cashflow.mensuel_brut || 0;
-
-    // Calcul du total des sorties mensuelles
-    const chargesMensuelles = loyerMensuel - cashflowMensuelBrut;
+    // On utilise les charges calculées par le serveur (sans le crédit)
+    const chargesMensuelles = rentabilite.charges_mensuelles || 0;
 
     return (
         <Card className="h-full">

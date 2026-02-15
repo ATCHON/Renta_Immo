@@ -7,6 +7,7 @@ import {
     LigneAmortissement,
     RegimeFiscal
 } from './types';
+import type { TableauAmortissementFiscal, LigneAmortissementFiscal } from '@/types/calculateur';
 import { calculerFinancement } from './rentabilite';
 import {
     calculerMicroFoncier,
@@ -16,6 +17,7 @@ import {
     calculerFiscaliteSciIs,
     calculerPlusValueIR,
     calculerPlusValueSciIs,
+    calculerAmortissementComposants,
 } from './fiscalite';
 import type { ModeAmortissement, PlusValueDetail } from './types';
 
@@ -378,7 +380,7 @@ export function genererProjections(
 
         // Calcul des charges fixes de base (saisies)
         const chargesFixesBase =
-            (input.exploitation.charges_copro * 12) +
+            input.exploitation.charges_copro +
             input.exploitation.taxe_fonciere +
             input.exploitation.assurance_pno +
             (input.exploitation.assurance_gli || 0) +
@@ -396,7 +398,7 @@ export function genererProjections(
         const chargesAnnuelles = chargesFixesInflatees + chargesProp;
 
         // Charges déductibles fiscales (nettes des charges récupérables sur le locataire)
-        const chargesRecuperablesInflatees = (input.exploitation.charges_copro_recuperables || 0) * 12 * facteurInflationCharges;
+        const chargesRecuperablesInflatees = (input.exploitation.charges_copro_recuperables || 0) * facteurInflationCharges;
         const chargesDeductiblesFiscales = chargesAnnuelles - chargesRecuperablesInflatees;
 
         // Crédit
@@ -548,5 +550,134 @@ export function genererProjections(
             frais_revente: fraisReventeTotal,
         },
         plusValue,
+    };
+}
+
+/**
+ * Génère le tableau d'amortissement fiscal annuel (LMNP réel / SCI IS)
+ * Distingue les composants : immeuble, travaux, mobilier
+ */
+export function genererTableauAmortissementFiscal(
+    input: CalculationInput,
+    horizon: number = 20
+): TableauAmortissementFiscal | null {
+    const regime = input.structure.type === 'sci_is'
+        ? (input.structure.distribution_dividendes ? 'sci_is_dividendes' : 'sci_is')
+        : (input.structure.regime_fiscal ?? 'micro_foncier');
+
+    // Uniquement pour les régimes avec amortissement réel
+    const regimesAvecAmortissement = ['lmnp_reel', 'sci_is', 'sci_is_dividendes'];
+    if (!regimesAvecAmortissement.includes(regime)) return null;
+
+    const modeAmortissement: ModeAmortissement = input.structure.mode_amortissement ?? 'simplifie';
+    const partTerrainEffective = input.bien.part_terrain ?? CONSTANTS.AMORTISSEMENT.PART_TERRAIN;
+    const valeurBati = input.bien.prix_achat * (1 - partTerrainEffective);
+
+    const montantTravaux = input.bien.montant_travaux || 0;
+    const valeurMobilier = input.bien.valeur_mobilier || 0;
+    const tmi = input.structure.tmi ?? 30;
+
+    // Taux PS selon le régime
+    const tauxPs = regime === 'lmnp_reel'
+        ? CONSTANTS.FISCALITE.TAUX_PS_REVENUS_BIC_LMNP
+        : 0;
+    const tauxImposition = (tmi / 100) + tauxPs;
+
+    const lignes: LigneAmortissementFiscal[] = [];
+    let amortissementCumule = 0;
+    let totalDeductible = 0;
+    let totalMobilierDeduit = 0;
+    // LMNP réel uniquement : excédent d'amortissement reportable sans limite de durée
+    let amortissementReporteCumule = 0;
+    const isLmnpReel = regime === 'lmnp_reel';
+
+    for (let annee = 1; annee <= horizon; annee++) {
+        // Amortissement immobilier (bâti)
+        let amortissementImmo: number;
+        if (modeAmortissement === 'composants') {
+            amortissementImmo = calculerAmortissementComposants(valeurBati, annee);
+        } else {
+            amortissementImmo = annee <= CONSTANTS.AMORTISSEMENT.DUREE_BATI
+                ? valeurBati / CONSTANTS.AMORTISSEMENT.DUREE_BATI
+                : 0;
+        }
+
+        // Amortissement travaux
+        const amortissementTravaux = annee <= CONSTANTS.AMORTISSEMENT.DUREE_TRAVAUX
+            ? montantTravaux / CONSTANTS.AMORTISSEMENT.DUREE_TRAVAUX
+            : 0;
+
+        // Amortissement mobilier
+        const amortissementMobilier = annee <= CONSTANTS.AMORTISSEMENT.DUREE_MOBILIER
+            ? valeurMobilier / CONSTANTS.AMORTISSEMENT.DUREE_MOBILIER
+            : 0;
+
+        const amortissementTotal = amortissementImmo + amortissementTravaux + amortissementMobilier;
+
+        // Base imposable estimative (loyer + report des années précédentes vs charges)
+        // Note : valeur indicative — les projections pluriannuelles intègrent l'inflation exacte
+        const loyerAnnuel = input.exploitation.loyer_mensuel * 12 * (input.exploitation.taux_occupation ?? 1);
+        const chargesEstimees = (input.exploitation.charges_copro || 0)
+            + (input.exploitation.taxe_fonciere || 0)
+            + (input.exploitation.assurance_pno || 0);
+        const baseAvant = Math.max(0, loyerAnnuel - chargesEstimees);
+
+        // En LMNP réel : l'amortissement ne peut pas créer de déficit BIC.
+        // L'excédent est reporté sans limite de durée sur les exercices suivants (jamais perdu).
+        // Stock disponible = amortissement de l'année + excédents reportés des années précédentes.
+        // En SCI IS : l'amortissement est simplement cappé à 0 (déficit IS reportable en IS).
+        const amortissementDisponible = isLmnpReel
+            ? amortissementTotal + amortissementReporteCumule
+            : amortissementTotal;
+        const amortissementDeductible = Math.min(Math.max(0, baseAvant), amortissementDisponible);
+        const baseApres = Math.max(0, baseAvant - amortissementDeductible);
+
+        // Nouveau stock de report : ce qui n'a pas pu être déduit
+        if (isLmnpReel) {
+            amortissementReporteCumule = amortissementDisponible - amortissementDeductible;
+        }
+
+        amortissementCumule += amortissementDeductible;
+        totalDeductible += amortissementDeductible;
+        // Part mobilier dans ce qui a été effectivement déduit (proportionnelle à la déductibilité)
+        if (amortissementTotal > 0) {
+            totalMobilierDeduit += amortissementMobilier * (amortissementDeductible / amortissementTotal);
+        }
+
+        lignes.push({
+            annee,
+            amortissementImmo: Math.round(amortissementImmo),
+            amortissementTravaux: Math.round(amortissementTravaux),
+            amortissementMobilier: Math.round(amortissementMobilier),
+            amortissementTotal: Math.round(amortissementTotal),
+            amortissementDeductible: Math.round(amortissementDeductible),
+            amortissementReporteCumule: Math.round(amortissementReporteCumule),
+            amortissementCumule: Math.round(amortissementCumule),
+            baseImposableAvant: Math.round(baseAvant),
+            baseImposableApres: Math.round(baseApres),
+        });
+    }
+
+    const regimeLabel = regime === 'lmnp_reel' ? 'LMNP Réel' : 'SCI IS';
+
+    // Calcul de l'amortissement qui sera réintégré à la plus-value lors de la revente
+    // LMNP réel : réintégration = total déduit - mobilier déduit (V2-S05, Loi Le Meur 15/02/2025)
+    //             Les résidences de services sont exemptées (non gérable ici sans le champ typeResidence)
+    // SCI IS : réintégration = totalDeductible (base VNC = prix - amortissements cumulés)
+    const amortissementAReintegrer = isLmnpReel
+        ? Math.round(Math.max(0, totalDeductible - totalMobilierDeduit))
+        : Math.round(totalDeductible); // SCI IS : réintégration totale via VNC
+
+    return {
+        regime: regimeLabel,
+        modeAmortissement,
+        lignes,
+        totaux: {
+            totalAmortissements: Math.round(lignes.reduce((s, l) => s + l.amortissementTotal, 0)),
+            totalDeductible: Math.round(totalDeductible),
+            totalMobilierDeduit: Math.round(totalMobilierDeduit),
+            amortissementAReintegrer,
+            economieImpotEstimee: Math.round(totalDeductible * tauxImposition),
+        },
     };
 }

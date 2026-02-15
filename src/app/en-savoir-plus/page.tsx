@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, Info, PieChart, TrendingUp, Calculator, ShieldCheck,
   Zap, Building2, Clock, BarChart3, Scale, Layers, AlertTriangle,
-  BookOpen, ChevronRight, ChevronDown
+  BookOpen, ChevronRight, ChevronDown, Landmark
 } from 'lucide-react';
 import { Card, CardHeader, CardContent, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -1079,7 +1079,7 @@ export default function EnSavoirPlusPage() {
                   {/* Profil Rentier */}
                   <div className="bg-surface border border-sand rounded-xl p-5 space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl">💰</span>
+                      <TrendingUp className="h-5 w-5 text-forest" />
                       <h4 className="text-sm font-bold text-charcoal">Profil Rentier</h4>
                     </div>
                     <p className="text-xs text-pebble leading-relaxed">
@@ -1107,7 +1107,7 @@ export default function EnSavoirPlusPage() {
                   {/* Profil Patrimonial */}
                   <div className="bg-surface border border-sand rounded-xl p-5 space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl">🏛</span>
+                      <Landmark className="h-5 w-5 text-forest" />
                       <h4 className="text-sm font-bold text-charcoal">Profil Patrimonial</h4>
                     </div>
                     <p className="text-xs text-pebble leading-relaxed">

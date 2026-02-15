@@ -749,8 +749,9 @@ export function calculerFiscalite(
       modeAmortissement
     );
 
-    result.rentabilite_nette_nette = prixAchat > 0
-      ? (result.revenu_net_apres_impot / prixAchat) * 100
+    const coutTotalAcquisition = rentabilite.financement.cout_total_acquisition;
+    result.rentabilite_nette_nette = coutTotalAcquisition > 0
+      ? ((rentabilite.revenu_net_avant_impots - result.impot_total) / coutTotalAcquisition) * 100
       : 0;
     return result;
   }
@@ -801,9 +802,10 @@ export function calculerFiscalite(
       result = calculerMicroFoncier(revenusBruts, tmi);
   }
 
-  // Calcul rentabilité nette-nette
-  result.rentabilite_nette_nette = prixAchat > 0
-    ? (result.revenu_net_apres_impot / prixAchat) * 100
+  // Calcul rentabilité nette-nette : (Revenus - Charges opex - Impôts) / Coût total acquisition
+  const coutTotalAcquisition = rentabilite.financement.cout_total_acquisition;
+  result.rentabilite_nette_nette = coutTotalAcquisition > 0
+    ? ((rentabilite.revenu_net_avant_impots - result.impot_total) / coutTotalAcquisition) * 100
     : 0;
 
   return result;
@@ -926,8 +928,11 @@ export function calculerToutesFiscalites(
   ];
 
   // Post-traitement pour calculer la rentabilité nette-nette de chaque régime
+  const coutTotalAcquisitionComp = rentabilite.financement.cout_total_acquisition;
   const items = resultatsRaw.map(r => {
-    const rentabiliteNetteNette = prixAchat > 0 ? (r.calc.revenu_net_apres_impot / prixAchat) * 100 : 0;
+    const rentabiliteNetteNette = coutTotalAcquisitionComp > 0
+      ? ((rentabilite.revenu_net_avant_impots - r.calc.impot_total) / coutTotalAcquisitionComp) * 100
+      : 0;
     return {
       regime: r.label,
       impotAnnuelMoyen: r.calc.impot_total,

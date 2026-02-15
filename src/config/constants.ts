@@ -12,9 +12,8 @@ export const CONSTANTS = {
         // Prélèvements sociaux (PS)
         // PS sur plus-values immobilières et revenus fonciers = 17.2% (CGI art. 200 A)
         TAUX_PS_FONCIER: 0.172,
-        // PS sur revenus BIC LMNP = 17.2% pour non-professionnels
-        // Note: PS revenus LMNP ≠ PS plus-values (distinction V2-S04)
-        TAUX_PS_REVENUS_BIC_LMNP: 0.172,
+        // PS sur revenus BIC LMNP = 18.6% (LFSS 2026)
+        TAUX_PS_REVENUS_BIC_LMNP: 0.186,
 
         // Micro-Foncier (Location nue)
         MICRO_FONCIER: {

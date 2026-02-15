@@ -10,7 +10,7 @@ import { calculerRentabilite } from './rentabilite';
 import { calculerFiscalite, calculerToutesFiscalites } from './fiscalite';
 import { analyserHcsf } from './hcsf';
 import { genererSynthese } from './synthese';
-import { genererProjections, genererTableauAmortissement } from './projection';
+import { genererProjections, genererTableauAmortissement, genererTableauAmortissementFiscal } from './projection';
 
 // Re-export des types et erreurs pour usage externe
 export { ValidationError } from './validation';
@@ -104,6 +104,7 @@ export function performCalculations(
         nette: rentabilite.rentabilite_nette,
         nette_nette: fiscalite.rentabilite_nette_nette,
         loyer_annuel: rentabilite.loyer_annuel,
+        charges_mensuelles: Math.round(rentabilite.charges.total_charges_annuelles / 12),
       },
       cashflow: {
         mensuel: Math.round((rentabilite.cashflow_annuel - fiscalite.impot_total) / 12),
@@ -115,6 +116,7 @@ export function performCalculations(
         montant_emprunt: rentabilite.financement.montant_emprunt,
         mensualite: rentabilite.financement.mensualite_totale,
         cout_total_credit: rentabilite.financement.cout_total_credit,
+        frais_notaire: rentabilite.financement.frais_notaire,
       },
       fiscalite: {
         regime: fiscalite.regime,
@@ -144,6 +146,7 @@ export function performCalculations(
       },
       projections,
       tableauAmortissement,
+      tableauAmortissementFiscal: genererTableauAmortissementFiscal(data, data.options.horizon_projection) ?? undefined,
     };
 
     // Fusionner les alertes de validation avec celles du HCSF
