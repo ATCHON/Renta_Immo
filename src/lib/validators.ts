@@ -37,6 +37,12 @@ export const bienSchema = z.object({
     (val) => (val === '' ? undefined : val),
     z.enum(['A', 'B', 'C', 'D', 'E', 'F', 'G']).optional()
   ),
+  renovation_energetique: z.boolean().default(false),
+  annee_travaux: z.coerce
+    .number({ message: 'Année invalide' })
+    .min(2000, 'Année trop ancienne')
+    .max(new Date().getFullYear() + 5, 'Année future trop lointaine')
+    .optional(),
 });
 
 // Type d'entrée pour le formulaire (champs optionnels avec default)

@@ -49,23 +49,7 @@ CREATE TABLE "verification" (
 );
 
 -- 2. Update Simulations Table
--- On change le type de user_id pour correspondre aux IDs Better Auth (TEXT)
--- Et on supprime la référence à auth.users
-
--- On retire d'abord la contrainte existante si elle existe
-ALTER TABLE public.simulations DROP CONSTRAINT IF EXISTS simulations_user_id_fkey;
-
--- On change le type de la colonne (nécessite une conversion)
-ALTER TABLE public.simulations ALTER COLUMN user_id TYPE TEXT USING user_id::TEXT;
-
--- On ajoute la nouvelle référence vers notre table user
-ALTER TABLE public.simulations ADD CONSTRAINT simulations_user_id_fkey 
-    FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE;
+-- (Moved to create_simulations_table.sql)
 
 -- 3. Update RLS for Better Auth
--- Les politiques existantes utilisaient auth.uid() qui vient de Supabase Auth.
--- Puisque nous gérons maintenant l'auth via Better Auth, nous activons RLS sans politique publique
--- ce qui empêche tout accès direct via la clé anon.
--- L'accès se fera uniquement via le Serveur (API Routes) utilisant le Service Role.
-
-ALTER TABLE public.simulations ENABLE ROW LEVEL SECURITY;
+-- (Moved to create_simulations_table.sql)

@@ -1,7 +1,7 @@
 # Story V2-S13 : Conditionner l'inflation des loyers à la classe DPE
 
 > **Epic** : EPIC-V2-04 | **Sprint** : Sprint 2 | **Effort** : S
-> **Statut** : Draft
+> **Statut** : Completed
 > **Fusionne** : E4 (DPE alertes) du backlog P3
 
 ## Story
@@ -20,10 +20,10 @@
 
 ## Tasks / Subtasks
 
-- [ ] Modifier projection.ts pour conditionner tauxInflationLoyer au DPE (AC: 1, 2, 3)
-- [ ] Ajouter la logique de date 2034 pour DPE E (AC: 2)
-- [ ] Ajouter les alertes dans synthese.ts (AC: 4)
-- [ ] Écrire les tests (AC: 5)
+- [x] Modifier projection.ts pour conditionner tauxInflationLoyer au DPE (AC: 1, 2, 3)
+- [x] Ajouter la logique de date 2034 pour DPE E (AC: 2)
+- [x] Ajouter les alertes dans synthese.ts (AC: 4)
+- [x] Écrire les tests (AC: 5)
 
 ## Dev Notes
 

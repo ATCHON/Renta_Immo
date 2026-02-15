@@ -24,6 +24,7 @@ interface PatrimoineDataPoint {
 interface PatrimoineChartProps {
     data: PatrimoineDataPoint[];
     loanEndYear?: number | null;
+    dpe?: string | null;
 }
 
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; dataKey: string; color: string }>; label?: string }) {
@@ -75,12 +76,18 @@ function ValeurBienLastDot(props: any) {
     );
 }
 
-export const PatrimoineChart = React.memo(function PatrimoineChart({ data, loanEndYear }: PatrimoineChartProps) {
+export const PatrimoineChart = React.memo(function PatrimoineChart({ data, loanEndYear, dpe }: PatrimoineChartProps) {
     const loanEndLabel = loanEndYear ? `Année ${loanEndYear}` : null;
 
+    const valeurBienTooltip = dpe === 'F' || dpe === 'G'
+        ? 'Prix d\'achat × décote DPE (-15%) + revalorisation annuelle (+1,5%/an)'
+        : dpe === 'E'
+            ? 'Prix d\'achat × décote DPE (-10% à partir de 2034) + revalorisation annuelle (+1,5%/an)'
+            : 'Prix d\'achat + revalorisation annuelle (+1,5%/an)';
+
     return (
-        <div className="h-[350px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+        <div style={{ height: 350, width: '100%' }}>
+            <ResponsiveContainer width="100%" height={350}>
                 <AreaChart
                     data={data}
                     margin={{ top: 10, right: 30, left: 20, bottom: 0 }}
@@ -120,7 +127,7 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({ data, loanE
                             <div className="flex justify-center gap-6 mt-2">
                                 {payload?.map((entry, index) => {
                                     const tooltips: Record<string, string> = {
-                                        'Valeur du bien (estimée)': 'Prix d\'achat + revalorisation annuelle (+1,5%/an)',
+                                        'Valeur du bien (estimée)': valeurBienTooltip,
                                         'Capital restant dû': 'Montant d\'emprunt restant à rembourser',
                                         'Patrimoine net': 'Valeur du bien − Capital restant + Cash-flow net cumulé',
                                     };

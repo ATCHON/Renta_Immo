@@ -171,6 +171,13 @@ export function genererAlertesDpe(dpe?: DPE, horizon?: number): PointAttention[]
       message: "Gel des loyers : l'IRL ne s'applique pas aux logements classés F ou G",
       conseil: "L'évolution des loyers est bloquée tant que le DPE n'est pas amélioré.",
     });
+  } else if (dpe === 'E' && anneeActuelle + (horizon ?? 0) - 1 >= 2034) {
+    alertes.push({
+      type: 'warning',
+      categorie: 'general',
+      message: "Gel des loyers prévu à partir de 2034 (DPE E)",
+      conseil: "Anticipez les travaux pour éviter le blocage des loyers.",
+    });
   }
 
   return alertes;
@@ -246,23 +253,22 @@ export function genererPointsAttention(
 ): PointAttention[] {
   const points: PointAttention[] = [];
 
-  // Cashflow négatif
-  if (rentabilite.cashflow_mensuel < 0) {
-    points.push({
-      type: 'warning',
-      categorie: 'cashflow',
-      message: `Cashflow négatif de ${Math.abs(round(rentabilite.cashflow_mensuel))}€/mois`,
-      conseil: 'Vous devrez compléter chaque mois pour couvrir les charges',
-    });
-  }
-
-  // Cashflow très négatif
+  // Cashflow très négatif (Prioritaire)
   if (rentabilite.cashflow_mensuel < SEUILS.CASHFLOW_CRITIQUE) {
     points.push({
       type: 'error',
       categorie: 'cashflow',
       message: `Cashflow très négatif : ${round(rentabilite.cashflow_mensuel)}€/mois`,
       conseil: 'Effort d\'épargne trop important, revoyez les paramètres du projet',
+    });
+  }
+  // Cashflow négatif (mais pas critique)
+  else if (rentabilite.cashflow_mensuel < 0) {
+    points.push({
+      type: 'warning',
+      categorie: 'cashflow',
+      message: `Cashflow négatif de ${Math.abs(round(rentabilite.cashflow_mensuel))}€/mois`,
+      conseil: 'Vous devrez compléter chaque mois pour couvrir les charges',
     });
   }
 

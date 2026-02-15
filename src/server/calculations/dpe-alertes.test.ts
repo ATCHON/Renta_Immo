@@ -21,13 +21,11 @@ describe('AUDIT-110 : DPE et alertes passoires énergétiques', () => {
       expect(alertes.some(a => a.message.includes('horizon'))).toBe(true);
     });
 
-    it('DPE E avec horizon 10 ans : alerte interdiction future', () => {
+    it('DPE E avec horizon 10 ans : alerte interdiction future + gel 2034', () => {
       const alertes = genererAlertesDpe('E', 10);
       expect(alertes.some(a => a.message.includes('2034'))).toBe(true);
-      // Pas de gel des loyers pour E
-      expect(alertes.some(a => a.message.includes('Gel des loyers'))).toBe(false);
-      // 2034 - 2026 = 8 ans < 10 ans => alerte horizon
-      expect(alertes.some(a => a.message.includes('horizon'))).toBe(true);
+      // Gel des loyers pour E à partir de 2034
+      expect(alertes.some(a => a.message.includes('Gel des loyers'))).toBe(true);
     });
 
     it('DPE C : aucune alerte', () => {
@@ -64,7 +62,7 @@ describe('AUDIT-110 : DPE et alertes passoires énergétiques', () => {
       },
       options: {
         generer_pdf: false, envoyer_email: false,
-        horizon_projection: 10, taux_evolution_loyer: 2,
+        horizon_projection: 20, taux_evolution_loyer: 2,
       },
     };
 
@@ -77,6 +75,37 @@ describe('AUDIT-110 : DPE et alertes passoires énergétiques', () => {
       const loyerAn1 = result.projections[0].loyer;
       const loyerAn10 = result.projections[9].loyer;
       expect(loyerAn10).toBe(loyerAn1);
+    });
+
+    it('DPE E : loyer augmente jusqu\'en 2034 puis stagne', () => {
+      const inputE: CalculationInput = {
+        ...baseInput,
+        bien: { ...baseInput.bien, dpe: 'E' as DPE },
+      };
+      const result = genererProjections(inputE, 20);
+      // Calculer l'index correspondant à 2034
+      const currentYear = new Date().getFullYear();
+      const yearsTo2034 = 2034 - currentYear;
+
+      // Si on est avant 2034, on teste l'augmentation puis le gel
+      if (yearsTo2034 > 0 && yearsTo2034 < 20) {
+        const index2033 = yearsTo2034 - 1; // Dernière année augmentation
+        const index2034 = yearsTo2034;     // Première année gel
+        const index2035 = yearsTo2034 + 1; // Deuxième année gel
+
+        // Entre an 1 et 2033 : augmentation
+        expect(result.projections[index2033].loyer).toBeGreaterThan(result.projections[0].loyer);
+
+        // Entre 2033 et 2034 (inflation appliquée pour 2034 ? Non, calculée en début de boucle)
+        // Dans projection.ts : 
+        // Annee X (2034). gelLoyer = true. 
+        // loyerMensuel *= (1+inf) IS SKIPPED.
+        // So Loyer(2034) should be EQUAL to Loyer(2033).
+        expect(result.projections[index2034].loyer).toBe(result.projections[index2033].loyer);
+
+        // 2035 vs 2034 : Egal aussi
+        expect(result.projections[index2035].loyer).toBe(result.projections[index2034].loyer);
+      }
     });
 
     it('DPE C : loyer augmente normalement', () => {

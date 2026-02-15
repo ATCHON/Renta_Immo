@@ -24,15 +24,31 @@ export const CONSTANTS = {
 
         // Micro-BIC (LMNP)
         MICRO_BIC: {
-            // Meublé longue durée & Tourisme classé
-            STANDARD: {
+            // Meublé longue durée (Classique)
+            MEUBLE_LONGUE_DUREE: {
                 ABATTEMENT: 0.50, // 50%
-                PLAFOND: 77700, // 77 700 €
+                PLAFOND: 77700,   // 77 700 €
             },
-            // Meublé tourisme non classé (Zone tendue/général)
+            // Meublé tourisme classé (Gîtes de France, étoiles...)
+            MEUBLE_TOURISME_CLASSE: {
+                ABATTEMENT: 0.71, // 71%
+                PLAFOND: 188700,  // 188 700 €
+            },
+            // Meublé tourisme non classé (Airbnb classique)
+            // Alignement 2024/2025 : 50% / 77 700€ (Loi Finances 2025 revirement)
+            // Note: Le "coup de rabot" à 30% / 15k€ n'a pas été retenu dans la version finale pour 2025 standard
+            MEUBLE_TOURISME_NON_CLASSE: {
+                ABATTEMENT: 0.50, // 50%
+                PLAFOND: 77700,   // 77 700 €
+            },
+            // Garder pour compatibilité si besoin, mais déprécié
+            STANDARD: {
+                ABATTEMENT: 0.50,
+                PLAFOND: 77700,
+            },
             NON_CLASSE: {
-                ABATTEMENT: 0.30, // 30%
-                PLAFOND: 15000, // 15 000 €
+                ABATTEMENT: 0.50,
+                PLAFOND: 77700,
             },
         },
 
@@ -128,6 +144,8 @@ export const CONSTANTS = {
     // ========================================================================
     DEFICIT_FONCIER: {
         PLAFOND_IMPUTATION: 10700,  // Max imputable sur revenu global
+        // AUDIT-110 & V2-S15 : Plafond majoré pour rénovation énergétique (2023-2025)
+        PLAFOND_ENERGIE: 21400,
         DUREE_REPORT: 10,           // 10 ans de report
     },
 
@@ -168,7 +186,7 @@ export const CONSTANTS = {
         TAXE_FONCIERE_MOIS: 1, // Mois de loyer (estimatif)
         FRAIS_DOSSIER_BANQUE: 0, // €
         FRAIS_GARANTIE_CREDIT: 2000, // € (estimatif)
-        COMPTABLE_LMNP: 400, // €/an (adhésion CGA incluse)
+        COMPTABLE_LMNP: 500, // €/an
         CFE_MIN: 200, // €/an
     },
 
@@ -180,6 +198,11 @@ export const CONSTANTS = {
         INFLATION_CHARGES: 0.025, // 2.5%
         REVALORISATION_BIEN: 0.015, // 1.5%
         HORIZONS: [5, 10, 15, 20, 25], // Années
+        // AUDIT-110 & V2-S14 : Décote de valeur pour passoires thermiques
+        DECOTE_DPE: {
+            F_G: 0.15, // -15%
+            E: 0.10,   // -10% (dès 2034)
+        },
     },
 
     // ========================================================================
@@ -188,6 +211,13 @@ export const CONSTANTS = {
     RESTE_A_VIVRE: {
         SEUIL_MIN: 700,       // €/mois - seuil minimum bancaire
         SEUIL_CONFORT: 1500,  // €/mois - seuil confort
+    },
+
+    // ========================================================================
+    // CFE (Cotisation Foncière des Entreprises) (V2-S10)
+    // ========================================================================
+    CFE: {
+        SEUIL_EXONERATION: 5000, // € de recettes annuelles
     },
 
     // ========================================================================

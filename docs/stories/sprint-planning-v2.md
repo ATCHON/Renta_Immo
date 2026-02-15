@@ -61,13 +61,13 @@ Compléter la conformité fiscale LMNP (Micro-BIC 3 catégories, CFE, comptabili
 
 | ID | Titre | Effort | Dépendances | Statut |
 |----|-------|--------|-------------|--------|
-| **V2-S09** | Propager les 3 catégories Micro-BIC dans le calculateur fiscal | M | — | Draft |
-| **V2-S10** | Intégrer la CFE dans les charges LMNP avec logique d'exonération | M | V2-S09 | Draft |
-| **V2-S11** | Frais de comptabilité LMNP réel (sans réduction OGA/CGA) | S | — | Draft |
-| **V2-S12** | Auditer et supprimer toute référence OGA/CGA | S | — | Draft |
-| **V2-S13** | Conditionner l'inflation des loyers à la classe DPE | S | Sprint 1 complet | Draft |
-| **V2-S14** | Conditionner la revalorisation du bien au DPE | S | V2-S13 | Draft |
-| **V2-S15** | Implémenter le plafond déficit foncier majoré 21 400€ | S | — | Draft |
+| **V2-S09** | Propager les 3 catégories Micro-BIC dans le calculateur fiscal | M | — | Done |
+| **V2-S10** | Intégrer la CFE dans les charges LMNP avec logique d'exonération | M | V2-S09 | Done |
+| **V2-S11** | Frais de comptabilité LMNP réel (sans réduction OGA/CGA) | S | — | Done |
+| **V2-S12** | Auditer et supprimer toute référence OGA/CGA | S | — | Done |
+| **V2-S13** | Conditionner l'inflation des loyers à la classe DPE | S | Sprint 1 complet | Done |
+| **V2-S14** | Conditionner la revalorisation du bien au DPE | S | V2-S13 | Done |
+| **V2-S15** | Implémenter le plafond de déficit foncier majoré de 21 400 € | S | — | Done |
 
 **Séquence recommandée** :
 1. S09 + S11 + S12 + S15 en parallèle (indépendants)

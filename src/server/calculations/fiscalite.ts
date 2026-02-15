@@ -92,7 +92,9 @@ export function calculerFoncierReel(
   chargesDeductibles: number,
   tmi: number,
   interetsAssurance: number = 0,
-  deficitReportableEntrant: number = 0
+  deficitReportableEntrant: number = 0,
+  renovationEnergetique: boolean = false,
+  anneeTravaux?: number
 ): FiscaliteDetail {
   const alertes: string[] = [];
   let deficitFoncier: DeficitFoncierDetail | null = null;
@@ -113,7 +115,14 @@ export function calculerFoncierReel(
 
   // Calcul du déficit foncier (AUDIT-103)
   if (revenuApresReport < chargesDeductibles + interetsAssurance) {
-    deficitFoncier = calculerDeficitFoncier(revenuApresReport, chargesDeductibles, interetsAssurance, tmi);
+    deficitFoncier = calculerDeficitFoncier(
+      revenuApresReport,
+      chargesDeductibles,
+      interetsAssurance,
+      tmi,
+      renovationEnergetique,
+      anneeTravaux
+    );
     if (deficitFoncier) {
       alertes.push(
         `Déficit foncier : ${round(deficitFoncier.deficit_total)}€ (économie IR : ${round(deficitFoncier.economie_impot)}€, reportable : ${round(deficitFoncier.reportable)}€)`
@@ -164,8 +173,21 @@ export function calculerLmnpMicro(
   const alertes: string[] = [];
 
   // Détermination des seuils selon le type de location
-  const isNonClasse = type_location === 'meublee_tourisme_non_classe';
-  const config = isNonClasse ? CONSTANTS.FISCALITE.MICRO_BIC.NON_CLASSE : CONSTANTS.FISCALITE.MICRO_BIC.STANDARD;
+  // V2-S09 : Prise en charge explicite des 3 catégories
+  let config;
+  switch (type_location) {
+    case 'meublee_tourisme_classe':
+      config = CONSTANTS.FISCALITE.MICRO_BIC.MEUBLE_TOURISME_CLASSE;
+      break;
+    case 'meublee_tourisme_non_classe':
+      config = CONSTANTS.FISCALITE.MICRO_BIC.MEUBLE_TOURISME_NON_CLASSE;
+      break;
+    case 'meublee_longue_duree':
+    default:
+      config = CONSTANTS.FISCALITE.MICRO_BIC.MEUBLE_LONGUE_DUREE;
+      break;
+  }
+
   const { PLAFOND, ABATTEMENT } = config;
 
   // Vérification plafond
@@ -217,9 +239,24 @@ export function calculerLmnpReel(
   interetsAssurance: number = 0,
   partTerrain?: number,
   modeAmortissement: ModeAmortissement = 'simplifie',
-  annee: number = 1
+  annee: number = 1,
+  cfeAnnuelle: number = 0
 ): FiscaliteDetail {
   const alertes: string[] = [];
+
+  // V2-S10 : Exonération CFE la 1ère année
+  // Contrat : chargesDeductibles inclut la CFE théorique (hors exonération 1ère année).
+  // cfeAnnuelle est la part de CFE incluse dans chargesDeductibles.
+  // On utilise Math.min pour ne jamais retirer plus que ce qui est effectivement inclus,
+  // évitant tout risque de double-exclusion si un appelant passe cfeAnnuelle > chargesDeductibles.
+  let chargesRetenues = chargesDeductibles;
+  if (annee === 1 && cfeAnnuelle > 0) {
+    const cfeIncluseDansCharges = Math.min(cfeAnnuelle, chargesDeductibles);
+    if (cfeIncluseDansCharges > 0) {
+      chargesRetenues = chargesDeductibles - cfeIncluseDansCharges;
+      alertes.push(`Exonération CFE 1ère année : -${Math.round(cfeIncluseDansCharges)}€ de charges déductibles`);
+    }
+  }
 
   const partTerrainEffective = partTerrain ?? CONSTANTS.AMORTISSEMENT.PART_TERRAIN;
   const valeurBati = prixAchat * (1 - partTerrainEffective);
@@ -249,7 +286,7 @@ export function calculerLmnpReel(
 
   // Base imposable = revenus - charges - interets - amortissement
   // L'amortissement ne peut pas créer de déficit fiscal BIC
-  const resultatAvantAmortissement = revenusBruts - chargesDeductibles - interetsAssurance;
+  const resultatAvantAmortissement = revenusBruts - chargesRetenues - interetsAssurance;
   const amortissementDeductible = Math.min(Math.max(0, resultatAvantAmortissement), amortissementTotal);
   const baseImposable = Math.max(0, resultatAvantAmortissement - amortissementDeductible);
 
@@ -268,7 +305,7 @@ export function calculerLmnpReel(
   const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.TAUX_PS_REVENUS_BIC_LMNP;
   const impotTotal = impotRevenu + prelevementsSociaux;
 
-  const revenuNetApresImpot = revenusBruts - chargesDeductibles - interetsAssurance - impotTotal;
+  const revenuNetApresImpot = revenusBruts - chargesRetenues - interetsAssurance - impotTotal;
 
   return {
     regime: `LMNP Réel (TMI ${tmi}%)`,
@@ -381,7 +418,9 @@ export function calculerDeficitFoncier(
   revenusBruts: number,
   chargesHorsInterets: number,
   interetsAssurance: number,
-  tmi: number
+  tmi: number,
+  renovationEnergetique: boolean = false,
+  anneeTravaux?: number
 ): DeficitFoncierDetail | null {
   const totalCharges = chargesHorsInterets + interetsAssurance;
   if (revenusBruts >= totalCharges) {
@@ -395,7 +434,13 @@ export function calculerDeficitFoncier(
   const deficitInterets = deficitTotal - deficitHorsInterets;
 
   // Imputation sur revenu global (max 10 700€, hors intérêts uniquement)
-  const plafond = CONSTANTS.DEFICIT_FONCIER.PLAFOND_IMPUTATION;
+  // AUDIT-110 & V2-S15 : Plafond majoré (21 400€) si travaux énergétique (2023-2025)
+  let plafond: number = CONSTANTS.DEFICIT_FONCIER.PLAFOND_IMPUTATION;
+
+  if (renovationEnergetique && anneeTravaux && anneeTravaux >= 2023 && anneeTravaux <= 2025) {
+    plafond = CONSTANTS.DEFICIT_FONCIER.PLAFOND_ENERGIE;
+  }
+
   const imputationRevenuGlobal = Math.min(deficitHorsInterets, plafond);
 
   // Économie d'impôt = imputation × TMI (l'imputation réduit le revenu global)
@@ -730,12 +775,23 @@ export function calculerFiscalite(
       result = calculerMicroFoncier(revenusBruts, tmi);
       break;
     case 'reel':
-      result = calculerFoncierReel(revenusBruts, chargesDeductibles, tmi, coutFinancierAn1);
+      result = calculerFoncierReel(
+        revenusBruts,
+        chargesDeductibles,
+        tmi,
+        coutFinancierAn1,
+        0, // reportable
+        bien.renovation_energetique,
+        bien.annee_travaux
+      );
       break;
     case 'lmnp_micro':
       result = calculerLmnpMicro(revenusBruts, tmi, exploitation.type_location);
       break;
     case 'lmnp_reel':
+      // V2-S10 : Calcul CFE effective pour savoir quoi déduire (ou pas)
+      const cfeEffective = (revenusBruts < CONSTANTS.CFE.SEUIL_EXONERATION) ? 0 : (exploitation.cfe_estimee || 0);
+
       result = calculerLmnpReel(
         revenusBruts,
         chargesDeductibles,
@@ -745,7 +801,9 @@ export function calculerFiscalite(
         bien.valeur_mobilier,
         coutFinancierAn1,
         partTerrain,
-        modeAmortissement
+        modeAmortissement,
+        1, // annee = 1 par défaut dans calculerFiscalite simple
+        cfeEffective
       );
       break;
     default:

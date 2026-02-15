@@ -29,12 +29,12 @@ const ChartSkeleton = () => (
 
 const CashflowChart = dynamic(
   () => import('./CashflowChart').then(mod => ({ default: mod.CashflowChart })),
-  { loading: () => <ChartSkeleton /> }
+  { loading: () => <ChartSkeleton />, ssr: false }
 );
 
 const PatrimoineChart = dynamic(
   () => import('./PatrimoineChart').then(mod => ({ default: mod.PatrimoineChart })),
-  { loading: () => <ChartSkeleton /> }
+  { loading: () => <ChartSkeleton />, ssr: false }
 );
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useChartData } from '@/hooks/useChartData';
@@ -239,7 +239,7 @@ export function Dashboard() {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest">Évolution du Patrimoine</h3>
               </div>
-              <PatrimoineChart data={patrimoineData} loanEndYear={loanEndYear} />
+              <PatrimoineChart data={patrimoineData} loanEndYear={loanEndYear} dpe={bien.dpe} />
             </Card>
           </div>
         </div>
