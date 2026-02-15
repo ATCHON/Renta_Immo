@@ -490,7 +490,7 @@ function calculerSurtaxePV(pvNetteIR: number): number {
   let surtaxe = 0;
   for (const tranche of CONSTANTS.PLUS_VALUE.BAREME_SURTAXE) {
     if (pvNetteIR >= tranche.MIN) {
-      const montantDansTranche = Math.min(pvNetteIR, tranche.MAX) - tranche.MIN + 1;
+      const montantDansTranche = Math.max(0, Math.min(pvNetteIR, tranche.MAX) - tranche.MIN);
       surtaxe += montantDansTranche * tranche.TAUX;
     }
   }
@@ -533,8 +533,21 @@ export function calculerPlusValueIR(
 ): PlusValueDetail {
   // V2-S01 : Prix d'acquisition corrigé avec forfaits
   const forfaitAcquisition = prixAchat * CONSTANTS.PLUS_VALUE.FORFAIT_FRAIS_ACQUISITION;
-  const forfaitTravaux = montantTravaux * CONSTANTS.PLUS_VALUE.FORFAIT_TRAVAUX_PV;
-  const prixAcquisitionCorrige = prixAchat + forfaitAcquisition + montantTravaux + forfaitTravaux;
+  const forfaitTravaux = dureeDetention > 5 ? montantTravaux * CONSTANTS.PLUS_VALUE.FORFAIT_TRAVAUX_PV : 0;
+  // Correction: Forfait calculé sur le prix d'achat si > 5 ans, sinon réel travaux déjà inclus dans montantTravaux?
+  // La règle est: soit réel (montantTravaux), soit forfait 15% du prix d'achat (si > 5 ans).
+  // Ici on applique la logique: prixAcquisitionCorrige = prixAchat + forfaitAcquisition + (forfaitTravaux > montantTravaux ? forfaitTravaux : montantTravaux)
+  // Mais pour modifier le moins de code possible et respecter la demande de validation conditionnelle:
+  // Si > 5 ans, on considère le forfait 15% du PRIX_ACHAT (selon la logique standard, pas montantTravaux * 15%).
+  // Cependant, pour coller au code existant et éviter de casser la logique "cumulative" étrange si elle était voulue:
+  // On va supposer que "montantTravaux" est le montant réel, et on veut comparer avec le forfait.
+  // Le code original faisait: prixAchat + forfaitAcq + montantTravaux + forfaitTravaux. Ce qui est faux.
+  // On remplace par:
+  const travauxRetenus = dureeDetention > 5
+    ? Math.max(montantTravaux, prixAchat * CONSTANTS.PLUS_VALUE.FORFAIT_TRAVAUX_PV)
+    : montantTravaux;
+
+  const prixAcquisitionCorrige = prixAchat + forfaitAcquisition + travauxRetenus;
 
   // V2-S05 : Réintégration amortissements LMNP
   let amortissementsReintegres = amortissementsCumules;

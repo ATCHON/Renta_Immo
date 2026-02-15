@@ -53,10 +53,11 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
 
   describe('calculerPlusValueIR - Nom propre', () => {
     it('cas de test : PV apres 10 ans avec forfait acquisition (V2-S01)', () => {
-      // Achat 200000, revente 230000, detention 10 ans
-      // Prix acquisition corrige = 200000 * 1.075 = 215000 (forfait 7.5%)
-      // PV brute = 230000 - 215000 = 15000
-      const result = calculerPlusValueIR(230000, 200000, 10);
+      // Achat 200000, revente 260000 (augmenté pour compenser forfait travaux), detention 10 ans
+      // Forfait travaux > 5 ans = 15% * 200000 = 30000
+      // Prix acquisition corrige = 200000 + 15000 (acq) + 30000 (travaux) = 245000
+      // PV brute = 260000 - 245000 = 15000
+      const result = calculerPlusValueIR(260000, 200000, 10);
 
       expect(result.plus_value_brute).toBe(15000);
 
@@ -103,10 +104,11 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
 
     it('reintegration amortissements LMNP avec forfait (V2-S01)', () => {
       // Achat 200000, vente 230000, detention 10 ans, amortissements cumules 50000
-      // Prix acquisition corrige = 200000 * 1.075 = 215000
-      // PV brute = 230000 - 215000 + 50000 = 65000
+      // Forfait travaux 15% code = 30000
+      // Prix acquisition corrige = 200000 + 15000 + 30000 = 245000
+      // PV brute = 230000 - 245000 + 50000 = 35000
       const result = calculerPlusValueIR(230000, 200000, 10, 50000);
-      expect(result.plus_value_brute).toBe(65000);
+      expect(result.plus_value_brute).toBe(35000);
       expect(result.amortissements_reintegres).toBe(50000);
       expect(result.impot_total).toBeGreaterThan(0);
     });
@@ -131,10 +133,11 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
     // V2-S01 : Tests forfait travaux
     it('forfait travaux 15% (V2-S01)', () => {
       // Achat 200000, travaux 50000, vente 350000, detention 10 ans
-      // Prix corrige = 200000*1.075 + 50000*1.15 = 215000 + 57500 = 272500
-      // PV brute = 350000 - 272500 = 77500
+      // Forfait 15% = 30000. Réel = 50000. On garde 50000.
+      // Prix corrige = 200000 + 15000 (acq) + 50000 (travaux retenus) = 265000
+      // PV brute = 350000 - 265000 = 85000
       const result = calculerPlusValueIR(350000, 200000, 10, 0, 50000);
-      expect(result.plus_value_brute).toBe(77500);
+      expect(result.plus_value_brute).toBe(85000);
     });
 
     // V2-S05 : Tests LMNP options
@@ -145,8 +148,9 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
       });
       // Residence services : pas de reintegration
       expect(result.amortissements_reintegres).toBe(0);
-      // PV brute = 300000 - 215000 + 0 = 85000
-      expect(result.plus_value_brute).toBe(85000);
+      // Forfait travaux auto = 15% * 200000 = 30000
+      // PV brute = 300000 - (200000 + 15000 + 30000) = 55000
+      expect(result.plus_value_brute).toBe(55000);
     });
 
     it('exclusion mobilier de la reintegration (V2-S05)', () => {

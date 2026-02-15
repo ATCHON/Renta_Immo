@@ -6,7 +6,7 @@
 ## Story
 
 **As a** investisseur orienté patrimoine (plutôt que cashflow),
-**I want** pouvoir activer un profil de scoring "Patrimonial" qui valorise davantage le TRI long terme et la valorisation du bien,
+**I want** to be able to activate a "Patrimonial" scoring profile that places more weight on long-term IRR and property appreciation,
 **so that** les recommandations correspondent à mes objectifs d'investissement.
 
 ## Acceptance Criteria

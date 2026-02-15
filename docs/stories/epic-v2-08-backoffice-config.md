@@ -10,7 +10,7 @@ Transformer toutes les constantes en dur en paramètres configurables via une in
 
 ## Attention
 
-**Chantier le plus lourd.** A planifier APRES livraison des corrections critiques (sprints 1-3). Necessite coordination avec l'architecte.
+**Chantier le plus lourd.** A planifier APRES livraison des corrections critiques (sprints 1-3). Nécessite coordination avec l'architecte.
 
 ## Stories
 

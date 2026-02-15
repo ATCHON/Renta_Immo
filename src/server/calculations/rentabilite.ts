@@ -158,7 +158,8 @@ export function calculerFinancement(
  */
 export function calculerChargesAnnuelles(
   exploitation: ExploitationData,
-  loyerAnnuel: number
+  loyerAnnuel: number,
+  tauxOccupation?: number
 ): ChargesCalculations {
   // Charges fixes (on soustrait la part récupérable sur le locataire)
   const chargesCoproProprietaire = Math.max(0, exploitation.charges_copro - (exploitation.charges_copro_recuperables || 0));
@@ -174,7 +175,11 @@ export function calculerChargesAnnuelles(
   // Charges proportionnelles (en % du loyer annuel)
   const gestion = (exploitation.gestion_locative / 100) * loyerAnnuel;
   const travaux = (exploitation.provision_travaux / 100) * loyerAnnuel;
-  const vacance = (exploitation.provision_vacance / 100) * loyerAnnuel;
+  // Si un taux d'occupation est défini (même 100%), il module déjà les revenus bruts (donc la vacance est gérée en amont).
+  // On ne compte la charge "provision vacance" QUE si aucun taux d'occupation n'est défini.
+  const vacance = (tauxOccupation !== undefined)
+    ? 0
+    : (exploitation.provision_vacance / 100) * loyerAnnuel;
 
   const charges_proportionnelles_annuelles = gestion + travaux + vacance;
 
@@ -201,7 +206,8 @@ export function calculerRentabilite(
   const tauxOccupation = exploitation.taux_occupation ?? 1;
   const loyer_annuel = exploitation.loyer_mensuel * 12 * tauxOccupation;
   const financementCalc = calculerFinancement(bien, financement);
-  const charges = calculerChargesAnnuelles(exploitation, loyer_annuel);
+  // On passe le taux d'occupation BRUT (peut être undefined) pour savoir si on doit annuler la provision vacance
+  const charges = calculerChargesAnnuelles(exploitation, loyer_annuel, exploitation.taux_occupation);
 
   // Correction Audit : Rentabilité brute sur prix d'achat initial reste utile
   const rentabilite_brute = bien.prix_achat > 0
