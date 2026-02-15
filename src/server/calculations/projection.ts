@@ -351,7 +351,8 @@ export function genererProjections(
             valeurBien *= (1 + revalorisationBien);
         }
 
-        const loyerAnnuel = loyerMensuel * 12;
+        const tauxOccupation = input.exploitation.taux_occupation ?? 1;
+        const loyerAnnuel = loyerMensuel * 12 * tauxOccupation;
 
         // Calcul des charges fixes de base (saisies)
         const chargesFixesBase =
@@ -488,7 +489,8 @@ export function genererProjections(
             derniereProjection.valeurBien,
             input.bien.prix_achat,
             horizon,
-            isLmnpReel ? amortissementCumule : 0
+            isLmnpReel ? amortissementCumule : 0,
+            input.bien.montant_travaux || 0
         );
     }
 

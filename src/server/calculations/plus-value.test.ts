@@ -52,28 +52,31 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
   });
 
   describe('calculerPlusValueIR - Nom propre', () => {
-    it('cas de test story : PV apres 10 ans de detention', () => {
-      // Achat 200000, revente 230000, detention 10 ans
-      const result = calculerPlusValueIR(230000, 200000, 10);
+    it('cas de test : PV apres 10 ans avec forfait acquisition (V2-S01)', () => {
+      // Achat 200000, revente 260000 (augmenté pour compenser forfait travaux), detention 10 ans
+      // Forfait travaux > 5 ans = 15% * 200000 = 30000
+      // Prix acquisition corrige = 200000 + 15000 (acq) + 30000 (travaux) = 245000
+      // PV brute = 260000 - 245000 = 15000
+      const result = calculerPlusValueIR(260000, 200000, 10);
 
-      expect(result.plus_value_brute).toBe(30000);
+      expect(result.plus_value_brute).toBe(15000);
 
       // Abattement IR 10 ans : 5 * 6% = 30%
       expect(result.abattement_ir).toBeCloseTo(30, 1);
-      // PV nette IR = 30000 * 0.70 = 21000
-      expect(result.plus_value_nette_ir).toBe(21000);
-      // IR = 21000 * 19% = 3990
-      expect(result.impot_ir).toBe(3990);
+      // PV nette IR = 15000 * 0.70 = 10500
+      expect(result.plus_value_nette_ir).toBe(10500);
+      // IR = 10500 * 19% = 1995
+      expect(result.impot_ir).toBe(1995);
 
       // Abattement PS 10 ans : 5 * 1.65% = 8.25%
-      expect(result.abattement_ps).toBeCloseTo(8.3, 0); // arrondi a 0.1
-      // PV nette PS = 30000 * (1 - 0.0825) = 27525
-      expect(result.plus_value_nette_ps).toBe(27525);
-      // PS = 27525 * 17.2% = 4734.30
-      expect(result.impot_ps).toBeCloseTo(4734.30, 0);
+      expect(result.abattement_ps).toBeCloseTo(8.3, 0);
+      // PV nette PS = 15000 * (1 - 0.0825) = 13762.5
+      expect(result.plus_value_nette_ps).toBe(13762.5);
+      // PS = 13762.5 * 17.2% = 2367.15
+      expect(result.impot_ps).toBeCloseTo(2367, 0);
 
-      // Total = 3990 + 4734.30 = 8724.30
-      expect(result.impot_total).toBeCloseTo(8724, 0);
+      // Total
+      expect(result.impot_total).toBeCloseTo(4362, 0);
     });
 
     it('pas de plus-value si prix de vente <= prix d\'achat', () => {
@@ -99,29 +102,74 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
       expect(result.net_revente).toBe(300000);
     });
 
-    it('reintegration amortissements LMNP (LF 2025)', () => {
+    it('reintegration amortissements LMNP avec forfait (V2-S01)', () => {
       // Achat 200000, vente 230000, detention 10 ans, amortissements cumules 50000
-      // PV brute = 230000 - 200000 + 50000 = 80000
+      // Forfait travaux 15% code = 30000
+      // Prix acquisition corrige = 200000 + 15000 + 30000 = 245000
+      // PV brute = 230000 - 245000 + 50000 = 35000
       const result = calculerPlusValueIR(230000, 200000, 10, 50000);
-      expect(result.plus_value_brute).toBe(80000);
+      expect(result.plus_value_brute).toBe(35000);
       expect(result.amortissements_reintegres).toBe(50000);
       expect(result.impot_total).toBeGreaterThan(0);
     });
 
-    it('surtaxe pour PV > 50000 EUR', () => {
+    it('surtaxe pour PV > 50000 EUR avec forfait (V2-S01/S03)', () => {
       // PV nette IR doit depasser 50000 pour declencher la surtaxe
-      // PV brute importante avec peu d'abattement (5 ans)
+      // Achat 200000, vente 400000, detention 3 ans
+      // Prix acquisition corrige = 200000 * 1.075 = 215000
+      // PV brute = 400000 - 215000 = 185000
       const result = calculerPlusValueIR(400000, 200000, 3);
-      // PV brute = 200000, abattement IR = 0% (<=5 ans)
-      // PV nette IR = 200000 => surtaxe applicable
-      expect(result.plus_value_brute).toBe(200000);
+      expect(result.plus_value_brute).toBe(185000);
+      // PV nette IR = 185000 (pas d'abattement a 3 ans)
       expect(result.surtaxe).toBeGreaterThan(0);
     });
 
     it('pas de surtaxe pour PV nette IR <= 50000', () => {
       const result = calculerPlusValueIR(230000, 200000, 10);
-      // PV nette IR = 21000 < 50000
+      // PV nette IR = 10500 < 50000
       expect(result.surtaxe).toBe(0);
+    });
+
+    // V2-S01 : Tests forfait travaux
+    it('forfait travaux 15% (V2-S01)', () => {
+      // Achat 200000, travaux 50000, vente 350000, detention 10 ans
+      // Forfait 15% = 30000. Réel = 50000. On garde 50000.
+      // Prix corrige = 200000 + 15000 (acq) + 50000 (travaux retenus) = 265000
+      // PV brute = 350000 - 265000 = 85000
+      const result = calculerPlusValueIR(350000, 200000, 10, 0, 50000);
+      expect(result.plus_value_brute).toBe(85000);
+    });
+
+    // V2-S05 : Tests LMNP options
+    it('residence services exemptee apres Loi Le Meur (V2-S05)', () => {
+      const result = calculerPlusValueIR(300000, 200000, 10, 40000, 0, {
+        typeResidence: 'services',
+        dateCession: '2025-06-01',
+      });
+      // Residence services : pas de reintegration
+      expect(result.amortissements_reintegres).toBe(0);
+      // Forfait travaux auto = 15% * 200000 = 30000
+      // PV brute = 300000 - (200000 + 15000 + 30000) = 55000
+      expect(result.plus_value_brute).toBe(55000);
+    });
+
+    it('exclusion mobilier de la reintegration (V2-S05)', () => {
+      const result = calculerPlusValueIR(300000, 200000, 10, 40000, 0, {
+        typeResidence: 'classique',
+        amortissementMobilierCumule: 10000,
+        dateCession: '2025-06-01',
+      });
+      // Reintegration = 40000 - 10000 = 30000
+      expect(result.amortissements_reintegres).toBe(30000);
+    });
+
+    it('avant Loi Le Meur : reintegration totale meme residence services (V2-S05)', () => {
+      const result = calculerPlusValueIR(300000, 200000, 10, 40000, 0, {
+        typeResidence: 'services',
+        dateCession: '2025-01-01',
+      });
+      // Avant 15/02/2025 : reintegration totale meme pour services
+      expect(result.amortissements_reintegres).toBe(40000);
     });
   });
 

@@ -1112,14 +1112,16 @@ export default function EnSavoirPlusPage() {
                   <div className="bg-surface p-5 rounded-xl border border-sand">
                     <h5 className="text-sm font-bold text-charcoal mb-2">Patrimoine net à l&apos;horizon</h5>
                     <p className="text-sm text-pebble leading-relaxed">
-                      C&apos;est ce que vous possédez réellement à une date donnée :
+                      C&apos;est la mesure réaliste de votre enrichissement, intégrant les flux de trésorerie cumulés :
                     </p>
                     <FormulaBox>
-                      Patrimoine = Valeur du bien - Capital restant dû - Impôt PV - Frais de revente
+                      Patrimoine net = Valeur du bien - Capital restant dû + Cash-flow net cumulé
                     </FormulaBox>
                     <p className="text-sm text-pebble leading-relaxed mt-2">
-                      Intègre la revalorisation du bien, le remboursement progressif du crédit,
-                      l&apos;impôt de plus-value estimé et les frais de cession en cas de revente.
+                      Contrairement à la simple équité immobilière (valeur − dette), cette formule
+                      tient compte de <strong>tout l&apos;argent investi ou perdu</strong> via le cash-flow
+                      mensuel. Un investissement avec un fort effort d&apos;épargne aura un patrimoine net
+                      bien inférieur à la valeur du bien.
                     </p>
                   </div>
                 </div>
@@ -1149,11 +1151,61 @@ export default function EnSavoirPlusPage() {
                 </div>
 
                 <ExpertTip variant="success">
-                  <strong>Cash-flow cumulé :</strong> Le tableau de projection montre année par année le cash-flow net
-                  (loyers - charges - crédit - impôts). Un cash-flow négatif signifie un effort d&apos;épargne mensuel.
+                  <strong>Cash-flow net :</strong> Le tableau de projection montre année par année le cash-flow net
+                  d&apos;impôt (loyers − charges − crédit − impôts). Un cash-flow négatif signifie un effort d&apos;épargne mensuel.
                   Suivez l&apos;évolution : avec l&apos;inflation des loyers et la fin du crédit, le cash-flow s&apos;améliore
                   naturellement avec le temps.
                 </ExpertTip>
+
+                <h4 className="text-sm font-bold text-charcoal uppercase tracking-widest px-3 border-l-4 border-forest">
+                  Lecture des graphiques
+                </h4>
+                <p className="text-sm text-pebble leading-relaxed">
+                  Survolez les légendes des graphiques pour voir le détail de chaque calcul.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-surface p-5 rounded-xl border border-sand space-y-3">
+                    <h5 className="text-sm font-bold text-charcoal">Graphe Cash-flow (Net d&apos;impôt)</h5>
+                    <div className="flex items-start gap-2 text-sm">
+                      <span className="h-3 w-3 rounded-full bg-[#2D5A45] mt-0.5 shrink-0" />
+                      <div>
+                        <p className="font-bold text-charcoal">Barres : Cash-flow net annuel</p>
+                        <p className="text-pebble text-xs">Loyer − Charges − Crédit − Impôts. Vert si positif, rouge si négatif.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2 text-sm">
+                      <span className="h-3 w-3 rounded-full bg-[#60A5FA] mt-0.5 shrink-0" />
+                      <div>
+                        <p className="font-bold text-charcoal">Ligne pointillée : Cumulé</p>
+                        <p className="text-pebble text-xs">Somme de tous les cash-flows nets depuis l&apos;année 1.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-surface p-5 rounded-xl border border-sand space-y-3">
+                    <h5 className="text-sm font-bold text-charcoal">Graphe Évolution du Patrimoine</h5>
+                    <div className="flex items-start gap-2 text-sm">
+                      <span className="h-3 w-3 rounded-full bg-[#2D5A45] mt-0.5 shrink-0" />
+                      <div>
+                        <p className="font-bold text-charcoal">Valeur du bien (estimée)</p>
+                        <p className="text-pebble text-xs">Prix d&apos;achat + revalorisation annuelle (+1,5%/an par défaut).</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2 text-sm">
+                      <span className="h-3 w-3 rounded-full bg-[#DC2626] mt-0.5 shrink-0" />
+                      <div>
+                        <p className="font-bold text-charcoal">Capital restant dû</p>
+                        <p className="text-pebble text-xs">Montant d&apos;emprunt restant à rembourser. Atteint 0 à la fin du crédit.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2 text-sm">
+                      <span className="h-3 w-3 rounded-full bg-[#2563EB] mt-0.5 shrink-0" />
+                      <div>
+                        <p className="font-bold text-charcoal">Patrimoine net</p>
+                        <p className="text-pebble text-xs">Valeur du bien − Capital restant + Cash-flow net cumulé. Inclut l&apos;effort d&apos;épargne réel.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </section>

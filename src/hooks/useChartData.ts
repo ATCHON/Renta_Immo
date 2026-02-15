@@ -18,12 +18,16 @@ export const useChartData = (projections: ProjectionAnnuelle[] = []) => {
     }, [projections, currentYear]);
 
     const patrimoineData = useMemo(() => {
-        return projections.map((p) => ({
-            name: (currentYear + p.annee - 1).toString(),
-            valeurBien: Math.round(p.valeurBien),
-            capitalRestant: Math.round(p.capitalRestant),
-            patrimoineNet: Math.round(p.patrimoineNet),
-        }));
+        let cashflowCumul = 0;
+        return projections.map((p) => {
+            cashflowCumul += p.cashflowNetImpot;
+            return {
+                name: (currentYear + p.annee - 1).toString(),
+                valeurBien: Math.round(p.valeurBien),
+                capitalRestant: Math.round(p.capitalRestant),
+                patrimoineNet: Math.round(p.patrimoineNet + cashflowCumul),
+            };
+        });
     }, [projections, currentYear]);
 
     const cumulativeData = useMemo(() => {

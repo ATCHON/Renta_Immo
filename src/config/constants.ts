@@ -9,9 +9,12 @@ export const CONSTANTS = {
     // FISCALITÉ
     // ========================================================================
     FISCALITE: {
-        // Prélèvements sociaux
-        PRELEVEMENTS_SOCIAUX_FONCIER: 0.172, // 17.2% pour revenus fonciers
-        PRELEVEMENTS_SOCIAUX_LMNP: 0.186, // 18.6% pour LMNP (hausse 2025)
+        // Prélèvements sociaux (PS)
+        // PS sur plus-values immobilières et revenus fonciers = 17.2% (CGI art. 200 A)
+        TAUX_PS_FONCIER: 0.172,
+        // PS sur revenus BIC LMNP = 17.2% pour non-professionnels
+        // Note: PS revenus LMNP ≠ PS plus-values (distinction V2-S04)
+        TAUX_PS_REVENUS_BIC_LMNP: 0.172,
 
         // Micro-Foncier (Location nue)
         MICRO_FONCIER: {
@@ -136,18 +139,24 @@ export const CONSTANTS = {
         TAUX_IR: 0.19,        // 19%
         TAUX_PS: 0.172,       // 17.2%
 
+        // Forfaits pour calcul prix d'acquisition corrigé (V2-S01)
+        FORFAIT_FRAIS_ACQUISITION: 0.075,  // 7.5% forfait frais d'acquisition
+        FORFAIT_TRAVAUX_PV: 0.15,          // 15% forfait travaux (si > 5 ans détention)
+
         // Seuil surtaxe
         SEUIL_SURTAXE: 50000, // €
 
-        // Barème surtaxe PV > 50 000€
+        // Barème surtaxe PV > 50 000€ (V2-S03 — 5 tranches conformes)
         BAREME_SURTAXE: [
-            { SEUIL: 60000, TAUX: 0.02 },
-            { SEUIL: 100000, TAUX: 0.03 },
-            { SEUIL: 110000, TAUX: 0.04 },
-            { SEUIL: 150000, TAUX: 0.05 },
-            { SEUIL: 260000, TAUX: 0.06 },
-            { SEUIL: Infinity, TAUX: 0.07 },
+            { MIN: 50001, MAX: 100000, TAUX: 0.02 },
+            { MIN: 100001, MAX: 150000, TAUX: 0.03 },
+            { MIN: 150001, MAX: 200000, TAUX: 0.04 },
+            { MIN: 200001, MAX: 250000, TAUX: 0.06 },
+            { MIN: 250001, MAX: Infinity, TAUX: 0.06 },
         ],
+
+        // Loi Le Meur — date d'application pour réintégration amortissements (V2-S05)
+        DATE_LOI_LE_MEUR: '2025-02-15',
     },
 
     // ========================================================================
