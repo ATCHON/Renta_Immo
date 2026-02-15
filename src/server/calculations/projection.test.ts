@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculerTRI, genererProjections } from './projection';
+import type { ValidatedFormData } from './types';
 
 describe('Calculateur TRI', () => {
     it('doit calculer un TRI correct pour un flux simple', () => {
@@ -56,7 +57,7 @@ describe('AUDIT-110 & V2-S14 : Revalorisation selon DPE', () => {
         options: {
             horizon_projection: 20, taux_evolution_loyer: 0,
         },
-    } as any; // Cast as any for simplicity in test setup
+    } as unknown as ValidatedFormData;
 
     it('DPE F/G : Décote immédiate de 15%', () => {
         const inputF = { ...baseInput, bien: { ...baseInput.bien, dpe: 'F' } };

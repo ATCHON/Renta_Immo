@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculerChargesAnnuelles } from './rentabilite';
+import type { ExploitationData } from '@/lib/validators';
 
 describe('calculerChargesAnnuelles (Fix Vacance)', () => {
     const exploitationMock = {
@@ -15,7 +16,7 @@ describe('calculerChargesAnnuelles (Fix Vacance)', () => {
         provision_vacance: 5, // 5% provision vacance
         loyer_mensuel: 1000,
         type_location: 'nue',
-    } as any;
+    } as unknown as ExploitationData;
 
     it('devrait inclure la provision vacance quand tauxOccupation est absent (undefined)', () => {
         const loyerAnnuel = 12000;

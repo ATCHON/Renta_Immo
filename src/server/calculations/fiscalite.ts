@@ -578,16 +578,7 @@ export function calculerPlusValueIR(
 ): PlusValueDetail {
   // V2-S01 : Prix d'acquisition corrigé avec forfaits
   const forfaitAcquisition = prixAchat * CONSTANTS.PLUS_VALUE.FORFAIT_FRAIS_ACQUISITION;
-  const forfaitTravaux = dureeDetention > 5 ? montantTravaux * CONSTANTS.PLUS_VALUE.FORFAIT_TRAVAUX_PV : 0;
-  // Correction: Forfait calculé sur le prix d'achat si > 5 ans, sinon réel travaux déjà inclus dans montantTravaux?
-  // La règle est: soit réel (montantTravaux), soit forfait 15% du prix d'achat (si > 5 ans).
-  // Ici on applique la logique: prixAcquisitionCorrige = prixAchat + forfaitAcquisition + (forfaitTravaux > montantTravaux ? forfaitTravaux : montantTravaux)
-  // Mais pour modifier le moins de code possible et respecter la demande de validation conditionnelle:
-  // Si > 5 ans, on considère le forfait 15% du PRIX_ACHAT (selon la logique standard, pas montantTravaux * 15%).
-  // Cependant, pour coller au code existant et éviter de casser la logique "cumulative" étrange si elle était voulue:
-  // On va supposer que "montantTravaux" est le montant réel, et on veut comparer avec le forfait.
-  // Le code original faisait: prixAchat + forfaitAcq + montantTravaux + forfaitTravaux. Ce qui est faux.
-  // On remplace par:
+  // Règle PV : retenir le plus favorable entre montant réel et forfait 15% du prix d'achat (si détention > 5 ans)
   const travauxRetenus = dureeDetention > 5
     ? Math.max(montantTravaux, prixAchat * CONSTANTS.PLUS_VALUE.FORFAIT_TRAVAUX_PV)
     : montantTravaux;

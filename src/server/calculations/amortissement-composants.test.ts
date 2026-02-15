@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { calculerAmortissementComposants, calculerLmnpReel, calculerFiscaliteSciIs } from './fiscalite';
-import { CONSTANTS } from '@/config/constants';
 
 describe('AUDIT-104 : Amortissement par composants', () => {
   describe('calculerAmortissementComposants', () => {
