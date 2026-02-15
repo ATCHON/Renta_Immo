@@ -76,14 +76,16 @@ export function calculerTauxEndettement(
 
 /**
  * Calcule les revenus avec pondération HCSF
+ * V2-S18 : La pondération est désormais configurable (défaut 70%)
  */
 export function calculerRevenusPonderes(
   revenusActiviteMensuels: number,
   revenusProjetBrutsMensuels: number,
-  loyersActuelsMensuels: number = 0
+  loyersActuelsMensuels: number = 0,
+  ponderationLoyers: number = HCSF_CONSTANTES.PONDERATION_LOCATIFS
 ): { bruts: number; ponderes: number; total: number } {
-  const projetPonderes = revenusProjetBrutsMensuels * HCSF_CONSTANTES.PONDERATION_LOCATIFS;
-  const actuelsPonderes = loyersActuelsMensuels * HCSF_CONSTANTES.PONDERATION_LOCATIFS;
+  const projetPonderes = revenusProjetBrutsMensuels * ponderationLoyers;
+  const actuelsPonderes = loyersActuelsMensuels * ponderationLoyers;
 
   return {
     bruts: revenusProjetBrutsMensuels + loyersActuelsMensuels,
@@ -129,9 +131,11 @@ function calculerCapaciteResiduelle(
 export function calculerHcsfNomPropre(
   data: CalculationInput,
   mensualiteNouveauCredit: number,
-  loyerMensuelBrut: number
+  loyerMensuelBrut: number,
+  ponderationLoyers?: number
 ): HcsfDetail {
   const alertes: string[] = [];
+  const ponderation = ponderationLoyers !== undefined ? ponderationLoyers / 100 : HCSF_CONSTANTES.PONDERATION_LOCATIFS;
 
   // Vérification durée du crédit
   if (data.financement.duree_emprunt > HCSF_CONSTANTES.DUREE_MAX_ANNEES) {
@@ -147,7 +151,8 @@ export function calculerHcsfNomPropre(
   const revenusPonderes = calculerRevenusPonderes(
     revenusActiviteMensuelsEstimes,
     loyerMensuelBrut,
-    data.structure.loyers_actuels || 0
+    data.structure.loyers_actuels || 0,
+    ponderation
   );
 
   const creditsExistantsMensuels = data.structure.credits_immobiliers || 0;
@@ -224,9 +229,11 @@ export function calculerHcsfNomPropre(
 export function calculerHcsfSciIs(
   data: CalculationInput,
   mensualiteNouveauCredit: number,
-  loyerMensuelBrut: number
+  loyerMensuelBrut: number,
+  ponderationLoyers?: number
 ): HcsfDetail {
   const alertes: string[] = [];
+  const ponderation = ponderationLoyers !== undefined ? ponderationLoyers / 100 : HCSF_CONSTANTES.PONDERATION_LOCATIFS;
   const associes = data.structure.associes ?? [];
 
   // Vérification durée du crédit
@@ -311,7 +318,7 @@ export function calculerHcsfSciIs(
   }
 
   // AUDIT-107 : Reste à vivre global (basé sur le total)
-  const revenusTotauxGlobal = totalRevenusActiviteMensuels + loyerMensuelBrut * HCSF_CONSTANTES.PONDERATION_LOCATIFS;
+  const revenusTotauxGlobal = totalRevenusActiviteMensuels + loyerMensuelBrut * ponderation;
   const chargesTotalesGlobal = resultatsAssocies.reduce((sum, a) => sum + a.charges_totales_mensuelles, 0);
   const resteAVivre = revenusTotauxGlobal - chargesTotalesGlobal;
 
@@ -335,9 +342,9 @@ export function calculerHcsfSciIs(
     revenus_detail: {
       salaires_estimatif_mensuels: arrondir(totalRevenusActiviteMensuels),
       locatifs_bruts_mensuels: arrondir(loyerMensuelBrut),
-      locatifs_ponderes_mensuels: arrondir(loyerMensuelBrut * HCSF_CONSTANTES.PONDERATION_LOCATIFS),
+      locatifs_ponderes_mensuels: arrondir(loyerMensuelBrut * ponderation),
       total_mensuels: arrondir(
-        totalRevenusActiviteMensuels + loyerMensuelBrut * HCSF_CONSTANTES.PONDERATION_LOCATIFS
+        totalRevenusActiviteMensuels + loyerMensuelBrut * ponderation
       ),
     },
     charges_detail: {
@@ -414,6 +421,7 @@ function calculerHcsfPourAssocie(
 
 /**
  * Analyse HCSF complète selon le mode de détention
+ * V2-S18 : La pondération loyers est lue depuis data.options.ponderation_loyers (défaut 70)
  */
 export function analyserHcsf(
   data: CalculationInput,
@@ -421,12 +429,13 @@ export function analyserHcsf(
   loyerMensuelBrut: number
 ): HcsfDetail {
   const mensualiteNouveauCredit = financement.mensualite_totale;
+  const ponderationLoyers = (data.options as { ponderation_loyers?: number } | undefined)?.ponderation_loyers;
 
   if (data.structure.type === 'sci_is') {
-    return calculerHcsfSciIs(data, mensualiteNouveauCredit, loyerMensuelBrut);
+    return calculerHcsfSciIs(data, mensualiteNouveauCredit, loyerMensuelBrut, ponderationLoyers);
   }
 
-  return calculerHcsfNomPropre(data, mensualiteNouveauCredit, loyerMensuelBrut);
+  return calculerHcsfNomPropre(data, mensualiteNouveauCredit, loyerMensuelBrut, ponderationLoyers);
 }
 
 // ============================================================================

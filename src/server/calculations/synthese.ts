@@ -21,8 +21,10 @@ import type {
   PointAttention,
   Recommandation,
   DPE,
+  ProfilInvestisseur,
 } from './types';
 import { SEUILS } from './types';
+import { CONSTANTS } from '@/config/constants';
 
 /**
  * Évaluations qualitatives
@@ -186,6 +188,7 @@ export function genererAlertesDpe(dpe?: DPE, horizon?: number): PointAttention[]
 /**
  * Calcule le score global selon la spécification métier (AUDIT-106)
  * Base 40 + ajustements par critère, borné entre 0 et 100
+ * V2-S16 : Pondération selon profil investisseur (rentier/patrimonial)
  */
 export function calculerScoreGlobal(params: {
   cashflowMensuel: number;
@@ -197,13 +200,17 @@ export function calculerScoreGlobal(params: {
   loyerAnnuel: number;
   revenusActivite?: number;
   totalChargesMensuelles?: number;
+  profilInvestisseur?: ProfilInvestisseur;
 }): ScoreDetail {
-  const ajCashflow = round(ajustementCashflow(params.cashflowMensuel), 1);
-  const ajRentabilite = round(ajustementRentabilite(params.rentabiliteNetteNette), 1);
-  const ajHcsf = round(ajustementHcsf(params.tauxEndettement, params.hcsfConforme), 1);
-  const ajDpe = ajustementDpe(params.dpe);
-  const ajRatio = round(ajustementRatioPrixLoyer(params.prixAchat, params.loyerAnnuel), 1);
-  const ajRav = ajustementResteAVivre(params.revenusActivite, params.totalChargesMensuelles);
+  const profil = params.profilInvestisseur ?? 'rentier';
+  const poids = CONSTANTS.SCORING_PROFIL[profil];
+
+  const ajCashflow = round(ajustementCashflow(params.cashflowMensuel) * poids.cashflow, 1);
+  const ajRentabilite = round(ajustementRentabilite(params.rentabiliteNetteNette) * poids.rentabilite, 1);
+  const ajHcsf = round(ajustementHcsf(params.tauxEndettement, params.hcsfConforme) * poids.hcsf, 1);
+  const ajDpe = round(ajustementDpe(params.dpe) * poids.dpe, 1);
+  const ajRatio = round(ajustementRatioPrixLoyer(params.prixAchat, params.loyerAnnuel) * poids.ratio_prix_loyer, 1);
+  const ajRav = round(ajustementResteAVivre(params.revenusActivite, params.totalChargesMensuelles) * poids.reste_a_vivre, 1);
 
   const sommeAjustements = ajCashflow + ajRentabilite + ajHcsf + ajDpe + ajRatio + ajRav;
   const total = Math.max(0, Math.min(100, SCORE_BASE + sommeAjustements));
@@ -326,6 +333,31 @@ export function genererPointsAttention(
   points.push(...genererAlertesDpe(dpe, horizon));
 
   return points;
+}
+
+/**
+ * V2-S17 : Génère les alertes LMP selon les recettes LMNP annuelles
+ */
+export function genererAlertesLmp(recettesLmnpAnnuelles: number): PointAttention[] {
+  const alertes: PointAttention[] = [];
+
+  if (recettesLmnpAnnuelles > CONSTANTS.LMP.SEUIL_LMP) {
+    alertes.push({
+      type: 'error',
+      categorie: 'fiscalite',
+      message: `Vos recettes LMNP (${Math.round(recettesLmnpAnnuelles).toLocaleString('fr-FR')} €) dépassent le seuil LMP (${CONSTANTS.LMP.SEUIL_LMP.toLocaleString('fr-FR')} €).`,
+      conseil: "Vous pourriez être qualifié en LMP avec des conséquences sociales et fiscales différentes. Consultez un expert.",
+    });
+  } else if (recettesLmnpAnnuelles > CONSTANTS.LMP.SEUIL_ALERTE) {
+    alertes.push({
+      type: 'warning',
+      categorie: 'fiscalite',
+      message: `Vos recettes LMNP (${Math.round(recettesLmnpAnnuelles).toLocaleString('fr-FR')} €) approchent du seuil LMP (${CONSTANTS.LMP.SEUIL_LMP.toLocaleString('fr-FR')} €).`,
+      conseil: "Anticipez les conséquences fiscales et sociales du passage en LMP. Consultez un expert.",
+    });
+  }
+
+  return alertes;
 }
 
 /**
@@ -513,13 +545,16 @@ function getRecommandationPrincipale(scoreInterne: number): string {
 
 /**
  * Génère la synthèse complète de l'investissement (AUDIT-106 : nouveau scoring)
+ * V2-S16 : Accepte un profil investisseur pour moduler le scoring
+ * V2-S17 : Génère les alertes LMP si régime LMNP
  */
 export function genererSynthese(
   rentabilite: RentabiliteCalculations,
   hcsf: HCSFCalculations,
   fiscalite?: FiscaliteCalculations,
   structure?: StructureData,
-  bien?: BienData
+  bien?: BienData,
+  profilInvestisseur?: ProfilInvestisseur
 ): SyntheseCalculations {
   const points_attention_messages: string[] = [];
   let scoreInterne = 0;
@@ -571,8 +606,8 @@ export function genererSynthese(
   // Charges mensuelles HCSF pour reste à vivre
   const chargesMensuellesHcsf = hcsf.charges_detail?.total_mensuelles ?? 0;
 
-  // Calcul du score détaillé sur 100 (AUDIT-106)
-  const scoreDetail = calculerScoreGlobal({
+  // Paramètres communs pour le scoring
+  const scoreParams = {
     cashflowMensuel: cashflowNetImpotMensuel,
     rentabiliteNetteNette,
     tauxEndettement: hcsf.taux_endettement,
@@ -582,7 +617,13 @@ export function genererSynthese(
     loyerAnnuel: rentabilite.loyer_annuel,
     revenusActivite: structure?.revenus_activite,
     totalChargesMensuelles: chargesMensuellesHcsf,
-  });
+  };
+
+  // Calcul du score détaillé sur 100 (AUDIT-106)
+  // V2-S16 : Pondération selon profil investisseur + pré-calcul des deux profils
+  const scoreDetail = calculerScoreGlobal({ ...scoreParams, profilInvestisseur });
+  const scoreRentier = calculerScoreGlobal({ ...scoreParams, profilInvestisseur: 'rentier' });
+  const scorePatrimonial = calculerScoreGlobal({ ...scoreParams, profilInvestisseur: 'patrimonial' });
 
   const { evaluation, couleur } = genererEvaluation(scoreDetail.total);
   const recommandation = getRecommandationPrincipale(scoreInterne);
@@ -590,6 +631,13 @@ export function genererSynthese(
   const points_attention_detail = fiscalite
     ? genererPointsAttention(rentabilite, hcsf, fiscalite, bien?.dpe, 20)
     : [];
+
+  // V2-S17 : Alertes LMP si régime LMNP (recettes = loyer annuel avec taux d'occupation)
+  const isLmnp = structure?.regime_fiscal === 'lmnp_reel' || structure?.regime_fiscal === 'lmnp_micro';
+  if (isLmnp) {
+    const recettesLmnp = rentabilite.loyer_annuel;
+    points_attention_detail.push(...genererAlertesLmp(recettesLmnp));
+  }
 
   const recommandations_detail = structure
     ? genererRecommandations(structure, rentabilite, hcsf, scoreDetail, bien, cashflowNetImpotMensuel)
@@ -608,6 +656,11 @@ export function genererSynthese(
       autofinancement: critere_autofinancement,
       rentabilite: critere_rentabilite,
       hcsf: critere_hcsf,
+    },
+    // V2-S16 : Scores pré-calculés pour les deux profils
+    scores_par_profil: {
+      rentier: scoreRentier,
+      patrimonial: scorePatrimonial,
     },
   };
 }

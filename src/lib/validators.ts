@@ -188,6 +188,8 @@ export const optionsSchema = z.object({
   taux_evolution_loyer: z.number().min(0).max(10).default(2),
   taux_evolution_charges: z.number().min(0).max(10).default(2.5),
   taux_agence_revente: z.number().min(0).max(15).default(5),
+  profil_investisseur: z.enum(['rentier', 'patrimonial']).default('rentier'),
+  ponderation_loyers: z.number().min(60).max(90).default(70),
 }).refine(
   (data) => {
     if (data.envoyer_email && !data.email) {

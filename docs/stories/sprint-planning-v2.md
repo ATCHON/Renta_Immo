@@ -95,14 +95,17 @@ Implémenter le scoring dual profil Rentier/Patrimonial, l'alerte LMP, et rendre
 
 | ID | Titre | Effort | Dépendances | Statut |
 |----|-------|--------|-------------|--------|
-| **V2-S16** | Implémenter le profil scoring "Patrimonial" | M | Sprint 1+2 | Draft |
-| **V2-S17** | Ajouter l'alerte seuil LMP (23 000€) | S | — | Draft |
-| **V2-S18** | Rendre la pondération loyers HCSF configurable | S | — | Draft |
+| **V2-S16** | Implémenter le profil scoring "Patrimonial" | M | Sprint 1+2 | Done |
+| **V2-S17** | Ajouter l'alerte seuil LMP (23 000€) | S | — | Done |
+| **V2-S18** | Rendre la pondération loyers HCSF configurable | S | — | Done |
 
 **Definition of Done Sprint 3** :
-- Toggle Rentier/Patrimonial dans l'UI avec scores différenciés
-- Bandeau alerte orange (>20k€) et rouge (>23k€) LMNP
-- Champ pondération HCSF (70% défaut, bouton GLI → 80%)
+- Toggle Rentier/Patrimonial dans l'UI avec scores différenciés ✅
+- Bandeau alerte orange (>20k€) et rouge (>23k€) LMNP ✅
+- Champ pondération HCSF (70% défaut, bouton GLI → 80%) ✅
+- `npm test` : 169 tests, 0 échec ✅
+
+**Complété le 2026-02-15** — 10 nouveaux tests (4 S16, 3 S17, 3 S18)
 
 ---
 

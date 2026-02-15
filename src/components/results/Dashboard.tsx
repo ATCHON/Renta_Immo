@@ -20,8 +20,11 @@ import {
   InputRecap,
   PointsAttention,
   RecommandationsPanel,
+  ProfilInvestisseurToggle,
+  AlerteLmp,
 } from './';
 import { SaveSimulationButton } from '../simulations/SaveSimulationButton';
+import { CONSTANTS } from '@/config/constants';
 
 const ChartSkeleton = () => (
   <div className="h-[350px] w-full bg-surface/50 rounded-xl animate-pulse" />
@@ -40,6 +43,15 @@ import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useChartData } from '@/hooks/useChartData';
 import { useHasHydrated } from '@/hooks/useHasHydrated';
 import { formatCurrency, formatPercent } from '@/lib/utils';
+import { useState } from 'react';
+import type { ProfilInvestisseur } from '@/types/calculateur';
+
+function scoreToEvaluation(score: number) {
+  if (score >= 80) return { evaluation: 'Excellent' as const, couleur: 'green' as const };
+  if (score >= 60) return { evaluation: 'Bon' as const, couleur: 'blue' as const };
+  if (score >= 40) return { evaluation: 'Moyen' as const, couleur: 'orange' as const };
+  return { evaluation: 'Faible' as const, couleur: 'red' as const };
+}
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -58,6 +70,9 @@ export function Dashboard() {
   const { resultats, bien, financement, exploitation, structure, options } = scenario;
 
   const { cashflowData, patrimoineData, breakEvenYear, loanEndYear } = useChartData(resultats?.projections?.projections);
+  const [profilInvestisseur, setProfilInvestisseur] = useState<ProfilInvestisseur>(
+    (scenario.options?.profil_investisseur as ProfilInvestisseur) ?? 'rentier'
+  );
 
   if (!hasHydrated) return null;
 
@@ -145,10 +160,32 @@ export function Dashboard() {
         />
       </div>
 
-      {/* 4. ScorePanel */}
+      {/* 4. ScorePanel avec toggle profil investisseur (V2-S16) */}
       <div className="space-y-3">
-        <SectionTitle>Performance</SectionTitle>
-        <ScorePanel synthese={resultats.synthese} />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <SectionTitle>Performance</SectionTitle>
+          <ProfilInvestisseurToggle
+            profil={profilInvestisseur}
+            onChange={setProfilInvestisseur}
+          />
+        </div>
+        <ScorePanel
+          synthese={
+            resultats.synthese.scores_par_profil
+              ? (() => {
+                  const scoreDetail = resultats.synthese.scores_par_profil[profilInvestisseur];
+                  const { evaluation, couleur } = scoreToEvaluation(scoreDetail.total);
+                  return {
+                    ...resultats.synthese,
+                    score_global: scoreDetail.total,
+                    score_detail: scoreDetail,
+                    evaluation,
+                    couleur,
+                  };
+                })()
+              : resultats.synthese
+          }
+        />
       </div>
 
       {/* 5. KPI Cards */}
@@ -182,16 +219,25 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* 6. Points d'Attention */}
-      {(resultats.synthese.points_attention_detail?.length || resultats.synthese.points_attention?.length) ? (
-        <div className="space-y-3">
-          <SectionTitle>Points d&apos;Attention</SectionTitle>
-          <PointsAttention
-            points={resultats.synthese.points_attention}
-            pointsDetail={resultats.synthese.points_attention_detail}
-          />
-        </div>
-      ) : null}
+      {/* 6. Points d'Attention + Alerte LMP (V2-S17) */}
+      {(() => {
+        const isLmnp = structure?.regime_fiscal === 'lmnp_reel' || structure?.regime_fiscal === 'lmnp_micro';
+        // Utiliser loyer_annuel du backend (déjà pondéré par taux_occupation) pour rester cohérent avec genererAlertesLmp
+        const recettesAnnuelles = resultats.rentabilite.loyer_annuel ?? 0;
+        const hasPoints = resultats.synthese.points_attention_detail?.length || resultats.synthese.points_attention?.length;
+        const hasLmpAlert = isLmnp && recettesAnnuelles > CONSTANTS.LMP.SEUIL_ALERTE;
+        if (!hasPoints && !hasLmpAlert) return null;
+        return (
+          <div className="space-y-3">
+            <SectionTitle>Points d&apos;Attention</SectionTitle>
+            {hasLmpAlert && <AlerteLmp recettesLmnpAnnuelles={recettesAnnuelles} />}
+            <PointsAttention
+              points={resultats.synthese.points_attention}
+              pointsDetail={resultats.synthese.points_attention_detail}
+            />
+          </div>
+        );
+      })()}
 
       {/* 7. InvestmentBreakdown + OperationalBalance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

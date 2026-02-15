@@ -227,4 +227,35 @@ export const CONSTANTS = {
         TAUX_AGENCE_DEFAUT: 5,   // % du prix de vente
         DIAGNOSTICS: 500,         // € forfaitaire
     },
+
+    // ========================================================================
+    // SCORING PAR PROFIL (V2-S16)
+    // Multiplicateurs appliqués à chaque ajustement selon le profil investisseur
+    // ========================================================================
+    SCORING_PROFIL: {
+        rentier: {
+            cashflow: 1.0,
+            rentabilite: 1.0,
+            hcsf: 1.0,
+            dpe: 1.0,
+            ratio_prix_loyer: 1.0,
+            reste_a_vivre: 1.0,
+        },
+        patrimonial: {
+            cashflow: 0.5,        // Cashflow moins important pour un investisseur patrimonial
+            rentabilite: 1.5,     // TRI/rentabilité long terme renforcé
+            hcsf: 1.0,            // Conformité bancaire identique
+            dpe: 1.5,             // DPE plus impactant (valeur patrimoniale)
+            ratio_prix_loyer: 1.5, // Valorisation du bien renforcée
+            reste_a_vivre: 0.75,  // Reste à vivre légèrement atténué
+        },
+    },
+
+    // ========================================================================
+    // LMP — Loueur en Meublé Professionnel (V2-S17)
+    // ========================================================================
+    LMP: {
+        SEUIL_ALERTE: 20000,  // € — alerte orange
+        SEUIL_LMP: 23000,     // € — seuil de qualification LMP (rouge)
+    },
 } as const;

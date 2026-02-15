@@ -66,6 +66,7 @@ const PIPELINE_STEPS = [
   { icon: Scale, label: "Fiscalité", sub: "6 régimes comparés", href: "#fiscalite" },
   { icon: Building2, label: "HCSF", sub: "Endettement, reste à vivre", href: "#hcsf" },
   { icon: PieChart, label: "Synthèse", sub: "Score 0-100, alertes", href: "#scoring" },
+  { icon: Scale, label: "Profils", sub: "Rentier vs Patrimonial", href: "#profils" },
   { icon: BarChart3, label: "Projections", sub: "20 ans, TRI, plus-value", href: "#projections" },
 ];
 
@@ -136,6 +137,7 @@ export default function EnSavoirPlusPage() {
               { label: "HCSF", href: "#hcsf" },
               { label: "DPE", href: "#dpe" },
               { label: "Scoring", href: "#scoring" },
+              { label: "Profils Investisseur", href: "#profils" },
               { label: "Projections", href: "#projections" },
             ].map((item) => (
               <a
@@ -1051,6 +1053,103 @@ export default function EnSavoirPlusPage() {
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* ================================================================ */}
+          {/* Section Profils Investisseur */}
+          {/* ================================================================ */}
+          <section id="profils" className="space-y-6 scroll-mt-8">
+            <SectionHeader icon={Scale} title="Profils Investisseur" />
+
+            <Card>
+              <CardHeader
+                title="Rentier vs Patrimonial — deux lectures du même projet"
+                description="Le score de votre simulation est calculé selon deux profils aux objectifs différents. Basculez entre les deux en un clic sur les résultats."
+              />
+              <CardContent className="space-y-6">
+                <p className="text-sm text-pebble leading-relaxed">
+                  Un même bien peut être <strong>excellent pour un rentier</strong> (cashflow positif immédiat) et
+                  {' '}<strong>moyen pour un patrimonial</strong> (TRI insuffisant sur 20 ans), ou vice-versa.
+                  Les deux scores sont calculés simultanément côté serveur et affichés sans recalcul.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Profil Rentier */}
+                  <div className="bg-surface border border-sand rounded-xl p-5 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">💰</span>
+                      <h4 className="text-sm font-bold text-charcoal">Profil Rentier</h4>
+                    </div>
+                    <p className="text-xs text-pebble leading-relaxed">
+                      Priorité au <strong>cashflow mensuel positif</strong> et à la rentabilité immédiate.
+                      Idéal pour générer des revenus complémentaires rapidement.
+                    </p>
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] font-bold text-pebble uppercase tracking-widest">Multiplicateurs de score</p>
+                      {[
+                        { label: 'Cash-flow net', mult: '×1.0', note: 'déterminant' },
+                        { label: 'Rentabilité nette', mult: '×1.0', note: 'standard' },
+                        { label: 'HCSF endettement', mult: '×1.0', note: 'standard' },
+                        { label: 'DPE', mult: '×1.0', note: 'standard' },
+                        { label: 'Ratio prix/loyer', mult: '×1.0', note: 'standard' },
+                        { label: 'Reste à vivre', mult: '×1.0', note: 'standard' },
+                      ].map((r, i) => (
+                        <div key={i} className="flex items-center justify-between text-xs">
+                          <span className="text-charcoal">{r.label}</span>
+                          <span className="font-mono font-bold text-forest">{r.mult}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Profil Patrimonial */}
+                  <div className="bg-surface border border-sand rounded-xl p-5 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">🏛</span>
+                      <h4 className="text-sm font-bold text-charcoal">Profil Patrimonial</h4>
+                    </div>
+                    <p className="text-xs text-pebble leading-relaxed">
+                      Priorité au <strong>TRI sur 20 ans</strong> et à la valorisation du bien.
+                      Idéal pour constituer un patrimoine durable.
+                    </p>
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] font-bold text-pebble uppercase tracking-widest">Multiplicateurs de score</p>
+                      {[
+                        { label: 'Cash-flow net', mult: '×0.5', note: 'atténué', color: 'text-amber-600' },
+                        { label: 'Rentabilité nette', mult: '×1.5', note: 'renforcé', color: 'text-forest' },
+                        { label: 'HCSF endettement', mult: '×1.0', note: 'standard', color: 'text-forest' },
+                        { label: 'DPE', mult: '×1.5', note: 'renforcé', color: 'text-forest' },
+                        { label: 'Ratio prix/loyer', mult: '×1.5', note: 'renforcé', color: 'text-forest' },
+                        { label: 'Reste à vivre', mult: '×0.75', note: 'atténué', color: 'text-amber-600' },
+                      ].map((r, i) => (
+                        <div key={i} className="flex items-center justify-between text-xs">
+                          <span className="text-charcoal">{r.label}</span>
+                          <span className={cn('font-mono font-bold', r.color)}>{r.mult}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <FormulaBox>
+                  Score_profil = 40 + Σ (ajustement_critère × multiplicateur_profil)
+                </FormulaBox>
+
+                <ExpertTip variant="info">
+                  <strong>Exemple concret :</strong> Un bien avec un cashflow de +1€/mois et une rentabilité de 3,85%
+                  obtient <strong>79.3 en Rentier</strong> (cashflow déterminant) et <strong>85.3 en Patrimonial</strong>
+                  (rentabilité et ratio prix/loyer valorisés ×1.5). Même bien, lecture différente selon votre objectif.
+                </ExpertTip>
+
+                <ExpertTip variant="warning">
+                  <strong>Alerte LMP :</strong> En régime LMNP, si vos recettes annuelles dépassent
+                  {' '}<strong>20 000€</strong> (approche du seuil) ou <strong>23 000€</strong> (seuil LMP),
+                  un bandeau d&apos;alerte s&apos;affiche automatiquement dans les résultats.
+                  Au-delà de 23 000€, vous basculez en LMP (Loueur Meublé Professionnel) avec des
+                  obligations sociales et fiscales spécifiques.
+                </ExpertTip>
               </CardContent>
             </Card>
           </section>

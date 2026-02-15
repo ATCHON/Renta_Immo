@@ -78,7 +78,9 @@ export function performCalculations(
 
 
     // Étape 5 : Synthèse et scoring (AUDIT-106 : nouveau scoring avec DPE et ratio)
-    const synthese = genererSynthese(rentabilite, hcsf, fiscalite, data.structure, data.bien);
+    // V2-S16 : Profil investisseur pour pondération du scoring
+    const profilInvestisseur = (data.options as { profil_investisseur?: 'rentier' | 'patrimonial' }).profil_investisseur;
+    const synthese = genererSynthese(rentabilite, hcsf, fiscalite, data.structure, data.bien, profilInvestisseur);
 
     // Étape 6 : Projections pluriannuelles
     const projections = genererProjections(data, data.options.horizon_projection);
@@ -101,6 +103,7 @@ export function performCalculations(
         brute: rentabilite.rentabilite_brute,
         nette: rentabilite.rentabilite_nette,
         nette_nette: fiscalite.rentabilite_nette_nette,
+        loyer_annuel: rentabilite.loyer_annuel,
       },
       cashflow: {
         mensuel: Math.round((rentabilite.cashflow_annuel - fiscalite.impot_total) / 12),
@@ -137,6 +140,7 @@ export function performCalculations(
         score_detail: synthese.score_detail,
         points_attention_detail: synthese.points_attention_detail,
         recommandations_detail: synthese.recommandations_detail,
+        scores_par_profil: synthese.scores_par_profil,
       },
       projections,
       tableauAmortissement,

@@ -68,6 +68,8 @@ const DEFAULT_OPTIONS: OptionsData = {
   taux_evolution_loyer: 2,
   taux_evolution_charges: 2.5,
   taux_agence_revente: 5,
+  profil_investisseur: 'rentier',  // V2-S16
+  ponderation_loyers: 70,          // V2-S18 : 70% par défaut (HCSF)
 };
 
 /**

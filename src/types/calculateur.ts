@@ -114,6 +114,11 @@ export interface StructureData {
 }
 
 /**
+ * Profil d'investisseur pour le scoring (V2-S16)
+ */
+export type ProfilInvestisseur = 'rentier' | 'patrimonial';
+
+/**
  * Options de génération
  */
 export interface OptionsData {
@@ -125,6 +130,10 @@ export interface OptionsData {
   taux_evolution_charges?: number;
   // AUDIT-108 : Frais de revente
   taux_agence_revente?: number;
+  // V2-S16 : Profil investisseur pour le scoring
+  profil_investisseur?: ProfilInvestisseur;
+  // V2-S18 : Pondération des loyers pour HCSF (défaut 70, avec GLI → 80)
+  ponderation_loyers?: number;
 }
 
 /**
@@ -162,6 +171,7 @@ export interface RentabiliteResultat {
   brute: number;
   nette: number;
   nette_nette: number;
+  loyer_annuel?: number;
   effort_epargne_mensuel?: number;
   effet_levier?: number | null;
 }
@@ -315,6 +325,11 @@ export interface SyntheseResultat {
   score_detail?: ScoreDetailResultat;
   points_attention_detail?: PointAttentionDetail[];
   recommandations_detail?: RecommandationDetail[];
+  // V2-S16 : Scores pré-calculés pour les deux profils investisseur
+  scores_par_profil?: {
+    rentier: ScoreDetailResultat;
+    patrimonial: ScoreDetailResultat;
+  };
 }
 
 /**

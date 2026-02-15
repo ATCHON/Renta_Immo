@@ -95,7 +95,6 @@ export function genererTableauAmortissement(
     // ou sur le capital restant dû. On va partir sur un montant fixe mensuel pour simplifier
     // basé sur le taux d'assurance annuel / 12 * montant initial.
     const mensualiteAssurance = (montant * tauxAssurance) / 12;
-    const echeanceTotale = mensualiteCredit + mensualiteAssurance;
 
     const lignesMensuelles: LigneAmortissement[] = [];
     const lignesAnnuelles: LigneAmortissement[] = [];

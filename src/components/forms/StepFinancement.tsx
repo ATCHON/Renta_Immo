@@ -9,6 +9,7 @@ import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useScenarioFormReset } from '@/hooks/useScenarioFormReset';
 import { calculateMensualite, formatCurrency } from '@/lib/utils';
 import type { FinancementData } from '@/types';
+import { useState } from 'react';
 
 interface StepFinancementProps {
   onNext: () => void;
@@ -16,8 +17,9 @@ interface StepFinancementProps {
 }
 
 export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
-  const { getActiveScenario, updateFinancement, activeScenarioId } = useCalculateurStore();
-  const { bien, financement } = getActiveScenario();
+  const { getActiveScenario, updateFinancement, updateOptions, activeScenarioId } = useCalculateurStore();
+  const { bien, financement, options } = getActiveScenario();
+  const [ponderationLoyers, setPonderationLoyers] = useState<number>(options.ponderation_loyers ?? 70);
 
   const {
     register,
@@ -59,6 +61,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
 
   const onSubmit = (data: FinancementFormData) => {
     updateFinancement(data as FinancementData);
+    updateOptions({ ponderation_loyers: ponderationLoyers });
     onNext();
   };
 
@@ -159,6 +162,39 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
           </p>
         </div>
       )}
+
+      {/* V2-S18 : Pondération loyers HCSF */}
+      <div className="border border-sand rounded-xl p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-charcoal">Pondération loyers HCSF</p>
+            <p className="text-xs text-pebble mt-0.5">
+              La banque peut prendre en compte 70 à 80% des loyers selon les établissements.
+              Avec une GLI (Garantie Loyers Impayés), certaines banques appliquent 80%.
+            </p>
+          </div>
+          <span className="text-2xl font-bold text-forest ml-4 shrink-0">{ponderationLoyers}%</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <input
+            type="range"
+            min={60}
+            max={90}
+            step={5}
+            value={ponderationLoyers}
+            onChange={(e) => setPonderationLoyers(Number(e.target.value))}
+            className="flex-1 accent-forest"
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setPonderationLoyers(80)}
+            className="shrink-0 text-xs"
+          >
+            Avec GLI (80%)
+          </Button>
+        </div>
+      </div>
 
       <div className="flex justify-between pt-4">
         <Button type="button" variant="secondary" onClick={onPrev}>
