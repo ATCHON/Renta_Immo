@@ -169,7 +169,8 @@ export function calculerChargesAnnuelles(
     exploitation.taxe_fonciere +
     exploitation.assurance_pno +
     (exploitation.assurance_gli || 0) +
-    (exploitation.cfe_estimee || 0) +
+    // V2-S10 : CFE exonérée si revenus < 5000€
+    (loyerAnnuel < CONSTANTS.CFE.SEUIL_EXONERATION ? 0 : (exploitation.cfe_estimee || 0)) +
     (exploitation.comptable_annuel || 0);
 
   // Charges proportionnelles (en % du loyer annuel)

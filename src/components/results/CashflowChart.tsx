@@ -61,8 +61,8 @@ export const CashflowChart = React.memo(function CashflowChart({ data, breakEven
     const breakEvenLabel = breakEvenYear ? `Année ${breakEvenYear}` : null;
 
     return (
-        <div className="h-[350px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+        <div style={{ height: 350, width: '100%' }}>
+            <ResponsiveContainer width="100%" height={350}>
                 <ComposedChart
                     data={data}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}

@@ -43,6 +43,9 @@ export interface BienData {
   part_terrain?: number;
   // Audit Phase 2 : DPE pour scoring (AUDIT-106)
   dpe?: DPE;
+  // Audit Phase 2 : Déficit foncier majoré (AUDIT-110 & V2-S15)
+  renovation_energetique?: boolean;
+  annee_travaux?: number;
 }
 
 /**

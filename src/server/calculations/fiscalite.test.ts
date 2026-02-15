@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculerToutesFiscalites } from './fiscalite';
+import { calculerToutesFiscalites, calculerLmnpMicro, calculerLmnpReel } from './fiscalite';
 import { BienData, FinancementData, ExploitationData, StructureData, RentabiliteCalculations, FinancementCalculations } from './types';
 
 describe('calculerToutesFiscalites', () => {
@@ -118,3 +118,69 @@ describe('calculerToutesFiscalites', () => {
         expect(microFoncier?.impotAnnuelMoyen).toBeCloseTo(1733.76, 1);
     });
 });
+
+describe('calculerLmnpMicro', () => {
+    // 50% abattement, plafond 77 700 €
+    it('devrait appliquer 50% abattement pour meublee_longue_duree', () => {
+        const result = calculerLmnpMicro(10000, 30, 'meublee_longue_duree');
+        expect(result.abattement).toBe(5000);
+        expect(result.base_imposable).toBe(5000);
+    });
+
+    // 71% abattement, plafond 188 700 €
+    it('devrait appliquer 71% abattement pour meublee_tourisme_classe', () => {
+        const result = calculerLmnpMicro(10000, 30, 'meublee_tourisme_classe');
+        expect(result.abattement).toBe(7100);
+        expect(result.base_imposable).toBe(2900);
+    });
+
+    // 50% abattement, plafond 77 700 € (alignement 2025)
+    it('devrait appliquer 50% abattement pour meublee_tourisme_non_classe', () => {
+        const result = calculerLmnpMicro(10000, 30, 'meublee_tourisme_non_classe');
+        expect(result.abattement).toBe(5000);
+        expect(result.base_imposable).toBe(5000);
+    });
+
+    // Test plafond dépassement
+    it('devrait alerter si dépassement plafond tourisme classé (>188 700)', () => {
+        const result = calculerLmnpMicro(190000, 30, 'meublee_tourisme_classe');
+        expect(result.alertes.length).toBeGreaterThan(0);
+        expect(result.alertes[0]).toContain('plafond micro-BIC');
+    });
+
+});
+
+describe('calculerLmnpReel - CFE', () => {
+    // Cas standard : CFE déduite
+    it('devrait déduire la CFE (année > 1)', () => {
+        // Revenus 10000, Charges 1000 (dont 200 CFE), CFE 200
+        const result = calculerLmnpReel(10000, 1000, 100000, 30, 0, 0, 0, undefined, 'simplifie', 2, 200);
+
+        // Charges retenues = 1000. Résultat avant amort = 9000.
+        // On vérifie indirectement via la base imposable ou les alertes
+        // Base imposable = 9000 - amortissement
+        // Amortissement (33 ans, 15% terrain) = 85000 / 33 = 2575.75
+        // Base = 9000 - 2575.75 = 6424.25
+        expect(result.base_imposable).toBeCloseTo(6424, -1);
+    });
+
+    // Cas exonération 1ère année
+    it('devrait exonérer la CFE la 1ère année', () => {
+        // Revenus 10000, Charges 1000 (dont 200 CFE), CFE 200. Année 1.
+        const result = calculerLmnpReel(10000, 1000, 100000, 30, 0, 0, 0, undefined, 'simplifie', 1, 200);
+
+        // Charges retenues = 1000 - 200 = 800. Résultat = 9200.
+        // Base = 9200 - 2833 = 6367
+        expect(result.base_imposable).toBeGreaterThan(6200); // 6367 > 6167
+        expect(result.alertes.some(a => a.includes('Exonération CFE'))).toBe(true);
+    });
+
+    // Cas Frais Compta (V2-S11)
+    it('devrait déduire les frais de comptabilité (inclus dans charges)', () => {
+        // chargesDeductibles = 1500 (dont 500 compta)
+        const result = calculerLmnpReel(10000, 1500, 100000, 30, 0, 0, 0, undefined, 'simplifie', 2, 0);
+        // Base = 10000 - 1500 = 8500 - amort (2575.75) = 5924.25
+        expect(result.base_imposable).toBeCloseTo(5924, -1);
+    });
+});
+

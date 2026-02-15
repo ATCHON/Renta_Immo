@@ -1,7 +1,7 @@
 # Story V2-S12 : Auditer et supprimer toute référence OGA/CGA dans le code et la documentation
 
 > **Epic** : EPIC-V2-03 | **Sprint** : Sprint 1-2 | **Effort** : S
-> **Statut** : Draft
+> **Statut** : Completed
 
 ## Story
 
@@ -19,12 +19,12 @@
 
 ## Tasks / Subtasks
 
-- [ ] Grep "OGA" dans tout le projet — lister les occurrences
-- [ ] Grep "CGA" dans tout le projet — lister les occurrences
-- [ ] Grep "915" dans tout le projet — lister les occurrences
-- [ ] Supprimer/remplacer chaque occurrence (AC: 1, 2, 3)
-- [ ] Produire un rapport des modifications (AC: 4)
-- [ ] Lancer npm test (AC: 5)
+- [x] Grep "OGA" dans tout le projet — lister les occurrences
+- [x] Grep "CGA" dans tout le projet — lister les occurrences
+- [x] Grep "915" dans tout le projet — lister les occurrences
+- [x] Supprimer/remplacer chaque occurrence (AC: 1, 2, 3)
+- [x] Produire un rapport des modifications (AC: 4)
+- [x] Lancer npm test (AC: 5)
 
 ## Dev Notes
 

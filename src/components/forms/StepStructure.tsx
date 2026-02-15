@@ -128,6 +128,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                 value: opt.value,
                 label: opt.label,
               }))}
+              value={String(watch('tmi') ?? '')}
               hint="Pour vos revenus locatifs"
               error={errors.tmi?.message}
               {...register('tmi', { valueAsNumber: true })}

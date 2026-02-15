@@ -1,7 +1,7 @@
 # Story V2-S10 : Intégrer la CFE dans les charges LMNP avec logique d'exonération
 
 > **Epic** : EPIC-V2-03 | **Sprint** : Sprint 1-2 | **Effort** : M
-> **Statut** : Draft
+> **Statut** : Completed
 
 ## Story
 
@@ -19,12 +19,12 @@
 
 ## Tasks / Subtasks
 
-- [ ] Dépend de V2-S09 (catégories LMNP définies)
-- [ ] Ajouter constante CFE_SEUIL_EXONERATION: 5000 dans constants.ts (CFE_MIN existe déjà à 200)
-- [ ] Modifier calculerLMNPReel() pour intégrer CFE (AC: 1, 2, 3)
-- [ ] Ajouter champ CFE dans StepExploitation.tsx avec infobulle (AC: 4)
-- [ ] Connecter au store Zustand
-- [ ] Écrire les tests (AC: 5)
+- [x] Dépend de V2-S09 (catégories LMNP définies)
+- [x] Ajouter constante CFE_SEUIL_EXONERATION: 5000 dans constants.ts (CFE_MIN existe déjà à 200)
+- [x] Modifier calculerLMNPReel() pour intégrer CFE (AC: 1, 2, 3)
+- [x] Ajouter champ CFE dans StepExploitation.tsx avec infobulle (AC: 4)
+- [x] Connecter au store Zustand
+- [x] Écrire les tests (AC: 5)
 
 ## Dev Notes
 

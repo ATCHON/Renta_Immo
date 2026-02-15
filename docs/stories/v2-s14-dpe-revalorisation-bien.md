@@ -1,7 +1,7 @@
 # Story V2-S14 : Conditionner la revalorisation du bien au DPE
 
 > **Epic** : EPIC-V2-04 | **Sprint** : Sprint 2 | **Effort** : S
-> **Statut** : Draft
+> **Statut** : Completed
 
 ## Story
 
@@ -19,10 +19,10 @@
 
 ## Tasks / Subtasks
 
-- [ ] Modifier projection.ts pour appliquer la décote DPE sur la valeur bien (AC: 1, 2, 3)
-- [ ] Ajouter constante DECOTE_DPE_F_G: 0.15 dans constants.ts (AC: 1)
-- [ ] Vérifier la cohérence avec V2-S13 (AC: 4)
-- [ ] Écrire les tests (AC: 5)
+- [x] Modifier projection.ts pour appliquer la décote DPE sur la valeur bien (AC: 1, 2, 3)
+- [x] Ajouter constante DECOTE_DPE_F_G: 0.15 dans constants.ts (AC: 1)
+- [x] Vérifier la cohérence avec V2-S13 (AC: 4)
+- [x] Écrire les tests (AC: 5)
 
 ## Dev Notes
 

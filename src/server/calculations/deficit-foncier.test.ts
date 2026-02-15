@@ -88,6 +88,42 @@ describe('AUDIT-103 : Deficit foncier', () => {
       expect(result!.deficit_interets).toBe(5000);
       expect(result!.imputable_revenu_global).toBe(10700);
     });
+
+    describe('AUDIT-110 : Plafond majoré rénovation énergétique', () => {
+      // Cas standard : 25000 charges, 10800 revenus => déficit hors intérêts 14200.
+      // Plafond std : 10700.
+      // Plafond majoré : 21400.
+
+      it('plafond standard (10700) si pas de rénovation énergétique', () => {
+        const result = calculerDeficitFoncier(10800, 25000, 5000, 30, false);
+        expect(result!.imputable_revenu_global).toBe(10700);
+      });
+
+      it('plafond majoré (21400) si rénovation énergétique en 2024', () => {
+        const result = calculerDeficitFoncier(10800, 25000, 5000, 30, true, 2024);
+        // Déficit hors intérêts = 14200. Plafond = 21400.
+        // Donc imputable = 14200 (tout le déficit hors intérêt passe)
+        expect(result!.imputable_revenu_global).toBe(14200);
+      });
+
+      it('plafond majoré (21400) saturé si très gros travaux en 2025', () => {
+        // Déficit hors intérêts = 40000 - 10000 = 30000.
+        // Plafond = 21400.
+        // Imputable = 21400.
+        const result = calculerDeficitFoncier(10000, 40000, 0, 30, true, 2025);
+        expect(result!.imputable_revenu_global).toBe(21400);
+      });
+
+      it('plafond standard si rénovation énergétique hors délai (2026)', () => {
+        const result = calculerDeficitFoncier(10800, 25000, 5000, 30, true, 2026);
+        expect(result!.imputable_revenu_global).toBe(10700);
+      });
+
+      it('plafond standard si rénovation énergétique hors délai (2022)', () => {
+        const result = calculerDeficitFoncier(10800, 25000, 5000, 30, true, 2022);
+        expect(result!.imputable_revenu_global).toBe(10700);
+      });
+    });
   });
 
   describe('calculerFoncierReel avec deficit foncier', () => {

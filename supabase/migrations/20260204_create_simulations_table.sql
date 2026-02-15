@@ -6,7 +6,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- Table simulations
 CREATE TABLE public.simulations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
   name VARCHAR(255) NOT NULL DEFAULT 'Simulation sans titre',
   description TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -44,18 +44,4 @@ CREATE TRIGGER simulations_updated_at
 -- RLS
 ALTER TABLE public.simulations ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view own simulations"
-  ON public.simulations FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own simulations"
-  ON public.simulations FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own simulations"
-  ON public.simulations FOR UPDATE
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own simulations"
-  ON public.simulations FOR DELETE
-  USING (auth.uid() = user_id);
+-- Note: No public policies. Access via Service Role only (Better Auth).

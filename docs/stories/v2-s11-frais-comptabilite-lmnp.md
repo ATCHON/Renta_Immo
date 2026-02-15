@@ -1,7 +1,7 @@
 # Story V2-S11 : Frais de comptabilité LMNP réel (sans réduction OGA/CGA)
 
 > **Epic** : EPIC-V2-03 | **Sprint** : Sprint 1-2 | **Effort** : S
-> **Statut** : Draft
+> **Statut** : Completed
 
 ## Story
 
@@ -19,11 +19,11 @@
 
 ## Tasks / Subtasks
 
-- [ ] Vérifier COMPTABLE_LMNP: 400 dans constants.ts (AC: 3 — mettre à jour à 500€)
-- [ ] Modifier calculerLMNPReel() pour déduire 100% des frais compta (AC: 2)
-- [ ] Ajouter/modifier le champ dans le formulaire conditionnel au régime réel (AC: 1, 4)
-- [ ] Ajouter l'infobulle (AC: 5)
-- [ ] Vérifier qu'aucune référence OGA/CGA n'est ajoutée (coordination avec V2-S12)
+- [x] Vérifier COMPTABLE_LMNP: 400 dans constants.ts (AC: 3 — mettre à jour à 500€)
+- [x] Modifier calculerLMNPReel() pour déduire 100% des frais compta (AC: 2)
+- [x] Ajouter/modifier le champ dans le formulaire conditionnel au régime réel (AC: 1, 4)
+- [x] Ajouter l'infobulle (AC: 5)
+- [x] Vérifier qu'aucune référence OGA/CGA n'est ajoutée (coordination avec V2-S12)
 
 ## Dev Notes
 

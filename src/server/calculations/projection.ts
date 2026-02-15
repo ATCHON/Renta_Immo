@@ -328,9 +328,9 @@ export function genererProjections(
 
     const revalorisationBien = CONSTANTS.PROJECTION.REVALORISATION_BIEN;
 
-    // AUDIT-110 : Gel des loyers pour DPE F et G
+    // AUDIT-110 : Gel des loyers pour DPE F, G et E (2034)
     const dpe = input.bien.dpe;
-    const gelLoyer = dpe !== undefined && ['F', 'G'].includes(dpe);
+    const currentYear = new Date().getFullYear();
 
     // Facteur d'inflation cumulée pour les charges fixes (commence à 1)
     let facteurInflationCharges = 1;
@@ -342,7 +342,19 @@ export function genererProjections(
     let amortissementCumule = 0;       // AUDIT-105 : suivi pour calcul PV
 
     for (let annee = 1; annee <= horizon; annee++) {
-        // Appliquer l'inflation
+        const projectionYear = currentYear + (annee - 1);
+
+        // Détermination du gel des loyers pour l'année courante de projection
+        let gelLoyer = false;
+        if (dpe) {
+            if (['F', 'G'].includes(dpe)) {
+                gelLoyer = true;
+            } else if (dpe === 'E' && projectionYear >= 2034) {
+                gelLoyer = true;
+            }
+        }
+
+        // Appliquer l'inflation sur la valeur théorique (hors décote)
         if (annee > 1) {
             if (!gelLoyer) {
                 loyerMensuel *= (1 + inflationLoyer);
@@ -353,6 +365,17 @@ export function genererProjections(
 
         const tauxOccupation = input.exploitation.taux_occupation ?? 1;
         const loyerAnnuel = loyerMensuel * 12 * tauxOccupation;
+
+        // V2-S14 : Calcul de la valeur réelle (avec décote DPE)
+        let coefficientDecote = 1;
+        if (dpe) {
+            if (['F', 'G'].includes(dpe)) {
+                coefficientDecote = 1 - CONSTANTS.PROJECTION.DECOTE_DPE.F_G;
+            } else if (dpe === 'E' && projectionYear >= 2034) {
+                coefficientDecote = 1 - CONSTANTS.PROJECTION.DECOTE_DPE.E;
+            }
+        }
+        const valeurReelle = valeurBien * coefficientDecote;
 
         // Calcul des charges fixes de base (saisies)
         const chargesFixesBase =
@@ -459,8 +482,8 @@ export function genererProjections(
             cashflow: Math.round(cashflowBrut),
             capitalRembourse: Math.round(capitalRembourseAnnuel),
             capitalRestant: Math.round(capitalRestant),
-            valeurBien: Math.round(valeurBien),
-            patrimoineNet: Math.round(valeurBien - capitalRestant) || 0,
+            valeurBien: Math.round(valeurReelle),
+            patrimoineNet: Math.round(valeurReelle - capitalRestant) || 0,
             impot: Math.round(impot),
             cashflowNetImpot: Math.round(cashflowNet)
         });

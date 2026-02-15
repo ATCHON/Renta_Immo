@@ -1,7 +1,7 @@
 # Story V2-S15 : Implémenter le plafond déficit foncier majoré 21 400€
 
 > **Epic** : EPIC-V2-05 | **Sprint** : Sprint 2 | **Effort** : S
-> **Statut** : Draft
+> **Statut** : Completed
 
 ## Story
 
@@ -19,12 +19,12 @@
 
 ## Tasks / Subtasks
 
-- [ ] Ajouter constante DEFICIT_FONCIER.PLAFOND_ENERGIE: 21400 dans constants.ts (la constante existante = 10 700€)
-- [ ] Ajouter renovationEnergetiqueEligible: boolean et anneeTravauxRenovation: number dans types.ts
-- [ ] Modifier la logique déficit foncier dans fiscalite.ts (AC: 2, 3)
-- [ ] Ajouter la checkbox dans le formulaire (StepBien ou StepStructure) (AC: 1)
-- [ ] Ajouter l'alerte si dispositif expiré (AC: 4)
-- [ ] Écrire les tests (AC: 5)
+- [x] Ajouter constante DEFICIT_FONCIER.PLAFOND_ENERGIE: 21400 dans constants.ts (la constante existante = 10 700€)
+- [x] Ajouter renovationEnergetiqueEligible: boolean et anneeTravauxRenovation: number dans types.ts
+- [x] Modifier la logique déficit foncier dans fiscalite.ts (AC: 2, 3)
+- [x] Ajouter la checkbox dans le formulaire (StepBien ou StepStructure) (AC: 1)
+- [x] Ajouter l'alerte si dispositif expiré (AC: 4)
+- [x] Écrire les tests (AC: 5)
 
 ## Dev Notes
 
