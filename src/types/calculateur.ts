@@ -171,6 +171,7 @@ export interface RentabiliteResultat {
   brute: number;
   nette: number;
   nette_nette: number;
+  loyer_annuel?: number;
   effort_epargne_mensuel?: number;
   effet_levier?: number | null;
 }

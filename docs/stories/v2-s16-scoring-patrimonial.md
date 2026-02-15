@@ -5,9 +5,9 @@
 
 ## Story
 
-**As a** investisseur orienté patrimoine (plutôt que cashflow),
-**I want** pouvoir activer un profil scoring "Patrimonial" qui pondère davantage le TRI long terme et la valorisation du bien,
-**so that** les recommandations correspondent à mes objectifs d'investissement.
+**En tant que** investisseur orienté patrimoine (plutôt que cashflow),
+**Je veux** pouvoir activer un profil scoring "Patrimonial" qui pondère davantage le TRI long terme et la valorisation du bien,
+**Afin que** les recommandations correspondent à mes objectifs d'investissement.
 
 ## Acceptance Criteria
 
@@ -44,7 +44,7 @@ Le toggle UI bascule entre les deux scores **sans rappel API**, ce qui garantit 
 | Ajustement | Rentier | Patrimonial |
 |---|---|---|
 | cashflow | ×1.0 | ×0.5 |
-| rentabilite | ×1.0 | ×1.5 |
+| rentabilité | ×1.0 | ×1.5 |
 | hcsf | ×1.0 | ×1.0 |
 | dpe | ×1.0 | ×1.5 |
 | ratio_prix_loyer | ×1.0 | ×1.5 |

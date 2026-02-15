@@ -103,6 +103,7 @@ export function performCalculations(
         brute: rentabilite.rentabilite_brute,
         nette: rentabilite.rentabilite_nette,
         nette_nette: fiscalite.rentabilite_nette_nette,
+        loyer_annuel: rentabilite.loyer_annuel,
       },
       cashflow: {
         mensuel: Math.round((rentabilite.cashflow_annuel - fiscalite.impot_total) / 12),

@@ -28,8 +28,9 @@ export function AlerteLmp({ recettesLmnpAnnuelles }: AlerteLmpProps) {
           {isRouge ? 'Seuil LMP dépassé' : 'Approche du seuil LMP'}
         </p>
         <p className="text-sm text-charcoal mt-0.5">
-          Vos recettes LMNP dépassent le seuil LMP ({CONSTANTS.LMP.SEUIL_LMP.toLocaleString('fr-FR')} €).
-          Vous pourriez être qualifié en LMP avec des conséquences sociales et fiscales différentes.
+          {isRouge
+            ? `Vos recettes LMNP dépassent le seuil LMP (${CONSTANTS.LMP.SEUIL_LMP.toLocaleString('fr-FR')} €). Vous pourriez être qualifié en LMP avec des conséquences sociales et fiscales différentes.`
+            : `Vos recettes LMNP approchent du seuil LMP (${CONSTANTS.LMP.SEUIL_LMP.toLocaleString('fr-FR')} €). Surveillez l'évolution de vos recettes.`}{' '}
           Consultez un expert.
         </p>
       </div>
