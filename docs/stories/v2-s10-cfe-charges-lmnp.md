@@ -20,7 +20,7 @@
 ## Tasks / Subtasks
 
 - [x] Dépend de V2-S09 (catégories LMNP définies)
-- [x] Ajouter constante CFE_SEUIL_EXONERATION: 5000 dans constants.ts (CFE_MIN existe déjà à 200)
+- [x] Ajouter la constante CFE_SEUIL_EXONERATION: 5000 dans constants.ts (CFE_MIN existe déjà à 200)
 - [x] Modifier calculerLMNPReel() pour intégrer CFE (AC: 1, 2, 3)
 - [x] Ajouter champ CFE dans StepExploitation.tsx avec infobulle (AC: 4)
 - [x] Connecter au store Zustand

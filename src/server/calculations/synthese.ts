@@ -171,7 +171,7 @@ export function genererAlertesDpe(dpe?: DPE, horizon?: number): PointAttention[]
       message: "Gel des loyers : l'IRL ne s'applique pas aux logements classés F ou G",
       conseil: "L'évolution des loyers est bloquée tant que le DPE n'est pas amélioré.",
     });
-  } else if (dpe === 'E') {
+  } else if (dpe === 'E' && anneeActuelle + (horizon ?? 0) - 1 >= 2034) {
     alertes.push({
       type: 'warning',
       categorie: 'general',

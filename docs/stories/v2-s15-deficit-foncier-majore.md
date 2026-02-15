@@ -1,4 +1,4 @@
-# Story V2-S15 : Implémenter le plafond déficit foncier majoré 21 400€
+# Story V2-S15 : Implémenter le plafond de déficit foncier majoré de 21 400 €
 
 > **Epic** : EPIC-V2-05 | **Sprint** : Sprint 2 | **Effort** : S
 > **Statut** : Completed

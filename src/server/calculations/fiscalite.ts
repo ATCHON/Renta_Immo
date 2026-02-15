@@ -245,12 +245,17 @@ export function calculerLmnpReel(
   const alertes: string[] = [];
 
   // V2-S10 : Exonération CFE la 1ère année
-  // Si annee === 1, on doit retirer la CFE des charges déductibles (si elle y est incluse)
-  // On suppose que chargesDeductibles contient la CFE (calculée dans rentabilite.ts)
+  // Contrat : chargesDeductibles inclut la CFE théorique (hors exonération 1ère année).
+  // cfeAnnuelle est la part de CFE incluse dans chargesDeductibles.
+  // On utilise Math.min pour ne jamais retirer plus que ce qui est effectivement inclus,
+  // évitant tout risque de double-exclusion si un appelant passe cfeAnnuelle > chargesDeductibles.
   let chargesRetenues = chargesDeductibles;
   if (annee === 1 && cfeAnnuelle > 0) {
-    chargesRetenues = Math.max(0, chargesDeductibles - cfeAnnuelle);
-    alertes.push(`Exonération CFE 1ère année : -${Math.round(cfeAnnuelle)}€ de charges déductibles`);
+    const cfeIncluseDansCharges = Math.min(cfeAnnuelle, chargesDeductibles);
+    if (cfeIncluseDansCharges > 0) {
+      chargesRetenues = chargesDeductibles - cfeIncluseDansCharges;
+      alertes.push(`Exonération CFE 1ère année : -${Math.round(cfeIncluseDansCharges)}€ de charges déductibles`);
+    }
   }
 
   const partTerrainEffective = partTerrain ?? CONSTANTS.AMORTISSEMENT.PART_TERRAIN;
