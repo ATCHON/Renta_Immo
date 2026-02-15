@@ -13,7 +13,7 @@
 
 1. Toggle Rentier/Patrimonial visible dans l'UI (page résultats) ✅
 2. Profil Rentier (actuel) : pondération cashflow élevée ✅
-3. Profil Patrimonial : pondération cashflow atténuée, rentabilité/TRI renforcé, valorisation bien pondérée ✅
+3. Profil Patrimonial : pondération cashflow atténuée, rentabilité et TRI renforcés, valorisation bien pondérée ✅
 4. Le score global et les scores par catégorie reflètent le profil sélectionné ✅
 5. Tests : même simulation → scores différents selon profil ✅
 6. Score stocké en BDD inclut l'information de profil ✅ (via `profil_investisseur` dans `OptionsData`)

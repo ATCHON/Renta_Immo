@@ -46,6 +46,13 @@ import { formatCurrency, formatPercent } from '@/lib/utils';
 import { useState } from 'react';
 import type { ProfilInvestisseur } from '@/types/calculateur';
 
+function scoreToEvaluation(score: number) {
+  if (score >= 80) return { evaluation: 'Excellent' as const, couleur: 'green' as const };
+  if (score >= 60) return { evaluation: 'Bon' as const, couleur: 'blue' as const };
+  if (score >= 40) return { evaluation: 'Moyen' as const, couleur: 'orange' as const };
+  return { evaluation: 'Faible' as const, couleur: 'red' as const };
+}
+
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <h2 className="text-lg font-black uppercase tracking-widest text-charcoal">
@@ -165,11 +172,17 @@ export function Dashboard() {
         <ScorePanel
           synthese={
             resultats.synthese.scores_par_profil
-              ? {
-                  ...resultats.synthese,
-                  score_global: resultats.synthese.scores_par_profil[profilInvestisseur].total,
-                  score_detail: resultats.synthese.scores_par_profil[profilInvestisseur],
-                }
+              ? (() => {
+                  const scoreDetail = resultats.synthese.scores_par_profil[profilInvestisseur];
+                  const { evaluation, couleur } = scoreToEvaluation(scoreDetail.total);
+                  return {
+                    ...resultats.synthese,
+                    score_global: scoreDetail.total,
+                    score_detail: scoreDetail,
+                    evaluation,
+                    couleur,
+                  };
+                })()
               : resultats.synthese
           }
         />
