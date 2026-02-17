@@ -63,6 +63,8 @@ export function ProfilInvestisseurToggle({ profil, onChange }: ProfilInvestisseu
               onClick={() => onChange(p)}
               onMouseEnter={() => setTooltip(p)}
               onMouseLeave={() => setTooltip(null)}
+              data-testid={`profil-${p}`}
+              data-profile={p}
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
                 isActive

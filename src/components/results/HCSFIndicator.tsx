@@ -40,6 +40,7 @@ export function HCSFIndicator({ hcsf }: HCSFIndicatorProps) {
           <div className="shrink-0 text-right">
             <p className="nordic-label-xs mb-1">Taux Global</p>
             <span
+              data-testid="taux-endettement-hcsf"
               className={cn(
                 'nordic-kpi-value leading-none',
                 hcsf.taux_endettement <= HCSF.TAUX_ENDETTEMENT_MAX

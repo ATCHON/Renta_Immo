@@ -184,12 +184,14 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
             value={ponderationLoyers}
             onChange={(e) => setPonderationLoyers(Number(e.target.value))}
             className="flex-1 accent-forest"
+            data-testid="ponderation-hcsf"
           />
           <Button
             type="button"
             variant="secondary"
             onClick={() => setPonderationLoyers(80)}
             className="shrink-0 text-xs"
+            data-testid="btn-gli"
           >
             Avec GLI (80%)
           </Button>
