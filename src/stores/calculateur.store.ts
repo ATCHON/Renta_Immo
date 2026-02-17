@@ -70,6 +70,8 @@ const DEFAULT_OPTIONS: OptionsData = {
   taux_agence_revente: 5,
   profil_investisseur: 'rentier',  // V2-S16
   ponderation_loyers: 70,          // V2-S18 : 70% par défaut (HCSF)
+  prix_revente: undefined,         // FEAT-PV : Prix de revente cible (optionnel)
+  duree_detention: undefined,      // FEAT-PV : Durée de détention (optionnel)
 };
 
 /**

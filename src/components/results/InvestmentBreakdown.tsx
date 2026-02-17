@@ -86,6 +86,12 @@ export function InvestmentBreakdown({ bien, financement, resultats }: Investment
                 </div>
 
                 <div className="pt-4 border-t border-sand/50 flex justify-between items-center text-xs">
+                    <span className="nordic-label-xs !tracking-wider">Coût total d&apos;acquisition</span>
+                    <span className="font-bold text-charcoal" data-testid="prix-acquisition-corrige">
+                        {formatCurrency(resultats.montant_emprunt + (financement.apport || 0))}
+                    </span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
                     <span className="nordic-label-xs !tracking-wider">Coût total du crédit</span>
                     <span className="font-bold text-terracotta">{formatCurrency(resultats.cout_total_credit)}</span>
                 </div>

@@ -194,6 +194,20 @@ export function Dashboard() {
         <SectionTitle>Indicateurs Clés</SectionTitle>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
+            label="Renta. Brute"
+            value={formatPercent(resultats.rentabilite.brute)}
+            status="info"
+            tooltip="Loyer facial / Prix d'achat (convention marché)"
+            data-testid="rentabilite-brute"
+          />
+          <MetricCard
+            label="Revenus Annuels"
+            value={formatCurrency(resultats.rentabilite.loyer_annuel ?? 0)}
+            status="info"
+            tooltip="Loyer annuel effectif (après taux d'occupation)"
+            data-testid="revenus-annuels"
+          />
+          <MetricCard
             label="Renta. Nette-Nette"
             value={formatPercent(resultats.rentabilite.nette_nette)}
             status={rentaStatus}
@@ -206,7 +220,7 @@ export function Dashboard() {
             tooltip="Par mois (réel)"
           />
           <MetricCard
-            label="TRI (20 ans)"
+            label="TRI"
             value={resultats.projections ? formatPercent(resultats.projections.totaux.tri) : '--'}
             status={triStatus}
             tooltip="Rendement interne"
@@ -261,7 +275,76 @@ export function Dashboard() {
         <FiscalComparator data={resultats.comparaisonFiscalite} />
       )}
 
-      {/* 9. HCSFIndicator */}
+      {/* 9. Plus-Value à la revente */}
+      {resultats.projections?.plusValue && (
+        <div className="space-y-3">
+          <SectionTitle>Plus-Value à la Revente</SectionTitle>
+          <div className="bg-surface rounded-2xl border border-sand/50 p-6 space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">PV brute</p>
+                <p className="text-xl font-black text-charcoal" data-testid="pv-brute">
+                  {formatCurrency(resultats.projections.plusValue.plus_value_brute)}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">Impôt total PV</p>
+                <p className="text-xl font-black text-terracotta" data-testid="impot-pv-total">
+                  {formatCurrency(resultats.projections.plusValue.impot_total)}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">Net revente</p>
+                <p className="text-xl font-black text-forest">
+                  {formatCurrency(resultats.projections.plusValue.net_revente)}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">Durée détention</p>
+                <p className="text-xl font-black text-charcoal">
+                  {resultats.projections.plusValue.duree_detention} ans
+                </p>
+              </div>
+            </div>
+            <div className="pt-4 border-t border-sand/30 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div>
+                <span className="text-pebble">Base imposable (IR)</span>
+                <span className="ml-2 font-semibold text-charcoal" data-testid="base-imposable-pv">
+                  {formatCurrency(resultats.projections.plusValue.plus_value_nette_ir)}
+                </span>
+              </div>
+              <div>
+                <span className="text-pebble">Abattement IR</span>
+                <span className="ml-2 font-semibold text-charcoal" data-testid="abattement-ir">
+                  {resultats.projections.plusValue.abattement_ir}%
+                </span>
+              </div>
+              <div>
+                <span className="text-pebble">Abattement PS</span>
+                <span className="ml-2 font-semibold text-charcoal" data-testid="abattement-ps">
+                  {resultats.projections.plusValue.abattement_ps}%
+                </span>
+              </div>
+              <div>
+                <span className="text-pebble">Surtaxe PV</span>
+                <span className="ml-2 font-semibold text-charcoal" data-testid="surtaxe-pv">
+                  {formatCurrency(resultats.projections.plusValue.surtaxe)}
+                </span>
+              </div>
+              {resultats.projections.plusValue.amortissements_reintegres > 0 && (
+                <div className="col-span-2">
+                  <span className="text-pebble">Amortissements réintégrés (LMNP)</span>
+                  <span className="ml-2 font-semibold text-amber-700">
+                    {formatCurrency(resultats.projections.plusValue.amortissements_reintegres)}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 10. HCSFIndicator */}
       <HCSFIndicator hcsf={resultats.hcsf} />
 
       {/* 10. RecommandationsPanel */}

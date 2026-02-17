@@ -10,7 +10,7 @@ import { NextRequest } from 'next/server';
 
 // Mock de performCalculations pour isoler le test de la route
 vi.mock('@/server/calculations', () => ({
-  performCalculations: vi.fn((input) => {
+  performCalculations: vi.fn(async (input) => {
     // Simulation d'erreur de validation
     if (input.fail === 'validation') {
       return {

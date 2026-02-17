@@ -134,6 +134,29 @@ export interface OptionsData {
   profil_investisseur?: ProfilInvestisseur;
   // V2-S18 : Pondération des loyers pour HCSF (défaut 70, avec GLI → 80)
   ponderation_loyers?: number;
+  // FEAT-PV : Prix de revente cible et durée de détention pour le calcul de plus-value
+  prix_revente?: number;
+  duree_detention?: number;
+}
+
+/**
+ * Détail de la plus-value à la revente (FEAT-PV)
+ */
+export interface PlusValueResultat {
+  prix_vente: number;
+  prix_achat: number;
+  plus_value_brute: number;
+  amortissements_reintegres: number;
+  duree_detention: number;
+  abattement_ir: number;
+  abattement_ps: number;
+  plus_value_nette_ir: number;
+  plus_value_nette_ps: number;
+  impot_ir: number;
+  impot_ps: number;
+  surtaxe: number;
+  impot_total: number;
+  net_revente: number;
 }
 
 /**
@@ -413,6 +436,7 @@ export interface ProjectionData {
     tri: number;
     frais_revente?: number;
   };
+  plusValue?: PlusValueResultat;
 }
 
 /**
