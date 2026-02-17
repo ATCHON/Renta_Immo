@@ -182,14 +182,21 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
             max={90}
             step={5}
             value={ponderationLoyers}
-            onChange={(e) => setPonderationLoyers(Number(e.target.value))}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              setPonderationLoyers(val);
+              updateOptions({ ponderation_loyers: val });
+            }}
             className="flex-1 accent-forest"
             data-testid="ponderation-hcsf"
           />
           <Button
             type="button"
             variant="secondary"
-            onClick={() => setPonderationLoyers(80)}
+            onClick={() => {
+              setPonderationLoyers(80);
+              updateOptions({ ponderation_loyers: 80 });
+            }}
             className="shrink-0 text-xs"
             data-testid="btn-gli"
           >

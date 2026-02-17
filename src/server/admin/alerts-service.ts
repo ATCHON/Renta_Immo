@@ -19,7 +19,6 @@ export class AlertsService {
         const { data, error } = await supabase
             .from('config_params')
             .select('*')
-            // @ts-ignore - Supabase types might not be perfect here
             .eq('is_temporary', true);
 
         if (error || !data) {

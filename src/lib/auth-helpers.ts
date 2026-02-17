@@ -15,22 +15,33 @@ export interface SessionWithRole {
 }
 
 /**
- * Vérifie que la session est valide et que l'utilisateur est admin.
- * Retourne { session } ou { error: NextResponse } selon le cas.
+ * Récupère la session et le rôle de l'utilisateur.
+ * Utile pour l'affichage conditionnel (ex: bouton admin).
  */
-export async function requireAdmin(): Promise<
-    { session: SessionWithRole; error: null } | { session: null; error: NextResponse }
-> {
+export async function getSessionWithRole(): Promise<SessionWithRole | null> {
+    // BYPASS AUTH FOR DEV/TEST
+    if (process.env.NODE_ENV === 'development') {
+        const devId = process.env.DEV_ADMIN_ID;
+        const devEmail = process.env.DEV_ADMIN_EMAIL;
+
+        if (!devId || !devEmail) {
+            console.warn('⚠️ DEV_ADMIN_ID or DEV_ADMIN_EMAIL missing in .env.local. Dev auth bypass disabled.');
+            // Fallthrough to normal auth if config is missing, to avoid silent failure or security risk
+        } else {
+            return {
+                user: {
+                    id: devId,
+                    email: devEmail,
+                    role: 'admin',
+                }
+            };
+        }
+    }
+
     const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session) {
-        return {
-            session: null,
-            error: NextResponse.json(
-                { success: false, error: { code: 'UNAUTHORIZED', message: 'Non authentifié' } },
-                { status: 401 }
-            ),
-        };
+        return null;
     }
 
     // Lire le rôle en base (pas dans le token JWT Better Auth par défaut)
@@ -41,7 +52,36 @@ export async function requireAdmin(): Promise<
         .eq('id', session.user.id)
         .single();
 
-    if (userRow?.role !== 'admin') {
+    const role = userRow?.role === 'admin' ? 'admin' : 'user';
+
+    return {
+        user: {
+            ...session.user,
+            role,
+        }
+    };
+}
+
+/**
+ * Vérifie que la session est valide et que l'utilisateur est admin.
+ * Retourne { session } ou { error: NextResponse } selon le cas.
+ */
+export async function requireAdmin(): Promise<
+    { session: SessionWithRole; error: null } | { session: null; error: NextResponse }
+> {
+    const sessionWithRole = await getSessionWithRole();
+
+    if (!sessionWithRole) {
+        return {
+            session: null,
+            error: NextResponse.json(
+                { success: false, error: { code: 'UNAUTHORIZED', message: 'Non authentifié' } },
+                { status: 401 }
+            ),
+        };
+    }
+
+    if (sessionWithRole.user.role !== 'admin') {
         return {
             session: null,
             error: NextResponse.json(
@@ -55,7 +95,7 @@ export async function requireAdmin(): Promise<
     }
 
     return {
-        session: { user: { ...session.user, role: 'admin' } },
+        session: sessionWithRole,
         error: null,
     };
 }

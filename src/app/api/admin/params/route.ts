@@ -48,5 +48,11 @@ export async function GET(request: NextRequest) {
         );
     }
 
-    return NextResponse.json({ success: true, data });
+    const formattedData = (data || []).map((row: any) => ({
+        ...row,
+        isTemporary: row.is_temporary,
+        dateExpiration: row.date_expiration,
+    }));
+
+    return NextResponse.json({ success: true, data: formattedData });
 }

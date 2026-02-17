@@ -73,6 +73,7 @@ const mockResultats: CalculResultats = {
         montant_emprunt: 206500,
         mensualite: 1195,
         cout_total_credit: 80300,
+        frais_notaire: 15300,
     },
     fiscalite: {
         regime: 'reel',
