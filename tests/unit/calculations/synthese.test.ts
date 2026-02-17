@@ -16,6 +16,7 @@ describe('Calculations Synthese', () => {
       cout_total_interets: 27200,
       cout_total_acquisition: 120000,
       taux_interet: 3.5,
+      frais_notaire: 8000,
     },
     charges: {
       charges_fixes_annuelles: 2000,
@@ -142,7 +143,7 @@ describe('V2-S16 : Scoring Rentier vs Patrimonial', () => {
   it('genererSynthese inclut les deux scores pré-calculés', () => {
     const mockRenta = {
       loyer_annuel: 12000,
-      financement: { montant_emprunt: 100000, mensualite_credit: 500, mensualite_assurance: 30, mensualite_totale: 530, remboursement_annuel: 6360, cout_total_credit: 127200, cout_total_interets: 27200, cout_total_acquisition: 120000, taux_interet: 3.5 },
+      financement: { montant_emprunt: 100000, mensualite_credit: 500, mensualite_assurance: 30, mensualite_totale: 530, remboursement_annuel: 6360, cout_total_credit: 127200, cout_total_interets: 27200, cout_total_acquisition: 120000, taux_interet: 3.5, frais_notaire: 8000 },
       charges: { charges_fixes_annuelles: 2000, charges_proportionnelles_annuelles: 500, total_charges_annuelles: 2500 },
       rentabilite_brute: 10, rentabilite_nette: 6, revenu_net_avant_impots: 8000, cashflow_annuel: 1200, cashflow_mensuel: 100, effort_epargne_mensuel: 0, effet_levier: 0,
     };

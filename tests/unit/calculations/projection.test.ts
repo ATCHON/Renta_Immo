@@ -61,7 +61,7 @@ describe('AUDIT-110 & V2-S14 : Revalorisation selon DPE', () => {
     } as unknown as ValidatedFormData;
 
     it('DPE F/G : Décote immédiate de 15%', () => {
-        const inputF = { ...baseInput, bien: { ...baseInput.bien, dpe: 'F' } };
+        const inputF = { ...baseInput, bien: { ...baseInput.bien, dpe: 'F' as const } };
         // Projection sur 1 an. Valeur théorique = 100k * 1.015 = 101500.
         // Valeur réelle = 101500 * (1 - 0.15) = 86275.
         const result = genererProjections(inputF, mockConfig, 1);
@@ -72,7 +72,7 @@ describe('AUDIT-110 & V2-S14 : Revalorisation selon DPE', () => {
     });
 
     it('DPE E : Décote de 10% à partir de 2034', () => {
-        const inputE = { ...baseInput, bien: { ...baseInput.bien, dpe: 'E' } };
+        const inputE = { ...baseInput, bien: { ...baseInput.bien, dpe: 'E' as const } };
         const result = genererProjections(inputE, mockConfig, 20);
 
         const currentYear = new Date().getFullYear();
@@ -95,7 +95,7 @@ describe('AUDIT-110 & V2-S14 : Revalorisation selon DPE', () => {
     });
 
     it('DPE C : Pas de décote', () => {
-        const inputC = { ...baseInput, bien: { ...baseInput.bien, dpe: 'C' } };
+        const inputC = { ...baseInput, bien: { ...baseInput.bien, dpe: 'C' as const } };
         const result = genererProjections(inputC, mockConfig, 1);
         // 100000 (Pas d'inflation année 1)
         expect(result.projections[0].valeurBien).toBeCloseTo(100000, -1);

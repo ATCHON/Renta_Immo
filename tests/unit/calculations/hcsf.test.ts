@@ -31,7 +31,8 @@ describe('HCSF Precision Calculations', () => {
         cout_total_credit: 50000,
         cout_total_interets: 15000,
         cout_total_acquisition: 120000,
-        taux_interet: 4
+        taux_interet: 4,
+        frais_notaire: 8000
     };
 
     it('should use TMI-based estimation when revenus_activite is 0 or missing', () => {
@@ -94,6 +95,7 @@ describe('V2-S18 : Pondération loyers HCSF configurable', () => {
         cout_total_interets: 15000,
         cout_total_acquisition: 120000,
         taux_interet: 4,
+        frais_notaire: 8000
     };
 
     it('pondération 70% par défaut (sans option)', () => {

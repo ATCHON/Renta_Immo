@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculerChargesAnnuelles } from '@/server/calculations/rentabilite';
-import type { ExploitationData } from '@/lib/validators';
+import type { ExploitationFormData as ExploitationData } from '@/lib/validators';
 import { mockConfig } from '@/server/calculations/__tests__/mock-config';
 
 describe('calculerChargesAnnuelles (Fix Vacance)', () => {

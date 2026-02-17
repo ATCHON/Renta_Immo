@@ -9,6 +9,7 @@ import {
   calculerScoreGlobal,
   genererEvaluation,
 } from '@/server/calculations/synthese';
+import { mockConfig } from '@/server/calculations/__tests__/mock-config';
 
 describe('AUDIT-106 : Scoring specification', () => {
   describe('ajustementCashflow (-20 / +20)', () => {
@@ -160,6 +161,7 @@ describe('AUDIT-106 : Scoring specification', () => {
         loyerAnnuel: 12000, // ratio = 10
         revenusActivite: 5000,
         totalChargesMensuelles: 2000, // RAV = 3000
+        config: mockConfig,
       });
 
       // Base 40 + cashflow 20 + renta 20 + hcsf 20 + dpe 5 + ratio 10 + rav 5 = 120 -> plafonne a 100
@@ -178,6 +180,7 @@ describe('AUDIT-106 : Scoring specification', () => {
         loyerAnnuel: 10000, // ratio = 30
         revenusActivite: 1200,
         totalChargesMensuelles: 500, // RAV = 700 < 800
+        config: mockConfig,
       });
 
       // Base 40 + (-20) + (-15) + (-25) + (-10) + (-5) + (-10) = -45 -> borne a 0
@@ -193,6 +196,7 @@ describe('AUDIT-106 : Scoring specification', () => {
         dpe: 'D',
         prixAchat: 180000,
         loyerAnnuel: 10000, // ratio = 18
+        config: mockConfig,
       });
 
       // Base 40 + cashflow ~5 + renta ~5 + hcsf ~10 + dpe 0 + ratio ~4 = ~64
@@ -208,6 +212,7 @@ describe('AUDIT-106 : Scoring specification', () => {
         hcsfConforme: true,
         prixAchat: 200000,
         loyerAnnuel: 12000,
+        config: mockConfig,
       });
 
       expect(result.ajustements).toHaveProperty('cashflow');

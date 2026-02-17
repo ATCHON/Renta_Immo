@@ -54,7 +54,8 @@ describe('calculerToutesFiscalites', () => {
         cout_total_credit: 50000,
         cout_total_interets: 40000,
         cout_total_acquisition: 215000,
-        taux_interet: 4
+        taux_interet: 4,
+        frais_notaire: 15000
     };
 
     const mockRentabilite: RentabiliteCalculations = {

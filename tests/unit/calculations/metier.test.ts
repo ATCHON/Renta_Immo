@@ -74,7 +74,10 @@ describe('CAS 1 — LMNP Réel (amortissement simplifié)', () => {
     if (!res.success) throw new Error('API Error: ' + res.error);
   });
 
-  const getResults = () => res.resultats;
+  const getResults = () => {
+    if (!res.success) throw new Error('Resultats missing');
+    return (res as any).resultats;
+  };
 
   it('Frais notaire ancien ~8% (réel = 16 062€)', () => {
     const { financement: fin } = getResults();
@@ -174,11 +177,14 @@ describe('CAS 2 — Location Nue Réel : PS 17,2% sur impôt estimé', () => {
     if (!res.success) throw new Error('API Error: ' + res.error);
   });
 
-  const getResults = () => res.resultats;
+  const getResults = () => {
+    if (!res.success) throw new Error('Resultats missing');
+    return (res as CalculationResult).resultats;
+  };
 
   it('Régime Location Nue Réel reconnu ("Foncier réel")', () => {
     // fisc.regime = "Foncier réel (TMI 30%)"
-    expect(getResults().fiscalite.regime.toLowerCase()).toContain('réel');
+    expect((getResults() as any).fiscalite.regime.toLowerCase()).toContain('réel');
   });
 
   it('Impôt location nue ≥ 0', () => {
@@ -193,7 +199,7 @@ describe('CAS 2 — Location Nue Réel : PS 17,2% sur impôt estimé', () => {
     // - Loc. nue réel PS 17.2% → taux total 47.2%
     // - LMNP micro BIC PS 18.6% → taux total 48.6%
     // L'impôt loc. nue est calculé avec 17.2%, pas 18.6%
-    const pLmnpMicro = clone(BASE);
+    const pLmnpMicro = clone(BASE) as any;
     pLmnpMicro.exploitation.type_location = 'meublee_longue_duree';
     pLmnpMicro.structure.regime_fiscal = 'lmnp_micro';
     const resMicro = await performCalculations(pLmnpMicro, TEST_CONFIG);

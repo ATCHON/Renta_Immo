@@ -68,6 +68,7 @@ const baseMockResultats: CalculResultats = {
         montant_emprunt: 206500,
         mensualite: 1195,
         cout_total_credit: 80300,
+        frais_notaire: 15300,
     },
     fiscalite: {
         regime: 'reel',
@@ -110,7 +111,9 @@ describe('RapportSimulation PDF Generation', () => {
             ...baseMockResultats,
             projections: {
                 ...baseMockResultats.projections,
-                projections: [] // Specifically checking this field exists and doesn't crash component
+                projections: [], // Specifically checking this field exists and doesn't crash component
+                horizon: 20,
+                totaux: baseMockResultats.projections!.totaux
             }
         };
 
@@ -140,6 +143,7 @@ describe('RapportSimulation PDF Generation', () => {
                         isSelected: true,
                         description: 'Régime réel',
                         avantages: ['Amortissement'],
+                        inconvenients: [],
                     },
                     {
                         regime: 'Micro-BIC',
@@ -150,6 +154,7 @@ describe('RapportSimulation PDF Generation', () => {
                         isSelected: false,
                         description: 'Régime micro',
                         avantages: ['Simplicité'],
+                        inconvenients: [],
                     },
                 ],
                 conseil: 'Le régime LMNP Réel est recommandé.'
