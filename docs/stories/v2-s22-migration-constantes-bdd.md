@@ -1,7 +1,7 @@
 # Story V2-S22 : Migrer les constantes du code vers la base de données
 
 > **Epic** : EPIC-V2-08 | **Sprint** : Sprint 4+ | **Effort** : L
-> **Statut** : Draft
+> **Statut** : Completed
 
 ## Story
 
@@ -19,27 +19,29 @@
 
 ## Tasks / Subtasks
 
-- [ ] Dépend de V2-S19, V2-S20, V2-S21
-- [ ] Créer src/server/services/config.service.ts avec cache mémoire (AC: 2)
-- [ ] Implémenter le fallback sur constants.ts (AC: 3)
-- [ ] Peupler la BDD avec les valeurs actuelles de constants.ts (AC: 1)
-- [ ] Remplacer les appels directs à constants.ts dans les calculateurs (AC: 1)
-- [ ] Lancer npm test complet (AC: 4)
+- [x] Dépend de V2-S19, V2-S20, V2-S21
+- [x] Créer src/server/services/config.service.ts avec cache mémoire (AC: 2)
+- [x] Implémenter le fallback sur constants.ts (AC: 3)
+- [x] Peupler la BDD avec les valeurs actuelles de constants.ts (AC: 1)
+- [x] Remplacer les appels directs à constants.ts dans les calculateurs (AC: 1)
+- [x] Lancer npm test complet (AC: 4)
 
 ## Dev Notes
 
 **Fichiers à créer :**
 - src/server/services/config.service.ts
+- src/server/config/config-service.ts (implémenté sous ce nom)
 
 **Note** : Refactoring majeur de src/config/constants.ts. Garder les valeurs comme fallback.
 
 ### Testing
 
 - Test du fallback : simuler une indisponibilité BDD → calculs continuent avec valeurs par défaut
-- npm test complet : 0 régression
+- npm test complet : 0 régression (56 tests validés)
 
 ## Change Log
 
 | Date | Version | Description | Author |
 |------|---------|-------------|--------|
 | 2026-02-14 | 1.0 | Création | John (PM) |
+| 2026-02-16 | 1.1 | Implémentation terminée | Antigravity |

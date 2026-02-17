@@ -1,7 +1,7 @@
 # Story V2-S21 : Créer l'interface admin des paramètres (8 blocs)
 
 > **Epic** : EPIC-V2-08 | **Sprint** : Sprint 4+ | **Effort** : L
-> **Statut** : Draft
+> **Statut** : Completed
 
 ## Story
 
@@ -20,13 +20,13 @@
 
 ## Tasks / Subtasks
 
-- [ ] Dépend de V2-S20 (API disponible)
-- [ ] Créer src/app/admin/params/page.tsx avec protection auth (AC: 1)
-- [ ] Créer les 8 blocs de paramètres (AC: 2)
-- [ ] Implémenter l'édition inline (AC: 3)
-- [ ] Ajouter la validation temps réel (AC: 4)
-- [ ] Afficher le statut des dispositifs temporaires (AC: 5)
-- [ ] Afficher l'historique de modifications (AC: 6)
+- [x] Dépend de V2-S20 (API disponible)
+- [x] Créer src/app/admin/params/page.tsx avec protection auth (AC: 1)
+- [x] Créer les 8 blocs de paramètres (AC: 2)
+- [x] Implémenter l'édition inline (AC: 3)
+- [x] Ajouter la validation temps réel (AC: 4)
+- [x] Afficher le statut des dispositifs temporaires (AC: 5)
+- [x] Afficher l'historique de modifications (AC: 6)
 
 ## Dev Notes
 
@@ -44,3 +44,4 @@
 | Date | Version | Description | Author |
 |------|---------|-------------|--------|
 | 2026-02-14 | 1.0 | Création | John (PM) |
+| 2026-02-16 | 1.1 | Implémentation terminée | Antigravity |

@@ -1,7 +1,7 @@
 # Story V2-S19 : Concevoir le schéma de données ConfigParam
 
 > **Epic** : EPIC-V2-08 | **Sprint** : Sprint 4+ | **Effort** : M
-> **Statut** : Draft
+> **Statut** : Completed
 
 ## Story
 
@@ -19,10 +19,10 @@
 
 ## Tasks / Subtasks
 
-- [ ] Définir l'interface TypeScript ConfigParam dans src/server/types/config.ts (AC: 1)
-- [ ] Créer le fichier de migration Supabase (AC: 2)
-- [ ] Documenter les 8 blocs de paramètres et leurs clés (AC: 4)
-- [ ] Tester la migration dans l'environnement de dev
+- [x] Définir l'interface TypeScript ConfigParam dans src/server/types/config.ts (AC: 1)
+- [x] Créer le fichier de migration Supabase (AC: 2)
+- [x] Documenter les 8 blocs de paramètres et leurs clés (AC: 4)
+- [x] Tester la migration dans l'environnement de dev
 
 ## Dev Notes
 
@@ -46,3 +46,4 @@
 | Date | Version | Description | Author |
 |------|---------|-------------|--------|
 | 2026-02-14 | 1.0 | Création | John (PM) |
+| 2026-02-16 | 1.1 | Implémentation terminée | Antigravity |
