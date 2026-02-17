@@ -8,28 +8,17 @@
  * - Calcul des revenus locatifs pondérés à 70%
  */
 
+import { ResolvedConfig } from '../config/config-types';
 import type { CalculationInput, HCSFCalculations, AssocieData, FinancementCalculations } from './types';
-import { CONSTANTS } from '@/config/constants';
+import { SEUILS } from './constants';
 
 // ============================================================================
 // TYPES LOCAUX (selon spécification TECH-005)
 // ============================================================================
 
 /**
- * Constantes HCSF réglementaires - exportées pour la page "En savoir plus"
+ * Constantes HCSF réglementaires (Désormais dans constants.ts via SEUILS)
  */
-export const HCSF_CONSTANTES = {
-  /** Taux d'endettement maximum */
-  TAUX_MAX: 0.35, // 35%
-  /** Seuil d'alerte (proche du max) */
-  TAUX_ALERTE: 0.33, // 33%
-  /** Pondération des revenus locatifs */
-  PONDERATION_LOCATIFS: 0.70, // 70%
-  /** Durée max du crédit en mois */
-  DUREE_MAX_MOIS: 300, // 25 ans
-  /** Durée max du crédit en années */
-  DUREE_MAX_ANNEES: 25,
-} as const;
 
 /**
  * Détail du calcul HCSF pour un associé
@@ -82,7 +71,7 @@ export function calculerRevenusPonderes(
   revenusActiviteMensuels: number,
   revenusProjetBrutsMensuels: number,
   loyersActuelsMensuels: number = 0,
-  ponderationLoyers: number = HCSF_CONSTANTES.PONDERATION_LOCATIFS
+  ponderationLoyers: number = 0.70 // Défaut HCSF fixe
 ): { bruts: number; ponderes: number; total: number } {
   const projetPonderes = revenusProjetBrutsMensuels * ponderationLoyers;
   const actuelsPonderes = loyersActuelsMensuels * ponderationLoyers;
@@ -100,13 +89,14 @@ export function calculerRevenusPonderes(
 function calculerCapaciteResiduelle(
   revenusTotauxPonderesMensuels: number,
   chargesExistantesMensuelles: number,
-  nouvelleChargeMensuelle: number
+  nouvelleChargeMensuelle: number,
+  config: ResolvedConfig
 ): number {
-  const chargeMaximaleAutorisee = revenusTotauxPonderesMensuels * HCSF_CONSTANTES.TAUX_MAX;
+  const chargeMaximaleAutorisee = revenusTotauxPonderesMensuels * config.hcsfTauxMax;
   const chargesActuellesAvecNouveauCredit = chargesExistantesMensuelles + nouvelleChargeMensuelle;
   const margeMensuelleDisponible = Math.max(0, chargeMaximaleAutorisee - chargesActuellesAvecNouveauCredit);
 
-  // Conversion en capital empruntable : 20 ans (240 mois), taux 3.5%
+  // Conversion en capital empruntable : 20 ans (240 mois), taux 3.5% (Taux de marché par défaut)
   const tauxMensuel = 0.035 / 12;
   const dureeMois = 240;
 
@@ -132,15 +122,16 @@ export function calculerHcsfNomPropre(
   data: CalculationInput,
   mensualiteNouveauCredit: number,
   loyerMensuelBrut: number,
+  config: ResolvedConfig,
   ponderationLoyers?: number
 ): HcsfDetail {
   const alertes: string[] = [];
-  const ponderation = ponderationLoyers !== undefined ? ponderationLoyers / 100 : HCSF_CONSTANTES.PONDERATION_LOCATIFS;
+  const ponderation = ponderationLoyers !== undefined ? ponderationLoyers / 100 : config.hcsfPonderationLocatifs;
 
   // Vérification durée du crédit
-  if (data.financement.duree_emprunt > HCSF_CONSTANTES.DUREE_MAX_ANNEES) {
+  if (data.financement.duree_emprunt > config.hcsfDureeMaxAnnees) {
     alertes.push(
-      `Durée du crédit (${data.financement.duree_emprunt} ans) supérieure au maximum HCSF (25 ans)`
+      `Durée du crédit (${data.financement.duree_emprunt} ans) supérieure au maximum HCSF (${config.hcsfDureeMaxAnnees} ans)`
     );
   }
 
@@ -166,30 +157,31 @@ export function calculerHcsfNomPropre(
     chargesTotalesMensuelles
   );
 
-  const conforme = tauxEndettement <= HCSF_CONSTANTES.TAUX_MAX;
+  const conforme = tauxEndettement <= config.hcsfTauxMax;
 
   if (!conforme) {
     alertes.push(
-      `Taux d'endettement (${formatPourcent(tauxEndettement)}) supérieur au seuil HCSF (${formatPourcent(HCSF_CONSTANTES.TAUX_MAX)})`
+      `Taux d'endettement (${formatPourcent(tauxEndettement)}) supérieur au seuil HCSF (${formatPourcent(config.hcsfTauxMax)})`
     );
-  } else if (tauxEndettement > HCSF_CONSTANTES.TAUX_ALERTE) {
+  } else if (tauxEndettement > (config.hcsfTauxMax * 0.95)) {
     alertes.push(
-      `Taux d'endettement (${formatPourcent(tauxEndettement)}) proche du seuil HCSF (${formatPourcent(HCSF_CONSTANTES.TAUX_ALERTE)})`
+      `Taux d'endettement (${formatPourcent(tauxEndettement)}) proche du seuil HCSF`
     );
   }
 
   const capaciteResiduelle = calculerCapaciteResiduelle(
     revenusPonderes.total,
     creditsExistantsMensuels + chargesFixesMensuelles,
-    mensualiteNouveauCredit
+    mensualiteNouveauCredit,
+    config
   );
 
   // AUDIT-107 : Reste à vivre
   const resteAVivre = revenusPonderes.total - chargesTotalesMensuelles;
 
-  if (resteAVivre < CONSTANTS.RESTE_A_VIVRE.SEUIL_MIN) {
+  if (resteAVivre < config.resteAVivreSeuilMin) {
     alertes.push(
-      `Reste à vivre (${Math.round(resteAVivre)} €/mois) inférieur au seuil bancaire minimum (${CONSTANTS.RESTE_A_VIVRE.SEUIL_MIN} €/mois)`
+      `Reste à vivre (${Math.round(resteAVivre)} €/mois) inférieur au seuil bancaire minimum (${config.resteAVivreSeuilMin} €/mois)`
     );
   }
 
@@ -230,16 +222,17 @@ export function calculerHcsfSciIs(
   data: CalculationInput,
   mensualiteNouveauCredit: number,
   loyerMensuelBrut: number,
+  config: ResolvedConfig,
   ponderationLoyers?: number
 ): HcsfDetail {
   const alertes: string[] = [];
-  const ponderation = ponderationLoyers !== undefined ? ponderationLoyers / 100 : HCSF_CONSTANTES.PONDERATION_LOCATIFS;
+  const ponderation = ponderationLoyers !== undefined ? ponderationLoyers / 100 : config.hcsfPonderationLocatifs;
   const associes = data.structure.associes ?? [];
 
   // Vérification durée du crédit
-  if (data.financement.duree_emprunt > HCSF_CONSTANTES.DUREE_MAX_ANNEES) {
+  if (data.financement.duree_emprunt > config.hcsfDureeMaxAnnees) {
     alertes.push(
-      `Durée du crédit (${data.financement.duree_emprunt} ans) supérieure au maximum HCSF (25 ans)`
+      `Durée du crédit (${data.financement.duree_emprunt} ans) supérieure au maximum HCSF (${config.hcsfDureeMaxAnnees} ans)`
     );
   }
 
@@ -268,7 +261,7 @@ export function calculerHcsfSciIs(
   }
 
   const resultatsAssocies: AssocieHcsf[] = associes.map((associe) =>
-    calculerHcsfPourAssocie(associe, mensualiteNouveauCredit, loyerMensuelBrut)
+    calculerHcsfPourAssocie(associe, mensualiteNouveauCredit, loyerMensuelBrut, config)
   );
 
   let tousConformes = true;
@@ -313,7 +306,8 @@ export function calculerHcsfSciIs(
     capaciteResiduelleGlobale = calculerCapaciteResiduelle(
       revenusMensuelsAssocieContraint,
       chargesExistantesAssocieContraint,
-      nouvelleChargeAssocieContraint
+      nouvelleChargeAssocieContraint,
+      config
     );
   }
 
@@ -322,9 +316,9 @@ export function calculerHcsfSciIs(
   const chargesTotalesGlobal = resultatsAssocies.reduce((sum, a) => sum + a.charges_totales_mensuelles, 0);
   const resteAVivre = revenusTotauxGlobal - chargesTotalesGlobal;
 
-  if (resteAVivre < CONSTANTS.RESTE_A_VIVRE.SEUIL_MIN) {
+  if (resteAVivre < config.resteAVivreSeuilMin) {
     alertes.push(
-      `Reste à vivre (${Math.round(resteAVivre)} €/mois) inférieur au seuil bancaire minimum (${CONSTANTS.RESTE_A_VIVRE.SEUIL_MIN} €/mois)`
+      `Reste à vivre (${Math.round(resteAVivre)} €/mois) inférieur au seuil bancaire minimum (${config.resteAVivreSeuilMin} €/mois)`
     );
   }
 
@@ -366,7 +360,8 @@ export function calculerHcsfSciIs(
 function calculerHcsfPourAssocie(
   associe: AssocieData,
   mensualiteNouveauCredit: number,
-  loyerMensuelBrut: number
+  loyerMensuelBrut: number,
+  config: ResolvedConfig
 ): AssocieHcsf {
   const alertes: string[] = [];
   const parts = associe.parts / 100;
@@ -377,7 +372,9 @@ function calculerHcsfPourAssocie(
 
   const revenusPonderes = calculerRevenusPonderes(
     revenusActiviteMensuels,
-    revenusLocatifsBrutsMensuels
+    revenusLocatifsBrutsMensuels,
+    0, // loyersActuelsMensuels non spécifié par associé ici
+    config.hcsfPonderationLocatifs
   );
 
   const creditsExistantsMensuels = associe.mensualites;
@@ -387,13 +384,13 @@ function calculerHcsfPourAssocie(
 
   const tauxEndettement = calculerTauxEndettement(revenusPonderes.total, chargesTotalesMensuelles);
 
-  const conforme = tauxEndettement <= CONSTANTS.HCSF.TAUX_MAX;
+  const conforme = tauxEndettement <= config.hcsfTauxMax;
 
   if (!conforme) {
     alertes.push(
-      `${associe.nom ?? 'Associé'} : Taux d'endettement (${formatPourcent(tauxEndettement)}) > seuil HCSF (${formatPourcent(CONSTANTS.HCSF.TAUX_MAX)})`
+      `${associe.nom ?? 'Associé'} : Taux d'endettement (${formatPourcent(tauxEndettement)}) > seuil HCSF (${formatPourcent(config.hcsfTauxMax)})`
     );
-  } else if (tauxEndettement > (CONSTANTS.HCSF.TAUX_MAX * 0.95)) { // ~33%
+  } else if (tauxEndettement > (config.hcsfTauxMax * 0.95)) { // ~33%
     alertes.push(
       `${associe.nom ?? 'Associé'} : Taux d'endettement (${formatPourcent(tauxEndettement)}) proche du seuil HCSF`
     );
@@ -426,16 +423,17 @@ function calculerHcsfPourAssocie(
 export function analyserHcsf(
   data: CalculationInput,
   financement: FinancementCalculations,
-  loyerMensuelBrut: number
+  loyerMensuelBrut: number,
+  config: ResolvedConfig
 ): HcsfDetail {
   const mensualiteNouveauCredit = financement.mensualite_totale;
   const ponderationLoyers = (data.options as { ponderation_loyers?: number } | undefined)?.ponderation_loyers;
 
   if (data.structure.type === 'sci_is') {
-    return calculerHcsfSciIs(data, mensualiteNouveauCredit, loyerMensuelBrut, ponderationLoyers);
+    return calculerHcsfSciIs(data, mensualiteNouveauCredit, loyerMensuelBrut, config, ponderationLoyers);
   }
 
-  return calculerHcsfNomPropre(data, mensualiteNouveauCredit, loyerMensuelBrut, ponderationLoyers);
+  return calculerHcsfNomPropre(data, mensualiteNouveauCredit, loyerMensuelBrut, config, ponderationLoyers);
 }
 
 // ============================================================================
@@ -446,11 +444,12 @@ export function analyserHcsf(
  * Estime les revenus mensuels à partir du TMI
  */
 function estimerRevenusDepuisTmi(tmi: number): number {
-  if (tmi === 0) return CONSTANTS.HCSF.REVENUS_ESTIMES.TMI_0;
-  if (tmi <= 11) return CONSTANTS.HCSF.REVENUS_ESTIMES.TMI_11;
-  if (tmi <= 30) return CONSTANTS.HCSF.REVENUS_ESTIMES.TMI_30;
-  if (tmi <= 41) return CONSTANTS.HCSF.REVENUS_ESTIMES.TMI_41;
-  return CONSTANTS.HCSF.REVENUS_ESTIMES.TMI_45;
+  // Valeurs heuristiques basées sur les plafonds de tranches (approximatif)
+  if (tmi === 0) return 800;
+  if (tmi <= 11) return 1800;
+  if (tmi <= 30) return 3500;
+  if (tmi <= 41) return 7000;
+  return 15000;
 }
 
 /**

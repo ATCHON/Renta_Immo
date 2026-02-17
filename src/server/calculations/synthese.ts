@@ -23,24 +23,24 @@ import type {
   DPE,
   ProfilInvestisseur,
 } from './types';
-import { SEUILS } from './types';
-import { CONSTANTS } from '@/config/constants';
+import { ResolvedConfig } from '../config/config-types';
+import {
+  SEUILS,
+  SCORE_BASE,
+  SCORING_PROFIL_WEIGHTS,
+  EVALUATIONS_THRESHOLDS,
+  DPE_CONFIG,
+} from './constants';
 
 /**
  * Évaluations qualitatives
  */
-const EVALUATIONS = {
-  excellent: { min: 80, max: 100, label: 'Excellent' as const, color: 'green' },
-  bon: { min: 60, max: 79, label: 'Bon' as const, color: 'blue' },
-  moyen: { min: 40, max: 59, label: 'Moyen' as const, color: 'orange' },
-  faible: { min: 0, max: 39, label: 'Faible' as const, color: 'red' },
-};
+/**
+ * Évaluations qualitatives (Désormais dans constants.ts via EVALUATIONS_THRESHOLDS)
+ */
 
-// ========================================================================
 // AUDIT-106 : Nouveau système de scoring (base 40 + ajustements)
-// ========================================================================
-
-const SCORE_BASE = 40;
+// SCORE_BASE est désormais dans constants.ts
 
 /**
  * Interpolation linéaire entre deux bornes
@@ -88,10 +88,10 @@ export function ajustementHcsf(tauxEndettement: number, conforme: boolean): numb
 export function ajustementDpe(dpe?: DPE): number {
   if (!dpe) return 0; // Neutre si non renseigné
   switch (dpe) {
-    case 'A': case 'B': return 5;
-    case 'C': case 'D': return 0;
-    case 'E': return -3;
-    case 'F': case 'G': return -10;
+    case 'A': case 'B': return DPE_CONFIG.SCORES.A;
+    case 'C': case 'D': return DPE_CONFIG.SCORES.C;
+    case 'E': return DPE_CONFIG.SCORES.E;
+    case 'F': case 'G': return DPE_CONFIG.SCORES.F;
     default: return 0;
   }
 }
@@ -123,15 +123,8 @@ export function ajustementResteAVivre(revenusActivite?: number, totalChargesMens
 }
 
 /**
- * AUDIT-110 : Constantes DPE réglementaires
+ * AUDIT-110 : Constantes DPE réglementaires (Désormais dans constants.ts via DPE_CONFIG)
  */
-const DPE_INTERDICTIONS = {
-  G: { annee: 2025, libelle: 'Interdit à la location depuis le 1er janvier 2025' },
-  F: { annee: 2028, libelle: 'Interdit à la location à partir du 1er janvier 2028' },
-  E: { annee: 2034, libelle: 'Interdit à la location à partir du 1er janvier 2034' },
-};
-
-const DPE_GEL_LOYER: string[] = ['F', 'G'];
 
 /**
  * AUDIT-110 : Génère les alertes liées au DPE
@@ -141,7 +134,7 @@ export function genererAlertesDpe(dpe?: DPE, horizon?: number): PointAttention[]
   const alertes: PointAttention[] = [];
   const anneeActuelle = new Date().getFullYear();
 
-  const interdiction = DPE_INTERDICTIONS[dpe as keyof typeof DPE_INTERDICTIONS];
+  const interdiction = DPE_CONFIG.INTERDICTIONS[dpe as keyof typeof DPE_CONFIG.INTERDICTIONS];
   if (interdiction) {
     const dejaInterdit = anneeActuelle >= interdiction.annee;
     alertes.push({
@@ -166,7 +159,7 @@ export function genererAlertesDpe(dpe?: DPE, horizon?: number): PointAttention[]
     }
   }
 
-  if (DPE_GEL_LOYER.includes(dpe)) {
+  if (DPE_CONFIG.GEL_LOYER.includes(dpe)) {
     alertes.push({
       type: 'warning',
       categorie: 'general',
@@ -200,11 +193,14 @@ export function calculerScoreGlobal(params: {
   loyerAnnuel: number;
   revenusActivite?: number;
   totalChargesMensuelles?: number;
+  config: ResolvedConfig;
   profilInvestisseur?: ProfilInvestisseur;
 }): ScoreDetail {
   const profil = params.profilInvestisseur ?? 'rentier';
-  const poids = CONSTANTS.SCORING_PROFIL[profil];
+  // Note: Les poids de scoring ne sont pas encore en BDD, on les définit localement
+  const poids = SCORING_PROFIL_WEIGHTS[profil];
 
+  const config = params.config;
   const ajCashflow = round(ajustementCashflow(params.cashflowMensuel) * poids.cashflow, 1);
   const ajRentabilite = round(ajustementRentabilite(params.rentabiliteNetteNette) * poids.rentabilite, 1);
   const ajHcsf = round(ajustementHcsf(params.tauxEndettement, params.hcsfConforme) * poids.hcsf, 1);
@@ -236,13 +232,13 @@ export function genererEvaluation(score: number): {
   evaluation: 'Excellent' | 'Bon' | 'Moyen' | 'Faible';
   couleur: string;
 } {
-  if (score >= EVALUATIONS.excellent.min) {
+  if (score >= EVALUATIONS_THRESHOLDS.excellent.min) {
     return { evaluation: 'Excellent', couleur: 'green' };
   }
-  if (score >= EVALUATIONS.bon.min) {
+  if (score >= EVALUATIONS_THRESHOLDS.bon.min) {
     return { evaluation: 'Bon', couleur: 'blue' };
   }
-  if (score >= EVALUATIONS.moyen.min) {
+  if (score >= EVALUATIONS_THRESHOLDS.moyen.min) {
     return { evaluation: 'Moyen', couleur: 'orange' };
   }
   return { evaluation: 'Faible', couleur: 'red' };
@@ -338,21 +334,21 @@ export function genererPointsAttention(
 /**
  * V2-S17 : Génère les alertes LMP selon les recettes LMNP annuelles
  */
-export function genererAlertesLmp(recettesLmnpAnnuelles: number): PointAttention[] {
+export function genererAlertesLmp(recettesLmnpAnnuelles: number, config: ResolvedConfig): PointAttention[] {
   const alertes: PointAttention[] = [];
 
-  if (recettesLmnpAnnuelles > CONSTANTS.LMP.SEUIL_LMP) {
+  if (recettesLmnpAnnuelles > config.lmpSeuilLmp) {
     alertes.push({
       type: 'error',
       categorie: 'fiscalite',
-      message: `Vos recettes LMNP (${Math.round(recettesLmnpAnnuelles).toLocaleString('fr-FR')} €) dépassent le seuil LMP (${CONSTANTS.LMP.SEUIL_LMP.toLocaleString('fr-FR')} €).`,
+      message: `Vos recettes LMNP (${Math.round(recettesLmnpAnnuelles).toLocaleString('fr-FR')} €) dépassent le seuil LMP (${config.lmpSeuilLmp.toLocaleString('fr-FR')} €).`,
       conseil: "Vous pourriez être qualifié en LMP avec des conséquences sociales et fiscales différentes. Consultez un expert.",
     });
-  } else if (recettesLmnpAnnuelles > CONSTANTS.LMP.SEUIL_ALERTE) {
+  } else if (recettesLmnpAnnuelles > config.lmpSeuilAlerte) {
     alertes.push({
       type: 'warning',
       categorie: 'fiscalite',
-      message: `Vos recettes LMNP (${Math.round(recettesLmnpAnnuelles).toLocaleString('fr-FR')} €) approchent du seuil LMP (${CONSTANTS.LMP.SEUIL_LMP.toLocaleString('fr-FR')} €).`,
+      message: `Vos recettes LMNP (${Math.round(recettesLmnpAnnuelles).toLocaleString('fr-FR')} €) approchent du seuil LMP (${config.lmpSeuilLmp.toLocaleString('fr-FR')} €).`,
       conseil: "Anticipez les conséquences fiscales et sociales du passage en LMP. Consultez un expert.",
     });
   }
@@ -551,6 +547,7 @@ function getRecommandationPrincipale(scoreInterne: number): string {
 export function genererSynthese(
   rentabilite: RentabiliteCalculations,
   hcsf: HCSFCalculations,
+  config: ResolvedConfig,
   fiscalite?: FiscaliteCalculations,
   structure?: StructureData,
   bien?: BienData,
@@ -617,6 +614,7 @@ export function genererSynthese(
     loyerAnnuel: rentabilite.loyer_annuel,
     revenusActivite: structure?.revenus_activite,
     totalChargesMensuelles: chargesMensuellesHcsf,
+    config
   };
 
   // Calcul du score détaillé sur 100 (AUDIT-106)
@@ -636,7 +634,7 @@ export function genererSynthese(
   const isLmnp = structure?.regime_fiscal === 'lmnp_reel' || structure?.regime_fiscal === 'lmnp_micro';
   if (isLmnp) {
     const recettesLmnp = rentabilite.loyer_annuel;
-    points_attention_detail.push(...genererAlertesLmp(recettesLmnp));
+    points_attention_detail.push(...genererAlertesLmp(recettesLmnp, config));
   }
 
   const recommandations_detail = structure
