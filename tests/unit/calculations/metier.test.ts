@@ -2,74 +2,10 @@
  * Tests réels des règles métier — regles_metier_explications_v2.md
  * Basé sur la structure réelle de l'API performCalculations()
  */
-import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { performCalculations } from './index';
-import type { CalculationResult } from './index';
-
-// Mock de ConfigService pour éviter l'erreur "cookies() was called outside a request scope" en test
-vi.mock('../config/config-service', () => ({
-  configService: {
-    getConfig: vi.fn(async () => ({
-      anneeFiscale: 2024,
-      // Fiscalité
-      tauxPsFoncier: 0.172,
-      tauxPsRevenusBicLmnp: 0.172,
-      microFoncierAbattement: 0.30,
-      microFoncierPlafond: 15000,
-      microBicMeubleLongueDureeAbattement: 0.50,
-      microBicMeubleLongueDureePlafond: 77700,
-      microBicTourismeClasseAbattement: 0.71,
-      microBicTourismeClassePlafond: 188700,
-      microBicTourismeNonClasseAbattement: 0.30,
-      microBicTourismeNonClassePlafond: 15000,
-      isTauxReduit: 0.15,
-      isTauxNormal: 0.25,
-      isSeuilTauxReduit: 42500,
-      flatTax: 0.30,
-      // Foncier
-      deficitFoncierPlafondImputation: 10700,
-      deficitFoncierPlafondEnergie: 21400,
-      deficitFoncierDureeReport: 10,
-      // Plus-value
-      plusValueTauxIr: 0.19,
-      plusValueTauxPs: 0.172,
-      plusValueForfaitFraisAcquisition: 0.075,
-      plusValueForfaitTravauxPv: 0.15,
-      plusValueSeuilSurtaxe: 50000,
-      // HCSF
-      hcsfTauxMax: 0.35,
-      hcsfDureeMaxAnnees: 25,
-      hcsfPonderationLocatifs: 0.70,
-      // DPE
-      decoteDpeFg: 0.10,
-      decoteDpeE: 0.05,
-      // LMP / Scoring
-      lmpSeuilAlerte: 20000,
-      lmpSeuilLmp: 23000,
-      resteAVivreSeuilMin: 800,
-      resteAVivreSeuilConfort: 1500,
-      // Charges
-      defaultsAssurancePno: 150,
-      defaultsChargesCoproM2: 2.5,
-      defaultsTaxeFoncieresMois: 100,
-      defaultsFraisDossierBanque: 500,
-      defaultsFraisGarantieCredit: 1000,
-      defaultsComptableLmnp: 450,
-      defaultsCfeMin: 200,
-      cfeSeuilExoneration: 5000,
-      fraisReventeTauxAgenceDefaut: 0.05,
-      fraisReventeDiagnostics: 450,
-      notaireTauxAncien: 0.08,
-      notaireTauxNeuf: 0.025,
-      // Projections
-      projectionInflationLoyer: 0.02,
-      projectionInflationCharges: 0.025,
-      projectionRevalorisation: 0.015,
-      projectionDecoteDpeFg: 0.10,
-      projectionDecoteDpeE: 0.05,
-    })),
-  },
-}));
+import { describe, it, expect, beforeAll } from 'vitest';
+import { performCalculations } from '@/server/calculations/index';
+import type { CalculationResult } from '@/server/calculations/index';
+import { TEST_CONFIG } from '../../helpers/test-config';
 
 const BASE = {
   bien: {
@@ -134,7 +70,7 @@ function clone<T>(o: T): T { return JSON.parse(JSON.stringify(o)); }
 describe('CAS 1 — LMNP Réel (amortissement simplifié)', () => {
   let res: Awaited<ReturnType<typeof performCalculations>>;
   beforeAll(async () => {
-    res = await performCalculations(clone(BASE));
+    res = await performCalculations(clone(BASE), TEST_CONFIG);
     if (!res.success) throw new Error('API Error: ' + res.error);
   });
 
@@ -234,7 +170,7 @@ describe('CAS 2 — Location Nue Réel : PS 17,2% sur impôt estimé', () => {
     p.bien.montant_travaux = 5000;
     p.exploitation.cfe_estimee = 0;
     p.exploitation.comptable_annuel = 0;
-    res = await performCalculations(p);
+    res = await performCalculations(p, TEST_CONFIG);
     if (!res.success) throw new Error('API Error: ' + res.error);
   });
 
@@ -260,7 +196,7 @@ describe('CAS 2 — Location Nue Réel : PS 17,2% sur impôt estimé', () => {
     const pLmnpMicro = clone(BASE);
     pLmnpMicro.exploitation.type_location = 'meublee_longue_duree';
     pLmnpMicro.structure.regime_fiscal = 'lmnp_micro';
-    const resMicro = await performCalculations(pLmnpMicro);
+    const resMicro = await performCalculations(pLmnpMicro, TEST_CONFIG);
     if (resMicro.success && fisc.impot_estime > 0) {
       // À base imposable similaire, impôt loc. nue (PS 17.2%) < impôt micro-BIC (PS 18.6%)
       // La différence est ~1.4% de la base. On vérifie juste la cohérence du taux.
@@ -279,7 +215,7 @@ describe('CAS 3 — LMNP Micro-BIC : abattement 50%, impôt = base×(TMI+18,6%)'
     const p = clone(BASE) as any;
     p.exploitation.type_location = 'meublee_longue_duree';
     p.structure.regime_fiscal = 'lmnp_micro';
-    res = await performCalculations(p);
+    res = await performCalculations(p, TEST_CONFIG);
     if (!res.success) throw new Error('API Error: ' + res.error);
   });
 
@@ -306,7 +242,7 @@ describe('CAS 4 — Micro-Foncier : abattement 30%, impôt = base×(TMI+17,2%)',
     p.structure.regime_fiscal = 'micro_foncier';
     p.exploitation.loyer_mensuel = 800;
     p.exploitation.cfe_estimee = 0;
-    res = await performCalculations(p);
+    res = await performCalculations(p, TEST_CONFIG);
     if (!res.success) throw new Error('API Error: ' + res.error);
   });
 
@@ -335,7 +271,7 @@ describe('CAS 5 — SCI IS : impôt IS 15% sur bénéfice ≤ 42 500€', () => 
     ];
     p.exploitation.type_location = 'nue';
     delete p.structure.regime_fiscal;
-    res = await performCalculations(p);
+    res = await performCalculations(p, TEST_CONFIG);
     if (!res.success) throw new Error('API Error: ' + res.error);
   });
 
@@ -370,8 +306,8 @@ describe('CAS 6 — Scoring dual profil Rentier / Patrimonial', () => {
   beforeAll(async () => {
     const pR = clone(BASE) as any; pR.options.profil_investisseur = 'rentier';
     const pP = clone(BASE) as any; pP.options.profil_investisseur = 'patrimonial';
-    resR = await performCalculations(pR);
-    resP = await performCalculations(pP);
+    resR = await performCalculations(pR, TEST_CONFIG);
+    resP = await performCalculations(pP, TEST_CONFIG);
     if (!resR.success || !resP.success) throw new Error('API Error');
   });
 
@@ -430,7 +366,7 @@ describe('CAS 6 — Scoring dual profil Rentier / Patrimonial', () => {
 describe('CAS 7 — HCSF : pondération loyers 70%', () => {
   let res: Awaited<ReturnType<typeof performCalculations>>;
   beforeAll(async () => {
-    res = await performCalculations(clone(BASE));
+    res = await performCalculations(clone(BASE), TEST_CONFIG);
     if (!res.success) throw new Error('API Error');
   });
 
@@ -456,7 +392,7 @@ describe('CAS 7 — HCSF : pondération loyers 70%', () => {
     const p = clone(BASE) as any;
     p.structure.credits_immobiliers = 4000; // 4000€/mois de crédits existants
     p.structure.revenus_activite = 10000; // 10000€/an = 833€/mois
-    const res2 = await performCalculations(p);
+    const res2 = await performCalculations(p, TEST_CONFIG);
     if (res2.success) {
       // taux_endettement = (4000 + mensualité) / (833 + loyers×70%) >> 35%
       expect((res2 as CalculationResult).resultats.hcsf.taux_endettement).toBeGreaterThan(35);
@@ -469,7 +405,7 @@ describe('CAS 7 — HCSF : pondération loyers 70%', () => {
 describe('CAS 8 — Projections sur 15 ans (TRI + évolution)', () => {
   let res: Awaited<ReturnType<typeof performCalculations>>;
   beforeAll(async () => {
-    res = await performCalculations(clone(BASE));
+    res = await performCalculations(clone(BASE), TEST_CONFIG);
     if (!res.success) throw new Error('API Error');
   });
 
@@ -506,7 +442,7 @@ describe('CAS 9 — Alerte LMP (recettes > 23 000€)', () => {
   beforeAll(async () => {
     const p = clone(BASE) as any;
     p.exploitation.loyer_mensuel = 2100; // 25 200€/an > seuil LMP 23 000€
-    res = await performCalculations(p);
+    res = await performCalculations(p, TEST_CONFIG);
     if (!res.success) throw new Error('API Error');
   });
 
@@ -536,7 +472,7 @@ describe('CAS 9 — Alerte LMP (recettes > 23 000€)', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe('CAS 10 — Frais notaire : ancien ~8%, neuf ~2,5%', () => {
   it('Frais notaire ancien dans [14 000€ - 18 000€]', async () => {
-    const res = await performCalculations(clone(BASE));
+    const res = await performCalculations(clone(BASE), TEST_CONFIG);
     if (!res.success) throw new Error('API Error');
     const fn = (res as CalculationResult).resultats.financement.frais_notaire;
     expect(fn).toBeGreaterThan(14000);
@@ -545,7 +481,7 @@ describe('CAS 10 — Frais notaire : ancien ~8%, neuf ~2,5%', () => {
 
   it('Frais notaire neuf dans [3 000€ - 7 000€] (~2,5%)', async () => {
     const p = clone(BASE) as any; p.bien.etat_bien = 'neuf';
-    const res = await performCalculations(p);
+    const res = await performCalculations(p, TEST_CONFIG);
     if (!res.success) throw new Error('API Error');
     const fn = (res as CalculationResult).resultats.financement.frais_notaire;
     expect(fn).toBeGreaterThan(3000);
@@ -553,9 +489,9 @@ describe('CAS 10 — Frais notaire : ancien ~8%, neuf ~2,5%', () => {
   });
 
   it('Frais notaire neuf < Frais notaire ancien (même prix)', async () => {
-    const resA = await performCalculations(clone(BASE));
+    const resA = await performCalculations(clone(BASE), TEST_CONFIG);
     const pN = clone(BASE) as any; pN.bien.etat_bien = 'neuf';
-    const resN = await performCalculations(pN);
+    const resN = await performCalculations(pN, TEST_CONFIG);
     if (!resA.success || !resN.success) throw new Error('API Error');
     expect((resN as CalculationResult).resultats.financement.frais_notaire).toBeLessThan((resA as CalculationResult).resultats.financement.frais_notaire);
   });
@@ -568,8 +504,8 @@ describe('CAS 11 — DPE F : pénalité score -10pts vs DPE C', () => {
   beforeAll(async () => {
     const pF = clone(BASE) as any; pF.bien.dpe = 'F';
     const pC = clone(BASE);
-    resF = await performCalculations(pF);
-    resC = await performCalculations(pC);
+    resF = await performCalculations(pF, TEST_CONFIG);
+    resC = await performCalculations(pC, TEST_CONFIG);
     if (!resF.success || !resC.success) throw new Error('API Error');
   });
 
@@ -611,7 +547,7 @@ describe('CAS 12 — Amortissement par composants LMNP', () => {
   beforeAll(async () => {
     const p = clone(BASE) as any;
     p.structure.mode_amortissement = 'composants';
-    res = await performCalculations(p);
+    res = await performCalculations(p, TEST_CONFIG);
     if (!res.success) throw new Error('API Error');
   });
 
@@ -653,7 +589,7 @@ describe('CAS 13 — LMNP Réel : report ARD quand amortissement > bénéfice', 
     p.exploitation.taxe_fonciere = 3000;
     p.bien.prix_achat = 300000; // gros bien → amortissement élevé
     p.financement.apport = 60000;
-    res = await performCalculations(p as any);
+    res = await performCalculations(p as any, TEST_CONFIG);
     if (!res.success) throw new Error('API Error');
   });
 
@@ -679,7 +615,7 @@ describe('CAS 13 — LMNP Réel : report ARD quand amortissement > bénéfice', 
 describe('CAS 14 — Rentabilité Nette et Nette-Nette cohérentes', () => {
   let res: Awaited<ReturnType<typeof performCalculations>>;
   beforeAll(async () => {
-    res = await performCalculations(clone(BASE));
+    res = await performCalculations(clone(BASE), TEST_CONFIG);
     if (!res.success) throw new Error('API Error');
   });
 
@@ -708,7 +644,7 @@ describe('CAS 15 — Validation métier : cohérence apport / prix achat', () =>
   it('Apport > prix achat → erreur de validation', async () => {
     const p = clone(BASE);
     p.financement.apport = 250000; // > prix achat 200000
-    const res = await performCalculations(p);
+    const res = await performCalculations(p, TEST_CONFIG);
     // Devrait échouer (apport > prix achat est invalide)
     // Si l'API laisse passer, le montant_emprunt serait négatif → incohérent
     if (res.success) {
