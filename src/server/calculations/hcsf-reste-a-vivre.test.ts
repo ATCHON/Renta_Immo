@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { calculerHcsfNomPropre, calculerHcsfSciIs } from './hcsf';
 import type { CalculationInput } from './types';
+import { mockConfig } from './__tests__/mock-config';
 
 describe('AUDIT-107 : Reste à vivre HCSF', () => {
   const baseInput: CalculationInput = {
@@ -32,7 +33,7 @@ describe('AUDIT-107 : Reste à vivre HCSF', () => {
 
   describe('Mode nom propre', () => {
     it('calcule un reste à vivre confortable (>= 1500€)', () => {
-      const result = calculerHcsfNomPropre(baseInput, 800, 900);
+      const result = calculerHcsfNomPropre(baseInput, 800, 900, mockConfig);
       // Revenus pondérés = 3500 + 900*0.70 = 4130
       // Charges = 500 + 200 + 800 = 1500
       // RAV = 4130 - 1500 = 2630
@@ -51,7 +52,7 @@ describe('AUDIT-107 : Reste à vivre HCSF', () => {
           autres_charges: 200,
         },
       };
-      const result = calculerHcsfNomPropre(inputFaible, 1100, 600);
+      const result = calculerHcsfNomPropre(inputFaible, 1100, 600, mockConfig);
       // Revenus pondérés = 1800 + 600*0.70 = 2220
       // Charges = 300 + 200 + 1100 = 1600
       // RAV = 2220 - 1600 = 620
@@ -70,7 +71,7 @@ describe('AUDIT-107 : Reste à vivre HCSF', () => {
           autres_charges: 100,
         },
       };
-      const result = calculerHcsfNomPropre(inputMoyen, 900, 800);
+      const result = calculerHcsfNomPropre(inputMoyen, 900, 800, mockConfig);
       // Revenus pondérés = 2500 + 800*0.70 = 3060
       // Charges = 400 + 100 + 900 = 1400
       // RAV = 3060 - 1400 = 1660
@@ -92,7 +93,7 @@ describe('AUDIT-107 : Reste à vivre HCSF', () => {
           ],
         },
       };
-      const result = calculerHcsfSciIs(inputSci, 800, 900);
+      const result = calculerHcsfSciIs(inputSci, 800, 900, mockConfig);
       expect(result.reste_a_vivre).toBeDefined();
       expect(typeof result.reste_a_vivre).toBe('number');
     });

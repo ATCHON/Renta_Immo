@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { calculerFinancement } from './rentabilite';
 import type { BienData, FinancementData } from './types';
+import { mockConfig } from './__tests__/mock-config';
 
 describe('calculerFinancement (frais_notaire)', () => {
     const bienMock: BienData = {
@@ -22,7 +23,7 @@ describe('calculerFinancement (frais_notaire)', () => {
     };
 
     it('devrait inclure frais_notaire dans le résultat du financement', () => {
-        const result = calculerFinancement(bienMock, financementMock);
+        const result = calculerFinancement(bienMock, financementMock, mockConfig);
 
         expect(result).toHaveProperty('frais_notaire');
         expect(result.frais_notaire).toBeGreaterThan(0);
@@ -33,7 +34,7 @@ describe('calculerFinancement (frais_notaire)', () => {
 
     it('devrait calculer des frais de notaire différents pour le neuf', () => {
         const bienNeufMock = { ...bienMock, etat_bien: 'neuf' } as BienData;
-        const result = calculerFinancement(bienNeufMock, financementMock);
+        const result = calculerFinancement(bienNeufMock, financementMock, mockConfig);
 
         // Pour 200k€ dans le neuf @ 2.5% = 5000
         expect(result.frais_notaire).toBe(5000);

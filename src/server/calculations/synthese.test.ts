@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { genererSynthese, genererAlertesLmp, calculerScoreGlobal } from './synthese';
 import type { RentabiliteCalculations, HCSFCalculations } from './types';
+import { mockConfig } from './__tests__/mock-config';
 
 describe('Calculations Synthese', () => {
   const mockRentabilite = (cashflow: number, rentabiliteNette: number): RentabiliteCalculations => ({
@@ -55,21 +56,21 @@ describe('Calculations Synthese', () => {
     const rentabilite = mockRentabilite(200, 11); // Cashflow +200, Renta 11%
     const hcsf = mockHCSF(true, 30); // Conforme
 
-    const synthese = genererSynthese(rentabilite, hcsf);
+    const synthese = genererSynthese(rentabilite, hcsf, mockConfig);
 
     expect(synthese.evaluation).toBe('Excellent');
     expect(synthese.score_global).toBeGreaterThanOrEqual(80);
     expect(synthese.points_attention).toHaveLength(0);
   });
 
-  it('should return "Bon" with points of attention for negative cashflow', () => {
+  it('should return "Moyen" with points of attention for negative cashflow', () => {
     const rentabilite = mockRentabilite(-100, 7); // Cashflow -100, Renta 7%
     const hcsf = mockHCSF(true, 33); // Conforme mais proche limite
 
-    const synthese = genererSynthese(rentabilite, hcsf);
+    const synthese = genererSynthese(rentabilite, hcsf, mockConfig);
 
-    // Score: base 40 + cashflow(-10) + renta(+20) + hcsf(+4) + ratio(+10) = 64 → Bon
-    expect(synthese.evaluation).toBe('Bon');
+    // Score avec poids profil rentier: 40 - 15(cashflow) + 24(renta) + 4(hcsf) + 5(ratio) = 58 → Moyen
+    expect(synthese.evaluation).toBe('Moyen');
     expect(synthese.points_attention).toContainEqual(expect.stringContaining('Cash-flow négatif'));
   });
 
@@ -77,7 +78,7 @@ describe('Calculations Synthese', () => {
     const rentabilite = mockRentabilite(-300, 4);
     const hcsf = mockHCSF(false, 42);
 
-    const synthese = genererSynthese(rentabilite, hcsf);
+    const synthese = genererSynthese(rentabilite, hcsf, mockConfig);
 
     expect(synthese.evaluation).toBe('Faible');
     expect(synthese.score_global).toBeLessThan(50);
@@ -86,9 +87,9 @@ describe('Calculations Synthese', () => {
 
   it('should correctly calculate the 0-100 score global', () => {
     // Cas neutre
-    const res1 = genererSynthese(mockRentabilite(0, 5), mockHCSF(true, 30));
+    const res1 = genererSynthese(mockRentabilite(0, 5), mockHCSF(true, 30), mockConfig);
     // Cas très positif
-    const res2 = genererSynthese(mockRentabilite(500, 12), mockHCSF(true, 25));
+    const res2 = genererSynthese(mockRentabilite(500, 12), mockHCSF(true, 25), mockConfig);
 
     expect(res2.score_global).toBeGreaterThan(res1.score_global);
     expect(res2.score_global).toBeLessThanOrEqual(100);
@@ -110,8 +111,8 @@ describe('V2-S16 : Scoring Rentier vs Patrimonial', () => {
   };
 
   it('même simulation → scores différents selon profil', () => {
-    const scoreRentier = calculerScoreGlobal({ ...baseParams, profilInvestisseur: 'rentier' });
-    const scorePatrimonial = calculerScoreGlobal({ ...baseParams, profilInvestisseur: 'patrimonial' });
+    const scoreRentier = calculerScoreGlobal({ ...baseParams, config: mockConfig, profilInvestisseur: 'rentier' });
+    const scorePatrimonial = calculerScoreGlobal({ ...baseParams, config: mockConfig, profilInvestisseur: 'patrimonial' });
 
     // Les scores doivent être différents
     expect(scoreRentier.total).not.toBe(scorePatrimonial.total);
@@ -120,8 +121,8 @@ describe('V2-S16 : Scoring Rentier vs Patrimonial', () => {
   it('profil patrimonial donne un cashflow ajustement plus faible (pondéré 0.5)', () => {
     // Cashflow très positif : avantage le Rentier
     const highCashflow = { ...baseParams, cashflowMensuel: 400 };
-    const scoreRentier = calculerScoreGlobal({ ...highCashflow, profilInvestisseur: 'rentier' });
-    const scorePatrimonial = calculerScoreGlobal({ ...highCashflow, profilInvestisseur: 'patrimonial' });
+    const scoreRentier = calculerScoreGlobal({ ...highCashflow, config: mockConfig, profilInvestisseur: 'rentier' });
+    const scorePatrimonial = calculerScoreGlobal({ ...highCashflow, config: mockConfig, profilInvestisseur: 'patrimonial' });
 
     // L'ajustement cashflow doit être plus faible en patrimonial
     expect(Math.abs(scorePatrimonial.ajustements.cashflow)).toBeLessThan(
@@ -129,13 +130,13 @@ describe('V2-S16 : Scoring Rentier vs Patrimonial', () => {
     );
   });
 
-  it('profil patrimonial donne un ajustement rentabilite renforcé (pondéré 1.5)', () => {
-    // Rentabilité excellente
+  it('profil rentier donne un ajustement rentabilite plus élevé que patrimonial (pondéré 1.2 vs 1.0)', () => {
+    // Rentabilité excellente — rentier pondère plus fortement la rentabilité
     const highRenta = { ...baseParams, rentabiliteNetteNette: 8 };
-    const scoreRentier = calculerScoreGlobal({ ...highRenta, profilInvestisseur: 'rentier' });
-    const scorePatrimonial = calculerScoreGlobal({ ...highRenta, profilInvestisseur: 'patrimonial' });
+    const scoreRentier = calculerScoreGlobal({ ...highRenta, config: mockConfig, profilInvestisseur: 'rentier' });
+    const scorePatrimonial = calculerScoreGlobal({ ...highRenta, config: mockConfig, profilInvestisseur: 'patrimonial' });
 
-    expect(scorePatrimonial.ajustements.rentabilite).toBeGreaterThan(scoreRentier.ajustements.rentabilite);
+    expect(scoreRentier.ajustements.rentabilite).toBeGreaterThan(scorePatrimonial.ajustements.rentabilite);
   });
 
   it('genererSynthese inclut les deux scores pré-calculés', () => {
@@ -151,7 +152,7 @@ describe('V2-S16 : Scoring Rentier vs Patrimonial', () => {
       charges_detail: { credits_existants_mensuels: 0, nouveau_credit_mensuel: 530, charges_fixes_mensuelles: 0, total_mensuelles: 530 },
     };
 
-    const synthese = genererSynthese(mockRenta, mockHCSF);
+    const synthese = genererSynthese(mockRenta, mockHCSF, mockConfig);
     expect(synthese.scores_par_profil).toBeDefined();
     expect(synthese.scores_par_profil!.rentier.total).toBeGreaterThanOrEqual(0);
     expect(synthese.scores_par_profil!.patrimonial.total).toBeGreaterThanOrEqual(0);
@@ -164,18 +165,18 @@ describe('V2-S16 : Scoring Rentier vs Patrimonial', () => {
 // ============================================================================
 describe('V2-S17 : Alertes seuil LMP', () => {
   it('pas d\'alerte pour recettes < 20 000 €', () => {
-    const alertes = genererAlertesLmp(15000);
+    const alertes = genererAlertesLmp(15000, mockConfig);
     expect(alertes).toHaveLength(0);
   });
 
   it('alerte orange pour recettes entre 20 001 et 23 000 €', () => {
-    const alertes = genererAlertesLmp(21000);
+    const alertes = genererAlertesLmp(21000, mockConfig);
     expect(alertes).toHaveLength(1);
     expect(alertes[0].type).toBe('warning');
   });
 
   it('alerte rouge pour recettes > 23 000 €', () => {
-    const alertes = genererAlertesLmp(24000);
+    const alertes = genererAlertesLmp(24000, mockConfig);
     expect(alertes).toHaveLength(1);
     expect(alertes[0].type).toBe('error');
   });

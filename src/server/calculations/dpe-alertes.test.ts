@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { genererAlertesDpe } from './synthese';
 import { genererProjections } from './projection';
 import type { CalculationInput, DPE } from './types';
+import { mockConfig } from './__tests__/mock-config';
 
 describe('AUDIT-110 : DPE et alertes passoires énergétiques', () => {
   describe('genererAlertesDpe', () => {
@@ -71,7 +72,7 @@ describe('AUDIT-110 : DPE et alertes passoires énergétiques', () => {
         ...baseInput,
         bien: { ...baseInput.bien, dpe: 'F' as DPE },
       };
-      const result = genererProjections(inputF, 10);
+      const result = genererProjections(inputF, mockConfig, 10);
       const loyerAn1 = result.projections[0].loyer;
       const loyerAn10 = result.projections[9].loyer;
       expect(loyerAn10).toBe(loyerAn1);
@@ -82,7 +83,7 @@ describe('AUDIT-110 : DPE et alertes passoires énergétiques', () => {
         ...baseInput,
         bien: { ...baseInput.bien, dpe: 'E' as DPE },
       };
-      const result = genererProjections(inputE, 20);
+      const result = genererProjections(inputE, mockConfig, 20);
       // Calculer l'index correspondant à 2034
       const currentYear = new Date().getFullYear();
       const yearsTo2034 = 2034 - currentYear;
@@ -113,7 +114,7 @@ describe('AUDIT-110 : DPE et alertes passoires énergétiques', () => {
         ...baseInput,
         bien: { ...baseInput.bien, dpe: 'C' as DPE },
       };
-      const result = genererProjections(inputC, 10);
+      const result = genererProjections(inputC, mockConfig, 10);
       const loyerAn1 = result.projections[0].loyer;
       const loyerAn10 = result.projections[9].loyer;
       expect(loyerAn10).toBeGreaterThan(loyerAn1);
@@ -128,8 +129,8 @@ describe('AUDIT-110 : DPE et alertes passoires énergétiques', () => {
         ...baseInput,
         bien: { ...baseInput.bien, dpe: 'C' as DPE },
       };
-      const resultG = genererProjections(inputG, 10);
-      const resultC = genererProjections(inputC, 10);
+      const resultG = genererProjections(inputG, mockConfig, 10);
+      const resultC = genererProjections(inputC, mockConfig, 10);
       expect(resultG.totaux.cashflowCumule).toBeLessThan(resultC.totaux.cashflowCumule);
     });
   });

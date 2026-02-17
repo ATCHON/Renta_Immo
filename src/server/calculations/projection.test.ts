@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { calculerTRI, genererProjections } from './projection';
 import type { ValidatedFormData } from './types';
+import { mockConfig } from './__tests__/mock-config';
 
 describe('Calculateur TRI', () => {
     it('doit calculer un TRI correct pour un flux simple', () => {
@@ -63,7 +64,7 @@ describe('AUDIT-110 & V2-S14 : Revalorisation selon DPE', () => {
         const inputF = { ...baseInput, bien: { ...baseInput.bien, dpe: 'F' } };
         // Projection sur 1 an. Valeur théorique = 100k * 1.015 = 101500.
         // Valeur réelle = 101500 * (1 - 0.15) = 86275.
-        const result = genererProjections(inputF, 1);
+        const result = genererProjections(inputF, mockConfig, 1);
         const projectionAn1 = result.projections[0];
 
         // 100000 * 0.85 = 85000 (Pas d'inflation année 1)
@@ -72,7 +73,7 @@ describe('AUDIT-110 & V2-S14 : Revalorisation selon DPE', () => {
 
     it('DPE E : Décote de 10% à partir de 2034', () => {
         const inputE = { ...baseInput, bien: { ...baseInput.bien, dpe: 'E' } };
-        const result = genererProjections(inputE, 20);
+        const result = genererProjections(inputE, mockConfig, 20);
 
         const currentYear = new Date().getFullYear();
         const yearsTo2034 = 2034 - currentYear;
@@ -95,7 +96,7 @@ describe('AUDIT-110 & V2-S14 : Revalorisation selon DPE', () => {
 
     it('DPE C : Pas de décote', () => {
         const inputC = { ...baseInput, bien: { ...baseInput.bien, dpe: 'C' } };
-        const result = genererProjections(inputC, 1);
+        const result = genererProjections(inputC, mockConfig, 1);
         // 100000 (Pas d'inflation année 1)
         expect(result.projections[0].valeurBien).toBeCloseTo(100000, -1);
     });

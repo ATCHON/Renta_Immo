@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculerPlusValueIR, calculerPlusValueSciIs, abattementIR, abattementPS } from './fiscalite';
+import { mockConfig } from './__tests__/mock-config';
 
 describe('AUDIT-105 : Plus-value a la revente', () => {
   describe('abattementIR', () => {
@@ -57,7 +58,7 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
       // Forfait travaux > 5 ans = 15% * 200000 = 30000
       // Prix acquisition corrige = 200000 + 15000 (acq) + 30000 (travaux) = 245000
       // PV brute = 260000 - 245000 = 15000
-      const result = calculerPlusValueIR(260000, 200000, 10);
+      const result = calculerPlusValueIR(260000, 200000, 10, mockConfig);
 
       expect(result.plus_value_brute).toBe(15000);
 
@@ -80,14 +81,14 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
     });
 
     it('pas de plus-value si prix de vente <= prix d\'achat', () => {
-      const result = calculerPlusValueIR(180000, 200000, 10);
+      const result = calculerPlusValueIR(180000, 200000, 10, mockConfig);
       expect(result.plus_value_brute).toBeLessThanOrEqual(0);
       expect(result.impot_total).toBe(0);
       expect(result.net_revente).toBe(180000);
     });
 
     it('exoneration totale IR apres 22 ans', () => {
-      const result = calculerPlusValueIR(300000, 200000, 22);
+      const result = calculerPlusValueIR(300000, 200000, 22, mockConfig);
       expect(result.abattement_ir).toBe(100);
       expect(result.impot_ir).toBe(0);
       // Mais PS pas encore exoneres
@@ -95,7 +96,7 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
     });
 
     it('exoneration totale IR et PS apres 30 ans', () => {
-      const result = calculerPlusValueIR(300000, 200000, 31);
+      const result = calculerPlusValueIR(300000, 200000, 31, mockConfig);
       expect(result.impot_ir).toBe(0);
       expect(result.impot_ps).toBe(0);
       expect(result.impot_total).toBe(0);
@@ -107,7 +108,7 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
       // Forfait travaux 15% code = 30000
       // Prix acquisition corrige = 200000 + 15000 + 30000 = 245000
       // PV brute = 230000 - 245000 + 50000 = 35000
-      const result = calculerPlusValueIR(230000, 200000, 10, 50000);
+      const result = calculerPlusValueIR(230000, 200000, 10, mockConfig, 50000);
       expect(result.plus_value_brute).toBe(35000);
       expect(result.amortissements_reintegres).toBe(50000);
       expect(result.impot_total).toBeGreaterThan(0);
@@ -118,14 +119,14 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
       // Achat 200000, vente 400000, detention 3 ans
       // Prix acquisition corrige = 200000 * 1.075 = 215000
       // PV brute = 400000 - 215000 = 185000
-      const result = calculerPlusValueIR(400000, 200000, 3);
+      const result = calculerPlusValueIR(400000, 200000, 3, mockConfig);
       expect(result.plus_value_brute).toBe(185000);
       // PV nette IR = 185000 (pas d'abattement a 3 ans)
       expect(result.surtaxe).toBeGreaterThan(0);
     });
 
     it('pas de surtaxe pour PV nette IR <= 50000', () => {
-      const result = calculerPlusValueIR(230000, 200000, 10);
+      const result = calculerPlusValueIR(230000, 200000, 10, mockConfig);
       // PV nette IR = 10500 < 50000
       expect(result.surtaxe).toBe(0);
     });
@@ -136,13 +137,13 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
       // Forfait 15% = 30000. Réel = 50000. On garde 50000.
       // Prix corrige = 200000 + 15000 (acq) + 50000 (travaux retenus) = 265000
       // PV brute = 350000 - 265000 = 85000
-      const result = calculerPlusValueIR(350000, 200000, 10, 0, 50000);
+      const result = calculerPlusValueIR(350000, 200000, 10, mockConfig, 0, 50000);
       expect(result.plus_value_brute).toBe(85000);
     });
 
     // V2-S05 : Tests LMNP options
     it('residence services exemptee apres Loi Le Meur (V2-S05)', () => {
-      const result = calculerPlusValueIR(300000, 200000, 10, 40000, 0, {
+      const result = calculerPlusValueIR(300000, 200000, 10, mockConfig, 40000, 0, {
         typeResidence: 'services',
         dateCession: '2025-06-01',
       });
@@ -154,7 +155,7 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
     });
 
     it('exclusion mobilier de la reintegration (V2-S05)', () => {
-      const result = calculerPlusValueIR(300000, 200000, 10, 40000, 0, {
+      const result = calculerPlusValueIR(300000, 200000, 10, mockConfig, 40000, 0, {
         typeResidence: 'classique',
         amortissementMobilierCumule: 10000,
         dateCession: '2025-06-01',
@@ -164,7 +165,7 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
     });
 
     it('avant Loi Le Meur : reintegration totale meme residence services (V2-S05)', () => {
-      const result = calculerPlusValueIR(300000, 200000, 10, 40000, 0, {
+      const result = calculerPlusValueIR(300000, 200000, 10, mockConfig, 40000, 0, {
         typeResidence: 'services',
         dateCession: '2025-01-01',
       });
@@ -178,7 +179,7 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
       // Achat 200000, vente 230000, amortissements cumules 51510
       // VNC = 200000 - 51510 = 148490
       // PV = 230000 - 148490 = 81510
-      const result = calculerPlusValueSciIs(230000, 200000, 51510, false);
+      const result = calculerPlusValueSciIs(230000, 200000, 51510, mockConfig, false);
 
       expect(result.plus_value_brute).toBe(81510);
 
@@ -189,7 +190,7 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
 
     it('PV SCI IS avec distribution aux associes', () => {
       // Meme cas mais avec distribution
-      const result = calculerPlusValueSciIs(230000, 200000, 51510, true);
+      const result = calculerPlusValueSciIs(230000, 200000, 51510, mockConfig, true);
 
       // IS : ~16127.50
       // Distribue = 81510 - 16127.50 = 65382.50
@@ -199,14 +200,14 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
     });
 
     it('pas d\'abattement pour duree de detention en SCI IS', () => {
-      const result = calculerPlusValueSciIs(300000, 200000, 50000, false);
+      const result = calculerPlusValueSciIs(300000, 200000, 50000, mockConfig, false);
       expect(result.abattement_ir).toBe(0);
       expect(result.abattement_ps).toBe(0);
     });
 
     it('pas de PV si VNC > prix de vente', () => {
       // Peu d'amortissements : VNC > prix vente
-      const result = calculerPlusValueSciIs(190000, 200000, 5000, false);
+      const result = calculerPlusValueSciIs(190000, 200000, 5000, mockConfig, false);
       // VNC = 200000 - 5000 = 195000, PV = 190000 - 195000 = -5000
       expect(result.plus_value_brute).toBeLessThanOrEqual(0);
       expect(result.impot_total).toBe(0);
@@ -215,14 +216,14 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
     it('IS au taux reduit seul si PV <= seuil', () => {
       // VNC = 200000 - 100000 = 100000, Vente = 130000
       // PV = 30000 < 42500
-      const result = calculerPlusValueSciIs(130000, 200000, 100000, false);
+      const result = calculerPlusValueSciIs(130000, 200000, 100000, mockConfig, false);
       expect(result.plus_value_brute).toBe(30000);
       // IS = 30000 * 15% = 4500
       expect(result.impot_ir).toBe(4500);
     });
 
     it('pas de flat tax si pas de distribution', () => {
-      const result = calculerPlusValueSciIs(230000, 200000, 51510, false);
+      const result = calculerPlusValueSciIs(230000, 200000, 51510, mockConfig, false);
       expect(result.impot_ps).toBe(0); // flat tax stockee dans impot_ps
     });
   });

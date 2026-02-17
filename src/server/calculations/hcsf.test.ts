@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { analyserHcsf } from './hcsf';
 import { CalculationInput } from './types';
+import { mockConfig } from './__tests__/mock-config';
 
 describe('HCSF Precision Calculations', () => {
     const baseInput: Partial<CalculationInput> = {
@@ -34,12 +35,12 @@ describe('HCSF Precision Calculations', () => {
     };
 
     it('should use TMI-based estimation when revenus_activite is 0 or missing', () => {
-        // TMI 30 -> estimate is 4000 (from constants)
-        const result = analyserHcsf(baseInput as unknown as CalculationInput, fakeFinancement, 1000);
+        // TMI 30 -> estimate is 3500 (from estimerRevenusDepuisTmi)
+        const result = analyserHcsf(baseInput as unknown as CalculationInput, fakeFinancement, 1000, mockConfig);
 
         // Taux = (Credits + NouveauCredit) / (EstimatedSalaries + 70% * Loyer)
-        // Taux = (1000 + 625) / (4000 + 700) = 1625 / 4700 ≈ 34.57%
-        expect(result.taux_endettement).toBeCloseTo(34.57, 1);
+        // Taux = (1000 + 625) / (3500 + 700) = 1625 / 4200 ≈ 38.69%
+        expect(result.taux_endettement).toBeCloseTo(38.69, 1);
     });
 
     it('should use exact revenus_activite when provided', () => {
@@ -51,7 +52,7 @@ describe('HCSF Precision Calculations', () => {
             }
         };
 
-        const result = analyserHcsf(inputWithIncome as unknown as CalculationInput, fakeFinancement, 1000);
+        const result = analyserHcsf(inputWithIncome as unknown as CalculationInput, fakeFinancement, 1000, mockConfig);
 
         // Taux = (1000 + 625) / (6000 + 700) = 1625 / 6700 ≈ 24.25%
         expect(result.taux_endettement).toBeCloseTo(24.25, 1);
@@ -96,22 +97,22 @@ describe('V2-S18 : Pondération loyers HCSF configurable', () => {
     };
 
     it('pondération 70% par défaut (sans option)', () => {
-        const result = analyserHcsf(baseInput as unknown as CalculationInput, fakeFinancement, 1000);
+        const result = analyserHcsf(baseInput as unknown as CalculationInput, fakeFinancement, 1000, mockConfig);
         // Taux = 625 / (4000 + 0.70*1000) = 625 / 4700 ≈ 13.30%
         expect(result.taux_endettement).toBeCloseTo(13.30, 1);
     });
 
     it('pondération 80% avec GLI → taux d\'endettement différent', () => {
         const inputGLI = { ...baseInput, options: { ponderation_loyers: 80 } };
-        const result = analyserHcsf(inputGLI as unknown as CalculationInput, fakeFinancement, 1000);
+        const result = analyserHcsf(inputGLI as unknown as CalculationInput, fakeFinancement, 1000, mockConfig);
         // Taux = 625 / (4000 + 0.80*1000) = 625 / 4800 ≈ 13.02%
         expect(result.taux_endettement).toBeCloseTo(13.02, 1);
     });
 
     it('pondération 80% donne un taux d\'endettement plus bas (meilleurs revenus pris en compte)', () => {
-        const result70 = analyserHcsf(baseInput as unknown as CalculationInput, fakeFinancement, 1000);
+        const result70 = analyserHcsf(baseInput as unknown as CalculationInput, fakeFinancement, 1000, mockConfig);
         const inputGLI = { ...baseInput, options: { ponderation_loyers: 80 } };
-        const result80 = analyserHcsf(inputGLI as unknown as CalculationInput, fakeFinancement, 1000);
+        const result80 = analyserHcsf(inputGLI as unknown as CalculationInput, fakeFinancement, 1000, mockConfig);
         // Avec 80% de pondération, les revenus locatifs sont plus élevés → taux d'endettement plus bas
         expect(result80.taux_endettement).toBeLessThan(result70.taux_endettement);
     });

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculerAmortissementComposants, calculerLmnpReel, calculerFiscaliteSciIs } from './fiscalite';
+import { mockConfig } from './__tests__/mock-config';
 
 describe('AUDIT-104 : Amortissement par composants', () => {
   describe('calculerAmortissementComposants', () => {
@@ -93,12 +94,12 @@ describe('AUDIT-104 : Amortissement par composants', () => {
     it('mode simplifie : amortissement lineaire sur 33 ans', () => {
       // Bien 200000, terrain 15%, valeur bati = 170000
       // Simplifie : 170000 / 33 = 5151.52
-      const result = calculerLmnpReel(14400, 2200, 200000, 30, 0, 0, 0, 0.15, 'simplifie', 1);
+      const result = calculerLmnpReel(14400, 2200, 200000, 30, mockConfig, 0, 0, 0, 0.15, 'simplifie', 1);
       expect(result.alertes.some(a => a.includes('5151') || a.includes('5 151'))).toBe(true);
     });
 
     it('mode composants : amortissement plus eleve', () => {
-      const result = calculerLmnpReel(14400, 2200, 200000, 30, 0, 0, 0, 0.15, 'composants', 1);
+      const result = calculerLmnpReel(14400, 2200, 200000, 30, mockConfig, 0, 0, 0, 0.15, 'composants', 1);
       expect(result.alertes.some(a => a.includes('composants'))).toBe(true);
       // L'amortissement composants (8387) > simplifie (5152)
       expect(result.alertes.some(a => a.includes('8387') || a.includes('8 387') || a.includes('8386'))).toBe(true);
@@ -106,7 +107,7 @@ describe('AUDIT-104 : Amortissement par composants', () => {
 
     it('l\'amortissement ne cree pas de deficit BIC', () => {
       // Revenus faibles : amortissement > resultat avant amortissement
-      const result = calculerLmnpReel(5000, 2000, 200000, 30, 0, 0, 0, 0.15, 'composants', 1);
+      const result = calculerLmnpReel(5000, 2000, 200000, 30, mockConfig, 0, 0, 0, 0.15, 'composants', 1);
       expect(result.base_imposable).toBe(0);
       expect(result.alertes.some(a => a.includes('excédentaire reportable'))).toBe(true);
     });
@@ -115,8 +116,8 @@ describe('AUDIT-104 : Amortissement par composants', () => {
   describe('Mode composants en SCI IS', () => {
     it('utilise l\'amortissement par composants en SCI IS', () => {
       // Revenu net 12200, prix 200000, interets 5000, terrain 15%
-      const resultSimp = calculerFiscaliteSciIs(12200, 200000, 5000, false, 0.15, 'simplifie', 1);
-      const resultComp = calculerFiscaliteSciIs(12200, 200000, 5000, false, 0.15, 'composants', 1);
+      const resultSimp = calculerFiscaliteSciIs(12200, 200000, mockConfig, 5000, false, 0.15, 'simplifie', 1);
+      const resultComp = calculerFiscaliteSciIs(12200, 200000, mockConfig, 5000, false, 0.15, 'composants', 1);
 
       // L'amortissement composants (8387) > simplifie (5152)
       // Donc base imposable composants < base imposable simplifie

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { genererProjections } from './projection';
 import type { CalculationInput } from './types';
+import { mockConfig } from './__tests__/mock-config';
 
 describe('AUDIT-108 : Frais de revente dans le TRI', () => {
   const baseInput: CalculationInput = {
@@ -30,7 +31,7 @@ describe('AUDIT-108 : Frais de revente dans le TRI', () => {
   };
 
   it('déduit les frais de revente par défaut (5% + 500€ diagnostics)', () => {
-    const result = genererProjections(baseInput, 20);
+    const result = genererProjections(baseInput, mockConfig, 20);
     expect(result.totaux.frais_revente).toBeDefined();
     const derniere = result.projections[result.projections.length - 1];
     const expectedFrais = Math.round(derniere.valeurBien * 0.05 + 500);
@@ -42,7 +43,7 @@ describe('AUDIT-108 : Frais de revente dans le TRI', () => {
       ...baseInput,
       options: { ...baseInput.options, taux_agence_revente: 0 },
     };
-    const result = genererProjections(inputSansFrais, 20);
+    const result = genererProjections(inputSansFrais, mockConfig, 20);
     expect(result.totaux.frais_revente).toBe(500); // Seulement diagnostics
   });
 
@@ -51,8 +52,8 @@ describe('AUDIT-108 : Frais de revente dans le TRI', () => {
       ...baseInput,
       options: { ...baseInput.options, taux_agence_revente: 0 },
     };
-    const avecFrais = genererProjections(baseInput, 20);
-    const sansFrais = genererProjections(inputSansFrais, 20);
+    const avecFrais = genererProjections(baseInput, mockConfig, 20);
+    const sansFrais = genererProjections(inputSansFrais, mockConfig, 20);
     expect(avecFrais.totaux.tri).toBeLessThanOrEqual(sansFrais.totaux.tri);
   });
 
@@ -61,8 +62,8 @@ describe('AUDIT-108 : Frais de revente dans le TRI', () => {
       ...baseInput,
       options: { ...baseInput.options, taux_agence_revente: 0 },
     };
-    const avecFrais = genererProjections(baseInput, 20);
-    const sansFrais = genererProjections(inputSansFrais, 20);
+    const avecFrais = genererProjections(baseInput, mockConfig, 20);
+    const sansFrais = genererProjections(inputSansFrais, mockConfig, 20);
     const fraisDefaut = avecFrais.totaux.frais_revente ?? 0;
     // La différence d'enrichissement = frais agence (les diagnostics sont dans les deux)
     const ecart = sansFrais.totaux.enrichissementTotal - avecFrais.totaux.enrichissementTotal;
