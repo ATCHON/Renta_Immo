@@ -269,8 +269,8 @@ Créez un fichier `.env.local` à la racine du projet :
 ```env
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://votre-projet.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 
 # Better Auth
 BETTER_AUTH_SECRET=votre-secret-32-caracteres-minimum
@@ -280,7 +280,7 @@ BETTER_AUTH_URL=http://localhost:3000
 DATABASE_URL=postgresql://postgres:[PASSWORD]@db.[PROJECT].supabase.co:5432/postgres
 
 # Email (optionnel - pour notifications)
-RESEND_API_KEY=re_...
+RESEND_API_KEY=
 ```
 
 **Obtenir les valeurs Supabase :**
