@@ -37,7 +37,7 @@ export default function AuditHistoryModal({ param, onClose }: AuditHistoryModalP
             <div className="bg-white rounded-2xl p-8 max-w-2xl w-full shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[80vh] flex flex-col">
                 <div className="flex justify-between items-start mb-6">
                     <div>
-                        <h2 className="text-2xl font-bold text-forest">Historique d'audit</h2>
+                        <h2 className="text-2xl font-bold text-forest">Historique d&apos;audit</h2>
                         <p className="text-slate-500 text-sm">{param.label} ({param.cle})</p>
                     </div>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
@@ -47,7 +47,7 @@ export default function AuditHistoryModal({ param, onClose }: AuditHistoryModalP
 
                 <div className="flex-1 overflow-y-auto pr-2 space-y-4">
                     {loading ? (
-                        <div className="text-center py-12 text-slate-400">Chargement de l'historique...</div>
+                        <div className="text-center py-12 text-slate-400">Chargement de l&apos;historique...</div>
                     ) : history.length === 0 ? (
                         <div className="text-center py-12 text-slate-400 italic">Aucun changement enregistré pour ce paramètre.</div>
                     ) : (
@@ -63,7 +63,7 @@ export default function AuditHistoryModal({ param, onClose }: AuditHistoryModalP
                                         </span>
                                     </div>
                                     <p className="text-sm text-slate-600 bg-white p-2 rounded border border-slate-100 italic">
-                                        "{h.motif || 'Aucun motif renseigné'}"
+                                        &ldquo;{h.motif || 'Aucun motif renseigné'}&rdquo;
                                     </p>
                                 </div>
                             </div>

@@ -60,7 +60,7 @@ export default function DryRunPanel({ param, newValue }: DryRunPanelProps) {
                     onClick={runSimulation}
                     className="w-full py-3 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 font-medium hover:border-forest hover:text-forest hover:bg-forest/5 transition-all text-sm"
                 >
-                    ✨ Simuler l'impact avant de valider
+                    ✨ Simuler l&apos;impact avant de valider
                 </button>
             </div>
         );

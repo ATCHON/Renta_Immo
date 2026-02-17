@@ -65,7 +65,7 @@ export default function EditParamModal({ param, onClose, onSuccess }: EditParamM
                             placeholder="Ex: Mise à jour annuelle Loi de Finances..."
                             className="w-full border border-slate-200 rounded-xl px-4 py-3 min-h-[100px] focus:outline-none focus:ring-2 focus:ring-forest/20 transition-all"
                         />
-                        <p className="text-[10px] text-slate-400 mt-1">Min. 5 caractères. Ce motif sera enregistré dans l'historique d'audit.</p>
+                        <p className="text-[10px] text-slate-400 mt-1">Min. 5 caractères. Ce motif sera enregistré dans l&apos;historique d&apos;audit.</p>
                     </div>
 
                     <DryRunPanel param={param} newValue={newValue} />
