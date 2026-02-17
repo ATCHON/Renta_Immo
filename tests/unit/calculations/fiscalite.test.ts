@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { calculerToutesFiscalites, calculerLmnpMicro, calculerLmnpReel } from './fiscalite';
-import { BienData, FinancementData, ExploitationData, StructureData, RentabiliteCalculations, FinancementCalculations } from './types';
-import { mockConfig } from './__tests__/mock-config';
+import { calculerToutesFiscalites, calculerLmnpMicro, calculerLmnpReel } from '@/server/calculations/fiscalite';
+import { BienData, FinancementData, ExploitationData, StructureData, RentabiliteCalculations, FinancementCalculations } from '@/server/calculations/types';
+import { mockConfig } from '@/server/calculations/__tests__/mock-config';
 
 describe('calculerToutesFiscalites', () => {
     const mockBien: BienData = {

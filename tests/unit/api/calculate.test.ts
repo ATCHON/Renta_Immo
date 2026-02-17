@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST, OPTIONS } from './route';
+import { POST, OPTIONS } from '@/app/api/calculate/route';
 import { NextRequest } from 'next/server';
 
 // Mock de performCalculations pour isoler le test de la route

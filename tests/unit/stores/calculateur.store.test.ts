@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useCalculateurStore } from './calculateur.store';
+import { useCalculateurStore } from '@/stores/calculateur.store';
 
 // Mock de localStorage pour l'environnement Node
 const localStorageMock = (() => {

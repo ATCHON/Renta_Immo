@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { calculerAmortissementComposants, calculerLmnpReel, calculerFiscaliteSciIs } from './fiscalite';
-import { mockConfig } from './__tests__/mock-config';
+import { calculerAmortissementComposants, calculerLmnpReel, calculerFiscaliteSciIs } from '@/server/calculations/fiscalite';
+import { mockConfig } from '@/server/calculations/__tests__/mock-config';
 
 describe('AUDIT-104 : Amortissement par composants', () => {
   describe('calculerAmortissementComposants', () => {

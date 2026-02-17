@@ -5,9 +5,9 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { genererProjections } from './projection';
-import { mockConfig } from './__tests__/mock-config';
-import type { CalculationInput } from './types';
+import { genererProjections } from '@/server/calculations/projection';
+import { mockConfig } from '@/server/calculations/__tests__/mock-config';
+import type { CalculationInput } from '@/server/calculations/types';
 
 describe('BUG-CALC-01: Prix de revente ignoré', () => {
   const baseInput: CalculationInput = {

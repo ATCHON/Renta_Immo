@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateAndNormalize } from './validation';
+import { validateAndNormalize } from '@/server/calculations/validation';
 
 describe('Calculations Validation', () => {
   const validBaseData = {

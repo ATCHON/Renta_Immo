@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { genererProjections } from './projection';
-import type { CalculationInput } from './types';
-import { mockConfig } from './__tests__/mock-config';
+import { genererProjections } from '@/server/calculations/projection';
+import type { CalculationInput } from '@/server/calculations/types';
+import { mockConfig } from '@/server/calculations/__tests__/mock-config';
 
 describe('AUDIT-108 : Frais de revente dans le TRI', () => {
   const baseInput: CalculationInput = {

@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { genererAlertesDpe } from './synthese';
-import { genererProjections } from './projection';
-import type { CalculationInput, DPE } from './types';
-import { mockConfig } from './__tests__/mock-config';
+import { genererAlertesDpe } from '@/server/calculations/synthese';
+import { genererProjections } from '@/server/calculations/projection';
+import type { CalculationInput, DPE } from '@/server/calculations/types';
+import { mockConfig } from '@/server/calculations/__tests__/mock-config';
 
 describe('AUDIT-110 : DPE et alertes passoires énergétiques', () => {
   describe('genererAlertesDpe', () => {

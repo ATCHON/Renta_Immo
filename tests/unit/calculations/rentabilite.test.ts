@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { calculerChargesAnnuelles } from './rentabilite';
+import { calculerChargesAnnuelles } from '@/server/calculations/rentabilite';
 import type { ExploitationData } from '@/lib/validators';
-import { mockConfig } from './__tests__/mock-config';
+import { mockConfig } from '@/server/calculations/__tests__/mock-config';
 
 describe('calculerChargesAnnuelles (Fix Vacance)', () => {
     const exploitationMock = {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { calculerDeficitFoncier, calculerFoncierReel } from './fiscalite';
-import { mockConfig } from './__tests__/mock-config';
+import { calculerDeficitFoncier, calculerFoncierReel } from '@/server/calculations/fiscalite';
+import { mockConfig } from '@/server/calculations/__tests__/mock-config';
 
 describe('AUDIT-103 : Deficit foncier', () => {
   describe('calculerDeficitFoncier', () => {

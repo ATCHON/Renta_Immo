@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { renderToBuffer } from '@react-pdf/renderer';
-import { RapportSimulation } from '../templates/RapportSimulation';
+import { RapportSimulation } from '@/lib/pdf/templates/RapportSimulation';
 import type { CalculateurFormData, CalculResultats } from '@/types/calculateur';
 
 // Mock form data (minimal required fields)

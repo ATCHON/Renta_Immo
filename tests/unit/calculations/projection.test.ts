@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { calculerTRI, genererProjections } from './projection';
-import type { ValidatedFormData } from './types';
-import { mockConfig } from './__tests__/mock-config';
+import { calculerTRI, genererProjections } from '@/server/calculations/projection';
+import type { ValidatedFormData } from '@/server/calculations/types';
+import { mockConfig } from '@/server/calculations/__tests__/mock-config';
 
 describe('Calculateur TRI', () => {
     it('doit calculer un TRI correct pour un flux simple', () => {

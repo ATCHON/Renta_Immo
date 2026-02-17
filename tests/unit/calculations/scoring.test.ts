@@ -8,7 +8,7 @@ import {
   ajustementResteAVivre,
   calculerScoreGlobal,
   genererEvaluation,
-} from './synthese';
+} from '@/server/calculations/synthese';
 
 describe('AUDIT-106 : Scoring specification', () => {
   describe('ajustementCashflow (-20 / +20)', () => {

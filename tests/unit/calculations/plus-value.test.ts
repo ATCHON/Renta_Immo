@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { calculerPlusValueIR, calculerPlusValueSciIs, abattementIR, abattementPS } from './fiscalite';
-import { mockConfig } from './__tests__/mock-config';
+import { calculerPlusValueIR, calculerPlusValueSciIs, abattementIR, abattementPS } from '@/server/calculations/fiscalite';
+import { mockConfig } from '@/server/calculations/__tests__/mock-config';
 
 describe('AUDIT-105 : Plus-value a la revente', () => {
   describe('abattementIR', () => {

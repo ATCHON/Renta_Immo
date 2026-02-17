@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { calculerHcsfNomPropre, calculerHcsfSciIs } from './hcsf';
-import type { CalculationInput } from './types';
-import { mockConfig } from './__tests__/mock-config';
+import { calculerHcsfNomPropre, calculerHcsfSciIs } from '@/server/calculations/hcsf';
+import type { CalculationInput } from '@/server/calculations/types';
+import { mockConfig } from '@/server/calculations/__tests__/mock-config';
 
 describe('AUDIT-107 : Reste à vivre HCSF', () => {
   const baseInput: CalculationInput = {

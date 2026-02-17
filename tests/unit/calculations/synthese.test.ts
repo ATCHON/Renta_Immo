@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { genererSynthese, genererAlertesLmp, calculerScoreGlobal } from './synthese';
-import type { RentabiliteCalculations, HCSFCalculations } from './types';
-import { mockConfig } from './__tests__/mock-config';
+import { genererSynthese, genererAlertesLmp, calculerScoreGlobal } from '@/server/calculations/synthese';
+import type { RentabiliteCalculations, HCSFCalculations } from '@/server/calculations/types';
+import { mockConfig } from '@/server/calculations/__tests__/mock-config';
 
 describe('Calculations Synthese', () => {
   const mockRentabilite = (cashflow: number, rentabiliteNette: number): RentabiliteCalculations => ({

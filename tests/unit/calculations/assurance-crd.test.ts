@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { genererTableauAmortissement } from './projection';
+import { genererTableauAmortissement } from '@/server/calculations/projection';
 
 describe('AUDIT-109 : Assurance sur capital restant dû', () => {
   const montant = 200000;
