@@ -181,3 +181,4 @@ Ces fonctionnalités sont déjà implémentées :
 |------|---------|-------------|
 | 2025-01-25 | 0.1 | Création de la roadmap |
 | 2025-01-25 | 0.2 | Ajout backend custom au MVP, comptes utilisateurs déplacés en V1 |
+| 2026-02-16 | 0.3 | Achèvement du Sprint 4 (Back-office, Configuration dynamique, Refactoring) |
