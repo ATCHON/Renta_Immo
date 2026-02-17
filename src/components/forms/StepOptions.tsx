@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input, Select, PercentInput } from '@/components/ui';
+import { Input, Select, PercentInput, CurrencyInput } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { optionsSchema, type OptionsFormData } from '@/lib/validators';
 import { useCalculateurStore } from '@/stores/calculateur.store';
@@ -39,6 +39,8 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
       taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
       taux_agence_revente: options.taux_agence_revente ?? 5,
+      prix_revente: options.prix_revente ?? undefined,
+      duree_detention: options.duree_detention ?? undefined,
     },
   });
 
@@ -57,6 +59,8 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
     taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
     taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
     taux_agence_revente: options.taux_agence_revente ?? 5,
+    prix_revente: options.prix_revente ?? undefined,
+    duree_detention: options.duree_detention ?? undefined,
   }, activeScenarioId);
 
   const watchedValues = watch();
@@ -71,6 +75,8 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       taux_evolution_loyer: Number(data.taux_evolution_loyer),
       taux_evolution_charges: Number(data.taux_evolution_charges),
       taux_agence_revente: Number(data.taux_agence_revente),
+      prix_revente: data.prix_revente ? Number(data.prix_revente) : undefined,
+      duree_detention: data.duree_detention ? Number(data.duree_detention) : undefined,
     });
 
     onSubmit();
@@ -146,6 +152,40 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
           error={errors.taux_agence_revente?.message}
           {...register('taux_agence_revente', { valueAsNumber: true })}
         />
+      </div>
+
+      {/* FEAT-PV : Simulation plus-value à la revente */}
+      <div className="bg-surface p-4 rounded-xl border border-sand space-y-4">
+        <div>
+          <p className="text-sm font-semibold text-charcoal">Simulation plus-value à la revente</p>
+          <p className="text-xs text-pebble mt-0.5">Optionnel — si non renseigné, la valeur revaluée à l&apos;horizon est utilisée</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CurrencyInput
+            label="Prix de revente cible"
+            hint="Prix de vente estimé (€)"
+            error={errors.prix_revente?.message}
+            {...register('prix_revente', { valueAsNumber: true })}
+          />
+          <Select
+            label="Durée de détention"
+            hint="Pour le calcul des abattements PV (si différent de l'horizon)"
+            {...register('duree_detention', { valueAsNumber: true })}
+            options={[
+              { value: '' as unknown as number, label: 'Idem horizon de projection' },
+              { value: 5, label: '5 ans' },
+              { value: 6, label: '6 ans' },
+              { value: 7, label: '7 ans' },
+              { value: 8, label: '8 ans' },
+              { value: 10, label: '10 ans' },
+              { value: 15, label: '15 ans' },
+              { value: 20, label: '20 ans' },
+              { value: 22, label: '22 ans (exo IR)' },
+              { value: 25, label: '25 ans' },
+              { value: 30, label: '30 ans (exo PS)' },
+            ]}
+          />
+        </div>
       </div>
 
       {/* Champ email si option activée */}
