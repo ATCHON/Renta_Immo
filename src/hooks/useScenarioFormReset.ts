@@ -11,15 +11,15 @@ import type { UseFormReset, FieldValues } from 'react-hook-form';
  * @param onReset - Callback optionnel exécuté après le reset (ex: reset d'état local)
  */
 export function useScenarioFormReset<T extends FieldValues>(
-    reset: UseFormReset<T>,
-    defaultValues: T,
-    activeScenarioId: string,
-    onReset?: () => void,
+  reset: UseFormReset<T>,
+  defaultValues: T,
+  activeScenarioId: string,
+  onReset?: () => void
 ) {
-    useEffect(() => {
-        reset(defaultValues);
-        onReset?.();
-        // Only reset on scenario change — defaultValues/onReset intentionally excluded
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeScenarioId, reset]);
+  useEffect(() => {
+    reset(defaultValues);
+    onReset?.();
+    // Only reset on scenario change — defaultValues/onReset intentionally excluded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeScenarioId, reset]);
 }

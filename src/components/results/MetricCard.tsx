@@ -46,12 +46,15 @@ export function MetricCard({
       data-testid={dataTestId}
     >
       <div className="flex flex-col items-center text-center space-y-1 sm:space-y-2">
-        <p className={cn('text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold', valueStyles[status])}>
+        <p
+          className={cn(
+            'text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold',
+            valueStyles[status]
+          )}
+        >
           {value}
         </p>
-        <p className="text-xs font-medium uppercase tracking-wide text-pebble">
-          {label}
-        </p>
+        <p className="text-xs font-medium uppercase tracking-wide text-pebble">{label}</p>
       </div>
     </div>
   );

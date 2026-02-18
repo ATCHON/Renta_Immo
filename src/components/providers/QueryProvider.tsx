@@ -15,8 +15,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
           queries: {
             staleTime: 5 * 60 * 1000, // 5 minutes
             gcTime: 30 * 60 * 1000, // 30 minutes
-            retry: (failureCount, error) =>
-              failureCount < 2 && error instanceof TypeError,
+            retry: (failureCount, error) => failureCount < 2 && error instanceof TypeError,
           },
           mutations: {
             retry: 0,
@@ -25,9 +24,5 @@ export function QueryProvider({ children }: QueryProviderProps) {
       })
   );
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }

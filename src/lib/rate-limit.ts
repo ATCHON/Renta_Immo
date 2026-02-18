@@ -7,42 +7,44 @@
  */
 
 interface RateLimitEntry {
-    count: number;
-    resetAt: number;
+  count: number;
+  resetAt: number;
 }
 
 const store = new Map<string, RateLimitEntry>();
 
 // Periodic cleanup of expired entries (every 60s)
 if (typeof globalThis !== 'undefined') {
-    const CLEANUP_INTERVAL = 60_000;
-    const cleanup = () => {
-        const now = Date.now();
-        store.forEach((entry, key) => {
-            if (entry.resetAt <= now) {
-                store.delete(key);
-            }
-        });
-    };
-    // Use global to prevent duplicate intervals across hot reloads
-    const globalWithCleanup = globalThis as typeof globalThis & { __rateLimitCleanup?: NodeJS.Timeout };
-    if (!globalWithCleanup.__rateLimitCleanup) {
-        globalWithCleanup.__rateLimitCleanup = setInterval(cleanup, CLEANUP_INTERVAL);
-    }
+  const CLEANUP_INTERVAL = 60_000;
+  const cleanup = () => {
+    const now = Date.now();
+    store.forEach((entry, key) => {
+      if (entry.resetAt <= now) {
+        store.delete(key);
+      }
+    });
+  };
+  // Use global to prevent duplicate intervals across hot reloads
+  const globalWithCleanup = globalThis as typeof globalThis & {
+    __rateLimitCleanup?: NodeJS.Timeout;
+  };
+  if (!globalWithCleanup.__rateLimitCleanup) {
+    globalWithCleanup.__rateLimitCleanup = setInterval(cleanup, CLEANUP_INTERVAL);
+  }
 }
 
 interface RateLimitConfig {
-    /** Max requests per window */
-    limit: number;
-    /** Window duration in milliseconds */
-    window: number;
+  /** Max requests per window */
+  limit: number;
+  /** Window duration in milliseconds */
+  window: number;
 }
 
 interface RateLimitResult {
-    success: boolean;
-    limit: number;
-    remaining: number;
-    resetAt: number;
+  success: boolean;
+  limit: number;
+  remaining: number;
+  resetAt: number;
 }
 
 /**
@@ -53,45 +55,45 @@ interface RateLimitResult {
  * @returns Result with success flag and metadata
  */
 export function rateLimit(key: string, config: RateLimitConfig): RateLimitResult {
-    const now = Date.now();
-    const entry = store.get(key);
+  const now = Date.now();
+  const entry = store.get(key);
 
-    if (!entry || entry.resetAt <= now) {
-        store.set(key, { count: 1, resetAt: now + config.window });
-        return {
-            success: true,
-            limit: config.limit,
-            remaining: config.limit - 1,
-            resetAt: now + config.window,
-        };
-    }
-
-    entry.count++;
-
-    if (entry.count > config.limit) {
-        return {
-            success: false,
-            limit: config.limit,
-            remaining: 0,
-            resetAt: entry.resetAt,
-        };
-    }
-
+  if (!entry || entry.resetAt <= now) {
+    store.set(key, { count: 1, resetAt: now + config.window });
     return {
-        success: true,
-        limit: config.limit,
-        remaining: config.limit - entry.count,
-        resetAt: entry.resetAt,
+      success: true,
+      limit: config.limit,
+      remaining: config.limit - 1,
+      resetAt: now + config.window,
     };
+  }
+
+  entry.count++;
+
+  if (entry.count > config.limit) {
+    return {
+      success: false,
+      limit: config.limit,
+      remaining: 0,
+      resetAt: entry.resetAt,
+    };
+  }
+
+  return {
+    success: true,
+    limit: config.limit,
+    remaining: config.limit - entry.count,
+    resetAt: entry.resetAt,
+  };
 }
 
 /**
  * Extract client IP from request headers (Vercel / proxied environments).
  */
 export function getClientIp(request: Request): string {
-    return (
-        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-        request.headers.get('x-real-ip') ||
-        'unknown'
-    );
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
 }

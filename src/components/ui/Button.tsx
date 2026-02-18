@@ -16,14 +16,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary:
-    'bg-forest text-white hover:bg-forest-dark focus:ring-forest',
+  primary: 'bg-forest text-white hover:bg-forest-dark focus:ring-forest',
   secondary:
     'bg-transparent border-2 border-border text-charcoal hover:bg-surface focus:ring-forest',
-  ghost:
-    'bg-transparent text-stone hover:bg-surface hover:text-charcoal focus:ring-forest',
-  danger:
-    'bg-terracotta text-white hover:bg-terracotta/90 focus:ring-terracotta',
+  ghost: 'bg-transparent text-stone hover:bg-surface hover:text-charcoal focus:ring-forest',
+  danger: 'bg-terracotta text-white hover:bg-terracotta/90 focus:ring-terracotta',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -90,14 +87,7 @@ function LoadingSpinner({ size = 'md' }: { size?: ButtonSize }) {
       fill="none"
       viewBox="0 0 24 24"
     >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path
         className="opacity-75"
         fill="currentColor"
@@ -106,4 +96,3 @@ function LoadingSpinner({ size = 'md' }: { size?: ButtonSize }) {
     </svg>
   );
 }
-

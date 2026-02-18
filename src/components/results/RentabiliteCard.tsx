@@ -56,7 +56,9 @@ export function RentabiliteCard({ rentabilite }: RentabiliteCardProps) {
 
         {/* Barre de comparaison */}
         <div className="mt-6 pt-5 border-t border-sand/50">
-          <p className="text-sm font-bold text-charcoal mb-4 uppercase tracking-wider">Comparaison des taux</p>
+          <p className="text-sm font-bold text-charcoal mb-4 uppercase tracking-wider">
+            Comparaison des taux
+          </p>
           <div className="space-y-4">
             <RentabiliteBar
               label="Brute"
@@ -101,17 +103,9 @@ function RentabiliteItem({
   highlighted,
 }: RentabiliteItemProps) {
   return (
-    <div
-      className={cn(
-        'text-center p-4 rounded-lg',
-        bg,
-        highlighted && 'ring-2 ring-primary-500'
-      )}
-    >
+    <div className={cn('text-center p-4 rounded-lg', bg, highlighted && 'ring-2 ring-primary-500')}>
       <p className="text-sm text-gray-600">{label}</p>
-      <p className={cn('text-2xl sm:text-3xl font-bold mt-1', color)}>
-        {formatPercent(value)}
-      </p>
+      <p className={cn('text-2xl sm:text-3xl font-bold mt-1', color)}>{formatPercent(value)}</p>
       <p className="text-xs text-gray-500 mt-1">{description}</p>
     </div>
   );

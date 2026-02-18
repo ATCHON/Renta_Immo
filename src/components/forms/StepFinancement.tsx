@@ -4,7 +4,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CurrencyInput, PercentInput, Input, Select } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
-import { financementSchema, type FinancementFormDataInput, type FinancementFormData } from '@/lib/validators';
+import {
+  financementSchema,
+  type FinancementFormDataInput,
+  type FinancementFormData,
+} from '@/lib/validators';
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useScenarioFormReset } from '@/hooks/useScenarioFormReset';
 import { calculateMensualite, formatCurrency } from '@/lib/utils';
@@ -17,9 +21,12 @@ interface StepFinancementProps {
 }
 
 export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
-  const { getActiveScenario, updateFinancement, updateOptions, activeScenarioId } = useCalculateurStore();
+  const { getActiveScenario, updateFinancement, updateOptions, activeScenarioId } =
+    useCalculateurStore();
   const { bien, financement, options } = getActiveScenario();
-  const [ponderationLoyers, setPonderationLoyers] = useState<number>(options.ponderation_loyers ?? 70);
+  const [ponderationLoyers, setPonderationLoyers] = useState<number>(
+    options.ponderation_loyers ?? 70
+  );
 
   const {
     register,
@@ -40,15 +47,19 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
     },
   });
 
-  useScenarioFormReset(reset, {
-    apport: financement.apport ?? 0,
-    taux_interet: financement.taux_interet ?? 3.5,
-    duree_emprunt: financement.duree_emprunt ?? 20,
-    assurance_pret: Number((financement.assurance_pret ?? 0.3).toFixed(2)),
-    frais_dossier: financement.frais_dossier ?? 0,
-    frais_garantie: financement.frais_garantie ?? 2000,
-    mode_assurance: financement.mode_assurance ?? 'capital_initial',
-  }, activeScenarioId);
+  useScenarioFormReset(
+    reset,
+    {
+      apport: financement.apport ?? 0,
+      taux_interet: financement.taux_interet ?? 3.5,
+      duree_emprunt: financement.duree_emprunt ?? 20,
+      assurance_pret: Number((financement.assurance_pret ?? 0.3).toFixed(2)),
+      frais_dossier: financement.frais_dossier ?? 0,
+      frais_garantie: financement.frais_garantie ?? 2000,
+      mode_assurance: financement.mode_assurance ?? 'capital_initial',
+    },
+    activeScenarioId
+  );
 
   const watchedValues = watch() as unknown as FinancementFormData;
   const prixAchat = bien.prix_achat || 0;
@@ -69,15 +80,14 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-charcoal">Financement</h2>
-        <p className="text-pebble mt-1">
-          Configurez les paramètres de votre emprunt
-        </p>
+        <p className="text-pebble mt-1">Configurez les paramètres de votre emprunt</p>
       </div>
 
       {/* Résumé du bien */}
       <div className="bg-surface rounded-xl p-4 mb-6 border border-sand">
         <p className="text-sm text-pebble">
-          Prix d&apos;achat : <span className="font-semibold text-charcoal">{formatCurrency(prixAchat)}</span>
+          Prix d&apos;achat :{' '}
+          <span className="font-semibold text-charcoal">{formatCurrency(prixAchat)}</span>
         </p>
       </div>
 
@@ -92,9 +102,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
 
         <div className="bg-forest/5 rounded-xl p-4 flex flex-col justify-center border border-forest/10">
           <p className="text-sm text-forest font-medium">Montant à emprunter</p>
-          <p className="text-2xl font-bold text-forest">
-            {formatCurrency(montantEmprunt)}
-          </p>
+          <p className="text-2xl font-bold text-forest">{formatCurrency(montantEmprunt)}</p>
         </div>
       </div>
 
@@ -157,9 +165,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
       {mensualite > 0 && (
         <div className="bg-sage/10 rounded-xl p-4 border border-sage/20">
           <p className="text-sm text-forest font-medium">Mensualité estimée (hors assurance)</p>
-          <p className="text-2xl font-bold text-forest">
-            {formatCurrency(mensualite)} / mois
-          </p>
+          <p className="text-2xl font-bold text-forest">{formatCurrency(mensualite)} / mois</p>
         </div>
       )}
 
@@ -169,8 +175,8 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
           <div>
             <p className="text-sm font-semibold text-charcoal">Pondération loyers HCSF</p>
             <p className="text-xs text-pebble mt-0.5">
-              La banque peut prendre en compte 70 à 80% des loyers selon les établissements.
-              Avec une GLI (Garantie Loyers Impayés), certaines banques appliquent 80%.
+              La banque peut prendre en compte 70 à 80% des loyers selon les établissements. Avec
+              une GLI (Garantie Loyers Impayés), certaines banques appliquent 80%.
             </p>
           </div>
           <span className="text-2xl font-bold text-forest ml-4 shrink-0">{ponderationLoyers}%</span>
@@ -209,9 +215,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
         <Button type="button" variant="secondary" onClick={onPrev}>
           Retour
         </Button>
-        <Button type="submit">
-          Continuer
-        </Button>
+        <Button type="submit">Continuer</Button>
       </div>
     </form>
   );

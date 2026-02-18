@@ -31,12 +31,12 @@ const ChartSkeleton = () => (
 );
 
 const CashflowChart = dynamic(
-  () => import('./CashflowChart').then(mod => ({ default: mod.CashflowChart })),
+  () => import('./CashflowChart').then((mod) => ({ default: mod.CashflowChart })),
   { loading: () => <ChartSkeleton />, ssr: false }
 );
 
 const PatrimoineChart = dynamic(
-  () => import('./PatrimoineChart').then(mod => ({ default: mod.PatrimoineChart })),
+  () => import('./PatrimoineChart').then((mod) => ({ default: mod.PatrimoineChart })),
   { loading: () => <ChartSkeleton />, ssr: false }
 );
 import { useCalculateurStore } from '@/stores/calculateur.store';
@@ -54,11 +54,7 @@ function scoreToEvaluation(score: number) {
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="text-lg font-black uppercase tracking-widest text-charcoal">
-      {children}
-    </h2>
-  );
+  return <h2 className="text-lg font-black uppercase tracking-widest text-charcoal">{children}</h2>;
 }
 
 export function Dashboard() {
@@ -69,7 +65,9 @@ export function Dashboard() {
   const scenario = getActiveScenario();
   const { resultats, bien, financement, exploitation, structure, options } = scenario;
 
-  const { cashflowData, patrimoineData, breakEvenYear, loanEndYear } = useChartData(resultats?.projections?.projections);
+  const { cashflowData, patrimoineData, breakEvenYear, loanEndYear } = useChartData(
+    resultats?.projections?.projections
+  );
   const [profilInvestisseur, setProfilInvestisseur] = useState<ProfilInvestisseur>(
     (scenario.options?.profil_investisseur as ProfilInvestisseur) ?? 'rentier'
   );
@@ -79,9 +77,7 @@ export function Dashboard() {
   if (!resultats) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
-        <h2 className="text-2xl font-medium text-charcoal mb-4">
-          Aucun résultat disponible
-        </h2>
+        <h2 className="text-2xl font-medium text-charcoal mb-4">Aucun résultat disponible</h2>
         <p className="text-stone mb-6">
           Vous devez d&apos;abord effectuer un calcul de rentabilité.
         </p>
@@ -105,13 +101,21 @@ export function Dashboard() {
     router.push('/calculateur');
   };
 
-
   const impotMensuelMoyen = resultats.fiscalite.impot_estime / 12;
 
   // KPI contextual statuses
-  const cashflowStatus = resultats.cashflow.mensuel >= 0 ? 'success' as const : 'danger' as const;
-  const rentaStatus = resultats.rentabilite.nette_nette >= 7 ? 'success' as const : resultats.rentabilite.nette_nette >= 3 ? 'warning' as const : 'danger' as const;
-  const triStatus = resultats.projections && resultats.projections.totaux.tri >= 5 ? 'success' as const : 'info' as const;
+  const cashflowStatus =
+    resultats.cashflow.mensuel >= 0 ? ('success' as const) : ('danger' as const);
+  const rentaStatus =
+    resultats.rentabilite.nette_nette >= 7
+      ? ('success' as const)
+      : resultats.rentabilite.nette_nette >= 3
+        ? ('warning' as const)
+        : ('danger' as const);
+  const triStatus =
+    resultats.projections && resultats.projections.totaux.tri >= 5
+      ? ('success' as const)
+      : ('info' as const);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
@@ -127,17 +131,16 @@ export function Dashboard() {
               Modifier la saisie
             </button>
             <span className="text-sand">/</span>
-            <span className="text-xs font-bold text-stone/80 uppercase tracking-widest">Rapport d&apos;analyse</span>
+            <span className="text-xs font-bold text-stone/80 uppercase tracking-widest">
+              Rapport d&apos;analyse
+            </span>
           </div>
           {bien.adresse && (
             <h1 className="text-4xl font-black text-charcoal tracking-tight">{bien.adresse}</h1>
           )}
         </div>
         <div className="flex gap-4">
-          <SaveSimulationButton
-            formData={formData}
-            resultats={resultats}
-          />
+          <SaveSimulationButton formData={formData} resultats={resultats} />
           <DownloadPdfButton
             formData={formData}
             resultats={resultats}
@@ -164,25 +167,22 @@ export function Dashboard() {
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <SectionTitle>Performance</SectionTitle>
-          <ProfilInvestisseurToggle
-            profil={profilInvestisseur}
-            onChange={setProfilInvestisseur}
-          />
+          <ProfilInvestisseurToggle profil={profilInvestisseur} onChange={setProfilInvestisseur} />
         </div>
         <ScorePanel
           synthese={
             resultats.synthese.scores_par_profil
               ? (() => {
-                const scoreDetail = resultats.synthese.scores_par_profil[profilInvestisseur];
-                const { evaluation, couleur } = scoreToEvaluation(scoreDetail.total);
-                return {
-                  ...resultats.synthese,
-                  score_global: scoreDetail.total,
-                  score_detail: scoreDetail,
-                  evaluation,
-                  couleur,
-                };
-              })()
+                  const scoreDetail = resultats.synthese.scores_par_profil[profilInvestisseur];
+                  const { evaluation, couleur } = scoreToEvaluation(scoreDetail.total);
+                  return {
+                    ...resultats.synthese,
+                    score_global: scoreDetail.total,
+                    score_detail: scoreDetail,
+                    evaluation,
+                    couleur,
+                  };
+                })()
               : resultats.synthese
           }
         />
@@ -226,7 +226,11 @@ export function Dashboard() {
           />
           <MetricCard
             label="Patrimoine Net"
-            value={resultats.projections ? formatCurrency(resultats.projections.totaux.enrichissementTotal) : '--'}
+            value={
+              resultats.projections
+                ? formatCurrency(resultats.projections.totaux.enrichissementTotal)
+                : '--'
+            }
             status="success"
             tooltip="Gain à l'horizon"
           />
@@ -235,11 +239,16 @@ export function Dashboard() {
 
       {/* 6. Points d'Attention + Alerte LMP (V2-S17) */}
       {(() => {
-        const isLmnp = structure?.regime_fiscal === 'lmnp_reel' || structure?.regime_fiscal === 'lmnp_micro';
-        const hasPoints = resultats.synthese.points_attention_detail?.length || resultats.synthese.points_attention?.length;
+        const isLmnp =
+          structure?.regime_fiscal === 'lmnp_reel' || structure?.regime_fiscal === 'lmnp_micro';
+        const hasPoints =
+          resultats.synthese.points_attention_detail?.length ||
+          resultats.synthese.points_attention?.length;
         // L'alerte LMP est générée par le moteur de calcul (genererAlertesLmp) avec les seuils de la config
         const lmpAlerte = isLmnp
-          ? resultats.synthese.points_attention_detail?.find(p => p.categorie === 'fiscalite' && p.message?.includes('LMNP'))
+          ? resultats.synthese.points_attention_detail?.find(
+              (p) => p.categorie === 'fiscalite' && p.message?.includes('LMNP')
+            )
           : undefined;
         if (!hasPoints && !lmpAlerte) return null;
         return (
@@ -271,9 +280,7 @@ export function Dashboard() {
       </div>
 
       {/* 8. FiscalComparator */}
-      {resultats.comparaisonFiscalite && (
-        <FiscalComparator data={resultats.comparaisonFiscalite} />
-      )}
+      {resultats.comparaisonFiscalite && <FiscalComparator data={resultats.comparaisonFiscalite} />}
 
       {/* 9. Plus-Value à la revente */}
       {resultats.projections?.plusValue && (
@@ -282,25 +289,33 @@ export function Dashboard() {
           <div className="bg-surface rounded-2xl border border-sand/50 p-6 space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">PV brute</p>
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">
+                  PV brute
+                </p>
                 <p className="text-xl font-black text-charcoal" data-testid="pv-brute">
                   {formatCurrency(resultats.projections.plusValue.plus_value_brute)}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">Impôt total PV</p>
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">
+                  Impôt total PV
+                </p>
                 <p className="text-xl font-black text-terracotta" data-testid="impot-pv-total">
                   {formatCurrency(resultats.projections.plusValue.impot_total)}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">Net revente</p>
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">
+                  Net revente
+                </p>
                 <p className="text-xl font-black text-forest">
                   {formatCurrency(resultats.projections.plusValue.net_revente)}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">Durée détention</p>
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">
+                  Durée détention
+                </p>
                 <p className="text-xl font-black text-charcoal">
                   {resultats.projections.plusValue.duree_detention} ans
                 </p>
@@ -362,13 +377,17 @@ export function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card className="p-6 bg-white shadow-sm border-none">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest">Projection Cash-flow (Net d&apos;impôt)</h3>
+                <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest">
+                  Projection Cash-flow (Net d&apos;impôt)
+                </h3>
               </div>
               <CashflowChart data={cashflowData} breakEvenYear={breakEvenYear} />
             </Card>
             <Card className="p-6 bg-white shadow-sm border-none">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest">Évolution du Patrimoine</h3>
+                <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest">
+                  Évolution du Patrimoine
+                </h3>
               </div>
               <PatrimoineChart data={patrimoineData} loanEndYear={loanEndYear} dpe={bien.dpe} />
             </Card>
@@ -381,19 +400,25 @@ export function Dashboard() {
         <div className="space-y-8 py-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl shadow-sm">
-              <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Montant emprunté</p>
+              <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                Montant emprunté
+              </p>
               <p className="text-3xl font-black text-charcoal tabular-nums">
                 {formatCurrency(resultats.financement.montant_emprunt)}
               </p>
             </div>
             <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl shadow-sm">
-              <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Engagement mensuel</p>
+              <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                Engagement mensuel
+              </p>
               <p className="text-3xl font-black text-charcoal tabular-nums">
                 {formatCurrency(resultats.financement.mensualite)}
               </p>
             </div>
             <div className="text-center p-6 bg-terracotta/[0.03] border border-terracotta/10 rounded-2xl shadow-sm">
-              <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Coût du crédit</p>
+              <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                Coût du crédit
+              </p>
               <p className="text-3xl font-black text-terracotta tabular-nums">
                 {formatCurrency(resultats.financement.cout_total_credit)}
               </p>
@@ -422,29 +447,42 @@ export function Dashboard() {
 
       {/* 12. Collapsible: Projections détaillées (table + KPIs only) */}
       {resultats.projections && (
-        <Collapsible title={`Projections patrimoniales détaillées (${resultats.projections.horizon} ans)`} defaultOpen={false}>
+        <Collapsible
+          title={`Projections patrimoniales détaillées (${resultats.projections.horizon} ans)`}
+          defaultOpen={false}
+        >
           <div className="space-y-8 py-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center p-6 bg-forest/5 border border-forest/10 rounded-2xl">
-                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">TRI Projet</p>
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                  TRI Projet
+                </p>
                 <p className="text-3xl font-black text-forest tabular-nums">
                   {formatPercent(resultats.projections.totaux.tri)}
                 </p>
               </div>
               <div className="text-center p-6 bg-sage/5 border border-sage/10 rounded-2xl">
-                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Patrimoine net</p>
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                  Patrimoine net
+                </p>
                 <p className="text-3xl font-black text-forest tabular-nums">
                   {formatCurrency(resultats.projections.totaux.enrichissementTotal)}
                 </p>
               </div>
               <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl">
-                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Cash-flow cumulé</p>
-                <p className={`text-3xl font-black tabular-nums ${resultats.projections.totaux.cashflowCumule >= 0 ? 'text-forest' : 'text-terracotta'}`}>
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                  Cash-flow cumulé
+                </p>
+                <p
+                  className={`text-3xl font-black tabular-nums ${resultats.projections.totaux.cashflowCumule >= 0 ? 'text-forest' : 'text-terracotta'}`}
+                >
                   {formatCurrency(resultats.projections.totaux.cashflowCumule)}
                 </p>
               </div>
               <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl">
-                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">Dette remboursée</p>
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                  Dette remboursée
+                </p>
                 <p className="text-3xl font-black text-charcoal tabular-nums">
                   {formatCurrency(resultats.projections.totaux.capitalRembourse)}
                 </p>

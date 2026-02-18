@@ -1,6 +1,6 @@
 /**
  * Types pour les réponses API
- * 
+ *
  * Story TECH-008 & TECH-009 : Types API compatibles avec le nouveau backend
  */
 
@@ -19,7 +19,14 @@ export interface ApiResponse<T> {
  * Erreur API
  */
 export interface ApiError {
-  code: 'VALIDATION_ERROR' | 'CALCULATION_ERROR' | 'SERVER_ERROR' | 'NETWORK_ERROR' | 'TIMEOUT' | 'HTTP_ERROR' | 'UNKNOWN_ERROR';
+  code:
+    | 'VALIDATION_ERROR'
+    | 'CALCULATION_ERROR'
+    | 'SERVER_ERROR'
+    | 'NETWORK_ERROR'
+    | 'TIMEOUT'
+    | 'HTTP_ERROR'
+    | 'UNKNOWN_ERROR';
   message: string;
   details?: Record<string, unknown>;
 }

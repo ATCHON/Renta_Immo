@@ -31,8 +31,8 @@ export function useCalculateur() {
             body: JSON.stringify({
               email: variables.options.email,
               formData: variables,
-              resultats: data.resultats
-            })
+              resultats: data.resultats,
+            }),
           });
           // TODO: Ajouter un toast de succès via Sonner ou autre si disponible
         } catch (e) {

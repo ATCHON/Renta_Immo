@@ -45,7 +45,12 @@ function RecommandationCard({ reco }: { reco: RecommandationDetail }) {
   return (
     <div className={cn('rounded-lg border p-4', config.border, config.bg)}>
       <div className="flex items-center gap-2 mb-2">
-        <span className={cn('text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border', config.badge)}>
+        <span
+          className={cn(
+            'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border',
+            config.badge
+          )}
+        >
           {config.label}
         </span>
         <span className="text-[10px] font-medium text-stone uppercase tracking-wider">
@@ -68,7 +73,12 @@ function RecommandationCard({ reco }: { reco: RecommandationDetail }) {
   );
 }
 
-export function RecommandationsPanel({ recommandations, fiscalConseil, hcsfConforme, effetLevier }: RecommandationsPanelProps) {
+export function RecommandationsPanel({
+  recommandations,
+  fiscalConseil,
+  hcsfConforme,
+  effetLevier,
+}: RecommandationsPanelProps) {
   const hasRecos = recommandations && recommandations.length > 0;
 
   // Sort by priority: haute first, then moyenne, then info
@@ -83,7 +93,9 @@ export function RecommandationsPanel({ recommandations, fiscalConseil, hcsfConfo
     <div>
       {hasRecos ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          {sorted.map((reco, i) => <RecommandationCard key={i} reco={reco} />)}
+          {sorted.map((reco, i) => (
+            <RecommandationCard key={i} reco={reco} />
+          ))}
         </div>
       ) : (
         /* Fallback: legacy expertise block content */
@@ -99,13 +111,15 @@ export function RecommandationsPanel({ recommandations, fiscalConseil, hcsfConfo
               <p className="nordic-label-xs !text-white/40 mb-2">Levier & Risque Bancaire</p>
               <p className="text-xs font-medium text-white/80 leading-relaxed mb-4">
                 {hcsfConforme
-                  ? "Profil sain. Profitez-en pour négocier les taux."
+                  ? 'Profil sain. Profitez-en pour négocier les taux.'
                   : "Risque HCSF élevé. Envisagez une SCI à l'IS."}
               </p>
               <div>
                 <p className="nordic-label-xs !text-amber">Impact Levier</p>
                 <p className="text-2xl font-black tabular-nums text-white">
-                  {effetLevier !== null && effetLevier !== undefined ? `${effetLevier.toFixed(2)}x` : 'Max (sans apport)'}
+                  {effetLevier !== null && effetLevier !== undefined
+                    ? `${effetLevier.toFixed(2)}x`
+                    : 'Max (sans apport)'}
                 </p>
               </div>
             </div>

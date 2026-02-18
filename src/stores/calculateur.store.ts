@@ -68,10 +68,10 @@ const DEFAULT_OPTIONS: OptionsData = {
   taux_evolution_loyer: 2,
   taux_evolution_charges: 2.5,
   taux_agence_revente: 5,
-  profil_investisseur: 'rentier',  // V2-S16
-  ponderation_loyers: 70,          // V2-S18 : 70% par défaut (HCSF)
-  prix_revente: undefined,         // FEAT-PV : Prix de revente cible (optionnel)
-  duree_detention: undefined,      // FEAT-PV : Durée de détention (optionnel)
+  profil_investisseur: 'rentier', // V2-S16
+  ponderation_loyers: 70, // V2-S18 : 70% par défaut (HCSF)
+  prix_revente: undefined, // FEAT-PV : Prix de revente cible (optionnel)
+  duree_detention: undefined, // FEAT-PV : Durée de détention (optionnel)
 };
 
 /**
@@ -128,10 +128,7 @@ interface CalculateurState {
 }
 
 type PersistedSimulation = Pick<Simulation, 'id' | 'name' | 'resultats'> & {
-  form_data: Pick<
-    Scenario,
-    'bien' | 'financement' | 'exploitation' | 'structure' | 'options'
-  >;
+  form_data: Pick<Scenario, 'bien' | 'financement' | 'exploitation' | 'structure' | 'options'>;
 };
 
 /**
@@ -170,9 +167,7 @@ export const useCalculateurStore = create<CalculateurState>()(
       const updateActive = (updates: Partial<Scenario>) => {
         const { scenarios, activeScenarioId } = get();
         set({
-          scenarios: scenarios.map((s) =>
-            s.id === activeScenarioId ? { ...s, ...updates } : s
-          ),
+          scenarios: scenarios.map((s) => (s.id === activeScenarioId ? { ...s, ...updates } : s)),
         });
       };
 
@@ -264,7 +259,7 @@ export const useCalculateurStore = create<CalculateurState>()(
             nextActiveId = nextScenarios[0].id;
           }
 
-          const nextTarget = nextScenarios.find(s => s.id === nextActiveId);
+          const nextTarget = nextScenarios.find((s) => s.id === nextActiveId);
 
           set({
             scenarios: nextScenarios,
@@ -283,12 +278,12 @@ export const useCalculateurStore = create<CalculateurState>()(
 
         switchScenario: (id) => {
           const { scenarios } = get();
-          const target = scenarios.find(s => s.id === id);
+          const target = scenarios.find((s) => s.id === id);
           if (target) {
             set({
               activeScenarioId: id,
               currentStep: target.currentStep,
-              status: target.status
+              status: target.status,
             });
           }
         },
@@ -407,4 +402,5 @@ export const useCalculateurStore = create<CalculateurState>()(
     {
       name: 'renta-immo-calculateur-storage',
     }
-  ));
+  )
+);

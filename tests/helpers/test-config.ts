@@ -40,6 +40,9 @@ export const TEST_CONFIG: ResolvedConfig = {
   hcsfTauxMax: 0.35,
   hcsfDureeMaxAnnees: 25,
   hcsfPonderationLocatifs: 0.7,
+  hcsfTauxReferenceCapacite: 0.035,
+  hcsfDureeCapaciteResiduelleAnnees: 20,
+  hcsfDureeMaxAnneesVefa: 27,
   // E - DPE
   decoteDpeFg: 0.15,
   decoteDpeE: 0.05,
@@ -61,6 +64,9 @@ export const TEST_CONFIG: ResolvedConfig = {
   fraisReventeDiagnostics: 500,
   notaireTauxAncien: 0.08,
   notaireTauxNeuf: 0.025,
+  notaireDmtoTauxStandard: 0.0580665,
+  notaireCsiTaux: 0.001,
+  notaireDeboursForfait: 800,
   // H - Projections
   projectionInflationLoyer: 0.015,
   projectionInflationCharges: 0.02,

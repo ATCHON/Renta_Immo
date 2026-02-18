@@ -6,12 +6,7 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'elevated' | 'bordered';
 }
 
-export function Card({
-  className,
-  variant = 'default',
-  children,
-  ...props
-}: CardProps) {
+export function Card({ className, variant = 'default', children, ...props }: CardProps) {
   return (
     <div
       className={cn(
@@ -34,23 +29,12 @@ interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   action?: React.ReactNode;
 }
 
-export function CardHeader({
-  title,
-  description,
-  action,
-  className,
-  ...props
-}: CardHeaderProps) {
+export function CardHeader({ title, description, action, className, ...props }: CardHeaderProps) {
   return (
-    <div
-      className={cn('flex items-start justify-between mb-4', className)}
-      {...props}
-    >
+    <div className={cn('flex items-start justify-between mb-4', className)} {...props}>
       <div>
         <h3 className="text-lg font-medium text-charcoal">{title}</h3>
-        {description && (
-          <p className="text-sm text-stone mt-1">{description}</p>
-        )}
+        {description && <p className="text-sm text-stone mt-1">{description}</p>}
       </div>
       {action && <div>{action}</div>}
     </div>
@@ -59,11 +43,7 @@ export function CardHeader({
 
 type CardContentProps = React.HTMLAttributes<HTMLDivElement>;
 
-export function CardContent({
-  className,
-  children,
-  ...props
-}: CardContentProps) {
+export function CardContent({ className, children, ...props }: CardContentProps) {
   return (
     <div className={cn('', className)} {...props}>
       {children}
@@ -73,11 +53,7 @@ export function CardContent({
 
 type CardFooterProps = React.HTMLAttributes<HTMLDivElement>;
 
-export function CardFooter({
-  className,
-  children,
-  ...props
-}: CardFooterProps) {
+export function CardFooter({ className, children, ...props }: CardFooterProps) {
   return (
     <div
       className={cn(
@@ -90,4 +66,3 @@ export function CardFooter({
     </div>
   );
 }
-

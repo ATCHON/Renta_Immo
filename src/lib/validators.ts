@@ -8,9 +8,7 @@ import { z } from 'zod';
  * Schéma de validation pour les informations du bien
  */
 export const bienSchema = z.object({
-  adresse: z
-    .string()
-    .min(5, "L'adresse doit contenir au moins 5 caractères"),
+  adresse: z.string().min(5, "L'adresse doit contenir au moins 5 caractères"),
   prix_achat: z.coerce
     .number({ message: 'Veuillez saisir un nombre valide' })
     .positive('Le prix doit être positif')
@@ -27,17 +25,27 @@ export const bienSchema = z.object({
     .min(1800, 'Année de construction invalide')
     .max(new Date().getFullYear(), 'Année de construction invalide')
     .optional(),
-  etat_bien: z.enum(['ancien', 'neuf'], {
-    message: "Veuillez sélectionner l'état du bien",
-  }).default('ancien'),
-  montant_travaux: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
-  valeur_mobilier: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
-  part_terrain: z.union([
-    z.number().min(0).max(40),
-    z.literal('').transform(() => undefined),
-    z.undefined(),
-    z.nan().transform(() => undefined),
-  ]).optional(),
+  etat_bien: z
+    .enum(['ancien', 'neuf'], {
+      message: "Veuillez sélectionner l'état du bien",
+    })
+    .default('ancien'),
+  montant_travaux: z.coerce
+    .number({ message: 'Veuillez saisir un nombre valide' })
+    .min(0)
+    .default(0),
+  valeur_mobilier: z.coerce
+    .number({ message: 'Veuillez saisir un nombre valide' })
+    .min(0)
+    .default(0),
+  part_terrain: z
+    .union([
+      z.number().min(0).max(40),
+      z.literal('').transform(() => undefined),
+      z.undefined(),
+      z.nan().transform(() => undefined),
+    ])
+    .optional(),
   dpe: z.preprocess(
     (val) => (val === '' ? undefined : val),
     z.enum(['A', 'B', 'C', 'D', 'E', 'F', 'G']).optional()
@@ -75,7 +83,10 @@ export const financementSchema = z.object({
     .min(0, "L'assurance ne peut pas être négative")
     .max(2, "Le taux d'assurance semble trop élevé"),
   frais_dossier: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
-  frais_garantie: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
+  frais_garantie: z.coerce
+    .number({ message: 'Veuillez saisir un nombre valide' })
+    .min(0)
+    .default(0),
   mode_assurance: z.enum(['capital_initial', 'capital_restant_du']).default('capital_initial'),
 });
 
@@ -111,11 +122,22 @@ export const exploitationSchema = z.object({
     .number({ message: 'Veuillez saisir un pourcentage valide' })
     .min(0, 'La provision vacance ne peut pas être négative')
     .max(50, 'Le taux de vacance semble trop élevé'),
-  charges_copro_recuperables: z.coerce.number({ message: 'Veuillez saisir un montant valide' }).min(0).default(0),
-  assurance_gli: z.coerce.number({ message: 'Veuillez saisir un pourcentage valide' }).min(0).default(0),
+  charges_copro_recuperables: z.coerce
+    .number({ message: 'Veuillez saisir un montant valide' })
+    .min(0)
+    .default(0),
+  assurance_gli: z.coerce
+    .number({ message: 'Veuillez saisir un pourcentage valide' })
+    .min(0)
+    .default(0),
   cfe_estimee: z.coerce.number({ message: 'Veuillez saisir un montant valide' }).min(0).default(0),
-  comptable_annuel: z.coerce.number({ message: 'Veuillez saisir un montant valide' }).min(0).default(0),
-  type_location: z.enum(['nue', 'meublee_longue_duree', 'meublee_tourisme_classe', 'meublee_tourisme_non_classe']).default('nue'),
+  comptable_annuel: z.coerce
+    .number({ message: 'Veuillez saisir un montant valide' })
+    .min(0)
+    .default(0),
+  type_location: z
+    .enum(['nue', 'meublee_longue_duree', 'meublee_tourisme_classe', 'meublee_tourisme_non_classe'])
+    .default('nue'),
   taux_occupation: z.coerce
     .number({ message: 'Veuillez saisir un pourcentage valide' })
     .min(0.5)
@@ -133,9 +155,7 @@ export type ExploitationFormData = z.output<typeof exploitationSchema>;
  * Schéma de validation pour un associé
  */
 export const associeSchema = z.object({
-  nom: z
-    .string()
-    .min(2, 'Le nom doit contenir au moins 2 caractères'),
+  nom: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   parts: z.coerce
     .number({ message: 'Les parts doivent être un nombre' })
     .min(0, 'Les parts ne peuvent pas être négatives')
@@ -187,44 +207,46 @@ export const structureSchema = z.object({
 /**
  * Schéma de validation pour les options
  */
-export const optionsSchema = z.object({
-  generer_pdf: z.boolean(),
-  envoyer_email: z.boolean(),
-  email: z
-    .string()
-    .email('Email invalide')
-    .optional()
-    .or(z.literal('')),
-  horizon_projection: z.number().default(20),
-  taux_evolution_loyer: z.number().min(0).max(10).default(2),
-  taux_evolution_charges: z.number().min(0).max(10).default(2.5),
-  taux_agence_revente: z.number().min(0).max(15).default(5),
-  profil_investisseur: z.enum(['rentier', 'patrimonial']).default('rentier'),
-  ponderation_loyers: z.number().min(60).max(90).default(70),
-  prix_revente: z.union([
-    z.number().min(0),
-    z.literal('').transform(() => undefined),
-    z.undefined(),
-    z.nan().transform(() => undefined),
-  ]).optional(),
-  duree_detention: z.union([
-    z.number().min(1).max(30),
-    z.literal('').transform(() => undefined),
-    z.undefined(),
-    z.nan().transform(() => undefined),
-  ]).optional(),
-}).refine(
-  (data) => {
-    if (data.envoyer_email && !data.email) {
-      return false;
+export const optionsSchema = z
+  .object({
+    generer_pdf: z.boolean(),
+    envoyer_email: z.boolean(),
+    email: z.string().email('Email invalide').optional().or(z.literal('')),
+    horizon_projection: z.number().default(20),
+    taux_evolution_loyer: z.number().min(0).max(10).default(2),
+    taux_evolution_charges: z.number().min(0).max(10).default(2.5),
+    taux_agence_revente: z.number().min(0).max(15).default(5),
+    profil_investisseur: z.enum(['rentier', 'patrimonial']).default('rentier'),
+    ponderation_loyers: z.number().min(60).max(90).default(70),
+    prix_revente: z
+      .union([
+        z.number().min(0),
+        z.literal('').transform(() => undefined),
+        z.undefined(),
+        z.nan().transform(() => undefined),
+      ])
+      .optional(),
+    duree_detention: z
+      .union([
+        z.number().min(1).max(30),
+        z.literal('').transform(() => undefined),
+        z.undefined(),
+        z.nan().transform(() => undefined),
+      ])
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.envoyer_email && !data.email) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "L'email est requis pour l'envoi",
+      path: ['email'],
     }
-    return true;
-  },
-  {
-    message: "L'email est requis pour l'envoi",
-    path: ['email'],
-  }
-);
+  );
 
 /**
  * Schéma complet du formulaire

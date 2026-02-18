@@ -5,11 +5,11 @@ import { useState, useEffect } from 'react';
  * Utile pour éviter les erreurs d'hydratation avec Zustand persist.
  */
 export function useHasHydrated() {
-    const [hasHydrated, setHasHydrated] = useState(false);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
-    useEffect(() => {
-        setHasHydrated(true);
-    }, []);
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
 
-    return hasHydrated;
+  return hasHydrated;
 }

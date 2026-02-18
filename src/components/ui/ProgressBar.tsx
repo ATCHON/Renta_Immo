@@ -9,12 +9,7 @@ interface ProgressBarProps {
   className?: string;
 }
 
-export function ProgressBar({
-  currentStep,
-  totalSteps,
-  labels,
-  className,
-}: ProgressBarProps) {
+export function ProgressBar({ currentStep, totalSteps, labels, className }: ProgressBarProps) {
   const progress = ((currentStep + 1) / totalSteps) * 100;
 
   return (
@@ -36,11 +31,7 @@ export function ProgressBar({
               stepNumber={index + 1}
               label={label}
               status={
-                index < currentStep
-                  ? 'completed'
-                  : index === currentStep
-                    ? 'current'
-                    : 'upcoming'
+                index < currentStep ? 'completed' : index === currentStep ? 'current' : 'upcoming'
               }
             />
           ))}
@@ -77,11 +68,7 @@ function StepIndicator({ stepNumber, label, status }: StepIndicatorProps) {
           status === 'upcoming' && 'bg-gray-200 text-gray-600'
         )}
       >
-        {status === 'completed' ? (
-          <CheckIcon className="w-4 h-4" />
-        ) : (
-          stepNumber
-        )}
+        {status === 'completed' ? <CheckIcon className="w-4 h-4" /> : stepNumber}
       </div>
       <span
         className={cn(
@@ -104,11 +91,7 @@ function CheckIcon({ className }: { className?: string }) {
       stroke="currentColor"
       strokeWidth={3}
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M5 13l4 4L19 7"
-      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
     </svg>
   );
 }

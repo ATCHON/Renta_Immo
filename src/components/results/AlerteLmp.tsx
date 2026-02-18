@@ -16,14 +16,14 @@ export function AlerteLmp({ typeAlerte }: AlerteLmpProps) {
       data-testid="alerte-lmp"
       className={cn(
         'flex items-start gap-3 px-4 py-3 rounded-xl border-l-4',
-        isRouge
-          ? 'border-l-terracotta bg-terracotta/5'
-          : 'border-l-amber bg-amber/5'
+        isRouge ? 'border-l-terracotta bg-terracotta/5' : 'border-l-amber bg-amber/5'
       )}
     >
-      {isRouge
-        ? <AlertTriangle className="h-5 w-5 text-terracotta shrink-0 mt-0.5" />
-        : <AlertCircle className="h-5 w-5 text-amber shrink-0 mt-0.5" />}
+      {isRouge ? (
+        <AlertTriangle className="h-5 w-5 text-terracotta shrink-0 mt-0.5" />
+      ) : (
+        <AlertCircle className="h-5 w-5 text-amber shrink-0 mt-0.5" />
+      )}
       <div>
         <p className={cn('text-sm font-semibold', isRouge ? 'text-terracotta' : 'text-amber')}>
           {isRouge ? 'Seuil LMP dépassé' : 'Approche du seuil LMP'}

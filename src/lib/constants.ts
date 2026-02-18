@@ -43,8 +43,8 @@ export const STRUCTURE_OPTIONS = [
   },
   {
     value: 'sci_is',
-    label: 'SCI à l\'IS',
-    description: 'Imposition à l\'impôt sur les sociétés',
+    label: "SCI à l'IS",
+    description: "Imposition à l'impôt sur les sociétés",
   },
 ] as const;
 
@@ -81,7 +81,7 @@ export const HCSF = {
   TAUX_ENDETTEMENT_MAX: 35,
   TAUX_ENDETTEMENT_ALERTE: 33,
   DUREE_MAX_ANNEES: 25,
-  PONDERATION_REVENUS_LOCATIFS: 0.70,
+  PONDERATION_REVENUS_LOCATIFS: 0.7,
 } as const;
 
 /**
@@ -92,11 +92,11 @@ export const FISCALITE = {
   PRELEVEMENTS_SOCIAUX: 0.172, // 17.2%
 
   // Micro-foncier
-  MICRO_FONCIER_ABATTEMENT: 0.30, // 30%
+  MICRO_FONCIER_ABATTEMENT: 0.3, // 30%
   MICRO_FONCIER_PLAFOND: 15000, // 15 000€/an
 
   // LMNP Micro-BIC
-  MICRO_BIC_ABATTEMENT: 0.50, // 50%
+  MICRO_BIC_ABATTEMENT: 0.5, // 50%
   MICRO_BIC_PLAFOND: 77700, // 77 700€/an
 
   // Impôt sur les sociétés (IS)
@@ -109,7 +109,7 @@ export const FISCALITE = {
   PART_TERRAIN: 0.15, // 15% du prix = terrain (non amortissable)
 
   // Flat tax sur dividendes
-  FLAT_TAX: 0.30, // 30%
+  FLAT_TAX: 0.3, // 30%
 } as const;
 
 /**

@@ -46,14 +46,17 @@ function DetailItem({ point }: { point: PointAttentionDetail }) {
         <Icon className={cn('h-4 w-4 mt-0.5 shrink-0', config.iconColor)} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className={cn('text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded', config.labelBg)}>
+            <span
+              className={cn(
+                'text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded',
+                config.labelBg
+              )}
+            >
               {config.label}
             </span>
           </div>
           <p className="text-sm font-medium text-charcoal">{point.message}</p>
-          {point.conseil && (
-            <p className="text-xs text-stone mt-1">{point.conseil}</p>
-          )}
+          {point.conseil && <p className="text-xs text-stone mt-1">{point.conseil}</p>}
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@
  *
  * Story TECH-009 : Intégration Frontend
  * Migré de n8n webhook vers API Next.js interne /api/calculate
- * 
+ *
  * @deprecated NEXT_PUBLIC_N8N_WEBHOOK_URL n'est plus utilisé
  * L'API utilise maintenant /api/calculate en interne
  */
@@ -138,9 +138,7 @@ export async function calculateRentability(
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   // Combiner les signaux si un signal externe est fourni
-  const combinedSignal = signal
-    ? anySignal([signal, controller.signal])
-    : controller.signal;
+  const combinedSignal = signal ? anySignal([signal, controller.signal]) : controller.signal;
 
   try {
     const response = await fetch(API_URL, {
@@ -185,19 +183,14 @@ export async function calculateRentability(
 
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
-        throw new ApiRequestError(
-          'La requête a été annulée (timeout)',
-          'TIMEOUT'
-        );
+        throw new ApiRequestError('La requête a été annulée (timeout)', 'TIMEOUT');
       }
 
       // Erreur réseau
       if (error instanceof TypeError) {
-        throw new ApiRequestError(
-          'Erreur réseau',
-          'NETWORK_ERROR',
-          { originalError: error.message }
-        );
+        throw new ApiRequestError('Erreur réseau', 'NETWORK_ERROR', {
+          originalError: error.message,
+        });
       }
     }
 
@@ -227,11 +220,9 @@ export async function downloadPdf(pdfUrl: string): Promise<Blob> {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      throw new ApiRequestError(
-        'Impossible de télécharger le PDF',
-        'HTTP_ERROR',
-        { status: response.status }
-      );
+      throw new ApiRequestError('Impossible de télécharger le PDF', 'HTTP_ERROR', {
+        status: response.status,
+      });
     }
 
     return await response.blob();
@@ -246,10 +237,7 @@ export async function downloadPdf(pdfUrl: string): Promise<Blob> {
       throw new ApiRequestError('Timeout lors du téléchargement', 'TIMEOUT');
     }
 
-    throw new ApiRequestError(
-      'Erreur lors du téléchargement',
-      'NETWORK_ERROR'
-    );
+    throw new ApiRequestError('Erreur lors du téléchargement', 'NETWORK_ERROR');
   }
 }
 
@@ -289,8 +277,6 @@ export const CALCULATE_QUERY_KEY = ['calculate'] as const;
  *   onSuccess: (data) => console.log(data),
  * });
  */
-export async function calculateMutation(
-  formData: CalculateurFormData
-): Promise<CalculateResult> {
+export async function calculateMutation(formData: CalculateurFormData): Promise<CalculateResult> {
   return calculateRentability(formData);
 }

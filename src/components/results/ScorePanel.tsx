@@ -10,10 +10,20 @@ interface ScorePanelProps {
 }
 
 const EVALUATIONS = {
-  Excellent: { color: 'forest', bg: 'bg-forest/10', text: 'text-forest', border: 'border-forest/30' },
+  Excellent: {
+    color: 'forest',
+    bg: 'bg-forest/10',
+    text: 'text-forest',
+    border: 'border-forest/30',
+  },
   Bon: { color: 'sage', bg: 'bg-sage/10', text: 'text-sage', border: 'border-sage/30' },
   Moyen: { color: 'amber', bg: 'bg-amber/10', text: 'text-amber', border: 'border-amber/30' },
-  Faible: { color: 'terracotta', bg: 'bg-terracotta/10', text: 'text-terracotta', border: 'border-terracotta/30' },
+  Faible: {
+    color: 'terracotta',
+    bg: 'bg-terracotta/10',
+    text: 'text-terracotta',
+    border: 'border-terracotta/30',
+  },
 } as const;
 
 const SCORE_COLORS = {
@@ -55,22 +65,27 @@ const AJUSTEMENT_MAX: Record<string, [number, number]> = {
   reste_a_vivre: [-10, 5],
 };
 
-function AjustementBar({ label, value, range }: { label: string; value: number; range: [number, number] }) {
+function AjustementBar({
+  label,
+  value,
+  range,
+}: {
+  label: string;
+  value: number;
+  range: [number, number];
+}) {
   const [min, max] = range;
   const totalRange = max - min;
-  const zeroPos = Math.abs(min) / totalRange * 100;
+  const zeroPos = (Math.abs(min) / totalRange) * 100;
 
-  const barStart = value >= 0 ? zeroPos : zeroPos + (value / totalRange * 100);
-  const barWidth = Math.abs(value) / totalRange * 100;
+  const barStart = value >= 0 ? zeroPos : zeroPos + (value / totalRange) * 100;
+  const barWidth = (Math.abs(value) / totalRange) * 100;
 
   return (
     <div className="flex items-center gap-3">
       <span className="text-xs font-medium text-stone w-28 shrink-0 text-right">{label}</span>
       <div className="flex-1 h-5 bg-surface rounded relative overflow-hidden">
-        <div
-          className="absolute top-0 bottom-0 w-px bg-stone/30"
-          style={{ left: `${zeroPos}%` }}
-        />
+        <div className="absolute top-0 bottom-0 w-px bg-stone/30" style={{ left: `${zeroPos}%` }} />
         {value !== 0 && (
           <div
             className={cn(
@@ -84,11 +99,14 @@ function AjustementBar({ label, value, range }: { label: string; value: number; 
           />
         )}
       </div>
-      <span className={cn(
-        'text-xs font-bold w-10 text-right tabular-nums',
-        value > 0 ? 'text-forest' : value < 0 ? 'text-terracotta' : 'text-stone'
-      )}>
-        {value > 0 ? '+' : ''}{value}
+      <span
+        className={cn(
+          'text-xs font-bold w-10 text-right tabular-nums',
+          value > 0 ? 'text-forest' : value < 0 ? 'text-terracotta' : 'text-stone'
+        )}
+      >
+        {value > 0 ? '+' : ''}
+        {value}
       </span>
     </div>
   );
@@ -144,7 +162,7 @@ export function ScorePanel({ synthese }: ScorePanelProps) {
       key,
       label: AJUSTEMENT_LABELS[key] ?? key,
       value: value as number,
-      range: AJUSTEMENT_MAX[key] ?? [-20, 20] as [number, number],
+      range: AJUSTEMENT_MAX[key] ?? ([-20, 20] as [number, number]),
     }));
   }, [synthese.score_detail]);
 
@@ -163,12 +181,14 @@ export function ScorePanel({ synthese }: ScorePanelProps) {
             </span>
             <span className="text-2xl text-stone/40 font-bold">/100</span>
           </div>
-          <span className={cn(
-            'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border',
-            evalStyle.bg,
-            evalStyle.text,
-            evalStyle.border
-          )}>
+          <span
+            className={cn(
+              'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border',
+              evalStyle.bg,
+              evalStyle.text,
+              evalStyle.border
+            )}
+          >
             {evaluation}
           </span>
           <ScoreLegendBar score={synthese.score_global} colorKey={colorKey} />
@@ -180,7 +200,9 @@ export function ScorePanel({ synthese }: ScorePanelProps) {
           {ajustements ? (
             <div className="space-y-2.5">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-xs font-medium text-stone w-28 shrink-0 text-right">Base initiale</span>
+                <span className="text-xs font-medium text-stone w-28 shrink-0 text-right">
+                  Base initiale
+                </span>
                 <div className="flex-1" />
                 <span className="text-xs font-bold text-charcoal w-10 text-right tabular-nums">
                   {synthese.score_detail!.base}
@@ -195,17 +217,22 @@ export function ScorePanel({ synthese }: ScorePanelProps) {
                 />
               ))}
               <div className="flex items-center gap-3 pt-3 mt-3 border-t border-border">
-                <span className="text-xs font-bold text-charcoal w-28 shrink-0 text-right">Total</span>
+                <span className="text-xs font-bold text-charcoal w-28 shrink-0 text-right">
+                  Total
+                </span>
                 <div className="flex-1" />
-                <span className={cn('text-sm font-black w-10 text-right tabular-nums', scoreColor.score)}>
+                <span
+                  className={cn(
+                    'text-sm font-black w-10 text-right tabular-nums',
+                    scoreColor.score
+                  )}
+                >
                   {synthese.score_global}
                 </span>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-stone">
-              Détail non disponible pour cette simulation.
-            </p>
+            <p className="text-sm text-stone">Détail non disponible pour cette simulation.</p>
           )}
         </div>
       </div>

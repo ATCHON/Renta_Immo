@@ -34,10 +34,11 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
                 isPositive ? 'text-forest' : 'text-terracotta'
               )}
             >
-              {isPositive ? '+' : ''}{formatCurrency(cashflow.mensuel)}
+              {isPositive ? '+' : ''}
+              {formatCurrency(cashflow.mensuel)}
             </p>
             <p className="text-xs text-pebble mt-2 font-medium">
-              {isPositive ? 'Excédent de trésorerie' : 'Effort d\'épargne requis'}
+              {isPositive ? 'Excédent de trésorerie' : "Effort d'épargne requis"}
             </p>
           </div>
 
@@ -55,7 +56,8 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
                 isPositive ? 'text-forest' : 'text-terracotta'
               )}
             >
-              {isPositive ? '+' : ''}{formatCurrency(cashflow.annuel)}
+              {isPositive ? '+' : ''}
+              {formatCurrency(cashflow.annuel)}
             </p>
             <p className="text-xs text-pebble mt-2 font-medium">
               Cashflow Net annuel (après impôts)
@@ -66,7 +68,9 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
         {/* Indicateur visuel */}
         <div className="mt-6 pt-5 border-t border-sand/50">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-bold text-charcoal uppercase tracking-wider">Indicateur de Cashflow</span>
+            <span className="text-sm font-bold text-charcoal uppercase tracking-wider">
+              Indicateur de Cashflow
+            </span>
             <span
               className={cn(
                 'text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide',
@@ -114,8 +118,8 @@ function CashflowIndicator({ value, maxValue }: CashflowIndicatorProps) {
   return (
     <div
       className={cn(
-        "absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-4 border-white shadow-lg transition-all duration-700 ease-out z-20 flex items-center justify-center",
-        isPositive ? "bg-forest" : "bg-terracotta"
+        'absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-4 border-white shadow-lg transition-all duration-700 ease-out z-20 flex items-center justify-center',
+        isPositive ? 'bg-forest' : 'bg-terracotta'
       )}
       style={{ left: `${position}%`, transform: 'translate(-50%, -50%)' }}
     />
