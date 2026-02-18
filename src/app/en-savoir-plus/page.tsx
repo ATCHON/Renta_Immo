@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, Info, PieChart, TrendingUp, Calculator, ShieldCheck,
   Zap, Building2, Clock, BarChart3, Scale, Layers, AlertTriangle,
-  BookOpen, ChevronRight, ChevronDown
+  BookOpen, ChevronRight, ChevronDown, Landmark
 } from 'lucide-react';
 import { Card, CardHeader, CardContent, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -128,6 +128,7 @@ export default function EnSavoirPlusPage() {
           <nav className="mt-6 flex flex-wrap gap-2">
             {[
               { label: "Rentabilité", href: "#rentabilite" },
+              { label: "Trésorerie & Cash-flow", href: "#cashflow" },
               { label: "Crédit", href: "#credit" },
               { label: "Assurance CRD", href: "#assurance-crd" },
               { label: "Fiscalité", href: "#fiscalite" },
@@ -221,6 +222,93 @@ export default function EnSavoirPlusPage() {
                 </CardContent>
               </Card>
             </div>
+          </section>
+
+          {/* ================================================================ */}
+          {/* Section Cash-flow (Nouveau) */}
+          {/* ================================================================ */}
+          <section id="cashflow" className="space-y-6 scroll-mt-8">
+            <SectionHeader icon={TrendingUp} title="Trésorerie & Cash-flow" />
+
+            <p className="text-sm text-pebble leading-relaxed">
+              La rentabilité est un pourcentage théorique. Le <strong>cash-flow</strong> est la réalité de votre compte en banque à la fin du mois.
+              C&apos;est la différence entre ce qui rentre (loyers) et ce qui sort (charges, crédit, impôts).
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader
+                  title="Cash-flow Brut"
+                  description="Indicateur rapide banque"
+                />
+                <CardContent className="space-y-4">
+                  <FormulaBox>Loyer mensuel - Mensualité crédit</FormulaBox>
+                  <p className="text-sm text-pebble leading-relaxed">
+                    Ce qu&apos;il reste pour payer les charges et impôts.
+                    Si négatif dès ce stade, l&apos;effort d&apos;épargne sera important.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader
+                  title="Cash-flow Net"
+                  description="Avant impôts — Trésorerie courante"
+                />
+                <CardContent className="space-y-4">
+                  <FormulaBox>Loyer - Charges - Crédit</FormulaBox>
+                  <p className="text-sm text-pebble leading-relaxed">
+                    Votre trésorerie réelle mois après mois, avant la régularisation fiscale annuelle.
+                    C&apos;est l&apos;argent disponible sur le compte dédié à l&apos;investissement.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-forest/5 border-forest/10">
+                <CardHeader
+                  title="Cash-flow Net-Net"
+                  description="Après impôts — Le verdict final"
+                />
+                <CardContent className="space-y-4">
+                  <FormulaBox highlight>
+                    Cash-flow Net - (Impôts / 12)
+                  </FormulaBox>
+                  <p className="text-sm text-pebble leading-relaxed">
+                    Ce qui rentre <strong>réellement</strong> dans votre poche une fois tout payé.
+                    Le terme &ldquo;Impôts&rdquo; inclut ici la somme de votre <strong>Impôt sur le Revenu</strong> (selon votre TMI) et des <strong>Prélèvements Sociaux</strong> (17.2%), ou l&apos;Impôt sur les Sociétés (IS) pour une SCI.
+                  </p>
+                  <ExpertTip variant="success">
+                    <strong>Positif ?</strong> Vous gagnez de l&apos;argent chaque mois. L&apos;investissement s&apos;autofinance et génère un revenu complémentaire.
+                  </ExpertTip>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="border-l-4 border-l-terracotta">
+              <CardHeader
+                title="Effort d'épargne"
+                description="Quand le cash-flow est négatif, c'est vous qui payez."
+              />
+              <CardContent>
+                <div className="flex flex-col md:flex-row gap-6 items-center">
+                  <div className="flex-1 space-y-4">
+                    <p className="text-sm text-pebble leading-relaxed">
+                      Si le Cash-flow Net-Net est négatif (ex: -150€/mois), on parle d&apos;<strong>effort d&apos;épargne</strong>.
+                      Vous devez sortir 150€ de votre salaire chaque mois pour combler le déficit.
+                    </p>
+                    <ExpertTip variant="warning">
+                      <strong>Stratégie :</strong> Un effort d&apos;épargne n&apos;est pas forcément mauvais s&apos;il permet d&apos;acquérir
+                      un patrimoine important (stratégie patrimoniale). Mais il réduit votre capacité d&apos;emprunt future.
+                    </ExpertTip>
+                  </div>
+                  <div className="bg-surface p-4 rounded-xl border border-sand min-w-[200px] text-center">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider">Formule</p>
+                    <p className="text-sm font-bold text-charcoal mt-2">Valeur Absolue (Cash-flow négatif)</p>
+                    <p className="text-xs text-pebble mt-1">= Montant à injecter mensuellement</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </section>
 
           {/* ================================================================ */}
@@ -1079,7 +1167,7 @@ export default function EnSavoirPlusPage() {
                   {/* Profil Rentier */}
                   <div className="bg-surface border border-sand rounded-xl p-5 space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl">💰</span>
+                      <TrendingUp className="h-5 w-5 text-forest" />
                       <h4 className="text-sm font-bold text-charcoal">Profil Rentier</h4>
                     </div>
                     <p className="text-xs text-pebble leading-relaxed">
@@ -1107,7 +1195,7 @@ export default function EnSavoirPlusPage() {
                   {/* Profil Patrimonial */}
                   <div className="bg-surface border border-sand rounded-xl p-5 space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl">🏛</span>
+                      <Landmark className="h-5 w-5 text-forest" />
                       <h4 className="text-sm font-bold text-charcoal">Profil Patrimonial</h4>
                     </div>
                     <p className="text-xs text-pebble leading-relaxed">

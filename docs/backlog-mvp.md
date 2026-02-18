@@ -778,3 +778,4 @@ Sauvegarder les scénarios en localStorage.
 | 2025-01-25 | 1.0 | Création du backlog MVP |
 | 2025-01-25 | 1.1 | Ajout items backend custom (MVP-024 à MVP-027), retrait dépendance n8n |
 | 2026-02-04 | 1.2 | Mise à jour post-implémentation : MVP-004/005/008/013-022 cochés (validation DoD Epic 2) |
+| 2026-02-16 | 1.3 | Achèvement du Sprint 4 (Back-office, Configuration dynamique, Refactoring) |

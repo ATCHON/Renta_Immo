@@ -13,7 +13,7 @@
 | Sprint 1 | V2-01, V2-02 | S01–S08 | CRITIQUE | 2 semaines |
 | Sprint 2 | V2-03, V2-04, V2-05 | S09–S15 | CRITIQUE + IMPORTANT | 2 semaines |
 | Sprint 3 | V2-06, V2-07 | S16–S18 | UTILE | 1 semaine |
-| Sprint 4+ | V2-08 | S19–S24 | IMPORTANT (long terme) | 3–4 semaines |
+| Sprint 4+ | V2-08 | S19–S25 | IMPORTANT (long terme) | 2 semaines |
 
 ---
 
@@ -47,6 +47,45 @@ Corriger les bugs critiques du calcul de plus-value et propager la vacance locat
 - `revenusBrutsAnnuels = loyerMensuel * 12 * tauxOccupation` partout
 - Slider taux d'occupation opérationnel (défaut 92%)
 - `npm test` : 0 échec
+
+### Résultats des tests réels — 2026-02-16
+
+> Source : `docs/tests/sprint1-resultats.md`
+> Environnement : `http://localhost:3000` (npm run dev), branch `feature/sprint-4-backoffice`
+
+| Scénario | Statut | Remarque |
+|----------|--------|----------|
+| S01 — Prix acquisition corrigé (total 238 000 €) | ✅ PASSE | Valeur correcte en UI |
+| S01 — PV brute | ⛔ NON TESTABLE | Champs `prix_revente` / `duree_detention` absents du formulaire |
+| S02 — Barème abattements PV | ⛔ NON TESTABLE | Même cause |
+| S03 — Surtaxe plus-value | ⛔ NON TESTABLE | Même cause |
+| S04 — Taux PS (17.2% vs 18.6%) | ⛔ NON TESTABLE | Même cause + `data-testid` absents |
+| S05 — Réintégration amortissements LMNP | ⛔ NON TESTABLE | Champ `amortissements_cumules` absent de l'UI |
+| S06 — Revenus annuels avec taux d'occupation 92% | ❌ ECHEC | **BUG** : `taux_occupation` strippé par Zod → 12 000 € au lieu de 11 040 € |
+| S07 — Rentabilité brute (loyer facial 6%) | ✅ PASSE | Correct, mais **par effet du bug S06** (loyer non pondéré) |
+| S08 — Régression taux d'occupation 100% | ✅ PASSE | Correct par défaut (12 000 €), à re-vérifier après correction S06 |
+
+**Bilan : 3 tests passés / 3 testables via UI (11 non testables faute d'UI, 1 échec)**
+
+#### Bug corrigé : BUG-S06 ✅ — 2026-02-16
+
+**Cause racine :** `taux_occupation` absent du schéma Zod `exploitationSchema` (`src/lib/validators.ts`).
+Zod strippait le champ → le moteur recevait `undefined` → fallback à `1` (100%).
+
+**Correction appliquée :**
+- `src/lib/validators.ts` — ajout de `taux_occupation: z.coerce.number().min(0.5).max(1).optional().default(1)` dans `exploitationSchema`
+- `src/server/calculations/rentabilite.ts` — `rentabilite_brute` utilise désormais `loyer_annuel_facade = loyer_mensuel * 12` (loyer facial, convention marché) au lieu du loyer pondéré
+
+**Résultat après correction :** 227 tests, 0 échec (`npm test`)
+
+#### Chantier FEAT-PV à ouvrir (bloquant pour S01 PV, S02, S03, S04, S05)
+
+Pour rendre ces scénarios testables via l'UI, il faut :
+1. Ajouter les champs `prix_revente` et `duree_detention` au formulaire (étape 1 ou 5)
+2. Les intégrer dans le schéma Zod (`optionsSchema`)
+3. Brancher `calculerPlusValueImmobilier()` dans le flux `/api/calculate`
+4. Afficher la section plus-value dans le Dashboard
+5. Ajouter les attributs `data-testid` sur les éléments clés (voir liste complète dans `docs/tests/sprint1-resultats.md`)
 
 ---
 
@@ -120,12 +159,13 @@ Transformer toutes les constantes en dur en paramètres configurables via interf
 
 | ID | Titre | Effort | Dépendances | Statut |
 |----|-------|--------|-------------|--------|
-| **V2-S19** | Concevoir le schéma de données ConfigParam | M | — | Draft |
-| **V2-S20** | Créer l'API CRUD pour les paramètres | L | V2-S19 | Draft |
-| **V2-S21** | Créer l'interface admin des paramètres (8 blocs) | L | V2-S20 | Draft |
-| **V2-S22** | Migrer les constantes du code vers la base de données | L | S19+S20+S21 | Draft |
-| **V2-S23** | Système d'alertes pour dispositifs temporaires | M | V2-S21 | Draft |
-| **V2-S24** | Mode Dry Run (simulation impact changement) | M | S21+S22 | Draft |
+| **V2-S19** | Concevoir le schéma de données ConfigParam | M | — | Done |
+| **V2-S20** | Créer l'API CRUD pour les paramètres | L | V2-S19 | Done |
+| **V2-S21** | Créer l'interface admin des paramètres (8 blocs) | L | V2-S20 | Done |
+| **V2-S22** | Migrer les constantes du code vers la base de données | L | S19+S20+S21 | Done |
+| **V2-S23** | Système d'alertes pour dispositifs temporaires | M | V2-S21 | Done |
+| **V2-S24** | Mode Dry Run (simulation impact changement) | M | S21+S22 | Done |
+| **V2-S25** | Regroupement des constantes techniques | S | — | Done |
 
 **Note** : Nécessite coordination avec l'architecte. Démarrer par S19 seul pour valider le schéma avant de s'engager sur S20+.
 
@@ -137,8 +177,8 @@ Transformer toutes les constantes en dur en paramètres configurables via interf
 
 | Story | Problème | Décision requise |
 |-------|---------|-----------------|
-| **V2-S04** | Titre dit "PS revenus BIC LMNP (18.6%)" mais les Dev Notes précisent "17.2% pour les non-professionnels, 18.6% pour certains cas spécifiques". Quelle est la valeur à implémenter comme `TAUX_PS_REVENUS_BIC_LMNP` ? | PM/Expert fiscal à confirmer |
-| **V2-S05** | La Loi Le Meur est applicable depuis le 15/02/2025 → aujourd'hui (14/02/2026) elle est déjà en vigueur. Le cas `date < 15/02/2025` concerne uniquement les simulations historiques. Confirmer que c'est bien le besoin. | PM à confirmer |
+| **V2-S04** | Titre dit "PS revenus BIC LMNP (18.6%)" mais les Dev Notes précisent "17.2% pour les non-professionnels, 18.6% pour certains cas spécifiques". Quelle est la valeur à implémenter comme `TAUX_PS_REVENUS_BIC_LMNP` ? | Done (17.2%) |
+| **V2-S05** | La Loi Le Meur est applicable depuis le 15/02/2025 → aujourd'hui (16/02/2026) elle est déjà en vigueur. Le cas `date < 15/02/2025` concerne uniquement les simulations historiques. Confirmer que c'est bien le besoin. | Done |
 
 ### Dépendances inter-sprints critiques
 
@@ -147,7 +187,7 @@ Sprint 1 complet → V2-S13 (DPE projections dépend de tauxOccupation)
 V2-S01 → V2-S05 (réintégration sur nouvelle formule PV)
 V2-S06 → V2-S07, V2-S08
 V2-S09 → V2-S10
-V2-S19 → V2-S20 → V2-S21 → V2-S22 → V2-S23/S24
+V2-S19 → V2-S20 → V2-S21 → V2-S22 → V2-S23/S24/S25
 ```
 
 ### Risques

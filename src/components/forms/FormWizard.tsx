@@ -25,13 +25,17 @@ export function FormWizard() {
     setStep,
     nextStep,
     prevStep,
-    getActiveScenario,
     status,
     error,
+    getFormData,
   } = useCalculateurStore();
 
   const hasHydrated = useHasHydrated();
-  const scenario = getActiveScenario();
+
+  // Récupérer le scénario actif de manière réactive - directement depuis le store
+  const activeScenarioId = useCalculateurStore((state) => state.activeScenarioId);
+  const scenarios = useCalculateurStore((state) => state.scenarios);
+  const scenario = scenarios.find((s) => s.id === activeScenarioId) || scenarios[0];
   const { bien, financement, exploitation, structure, options } = scenario;
 
   const { calculate, isLoading } = useCalculateur();
@@ -44,17 +48,12 @@ export function FormWizard() {
   }, [status, router]);
 
   // Gérer la soumission finale
+  // FIX BUG-CALC-01: Utiliser getFormData() pour toujours récupérer les valeurs fraîches du store
+  // au lieu de capturer les variables statiques qui peuvent être obsolètes
   const handleSubmit = useCallback(() => {
-    const formData: CalculateurFormData = {
-      bien: bien as CalculateurFormData['bien'],
-      financement: financement as CalculateurFormData['financement'],
-      exploitation: exploitation as CalculateurFormData['exploitation'],
-      structure: structure as CalculateurFormData['structure'],
-      options: options,
-    };
-
+    const formData = getFormData() as CalculateurFormData;
     calculate(formData);
-  }, [bien, financement, exploitation, structure, options, calculate]);
+  }, [getFormData, calculate]);
 
   // Déterminer les étapes à afficher selon la structure
   const visibleSteps = structure.type === 'nom_propre'

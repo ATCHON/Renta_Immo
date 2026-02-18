@@ -155,7 +155,10 @@ export function ScorePanel({ synthese }: ScorePanelProps) {
         <div className="p-6 md:p-8 flex flex-col items-center justify-center border-b lg:border-b-0 lg:border-r border-border">
           <p className="nordic-label-xs mb-4">Indice de Performance</p>
           <div className="flex items-baseline gap-2 mb-3">
-            <span className={cn('text-7xl md:text-8xl font-black tracking-tighter', scoreColor.score)}>
+            <span
+              className={cn('text-7xl md:text-8xl font-black tracking-tighter', scoreColor.score)}
+              data-testid="score-global"
+            >
               {synthese.score_global}
             </span>
             <span className="text-2xl text-stone/40 font-bold">/100</span>

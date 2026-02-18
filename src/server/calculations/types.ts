@@ -60,6 +60,7 @@ export interface FinancementCalculations {
   cout_total_interets: number;
   cout_total_acquisition: number;
   taux_interet: number;
+  frais_notaire: number;
 }
 
 /**
@@ -310,34 +311,13 @@ export interface SyntheseCalculations {
 }
 
 /**
- * Seuils d'alerte pour l'analyse
+ * Seuils d'alerte pour l'analyse (Désormais dans constants.ts)
  */
-export const SEUILS = {
-  // HCSF
-  TAUX_ENDETTEMENT_MAX: 35,
-  TAUX_ENDETTEMENT_ALERTE: 30,
-  DUREE_EMPRUNT_MAX: 25,
-  // Rentabilité
-  RENTABILITE_BRUTE_MIN: 7,
-  RENTABILITE_BRUTE_BONNE: 10,
-  // Cash-flow
-  CASHFLOW_CRITIQUE: -200,
-  // Ratio prix/loyer
-  RATIO_PRIX_LOYER_MAX: 250,
-  // SCI
-  RATIO_COUVERTURE_SCI_MIN: 110,
-} as const;
 
 /**
- * Prélèvements sociaux (CSG-CRDS)
+ * Prélèvements sociaux (Désormais dans constants.ts)
  */
-export const PRELEVEMENTS_SOCIAUX = 0.172; // 17.2%
 
 /**
- * Taux IS pour SCI
+ * Taux IS pour SCI (Désormais dans constants.ts)
  */
-export const TAUX_IS = {
-  TAUX_REDUIT: 0.15, // 15% jusqu'à 42 500 €
-  TAUX_NORMAL: 0.25, // 25% au-delà
-  SEUIL: 42500,
-} as const;

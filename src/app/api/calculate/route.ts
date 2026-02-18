@@ -186,7 +186,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     }
 
     // 3. Exécuter les calculs
-    const result = performCalculations(body);
+    const result = await performCalculations(body);
 
     // 4. Calculer le temps d'exécution
     const executionTime = Math.round(performance.now() - startTime);

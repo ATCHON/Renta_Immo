@@ -8,6 +8,7 @@ import { Button, Card, Collapsible } from '@/components/ui';
 import { HCSFIndicator } from './HCSFIndicator';
 import { ProjectionTable } from './ProjectionTable';
 import { AmortizationTable } from './AmortizationTable';
+import { FiscalAmortizationTable } from './FiscalAmortizationTable';
 import { MetricCard } from './MetricCard';
 import type { CalculateurFormData } from '@/types/calculateur';
 import {
@@ -24,7 +25,6 @@ import {
   AlerteLmp,
 } from './';
 import { SaveSimulationButton } from '../simulations/SaveSimulationButton';
-import { CONSTANTS } from '@/config/constants';
 
 const ChartSkeleton = () => (
   <div className="h-[350px] w-full bg-surface/50 rounded-xl animate-pulse" />
@@ -173,16 +173,16 @@ export function Dashboard() {
           synthese={
             resultats.synthese.scores_par_profil
               ? (() => {
-                  const scoreDetail = resultats.synthese.scores_par_profil[profilInvestisseur];
-                  const { evaluation, couleur } = scoreToEvaluation(scoreDetail.total);
-                  return {
-                    ...resultats.synthese,
-                    score_global: scoreDetail.total,
-                    score_detail: scoreDetail,
-                    evaluation,
-                    couleur,
-                  };
-                })()
+                const scoreDetail = resultats.synthese.scores_par_profil[profilInvestisseur];
+                const { evaluation, couleur } = scoreToEvaluation(scoreDetail.total);
+                return {
+                  ...resultats.synthese,
+                  score_global: scoreDetail.total,
+                  score_detail: scoreDetail,
+                  evaluation,
+                  couleur,
+                };
+              })()
               : resultats.synthese
           }
         />
@@ -192,6 +192,20 @@ export function Dashboard() {
       <div className="space-y-3">
         <SectionTitle>Indicateurs Clés</SectionTitle>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard
+            label="Renta. Brute"
+            value={formatPercent(resultats.rentabilite.brute)}
+            status="info"
+            tooltip="Loyer facial / Prix d'achat (convention marché)"
+            data-testid="rentabilite-brute"
+          />
+          <MetricCard
+            label="Revenus Annuels"
+            value={formatCurrency(resultats.rentabilite.loyer_annuel ?? 0)}
+            status="info"
+            tooltip="Loyer annuel effectif (après taux d'occupation)"
+            data-testid="revenus-annuels"
+          />
           <MetricCard
             label="Renta. Nette-Nette"
             value={formatPercent(resultats.rentabilite.nette_nette)}
@@ -205,7 +219,7 @@ export function Dashboard() {
             tooltip="Par mois (réel)"
           />
           <MetricCard
-            label="TRI (20 ans)"
+            label="TRI"
             value={resultats.projections ? formatPercent(resultats.projections.totaux.tri) : '--'}
             status={triStatus}
             tooltip="Rendement interne"
@@ -222,15 +236,16 @@ export function Dashboard() {
       {/* 6. Points d'Attention + Alerte LMP (V2-S17) */}
       {(() => {
         const isLmnp = structure?.regime_fiscal === 'lmnp_reel' || structure?.regime_fiscal === 'lmnp_micro';
-        // Utiliser loyer_annuel du backend (déjà pondéré par taux_occupation) pour rester cohérent avec genererAlertesLmp
-        const recettesAnnuelles = resultats.rentabilite.loyer_annuel ?? 0;
         const hasPoints = resultats.synthese.points_attention_detail?.length || resultats.synthese.points_attention?.length;
-        const hasLmpAlert = isLmnp && recettesAnnuelles > CONSTANTS.LMP.SEUIL_ALERTE;
-        if (!hasPoints && !hasLmpAlert) return null;
+        // L'alerte LMP est générée par le moteur de calcul (genererAlertesLmp) avec les seuils de la config
+        const lmpAlerte = isLmnp
+          ? resultats.synthese.points_attention_detail?.find(p => p.categorie === 'fiscalite' && p.message?.includes('LMNP'))
+          : undefined;
+        if (!hasPoints && !lmpAlerte) return null;
         return (
           <div className="space-y-3">
             <SectionTitle>Points d&apos;Attention</SectionTitle>
-            {hasLmpAlert && <AlerteLmp recettesLmnpAnnuelles={recettesAnnuelles} />}
+            {lmpAlerte && <AlerteLmp typeAlerte={lmpAlerte.type as 'warning' | 'error'} />}
             <PointsAttention
               points={resultats.synthese.points_attention}
               pointsDetail={resultats.synthese.points_attention_detail}
@@ -250,6 +265,7 @@ export function Dashboard() {
           exploitation={exploitation}
           cashflow={resultats.cashflow}
           financement={resultats.financement}
+          rentabilite={resultats.rentabilite}
           impotMensuel={impotMensuelMoyen}
         />
       </div>
@@ -259,7 +275,76 @@ export function Dashboard() {
         <FiscalComparator data={resultats.comparaisonFiscalite} />
       )}
 
-      {/* 9. HCSFIndicator */}
+      {/* 9. Plus-Value à la revente */}
+      {resultats.projections?.plusValue && (
+        <div className="space-y-3">
+          <SectionTitle>Plus-Value à la Revente</SectionTitle>
+          <div className="bg-surface rounded-2xl border border-sand/50 p-6 space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">PV brute</p>
+                <p className="text-xl font-black text-charcoal" data-testid="pv-brute">
+                  {formatCurrency(resultats.projections.plusValue.plus_value_brute)}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">Impôt total PV</p>
+                <p className="text-xl font-black text-terracotta" data-testid="impot-pv-total">
+                  {formatCurrency(resultats.projections.plusValue.impot_total)}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">Net revente</p>
+                <p className="text-xl font-black text-forest">
+                  {formatCurrency(resultats.projections.plusValue.net_revente)}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">Durée détention</p>
+                <p className="text-xl font-black text-charcoal">
+                  {resultats.projections.plusValue.duree_detention} ans
+                </p>
+              </div>
+            </div>
+            <div className="pt-4 border-t border-sand/30 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div>
+                <span className="text-pebble">Base imposable (IR)</span>
+                <span className="ml-2 font-semibold text-charcoal" data-testid="base-imposable-pv">
+                  {formatCurrency(resultats.projections.plusValue.plus_value_nette_ir)}
+                </span>
+              </div>
+              <div>
+                <span className="text-pebble">Abattement IR</span>
+                <span className="ml-2 font-semibold text-charcoal" data-testid="abattement-ir">
+                  {resultats.projections.plusValue.abattement_ir}%
+                </span>
+              </div>
+              <div>
+                <span className="text-pebble">Abattement PS</span>
+                <span className="ml-2 font-semibold text-charcoal" data-testid="abattement-ps">
+                  {resultats.projections.plusValue.abattement_ps}%
+                </span>
+              </div>
+              <div>
+                <span className="text-pebble">Surtaxe PV</span>
+                <span className="ml-2 font-semibold text-charcoal" data-testid="surtaxe-pv">
+                  {formatCurrency(resultats.projections.plusValue.surtaxe)}
+                </span>
+              </div>
+              {resultats.projections.plusValue.amortissements_reintegres > 0 && (
+                <div className="col-span-2">
+                  <span className="text-pebble">Amortissements réintégrés (LMNP)</span>
+                  <span className="ml-2 font-semibold text-amber-700">
+                    {formatCurrency(resultats.projections.plusValue.amortissements_reintegres)}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 10. HCSFIndicator */}
       <HCSFIndicator hcsf={resultats.hcsf} />
 
       {/* 10. RecommandationsPanel */}
@@ -318,9 +403,18 @@ export function Dashboard() {
           {resultats.tableauAmortissement && (
             <div className="pt-4">
               <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-forest/30 pl-3">
-                Tableau d&apos;amortissement
+                Remboursement du crédit
               </h3>
               <AmortizationTable data={resultats.tableauAmortissement} />
+            </div>
+          )}
+
+          {resultats.tableauAmortissementFiscal && (
+            <div className="pt-4">
+              <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-amber-500/40 pl-3">
+                Amortissement fiscal
+              </h3>
+              <FiscalAmortizationTable data={resultats.tableauAmortissementFiscal} />
             </div>
           )}
         </div>

@@ -1,7 +1,7 @@
 # Story V2-S24 : Mode Dry Run (simulation impact changement)
 
 > **Epic** : EPIC-V2-08 | **Sprint** : Sprint 4+ | **Effort** : M
-> **Statut** : Draft
+> **Statut** : Completed
 
 ## Story
 
@@ -19,12 +19,12 @@
 
 ## Tasks / Subtasks
 
-- [ ] Dépend de V2-S21, V2-S22
-- [ ] Définir les 5 cas tests de référence
-- [ ] Créer l'endpoint POST /api/admin/params/dry-run (AC: 1)
-- [ ] Afficher le comparatif dans l'UI (AC: 2, 3)
-- [ ] Implémenter le workflow de confirmation (AC: 4)
-- [ ] Ajouter l'export rapport (AC: 5)
+- [x] Dépend de V2-S21, V2-S22
+- [x] Définir les 5 cas tests de référence
+- [x] Créer l'endpoint POST /api/admin/params/dry-run (AC: 1)
+- [x] Afficher le comparatif dans l'UI (AC: 2, 3)
+- [x] Implémenter le workflow de confirmation (AC: 4)
+- [x] Ajouter l'export rapport (AC: 5)
 
 ## Dev Notes
 
@@ -41,3 +41,4 @@
 | Date | Version | Description | Author |
 |------|---------|-------------|--------|
 | 2026-02-14 | 1.0 | Création | John (PM) |
+| 2026-02-16 | 1.1 | Implémentation terminée | Antigravity |

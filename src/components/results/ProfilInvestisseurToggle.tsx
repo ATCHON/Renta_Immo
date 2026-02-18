@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { TrendingUp, Landmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ProfilInvestisseur } from '@/types/calculateur';
 
@@ -12,7 +13,7 @@ interface ProfilInvestisseurToggleProps {
 const PROFIL_CONFIG = {
   rentier: {
     label: 'Rentier',
-    icon: '💰',
+    icon: TrendingUp,
     tooltip: {
       title: 'Profil Rentier — Cashflow prioritaire',
       lines: [
@@ -29,7 +30,7 @@ const PROFIL_CONFIG = {
   },
   patrimonial: {
     label: 'Patrimonial',
-    icon: '🏛',
+    icon: Landmark,
     tooltip: {
       title: 'Profil Patrimonial — Valorisation long terme',
       lines: [
@@ -54,6 +55,7 @@ export function ProfilInvestisseurToggle({ profil, onChange }: ProfilInvestisseu
       {(['rentier', 'patrimonial'] as ProfilInvestisseur[]).map((p) => {
         const config = PROFIL_CONFIG[p];
         const isActive = profil === p;
+        const Icon = config.icon;
         return (
           <div key={p} className="relative">
             <button
@@ -61,6 +63,8 @@ export function ProfilInvestisseurToggle({ profil, onChange }: ProfilInvestisseu
               onClick={() => onChange(p)}
               onMouseEnter={() => setTooltip(p)}
               onMouseLeave={() => setTooltip(null)}
+              data-testid={`profil-${p}`}
+              data-profile={p}
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
                 isActive
@@ -68,7 +72,7 @@ export function ProfilInvestisseurToggle({ profil, onChange }: ProfilInvestisseu
                   : 'text-stone hover:text-charcoal'
               )}
             >
-              <span>{config.icon}</span>
+              <Icon className="h-4 w-4 flex-shrink-0" />
               <span>{config.label}</span>
             </button>
 

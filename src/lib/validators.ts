@@ -32,7 +32,12 @@ export const bienSchema = z.object({
   }).default('ancien'),
   montant_travaux: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
   valeur_mobilier: z.coerce.number({ message: 'Veuillez saisir un nombre valide' }).min(0).default(0),
-  part_terrain: z.coerce.number({ message: 'Veuillez saisir un pourcentage valide' }).min(0).max(40).optional(),
+  part_terrain: z.union([
+    z.number().min(0).max(40),
+    z.literal('').transform(() => undefined),
+    z.undefined(),
+    z.nan().transform(() => undefined),
+  ]).optional(),
   dpe: z.preprocess(
     (val) => (val === '' ? undefined : val),
     z.enum(['A', 'B', 'C', 'D', 'E', 'F', 'G']).optional()
@@ -111,6 +116,12 @@ export const exploitationSchema = z.object({
   cfe_estimee: z.coerce.number({ message: 'Veuillez saisir un montant valide' }).min(0).default(0),
   comptable_annuel: z.coerce.number({ message: 'Veuillez saisir un montant valide' }).min(0).default(0),
   type_location: z.enum(['nue', 'meublee_longue_duree', 'meublee_tourisme_classe', 'meublee_tourisme_non_classe']).default('nue'),
+  taux_occupation: z.coerce
+    .number({ message: 'Veuillez saisir un pourcentage valide' })
+    .min(0.5)
+    .max(1)
+    .optional()
+    .default(1),
 });
 
 // Type d'entrée pour le formulaire (champs optionnels avec default)
@@ -190,6 +201,18 @@ export const optionsSchema = z.object({
   taux_agence_revente: z.number().min(0).max(15).default(5),
   profil_investisseur: z.enum(['rentier', 'patrimonial']).default('rentier'),
   ponderation_loyers: z.number().min(60).max(90).default(70),
+  prix_revente: z.union([
+    z.number().min(0),
+    z.literal('').transform(() => undefined),
+    z.undefined(),
+    z.nan().transform(() => undefined),
+  ]).optional(),
+  duree_detention: z.union([
+    z.number().min(1).max(30),
+    z.literal('').transform(() => undefined),
+    z.undefined(),
+    z.nan().transform(() => undefined),
+  ]).optional(),
 }).refine(
   (data) => {
     if (data.envoyer_email && !data.email) {

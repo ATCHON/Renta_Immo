@@ -3,6 +3,7 @@
  * Point d'entrée unique pour tous les calculs de rentabilité
  */
 
+import { configService } from '../config/config-service';
 import type { CalculResultats } from '@/types/calculateur';
 import { logger } from '@/lib/logger';
 import { validateAndNormalize, ValidationError } from './validation';
@@ -10,7 +11,8 @@ import { calculerRentabilite } from './rentabilite';
 import { calculerFiscalite, calculerToutesFiscalites } from './fiscalite';
 import { analyserHcsf } from './hcsf';
 import { genererSynthese } from './synthese';
-import { genererProjections, genererTableauAmortissement } from './projection';
+import { genererProjections, genererTableauAmortissement, genererTableauAmortissementFiscal } from './projection';
+import { ResolvedConfig } from '../config/config-types';
 
 // Re-export des types et erreurs pour usage externe
 export { ValidationError } from './validation';
@@ -43,18 +45,29 @@ export interface CalculationError {
  * @param input - Données brutes du formulaire
  * @returns Résultat du calcul ou erreur
  */
-export function performCalculations(
-  input: unknown
-): CalculationResult | CalculationError {
+export async function performCalculations(
+  input: unknown,
+  configOverride?: ResolvedConfig
+): Promise<CalculationResult | CalculationError> {
   try {
     // Étape 1 : Validation et normalisation
     const { data, alertes } = validateAndNormalize(input);
+
+    // Étape 1bis : Récupération de la configuration
+    let config: ResolvedConfig;
+    if (configOverride) {
+      config = configOverride;
+    } else {
+      const anneeFiscale = new Date().getFullYear();
+      config = await configService.getConfig(anneeFiscale);
+    }
 
     // Étape 2 : Calculs de rentabilité (financement, charges, rendements)
     const rentabilite = calculerRentabilite(
       data.bien,
       data.financement,
-      data.exploitation
+      data.exploitation,
+      config
     );
 
     // Étape 3 : Calculs de fiscalité
@@ -62,28 +75,30 @@ export function performCalculations(
       data.structure,
       rentabilite,
       data.bien,
-      data.exploitation
+      data.exploitation,
+      config
     );
 
     // Étape 4 : Analyse HCSF
     const hcsf = analyserHcsf(
       data,
       rentabilite.financement,
-      data.exploitation.loyer_mensuel
+      data.exploitation.loyer_mensuel,
+      config
     );
 
     // Étape 4bis : Comparaison fiscale complète
-    const comparaisonFiscalite = calculerToutesFiscalites(data, rentabilite);
+    const comparaisonFiscalite = calculerToutesFiscalites(data, rentabilite, config);
 
 
 
     // Étape 5 : Synthèse et scoring (AUDIT-106 : nouveau scoring avec DPE et ratio)
     // V2-S16 : Profil investisseur pour pondération du scoring
     const profilInvestisseur = (data.options as { profil_investisseur?: 'rentier' | 'patrimonial' }).profil_investisseur;
-    const synthese = genererSynthese(rentabilite, hcsf, fiscalite, data.structure, data.bien, profilInvestisseur);
+    const synthese = genererSynthese(rentabilite, hcsf, config, fiscalite, data.structure, data.bien, profilInvestisseur);
 
     // Étape 6 : Projections pluriannuelles
-    const projections = genererProjections(data, data.options.horizon_projection);
+    const projections = genererProjections(data, config, data.options.horizon_projection);
 
     // Étape 7 : Tableau d'amortissement détaillé
     const tauxCredit = (data.financement.taux_interet || 0) / 100;
@@ -104,6 +119,7 @@ export function performCalculations(
         nette: rentabilite.rentabilite_nette,
         nette_nette: fiscalite.rentabilite_nette_nette,
         loyer_annuel: rentabilite.loyer_annuel,
+        charges_mensuelles: Math.round(rentabilite.charges.total_charges_annuelles / 12),
       },
       cashflow: {
         mensuel: Math.round((rentabilite.cashflow_annuel - fiscalite.impot_total) / 12),
@@ -115,6 +131,7 @@ export function performCalculations(
         montant_emprunt: rentabilite.financement.montant_emprunt,
         mensualite: rentabilite.financement.mensualite_totale,
         cout_total_credit: rentabilite.financement.cout_total_credit,
+        frais_notaire: rentabilite.financement.frais_notaire,
       },
       fiscalite: {
         regime: fiscalite.regime,
@@ -144,15 +161,25 @@ export function performCalculations(
       },
       projections,
       tableauAmortissement,
+      tableauAmortissementFiscal: genererTableauAmortissementFiscal(data, config, data.options.horizon_projection) ?? undefined,
     };
 
-    // Fusionner les alertes de validation avec celles du HCSF
-    const toutesAlertes = [...alertes, ...hcsf.alertes];
+    // Fusionner les alertes de validation avec celles des calculs (V2-S22)
+    const toutesAlertes = [
+      ...alertes,
+      ...hcsf.alertes,
+      ...(fiscalite.alertes ?? []),
+      ...(synthese.points_attention_detail ?? [])
+        .filter(p => p.type === 'error' || p.type === 'warning')
+        .map(p => p.message),
+    ];
+
+    const uniqueAlertes = Array.from(new Set(toutesAlertes.filter(Boolean)));
 
     return {
       success: true,
       resultats,
-      alertes: toutesAlertes,
+      alertes: uniqueAlertes,
       timestamp: new Date().toISOString(),
     };
   } catch (error) {

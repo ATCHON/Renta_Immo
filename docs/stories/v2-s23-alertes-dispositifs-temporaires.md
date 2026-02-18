@@ -1,7 +1,7 @@
 # Story V2-S23 : Système d'alertes pour dispositifs temporaires
 
 > **Epic** : EPIC-V2-08 | **Sprint** : Sprint 4+ | **Effort** : M
-> **Statut** : Draft
+> **Statut** : Completed
 
 ## Story
 
@@ -18,11 +18,11 @@
 
 ## Tasks / Subtasks
 
-- [ ] Dépend de V2-S21 (interface admin)
-- [ ] Ajouter la logique de calcul de statut dans le ConfigService (AC: 1, 2)
-- [ ] Afficher le statut dans l'interface admin (AC: 1, 4)
-- [ ] Implémenter l'envoi d'email (utiliser le service email existant si disponible) (AC: 3)
-- [ ] Écrire les tests
+- [x] Dépend de V2-S21 (interface admin)
+- [x] Ajouter la logique de calcul de statut dans le ConfigService (AC: 1, 2)
+- [x] Afficher le statut dans l'interface admin (AC: 1, 4)
+- [x] Implémenter l'envoi d'email (utiliser le service email existant si disponible) (AC: 3)
+- [x] Écrire les tests
 
 ## Dev Notes
 
@@ -41,3 +41,4 @@
 | Date | Version | Description | Author |
 |------|---------|-------------|--------|
 | 2026-02-14 | 1.0 | Création | John (PM) |
+| 2026-02-16 | 1.1 | Implémentation terminée | Antigravity |

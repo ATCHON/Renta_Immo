@@ -10,16 +10,15 @@
  * - SCI IS : 15% puis 25% + amortissement
  */
 
-import { CONSTANTS } from '@/config/constants';
+import { ResolvedConfig } from '../config/config-types';
 import type { FiscaliteCalculations, StructureData, RentabiliteCalculations, RegimeFiscal, BienData, ExploitationData, FinancementData, FiscaliteComparaison, DeficitFoncierDetail, PlusValueDetail, ModeAmortissement } from './types';
-
-// Re-export pour compatibilité
-export const PRELEVEMENTS_SOCIAUX = CONSTANTS.FISCALITE.TAUX_PS_FONCIER;
-export const TAUX_IS = {
-  TAUX_REDUIT: CONSTANTS.FISCALITE.IS.TAUX_REDUIT,
-  TAUX_NORMAL: CONSTANTS.FISCALITE.IS.TAUX_NORMAL,
-  SEUIL: CONSTANTS.FISCALITE.IS.SEUIL_TAUX_REDUIT,
-} as const;
+import {
+  PART_TERRAIN_DEFAUT,
+  DUREE_AMORTISSEMENT_BATI,
+  DUREE_AMORTISSEMENT_MOBILIER,
+  DUREE_AMORTISSEMENT_TRAVAUX,
+  DATE_LOI_LE_MEUR,
+} from './constants';
 
 
 
@@ -43,10 +42,12 @@ export interface FiscaliteDetail extends FiscaliteCalculations {
  */
 export function calculerMicroFoncier(
   revenusBruts: number,
-  tmi: number
+  tmi: number,
+  config: ResolvedConfig
 ): FiscaliteDetail {
   const alertes: string[] = [];
-  const { PLAFOND, ABATTEMENT } = CONSTANTS.FISCALITE.MICRO_FONCIER;
+  const PLAFOND = config.microFoncierPlafond;
+  const ABATTEMENT = config.microFoncierAbattement;
 
   // Vérification plafond
   if (revenusBruts > PLAFOND) {
@@ -62,7 +63,7 @@ export function calculerMicroFoncier(
   // IR + Prélèvements sociaux
   const tauxTmi = tmi / 100;
   const impotRevenu = baseImposable * tauxTmi;
-  const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.TAUX_PS_FONCIER;
+  const prelevementsSociaux = baseImposable * config.tauxPsFoncier;
   const impotTotal = impotRevenu + prelevementsSociaux;
 
   const revenuNetApresImpot = revenusBruts - impotTotal;
@@ -91,6 +92,7 @@ export function calculerFoncierReel(
   revenusBruts: number,
   chargesDeductibles: number,
   tmi: number,
+  config: ResolvedConfig,
   interetsAssurance: number = 0,
   deficitReportableEntrant: number = 0,
   renovationEnergetique: boolean = false,
@@ -120,6 +122,7 @@ export function calculerFoncierReel(
       chargesDeductibles,
       interetsAssurance,
       tmi,
+      config,
       renovationEnergetique,
       anneeTravaux
     );
@@ -133,7 +136,7 @@ export function calculerFoncierReel(
   // IR + Prélèvements sociaux (sur base imposable positive uniquement)
   const tauxTmi = tmi / 100;
   const impotRevenu = baseImposable * tauxTmi;
-  const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.TAUX_PS_FONCIER;
+  const prelevementsSociaux = baseImposable * config.tauxPsFoncier;
   let impotTotal = impotRevenu + prelevementsSociaux;
 
   // L'économie du déficit foncier réduit uniquement l'IR (imputation sur revenu global, pas les PS)
@@ -168,27 +171,33 @@ export function calculerFoncierReel(
 export function calculerLmnpMicro(
   revenusBruts: number,
   tmi: number,
+  config: ResolvedConfig,
   type_location: string = 'meublee_longue_duree'
 ): FiscaliteDetail {
   const alertes: string[] = [];
 
   // Détermination des seuils selon le type de location
-  // V2-S09 : Prise en charge explicite des 3 catégories
-  let config;
+  let plafond: number;
+  let abattementRate: number;
+
   switch (type_location) {
     case 'meublee_tourisme_classe':
-      config = CONSTANTS.FISCALITE.MICRO_BIC.MEUBLE_TOURISME_CLASSE;
+      plafond = config.microBicTourismeClassePlafond;
+      abattementRate = config.microBicTourismeClasseAbattement;
       break;
     case 'meublee_tourisme_non_classe':
-      config = CONSTANTS.FISCALITE.MICRO_BIC.MEUBLE_TOURISME_NON_CLASSE;
+      plafond = config.microBicTourismeNonClassePlafond;
+      abattementRate = config.microBicTourismeNonClasseAbattement;
       break;
     case 'meublee_longue_duree':
     default:
-      config = CONSTANTS.FISCALITE.MICRO_BIC.MEUBLE_LONGUE_DUREE;
+      plafond = config.microBicMeubleLongueDureePlafond;
+      abattementRate = config.microBicMeubleLongueDureeAbattement;
       break;
   }
 
-  const { PLAFOND, ABATTEMENT } = config;
+  const PLAFOND = plafond;
+  const ABATTEMENT = abattementRate;
 
   // Vérification plafond
   if (revenusBruts > PLAFOND) {
@@ -204,7 +213,7 @@ export function calculerLmnpMicro(
   // IR + Prélèvements sociaux BIC LMNP (V2-S04 : 17.2% pour non-professionnels)
   const tauxTmi = tmi / 100;
   const impotRevenu = baseImposable * tauxTmi;
-  const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.TAUX_PS_REVENUS_BIC_LMNP;
+  const prelevementsSociaux = baseImposable * config.tauxPsRevenusBicLmnp;
   const impotTotal = impotRevenu + prelevementsSociaux;
 
   const revenuNetApresImpot = revenusBruts - impotTotal;
@@ -234,6 +243,7 @@ export function calculerLmnpReel(
   chargesDeductibles: number,
   prixAchat: number,
   tmi: number,
+  config: ResolvedConfig,
   montantTravaux: number = 0,
   valeurMobilier: number = 0,
   interetsAssurance: number = 0,
@@ -258,7 +268,7 @@ export function calculerLmnpReel(
     }
   }
 
-  const partTerrainEffective = partTerrain ?? CONSTANTS.AMORTISSEMENT.PART_TERRAIN;
+  const partTerrainEffective = partTerrain ?? PART_TERRAIN_DEFAUT; // Valeur par défaut si non spécifiée
   const valeurBati = prixAchat * (1 - partTerrainEffective);
 
   // 1. Amortissement immobilier selon le mode (AUDIT-104)
@@ -266,20 +276,20 @@ export function calculerLmnpReel(
   if (modeAmortissement === 'composants') {
     amortissementImmo = calculerAmortissementComposants(valeurBati, annee);
   } else {
-    // Simplifié : linéaire sur DUREE_BATI ans
-    amortissementImmo = annee <= CONSTANTS.AMORTISSEMENT.DUREE_BATI
-      ? valeurBati / CONSTANTS.AMORTISSEMENT.DUREE_BATI
+    // Simplifié : linéaire sur 33 ans (standard)
+    amortissementImmo = annee <= DUREE_AMORTISSEMENT_BATI
+      ? valeurBati / DUREE_AMORTISSEMENT_BATI
       : 0;
   }
 
-  // 2. Mobilier (durée fixe)
-  const amortissementMobilier = annee <= CONSTANTS.AMORTISSEMENT.DUREE_MOBILIER
-    ? valeurMobilier / CONSTANTS.AMORTISSEMENT.DUREE_MOBILIER
+  // 2. Mobilier (durée fixe 10 ans)
+  const amortissementMobilier = annee <= DUREE_AMORTISSEMENT_MOBILIER
+    ? valeurMobilier / DUREE_AMORTISSEMENT_MOBILIER
     : 0;
 
-  // 3. Travaux (durée fixe)
-  const amortissementTravaux = annee <= CONSTANTS.AMORTISSEMENT.DUREE_TRAVAUX
-    ? montantTravaux / CONSTANTS.AMORTISSEMENT.DUREE_TRAVAUX
+  // 3. Travaux (durée fixe 15 ans)
+  const amortissementTravaux = annee <= DUREE_AMORTISSEMENT_TRAVAUX
+    ? montantTravaux / DUREE_AMORTISSEMENT_TRAVAUX
     : 0;
 
   const amortissementTotal = amortissementImmo + amortissementMobilier + amortissementTravaux;
@@ -302,7 +312,7 @@ export function calculerLmnpReel(
   // IR + Prélèvements sociaux
   const tauxTmi = tmi / 100;
   const impotRevenu = baseImposable * tauxTmi;
-  const prelevementsSociaux = baseImposable * CONSTANTS.FISCALITE.TAUX_PS_REVENUS_BIC_LMNP;
+  const prelevementsSociaux = baseImposable * config.tauxPsRevenusBicLmnp;
   const impotTotal = impotRevenu + prelevementsSociaux;
 
   const revenuNetApresImpot = revenusBruts - chargesRetenues - interetsAssurance - impotTotal;
@@ -329,6 +339,7 @@ export function calculerLmnpReel(
 export function calculerFiscaliteSciIs(
   revenuNetAvantImpots: number,
   prixAchat: number,
+  config: ResolvedConfig,
   interetsAssurance: number = 0,
   distribuerDividendes: boolean = false,
   partTerrain?: number,
@@ -338,15 +349,15 @@ export function calculerFiscaliteSciIs(
   const alertes: string[] = [];
 
   // Amortissement annuel (AUDIT-104 : mode simplifié ou composants)
-  const partTerrainEffective = partTerrain ?? CONSTANTS.AMORTISSEMENT.PART_TERRAIN;
+  const partTerrainEffective = partTerrain ?? PART_TERRAIN_DEFAUT;
   const valeurBati = prixAchat * (1 - partTerrainEffective);
 
   let amortissementAnnuel: number;
   if (modeAmortissement === 'composants') {
     amortissementAnnuel = calculerAmortissementComposants(valeurBati, annee);
   } else {
-    amortissementAnnuel = annee <= CONSTANTS.AMORTISSEMENT.DUREE_BATI
-      ? valeurBati / CONSTANTS.AMORTISSEMENT.DUREE_BATI
+    amortissementAnnuel = annee <= DUREE_AMORTISSEMENT_BATI
+      ? valeurBati / DUREE_AMORTISSEMENT_BATI
       : 0;
   }
 
@@ -361,7 +372,7 @@ export function calculerFiscaliteSciIs(
 
   // Calcul IS progressif
   let impotIs: number;
-  const { SEUIL_TAUX_REDUIT, TAUX_REDUIT, TAUX_NORMAL } = CONSTANTS.FISCALITE.IS;
+  const { isSeuilTauxReduit: SEUIL_TAUX_REDUIT, isTauxReduit: TAUX_REDUIT, isTauxNormal: TAUX_NORMAL } = config;
 
   if (baseImposable <= SEUIL_TAUX_REDUIT) {
     impotIs = baseImposable * TAUX_REDUIT;
@@ -380,9 +391,9 @@ export function calculerFiscaliteSciIs(
 
   if (distribuerDividendes && revenuNetApresIs > 0) {
     dividendesBruts = revenuNetApresIs;
-    flatTax = dividendesBruts * 0.30; // Flat tax 30%
+    flatTax = dividendesBruts * (config.flatTax); // Flat tax dynamique
     netEnPoche = dividendesBruts - flatTax;
-    alertes.push(`Distribution des dividendes activée (Flat Tax 30% : ${round(flatTax)}€)`);
+    alertes.push(`Distribution des dividendes activée (Flat Tax ${Math.round(config.flatTax * 100)}% : ${round(flatTax)}€)`);
   }
 
   return {
@@ -419,6 +430,7 @@ export function calculerDeficitFoncier(
   chargesHorsInterets: number,
   interetsAssurance: number,
   tmi: number,
+  config: ResolvedConfig,
   renovationEnergetique: boolean = false,
   anneeTravaux?: number
 ): DeficitFoncierDetail | null {
@@ -435,10 +447,10 @@ export function calculerDeficitFoncier(
 
   // Imputation sur revenu global (max 10 700€, hors intérêts uniquement)
   // AUDIT-110 & V2-S15 : Plafond majoré (21 400€) si travaux énergétique (2023-2025)
-  let plafond: number = CONSTANTS.DEFICIT_FONCIER.PLAFOND_IMPUTATION;
+  let plafond: number = config.deficitFoncierPlafondImputation;
 
   if (renovationEnergetique && anneeTravaux && anneeTravaux >= 2023 && anneeTravaux <= 2025) {
-    plafond = CONSTANTS.DEFICIT_FONCIER.PLAFOND_ENERGIE;
+    plafond = config.deficitFoncierPlafondEnergie;
   }
 
   const imputationRevenuGlobal = Math.min(deficitHorsInterets, plafond);
@@ -456,7 +468,7 @@ export function calculerDeficitFoncier(
     imputable_revenu_global: round(imputationRevenuGlobal),
     economie_impot: round(economieImpot),
     reportable: round(reportable),
-    duree_report: CONSTANTS.DEFICIT_FONCIER.DUREE_REPORT,
+    duree_report: config.deficitFoncierDureeReport,
   };
 }
 
@@ -476,7 +488,13 @@ export function calculerAmortissementComposants(
   valeurAmortissable: number,
   annee: number
 ): number {
-  const composants = CONSTANTS.AMORTISSEMENT.COMPOSANTS;
+  // Ces durées et parts sont fixes pour l'instant (normes comptables)
+  const composants = {
+    GROS_OEUVRE: { PART: 0.40, DUREE: 50 },
+    FACADE_TOITURE: { PART: 0.20, DUREE: 25 },
+    INSTALLATIONS: { PART: 0.20, DUREE: 15 },
+    AGENCEMENTS: { PART: 0.20, DUREE: 10 },
+  };
   let total = 0;
 
   // Gros œuvre
@@ -529,11 +547,21 @@ export function abattementPS(dureeDetention: number): number {
  * Calcule la surtaxe sur plus-value > 50 000€ (V2-S03)
  * Barème progressif par tranches conformes BOFiP
  */
-function calculerSurtaxePV(pvNetteIR: number): number {
-  if (pvNetteIR <= CONSTANTS.PLUS_VALUE.SEUIL_SURTAXE) return 0;
+function calculerSurtaxePV(pvNetteIR: number, config: ResolvedConfig): number {
+  if (pvNetteIR <= config.plusValueSeuilSurtaxe) return 0;
 
   let surtaxe = 0;
-  for (const tranche of CONSTANTS.PLUS_VALUE.BAREME_SURTAXE) {
+  // Le barème de surtaxe reste fixe dans le code car complexe (tranches)
+  // Mais le seuil de déclenchement est dynamique.
+  const BAREME_SURTAXE = [
+    { MIN: 50001, MAX: 100000, TAUX: 0.02 },
+    { MIN: 100001, MAX: 150000, TAUX: 0.03 },
+    { MIN: 150001, MAX: 200000, TAUX: 0.04 },
+    { MIN: 200001, MAX: 250000, TAUX: 0.06 },
+    { MIN: 250001, MAX: Infinity, TAUX: 0.06 },
+  ];
+
+  for (const tranche of BAREME_SURTAXE) {
     if (pvNetteIR >= tranche.MIN) {
       const montantDansTranche = Math.max(0, Math.min(pvNetteIR, tranche.MAX) - tranche.MIN);
       surtaxe += montantDansTranche * tranche.TAUX;
@@ -572,15 +600,16 @@ export function calculerPlusValueIR(
   prixVente: number,
   prixAchat: number,
   dureeDetention: number,
+  config: ResolvedConfig,
   amortissementsCumules: number = 0,
   montantTravaux: number = 0,
   lmnpOptions?: PlusValueLmnpOptions
 ): PlusValueDetail {
   // V2-S01 : Prix d'acquisition corrigé avec forfaits
-  const forfaitAcquisition = prixAchat * CONSTANTS.PLUS_VALUE.FORFAIT_FRAIS_ACQUISITION;
+  const forfaitAcquisition = prixAchat * config.plusValueForfaitFraisAcquisition;
   // Règle PV : retenir le plus favorable entre montant réel et forfait 15% du prix d'achat (si détention > 5 ans)
   const travauxRetenus = dureeDetention > 5
-    ? Math.max(montantTravaux, prixAchat * CONSTANTS.PLUS_VALUE.FORFAIT_TRAVAUX_PV)
+    ? Math.max(montantTravaux, prixAchat * config.plusValueForfaitTravauxPv)
     : montantTravaux;
 
   const prixAcquisitionCorrige = prixAchat + forfaitAcquisition + travauxRetenus;
@@ -589,7 +618,7 @@ export function calculerPlusValueIR(
   let amortissementsReintegres = amortissementsCumules;
   if (lmnpOptions) {
     const dateCession = lmnpOptions.dateCession ? new Date(lmnpOptions.dateCession) : new Date();
-    const dateLoiLeMeur = new Date(CONSTANTS.PLUS_VALUE.DATE_LOI_LE_MEUR);
+    const dateLoiLeMeur = new Date(DATE_LOI_LE_MEUR);
 
     // Résidences de services : exemptées si cession après date Loi Le Meur
     if (lmnpOptions.typeResidence === 'services' && dateCession >= dateLoiLeMeur) {
@@ -624,9 +653,9 @@ export function calculerPlusValueIR(
   const pvNetteIR = pvBrute * (1 - abIR);
   const pvNettePS = pvBrute * (1 - abPS);
 
-  const impotIR = pvNetteIR * CONSTANTS.PLUS_VALUE.TAUX_IR;
-  const impotPS = pvNettePS * CONSTANTS.PLUS_VALUE.TAUX_PS;
-  const surtaxe = calculerSurtaxePV(pvNetteIR);
+  const impotIR = pvNetteIR * config.plusValueTauxIr;
+  const impotPS = pvNettePS * config.plusValueTauxPs;
+  const surtaxe = calculerSurtaxePV(pvNetteIR, config);
   const impotTotal = impotIR + impotPS + surtaxe;
 
   return {
@@ -661,6 +690,7 @@ export function calculerPlusValueSciIs(
   prixVente: number,
   prixAchat: number,
   amortissementsCumules: number,
+  config: ResolvedConfig,
   distribuer: boolean = false
 ): PlusValueDetail {
   const vnc = prixAchat - amortissementsCumules;
@@ -681,7 +711,7 @@ export function calculerPlusValueSciIs(
   }
 
   // IS progressif sur la PV
-  const { SEUIL_TAUX_REDUIT, TAUX_REDUIT, TAUX_NORMAL } = CONSTANTS.FISCALITE.IS;
+  const { isSeuilTauxReduit: SEUIL_TAUX_REDUIT, isTauxReduit: TAUX_REDUIT, isTauxNormal: TAUX_NORMAL } = config;
   let impotIS: number;
   if (pvBrute <= SEUIL_TAUX_REDUIT) {
     impotIS = pvBrute * TAUX_REDUIT;
@@ -692,7 +722,7 @@ export function calculerPlusValueSciIs(
   // Flat tax si distribution aux associés
   let flatTax = 0;
   if (distribuer && pvBrute - impotIS > 0) {
-    flatTax = (pvBrute - impotIS) * CONSTANTS.FISCALITE.FLAT_TAX;
+    flatTax = (pvBrute - impotIS) * config.flatTax;
   }
 
   const impotTotal = impotIS + flatTax;
@@ -722,7 +752,8 @@ export function calculerFiscalite(
   structure: StructureData,
   rentabilite: RentabiliteCalculations,
   bien: BienData,
-  exploitation: ExploitationData
+  exploitation: ExploitationData,
+  config: ResolvedConfig
 ): FiscaliteCalculations {
   const revenusBruts = rentabilite.loyer_annuel;
   const chargesDeductibles = rentabilite.charges.total_charges_annuelles;
@@ -743,14 +774,16 @@ export function calculerFiscalite(
     const result = calculerFiscaliteSciIs(
       rentabilite.revenu_net_avant_impots,
       prixAchat,
+      config,
       coutFinancierAn1,
       structure.distribution_dividendes || false,
       partTerrain,
       modeAmortissement
     );
 
-    result.rentabilite_nette_nette = prixAchat > 0
-      ? (result.revenu_net_apres_impot / prixAchat) * 100
+    const coutTotalAcquisition = rentabilite.financement.cout_total_acquisition;
+    result.rentabilite_nette_nette = coutTotalAcquisition > 0
+      ? ((rentabilite.revenu_net_avant_impots - result.impot_total) / coutTotalAcquisition) * 100
       : 0;
     return result;
   }
@@ -763,13 +796,14 @@ export function calculerFiscalite(
 
   switch (regime) {
     case 'micro_foncier':
-      result = calculerMicroFoncier(revenusBruts, tmi);
+      result = calculerMicroFoncier(revenusBruts, tmi, config);
       break;
     case 'reel':
       result = calculerFoncierReel(
         revenusBruts,
         chargesDeductibles,
         tmi,
+        config,
         coutFinancierAn1,
         0, // reportable
         bien.renovation_energetique,
@@ -777,17 +811,18 @@ export function calculerFiscalite(
       );
       break;
     case 'lmnp_micro':
-      result = calculerLmnpMicro(revenusBruts, tmi, exploitation.type_location);
+      result = calculerLmnpMicro(revenusBruts, tmi, config, exploitation.type_location);
       break;
     case 'lmnp_reel':
       // V2-S10 : Calcul CFE effective pour savoir quoi déduire (ou pas)
-      const cfeEffective = (revenusBruts < CONSTANTS.CFE.SEUIL_EXONERATION) ? 0 : (exploitation.cfe_estimee || 0);
+      const cfeEffective = (revenusBruts < config.cfeSeuilExoneration) ? 0 : (exploitation.cfe_estimee || 0);
 
       result = calculerLmnpReel(
         revenusBruts,
         chargesDeductibles,
         prixAchat,
         tmi,
+        config,
         bien.montant_travaux,
         bien.valeur_mobilier,
         coutFinancierAn1,
@@ -798,12 +833,13 @@ export function calculerFiscalite(
       );
       break;
     default:
-      result = calculerMicroFoncier(revenusBruts, tmi);
+      result = calculerMicroFoncier(revenusBruts, tmi, config);
   }
 
-  // Calcul rentabilité nette-nette
-  result.rentabilite_nette_nette = prixAchat > 0
-    ? (result.revenu_net_apres_impot / prixAchat) * 100
+  // Calcul rentabilité nette-nette : (Revenus - Charges opex - Impôts) / Coût total acquisition
+  const coutTotalAcquisition = rentabilite.financement.cout_total_acquisition;
+  result.rentabilite_nette_nette = coutTotalAcquisition > 0
+    ? ((rentabilite.revenu_net_avant_impots - result.impot_total) / coutTotalAcquisition) * 100
     : 0;
 
   return result;
@@ -834,7 +870,8 @@ export function calculerToutesFiscalites(
     exploitation: ExploitationData;
     structure: StructureData;
   },
-  rentabilite: RentabiliteCalculations
+  rentabilite: RentabiliteCalculations,
+  config: ResolvedConfig
 ): FiscaliteComparaison {
   const revenusBruts = rentabilite.loyer_annuel;
   const chargesDeductibles = rentabilite.charges.total_charges_annuelles;
@@ -854,7 +891,7 @@ export function calculerToutesFiscalites(
     {
       id: 'micro_foncier',
       label: 'Location Nue (Micro-foncier)',
-      calc: calculerMicroFoncier(revenusBruts, tmi),
+      calc: calculerMicroFoncier(revenusBruts, tmi, config),
       desc: 'Abattement forfaitaire de 30%. Idéal si vos charges sont faibles.',
       avantages: ['Simplicité administrative', 'Abattement de 30%'],
       inconvenients: ['Plafond de 15 000€', 'Pas de déduction des intérêts'],
@@ -862,7 +899,7 @@ export function calculerToutesFiscalites(
     {
       id: 'foncier_reel',
       label: 'Location Nue (Réel)',
-      calc: calculerFoncierReel(revenusBruts, chargesDeductibles, tmi, coutFinancierAn1),
+      calc: calculerFoncierReel(revenusBruts, chargesDeductibles, tmi, config, coutFinancierAn1),
       desc: 'Déduction de toutes les charges réelles. Intéressant pour les gros travaux.',
       avantages: ['Déduction intégrale des charges', 'Gestion des déficits fonciers'],
       inconvenients: ['Complexité comptable', 'Pas d\'amortissement du bâti'],
@@ -870,7 +907,7 @@ export function calculerToutesFiscalites(
     {
       id: 'lmnp_micro',
       label: 'LMNP (Micro-BIC)',
-      calc: calculerLmnpMicro(revenusBruts, tmi, input.exploitation.type_location),
+      calc: calculerLmnpMicro(revenusBruts, tmi, config, input.exploitation.type_location),
       desc: 'Abattement de 50%. Très avantageux pour les petites surfaces.',
       avantages: ['Abattement de 50%', 'Gestion simplifiée'],
       inconvenients: ['Plafond de 77 700€', 'Soumis aux prélèvements sociaux'],
@@ -883,6 +920,7 @@ export function calculerToutesFiscalites(
         chargesDeductibles,
         prixAchat,
         tmi,
+        config,
         input.bien.montant_travaux,
         input.bien.valeur_mobilier,
         coutFinancierAn1,
@@ -899,6 +937,7 @@ export function calculerToutesFiscalites(
       calc: calculerFiscaliteSciIs(
         rentabilite.revenu_net_avant_impots,
         prixAchat,
+        config,
         coutFinancierAn1,
         false,
         partTerrain,
@@ -914,6 +953,7 @@ export function calculerToutesFiscalites(
       calc: calculerFiscaliteSciIs(
         rentabilite.revenu_net_avant_impots,
         prixAchat,
+        config,
         coutFinancierAn1,
         true,
         partTerrain,
@@ -926,8 +966,11 @@ export function calculerToutesFiscalites(
   ];
 
   // Post-traitement pour calculer la rentabilité nette-nette de chaque régime
+  const coutTotalAcquisitionComp = rentabilite.financement.cout_total_acquisition;
   const items = resultatsRaw.map(r => {
-    const rentabiliteNetteNette = prixAchat > 0 ? (r.calc.revenu_net_apres_impot / prixAchat) * 100 : 0;
+    const rentabiliteNetteNette = coutTotalAcquisitionComp > 0
+      ? ((rentabilite.revenu_net_avant_impots - r.calc.impot_total) / coutTotalAcquisitionComp) * 100
+      : 0;
     return {
       regime: r.label,
       impotAnnuelMoyen: r.calc.impot_total,

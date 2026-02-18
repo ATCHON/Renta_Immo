@@ -10,6 +10,7 @@ interface MetricCardProps {
   status?: MetricStatus;
   tooltip?: string;
   className?: string;
+  'data-testid'?: string;
 }
 
 const statusStyles: Record<MetricStatus, string> = {
@@ -32,6 +33,7 @@ export function MetricCard({
   status = 'info',
   tooltip,
   className,
+  'data-testid': dataTestId,
 }: MetricCardProps) {
   return (
     <div
@@ -41,6 +43,7 @@ export function MetricCard({
         className
       )}
       title={tooltip}
+      data-testid={dataTestId}
     >
       <div className="flex flex-col items-center text-center space-y-1 sm:space-y-2">
         <p className={cn('text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold', valueStyles[status])}>

@@ -6,11 +6,11 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
     globals: true,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
       include: ['src/**/*.ts', 'src/**/*.tsx'],
       exclude: [
         'coverage/**',

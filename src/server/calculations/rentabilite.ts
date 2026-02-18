@@ -1,4 +1,4 @@
-import { CONSTANTS } from '@/config/constants';
+import { ResolvedConfig } from '../config/config-types';
 import type {
   BienData,
   FinancementData,
@@ -71,37 +71,11 @@ export function calculerMensualite(
  * @param baseTaxable - Prix d'achat hors mobilier
  * @param etatBien - ancien ou neuf
  */
-export function calculerFraisNotairePrecis(baseTaxable: number, etatBien: 'ancien' | 'neuf' = 'ancien'): number {
+export function calculerFraisNotairePrecis(baseTaxable: number, etatBien: 'ancien' | 'neuf' = 'ancien', config: ResolvedConfig): number {
   if (baseTaxable <= 0) return 0;
 
-  if (etatBien === 'neuf') {
-    return round(baseTaxable * CONSTANTS.NOTAIRE.TAUX_NEUF);
-  }
-
-  // Barème pour l'ancien
-  const dmto = baseTaxable * CONSTANTS.NOTAIRE.DMTO.TAUX_DEPARTEMENTAL_MAJOR;
-  const taxeCommunale = baseTaxable * CONSTANTS.NOTAIRE.DMTO.TAUX_COMMUNAL;
-  const fraisAssiette = dmto * CONSTANTS.NOTAIRE.DMTO.FRAIS_ASSIETTE_TAXE;
-  const csi = baseTaxable * CONSTANTS.NOTAIRE.CSI_TAUX;
-
-  // Calcul des émoluments par tranches
-  let emolumentsHT = 0;
-  let reste = baseTaxable;
-  let seuilPrecedent = 0;
-
-  for (const tranche of CONSTANTS.NOTAIRE.BAREME_EMOLUMENTS) {
-    const montantTranche = Math.min(reste, tranche.SEUIL - seuilPrecedent);
-    if (montantTranche <= 0) break;
-
-    emolumentsHT += montantTranche * tranche.TAUX;
-    reste -= montantTranche;
-    seuilPrecedent = tranche.SEUIL;
-  }
-
-  const emolumentsTTC = emolumentsHT * (1 + CONSTANTS.NOTAIRE.TVA_EMOLUMENTS);
-  const deboursForfait = 1200; // Forfait moyen debours et frais divers
-
-  return round(dmto + taxeCommunale + fraisAssiette + csi + emolumentsTTC + deboursForfait);
+  const taux = etatBien === 'neuf' ? config.notaireTauxNeuf : config.notaireTauxAncien;
+  return round(baseTaxable * taux);
 }
 
 /**
@@ -109,14 +83,15 @@ export function calculerFraisNotairePrecis(baseTaxable: number, etatBien: 'ancie
  */
 export function calculerFinancement(
   bien: BienData,
-  financement: FinancementData
+  financement: FinancementData,
+  config: ResolvedConfig
 ): FinancementCalculations {
   const prixAchat = bien.prix_achat;
   const valeurMobilier = bien.valeur_mobilier || 0;
 
   // L'assiette des frais de notaire exclut le mobilier
   const baseTaxableNotaire = Math.max(0, prixAchat - valeurMobilier);
-  const fraisNotaire = calculerFraisNotairePrecis(baseTaxableNotaire, bien.etat_bien);
+  const fraisNotaire = calculerFraisNotairePrecis(baseTaxableNotaire, bien.etat_bien, config);
 
   const montantTravaux = bien.montant_travaux || 0;
   const fraisBanque = (financement.frais_dossier || 0) + (financement.frais_garantie || 0);
@@ -144,7 +119,8 @@ export function calculerFinancement(
     cout_total_credit: round(cout_total_credit),
     cout_total_interets: round(cout_total_interets),
     cout_total_acquisition: round(coutTotalAcquisition),
-    taux_interet: financement.taux_interet
+    taux_interet: financement.taux_interet,
+    frais_notaire: round(fraisNotaire)
   };
 }
 
@@ -159,18 +135,19 @@ export function calculerFinancement(
 export function calculerChargesAnnuelles(
   exploitation: ExploitationData,
   loyerAnnuel: number,
-  tauxOccupation?: number
+  tauxOccupation: number | undefined,
+  config: ResolvedConfig
 ): ChargesCalculations {
   // Charges fixes (on soustrait la part récupérable sur le locataire)
   const chargesCoproProprietaire = Math.max(0, exploitation.charges_copro - (exploitation.charges_copro_recuperables || 0));
 
   const charges_fixes_annuelles =
-    chargesCoproProprietaire * 12 +
+    chargesCoproProprietaire +
     exploitation.taxe_fonciere +
     exploitation.assurance_pno +
     (exploitation.assurance_gli || 0) +
-    // V2-S10 : CFE exonérée si revenus < 5000€
-    (loyerAnnuel < CONSTANTS.CFE.SEUIL_EXONERATION ? 0 : (exploitation.cfe_estimee || 0)) +
+    // V2-S10 : CFE exonérée selon seuil config
+    (loyerAnnuel < config.cfeSeuilExoneration ? 0 : (exploitation.cfe_estimee || 0)) +
     (exploitation.comptable_annuel || 0);
 
   // Charges proportionnelles (en % du loyer annuel)
@@ -198,21 +175,25 @@ export function calculerChargesAnnuelles(
  * @param bien - Données du bien
  * @param financement - Données de financement
  * @param exploitation - Données d'exploitation
+ * @param config - Configuration résolue
  */
 export function calculerRentabilite(
   bien: BienData,
   financement: FinancementData,
-  exploitation: ExploitationData
+  exploitation: ExploitationData,
+  config: ResolvedConfig
 ): RentabiliteCalculations {
   const tauxOccupation = exploitation.taux_occupation ?? 1;
   const loyer_annuel = exploitation.loyer_mensuel * 12 * tauxOccupation;
-  const financementCalc = calculerFinancement(bien, financement);
+  // Loyer facial (sans pondération par taux d'occupation) — convention marché pour la rentabilité brute
+  const loyer_annuel_facade = exploitation.loyer_mensuel * 12;
+  const financementCalc = calculerFinancement(bien, financement, config);
   // On passe le taux d'occupation BRUT (peut être undefined) pour savoir si on doit annuler la provision vacance
-  const charges = calculerChargesAnnuelles(exploitation, loyer_annuel, exploitation.taux_occupation);
+  const charges = calculerChargesAnnuelles(exploitation, loyer_annuel, exploitation.taux_occupation, config);
 
-  // Correction Audit : Rentabilité brute sur prix d'achat initial reste utile
+  // Rentabilité brute sur loyer facial (convention marché, sans déduire la vacance)
   const rentabilite_brute = bien.prix_achat > 0
-    ? (loyer_annuel / bien.prix_achat) * 100
+    ? (loyer_annuel_facade / bien.prix_achat) * 100
     : 0;
 
   const revenu_net_avant_impots = loyer_annuel - charges.total_charges_annuelles;

@@ -85,7 +85,17 @@
       "Bash(\"D:/Devs/Renta_Immo/docs/stories/v2-s17-alerte-seuil-lmp.md\":*)",
       "Bash(\"D:/Devs/Renta_Immo/docs/stories/v2-s18-hcsf-ponderation-configurable.md\":*)",
       "Bash(\"D:/Devs/Renta_Immo/docs/stories/v2-s19-schema-config-param.md\":*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "mcp__plugin_supabase_supabase__list_migrations",
+      "Bash(git rm:*)",
+      "Bash(python:*)",
+      "Bash(gh api:*)",
+      "Bash(/tmp/payload_lmnp.json:*)",
+      "Bash(npx jest --passWithNoTests)",
+      "Bash(npx jest --testPathIgnorePatterns=\"e2e\")",
+      "Bash(cat:*)",
+      "Bash(npx jest:*)",
+      "Bash(PORT=3000 npm run dev:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
@@ -95,5 +105,6 @@
   ],
   "enabledPlugins": {
     "supabase@claude-plugins-official": true
-  }
+  },
+  "prefersReducedMotion": false
 }

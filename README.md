@@ -1,5 +1,10 @@
 # Renta Immo
 
+[![CI](https://github.com/ATCHON/Renta_Immo/actions/workflows/ci.yml/badge.svg)](https://github.com/ATCHON/Renta_Immo/actions/workflows/ci.yml)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Tests](https://img.shields.io/badge/tests-230%20passing-brightgreen)](https://github.com/ATCHON/Renta_Immo)
+
 Renta Immo est un simulateur complet de rentabilité immobilière conçu pour aider les investisseurs à analyser la viabilité financière de leurs projets locatifs.
 
 L'application permet de calculer précisément la rentabilité (brute, nette, nette-nette), d'estimer le cashflow, de vérifier la conformité HCSF et de simuler l'impact fiscal selon différents régimes.

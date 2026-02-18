@@ -5,21 +5,22 @@ import { cn } from '@/lib/utils';
 import { CONSTANTS } from '@/config/constants';
 
 interface AlerteLmpProps {
-  recettesLmnpAnnuelles: number;
+  typeAlerte: 'warning' | 'error';
 }
 
-export function AlerteLmp({ recettesLmnpAnnuelles }: AlerteLmpProps) {
-  if (recettesLmnpAnnuelles <= CONSTANTS.LMP.SEUIL_ALERTE) return null;
-
-  const isRouge = recettesLmnpAnnuelles > CONSTANTS.LMP.SEUIL_LMP;
+export function AlerteLmp({ typeAlerte }: AlerteLmpProps) {
+  const isRouge = typeAlerte === 'error';
 
   return (
-    <div className={cn(
-      'flex items-start gap-3 px-4 py-3 rounded-xl border-l-4',
-      isRouge
-        ? 'border-l-terracotta bg-terracotta/5'
-        : 'border-l-amber bg-amber/5'
-    )}>
+    <div
+      data-testid="alerte-lmp"
+      className={cn(
+        'flex items-start gap-3 px-4 py-3 rounded-xl border-l-4',
+        isRouge
+          ? 'border-l-terracotta bg-terracotta/5'
+          : 'border-l-amber bg-amber/5'
+      )}
+    >
       {isRouge
         ? <AlertTriangle className="h-5 w-5 text-terracotta shrink-0 mt-0.5" />
         : <AlertCircle className="h-5 w-5 text-amber shrink-0 mt-0.5" />}

@@ -1,7 +1,7 @@
 # Story V2-S20 : Créer l'API CRUD pour les paramètres
 
 > **Epic** : EPIC-V2-08 | **Sprint** : Sprint 4+ | **Effort** : L
-> **Statut** : Draft
+> **Statut** : Completed
 
 ## Story
 
@@ -21,12 +21,12 @@
 
 ## Tasks / Subtasks
 
-- [ ] Dépend de V2-S19 (schéma défini)
-- [ ] Créer src/app/api/admin/params/route.ts (AC: 1, 4)
-- [ ] Créer src/app/api/admin/params/[cle]/route.ts (AC: 2, 3)
-- [ ] Implémenter la vérification du rôle admin via Better Auth (AC: 5)
-- [ ] Ajouter la validation de cohérence (AC: 6)
-- [ ] Créer la table audit et l'enregistrement des modifications (AC: 7)
+- [x] Dépend de V2-S19 (schéma défini)
+- [x] Créer src/app/api/admin/params/route.ts (AC: 1, 4)
+- [x] Créer src/app/api/admin/params/[cle]/route.ts (AC: 2, 3)
+- [x] Implémenter la vérification du rôle admin via Better Auth (AC: 5)
+- [x] Ajouter la validation de cohérence (AC: 6)
+- [x] Créer la table audit et l'enregistrement des modifications (AC: 7)
 
 ## Dev Notes
 
@@ -47,3 +47,4 @@
 | Date | Version | Description | Author |
 |------|---------|-------------|--------|
 | 2026-02-14 | 1.0 | Création | John (PM) |
+| 2026-02-16 | 1.1 | Implémentation terminée | Antigravity |

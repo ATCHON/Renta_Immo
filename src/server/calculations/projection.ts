@@ -1,4 +1,4 @@
-import { CONSTANTS } from '@/config/constants';
+import { ResolvedConfig } from '../config/config-types';
 import {
     CalculationInput,
     ProjectionAnnuelle,
@@ -7,6 +7,15 @@ import {
     LigneAmortissement,
     RegimeFiscal
 } from './types';
+import {
+    TRI_PRECISION,
+    TRI_MAX_ITERATIONS,
+    DUREE_AMORTISSEMENT_BATI,
+    DUREE_AMORTISSEMENT_MOBILIER,
+    DUREE_AMORTISSEMENT_TRAVAUX,
+    PART_TERRAIN_DEFAUT,
+} from './constants';
+import type { TableauAmortissementFiscal, LigneAmortissementFiscal } from '@/types/calculateur';
 import { calculerFinancement } from './rentabilite';
 import {
     calculerMicroFoncier,
@@ -16,6 +25,7 @@ import {
     calculerFiscaliteSciIs,
     calculerPlusValueIR,
     calculerPlusValueSciIs,
+    calculerAmortissementComposants,
 } from './fiscalite';
 import type { ModeAmortissement, PlusValueDetail } from './types';
 
@@ -30,8 +40,7 @@ export function calculerTRI(flux: number[], guess: number = 0.1): number {
     const hasPositive = flux.some(f => f > 0);
     if (!hasNegative || !hasPositive) return 0;
 
-    const maxIterations = 100;
-    const precision = 0.00001;
+    const maxIterations = TRI_MAX_ITERATIONS;
     let tri = guess;
 
     for (let i = 0; i < maxIterations; i++) {
@@ -48,7 +57,7 @@ export function calculerTRI(flux: number[], guess: number = 0.1): number {
             }
         }
 
-        if (Math.abs(npv) < precision) return tri * 100;
+        if (Math.abs(npv) < TRI_PRECISION) return tri * 100;
         if (dNpv === 0 || !isFinite(dNpv)) break;
 
         const nextTri = tri - npv / dNpv;
@@ -56,7 +65,7 @@ export function calculerTRI(flux: number[], guess: number = 0.1): number {
         // Sécurité supplémentaire : si le TRI s'emballe
         if (Math.abs(nextTri) > 1000) break; // Cap à 100000%
 
-        if (Math.abs(nextTri - tri) < precision) return nextTri * 100;
+        if (Math.abs(nextTri - tri) < TRI_PRECISION) return nextTri * 100;
         tri = nextTri;
     }
 
@@ -193,6 +202,7 @@ function calculerImpotAnnuel(params: {
     prixAchat: number;
     montantTravaux: number;
     valeurMobilier: number;
+    config: ResolvedConfig;
     partTerrain?: number;
     typeLocation: string;
     distribuerDividendes: boolean;
@@ -204,23 +214,23 @@ function calculerImpotAnnuel(params: {
         regime, loyerAnnuel, chargesDeductibles, tmi,
         coutFinancierAnnuel, prixAchat, annee, partTerrain,
         typeLocation, distribuerDividendes, modeAmortissement,
-        deficitReportableEntrant
+        deficitReportableEntrant, config
     } = params;
 
-    const mobilierEffectif = annee <= CONSTANTS.AMORTISSEMENT.DUREE_MOBILIER ? params.valeurMobilier : 0;
-    const travauxEffectif = annee <= CONSTANTS.AMORTISSEMENT.DUREE_TRAVAUX ? params.montantTravaux : 0;
+    const mobilierEffectif = annee <= DUREE_AMORTISSEMENT_MOBILIER ? params.valeurMobilier : 0;
+    const travauxEffectif = annee <= DUREE_AMORTISSEMENT_TRAVAUX ? params.montantTravaux : 0;
 
     switch (regime) {
         case 'micro_foncier':
             return {
-                impot: calculerMicroFoncier(loyerAnnuel, tmi).impot_total,
+                impot: calculerMicroFoncier(loyerAnnuel, tmi, config).impot_total,
                 deficitReportableSortant: 0,
                 amortissementAnnuel: 0,
             };
 
         case 'reel': {
             const result = calculerFoncierReel(
-                loyerAnnuel, chargesDeductibles, tmi, coutFinancierAnnuel,
+                loyerAnnuel, chargesDeductibles, tmi, config, coutFinancierAnnuel,
                 deficitReportableEntrant
             );
             // Calculer le nouveau déficit reportable
@@ -237,14 +247,14 @@ function calculerImpotAnnuel(params: {
 
         case 'lmnp_micro':
             return {
-                impot: calculerLmnpMicro(loyerAnnuel, tmi, typeLocation).impot_total,
+                impot: calculerLmnpMicro(loyerAnnuel, tmi, config, typeLocation).impot_total,
                 deficitReportableSortant: 0,
                 amortissementAnnuel: 0,
             };
 
         case 'lmnp_reel': {
             const result = calculerLmnpReel(
-                loyerAnnuel, chargesDeductibles, prixAchat, tmi,
+                loyerAnnuel, chargesDeductibles, prixAchat, tmi, config,
                 travauxEffectif, mobilierEffectif, coutFinancierAnnuel, partTerrain,
                 modeAmortissement, annee
             );
@@ -259,7 +269,7 @@ function calculerImpotAnnuel(params: {
         case 'sci_is_dividendes': {
             const revenuNetAvantImpots = loyerAnnuel - chargesDeductibles;
             const result = calculerFiscaliteSciIs(
-                revenuNetAvantImpots, prixAchat, coutFinancierAnnuel,
+                revenuNetAvantImpots, prixAchat, config, coutFinancierAnnuel,
                 distribuerDividendes, partTerrain,
                 modeAmortissement, annee
             );
@@ -272,7 +282,7 @@ function calculerImpotAnnuel(params: {
 
         default:
             return {
-                impot: calculerMicroFoncier(loyerAnnuel, tmi).impot_total,
+                impot: calculerMicroFoncier(loyerAnnuel, tmi, config).impot_total,
                 deficitReportableSortant: 0,
                 amortissementAnnuel: 0,
             };
@@ -286,10 +296,11 @@ function calculerImpotAnnuel(params: {
  */
 export function genererProjections(
     input: CalculationInput,
+    config: ResolvedConfig,
     horizon: number = 20
 ): ProjectionData {
     // 1. Calculs initiaux via le module rentabilite
-    const financementCalc = calculerFinancement(input.bien, input.financement);
+    const financementCalc = calculerFinancement(input.bien, input.financement, config);
 
     const montantEmprunt = financementCalc.montant_emprunt;
     // Conversion taux % -> décimal
@@ -319,13 +330,13 @@ export function genererProjections(
     // Constantes d'évolution (utiliser les options si présentes, sinon les constantes par défaut)
     const inflationLoyer = input.options.taux_evolution_loyer !== undefined
         ? input.options.taux_evolution_loyer / 100
-        : CONSTANTS.PROJECTION.INFLATION_LOYER;
+        : config.projectionInflationLoyer;
 
     const inflationCharges = input.options.taux_evolution_charges !== undefined
         ? input.options.taux_evolution_charges / 100
-        : CONSTANTS.PROJECTION.INFLATION_CHARGES;
+        : config.projectionInflationCharges;
 
-    const revalorisationBien = CONSTANTS.PROJECTION.REVALORISATION_BIEN;
+    const revalorisationBien = config.projectionRevalorisation;
 
     // AUDIT-110 : Gel des loyers pour DPE F, G et E (2034)
     const dpe = input.bien.dpe;
@@ -369,16 +380,16 @@ export function genererProjections(
         let coefficientDecote = 1;
         if (dpe) {
             if (['F', 'G'].includes(dpe)) {
-                coefficientDecote = 1 - CONSTANTS.PROJECTION.DECOTE_DPE.F_G;
+                coefficientDecote = 1 - config.projectionDecoteDpeFg;
             } else if (dpe === 'E' && projectionYear >= 2034) {
-                coefficientDecote = 1 - CONSTANTS.PROJECTION.DECOTE_DPE.E;
+                coefficientDecote = 1 - config.projectionDecoteDpeE;
             }
         }
         const valeurReelle = valeurBien * coefficientDecote;
 
         // Calcul des charges fixes de base (saisies)
         const chargesFixesBase =
-            (input.exploitation.charges_copro * 12) +
+            input.exploitation.charges_copro +
             input.exploitation.taxe_fonciere +
             input.exploitation.assurance_pno +
             (input.exploitation.assurance_gli || 0) +
@@ -396,7 +407,7 @@ export function genererProjections(
         const chargesAnnuelles = chargesFixesInflatees + chargesProp;
 
         // Charges déductibles fiscales (nettes des charges récupérables sur le locataire)
-        const chargesRecuperablesInflatees = (input.exploitation.charges_copro_recuperables || 0) * 12 * facteurInflationCharges;
+        const chargesRecuperablesInflatees = (input.exploitation.charges_copro_recuperables || 0) * facteurInflationCharges;
         const chargesDeductiblesFiscales = chargesAnnuelles - chargesRecuperablesInflatees;
 
         // Crédit
@@ -421,7 +432,7 @@ export function genererProjections(
         const cashflowBrut = loyerAnnuel - chargesAnnuelles - remboursementCreditAnnuel;
 
         // Expirer les buckets de déficit de plus de DUREE_REPORT ans (FIFO)
-        const dureeReport = CONSTANTS.DEFICIT_FONCIER.DUREE_REPORT;
+        const dureeReport = config.deficitFoncierDureeReport;
         deficitBuckets = deficitBuckets.filter(b => annee - b.annee <= dureeReport);
 
         // Total reportable = somme des buckets actifs
@@ -443,6 +454,7 @@ export function genererProjections(
             annee,
             modeAmortissement,
             deficitReportableEntrant: deficitReportableTotal,
+            config
         });
 
         const impot = impotResult.impot;
@@ -491,8 +503,12 @@ export function genererProjections(
         capitalRembourseTotal += capitalRembourseAnnuel;
     }
 
-    // AUDIT-105 : Calcul de la plus-value à la revente
+    // AUDIT-105 / FEAT-PV : Calcul de la plus-value à la revente
+    // Si l'utilisateur a saisi un prix de revente cible, on l'utilise ; sinon la valeur revaluée
     const derniereProjection = projections[projections.length - 1];
+    const prixRevente = input.options.prix_revente ?? derniereProjection.valeurBien;
+    const dureeDetention = input.options.duree_detention ?? horizon;
+
     let plusValue: PlusValueDetail | undefined;
 
     const isSciIs = regimeProjection === 'sci_is' || regimeProjection === 'sci_is_dividendes';
@@ -500,26 +516,30 @@ export function genererProjections(
 
     if (isSciIs) {
         plusValue = calculerPlusValueSciIs(
-            derniereProjection.valeurBien,
+            prixRevente,
             input.bien.prix_achat,
             amortissementCumule,
+            config,
             input.structure.distribution_dividendes || false
         );
     } else {
         // Nom propre (IR) : réintégration amortissements uniquement pour LMNP réel (LF 2025)
         plusValue = calculerPlusValueIR(
-            derniereProjection.valeurBien,
+            prixRevente,
             input.bien.prix_achat,
-            horizon,
+            dureeDetention,
+            config,
             isLmnpReel ? amortissementCumule : 0,
             input.bien.montant_travaux || 0
         );
     }
 
     // AUDIT-108 : Frais de revente
-    const tauxAgenceRevente = (input.options.taux_agence_revente ?? CONSTANTS.FRAIS_REVENTE.TAUX_AGENCE_DEFAUT) / 100;
-    const fraisAgence = derniereProjection.valeurBien * tauxAgenceRevente;
-    const fraisDiagnostics = CONSTANTS.FRAIS_REVENTE.DIAGNOSTICS;
+    const tauxAgenceRevente = input.options.taux_agence_revente != null
+        ? input.options.taux_agence_revente / 100
+        : config.fraisReventeTauxAgenceDefaut;
+    const fraisAgence = prixRevente * tauxAgenceRevente;
+    const fraisDiagnostics = config.fraisReventeDiagnostics;
     const fraisReventeTotal = Math.round(fraisAgence + fraisDiagnostics);
 
     // Calcul du TRI (flux nets d'impôts)
@@ -548,5 +568,137 @@ export function genererProjections(
             frais_revente: fraisReventeTotal,
         },
         plusValue,
+    };
+}
+
+/**
+ * Génère le tableau d'amortissement fiscal annuel (LMNP réel / SCI IS)
+ * Distingue les composants : immeuble, travaux, mobilier
+ */
+export function genererTableauAmortissementFiscal(
+    input: CalculationInput,
+    config: ResolvedConfig,
+    horizon: number = 20
+): TableauAmortissementFiscal | null {
+    const regime = input.structure.type === 'sci_is'
+        ? (input.structure.distribution_dividendes ? 'sci_is_dividendes' : 'sci_is')
+        : (input.structure.regime_fiscal ?? 'micro_foncier');
+
+    // Uniquement pour les régimes avec amortissement réel
+    const regimesAvecAmortissement = ['lmnp_reel', 'sci_is', 'sci_is_dividendes'];
+    if (!regimesAvecAmortissement.includes(regime)) return null;
+
+    const modeAmortissement: ModeAmortissement = input.structure.mode_amortissement ?? 'simplifie';
+    const partTerrainEffective = input.bien.part_terrain ?? PART_TERRAIN_DEFAUT;
+    const valeurBati = input.bien.prix_achat * (1 - partTerrainEffective);
+
+    const montantTravaux = input.bien.montant_travaux || 0;
+    const valeurMobilier = input.bien.valeur_mobilier || 0;
+    const tmi = input.structure.tmi ?? 30;
+    const isLmnpReel = regime === 'lmnp_reel';
+
+    // Taux PS selon le régime
+    const tauxPs = isLmnpReel ? config.tauxPsRevenusBicLmnp : 0;
+    // Pour LMNP réel : IR (TMI) + prélèvements sociaux
+    // Pour SCI IS : taux IS réduit à titre estimatif (l'économie d'impôt est indicative)
+    const tauxImposition = isLmnpReel
+        ? (tmi / 100) + tauxPs
+        : config.isTauxReduit;
+
+    const lignes: LigneAmortissementFiscal[] = [];
+    let amortissementCumule = 0;
+    let totalDeductible = 0;
+    let totalMobilierDeduit = 0;
+    // LMNP réel uniquement : excédent d'amortissement reportable sans limite de durée
+    let amortissementReporteCumule = 0;
+
+    for (let annee = 1; annee <= horizon; annee++) {
+        // Amortissement immobilier (bâti)
+        let amortissementImmo: number;
+        if (modeAmortissement === 'composants') {
+            amortissementImmo = calculerAmortissementComposants(valeurBati, annee);
+        } else {
+            amortissementImmo = annee <= DUREE_AMORTISSEMENT_BATI
+                ? valeurBati / DUREE_AMORTISSEMENT_BATI
+                : 0;
+        }
+
+        // Amortissement travaux (durée fixe 15 ans)
+        const amortissementTravaux = annee <= DUREE_AMORTISSEMENT_TRAVAUX
+            ? montantTravaux / DUREE_AMORTISSEMENT_TRAVAUX
+            : 0;
+
+        // Amortissement mobilier (durée fixe 10 ans)
+        const amortissementMobilier = annee <= DUREE_AMORTISSEMENT_MOBILIER
+            ? valeurMobilier / DUREE_AMORTISSEMENT_MOBILIER
+            : 0;
+
+        const amortissementTotal = amortissementImmo + amortissementTravaux + amortissementMobilier;
+
+        // Base imposable estimative (loyer + report des années précédentes vs charges)
+        // Note : valeur indicative — les projections pluriannuelles intègrent l'inflation exacte
+        const loyerAnnuel = input.exploitation.loyer_mensuel * 12 * (input.exploitation.taux_occupation ?? 1);
+        const chargesEstimees = (input.exploitation.charges_copro || 0)
+            + (input.exploitation.taxe_fonciere || 0)
+            + (input.exploitation.assurance_pno || 0);
+        const baseAvant = Math.max(0, loyerAnnuel - chargesEstimees);
+
+        // En LMNP réel : l'amortissement ne peut pas créer de déficit BIC.
+        // L'excédent est reporté sans limite de durée sur les exercices suivants (jamais perdu).
+        // Stock disponible = amortissement de l'année + excédents reportés des années précédentes.
+        // En SCI IS : l'amortissement est simplement cappé à 0 (déficit IS reportable en IS).
+        const amortissementDisponible = isLmnpReel
+            ? amortissementTotal + amortissementReporteCumule
+            : amortissementTotal;
+        const amortissementDeductible = Math.min(Math.max(0, baseAvant), amortissementDisponible);
+        const baseApres = Math.max(0, baseAvant - amortissementDeductible);
+
+        // Nouveau stock de report : ce qui n'a pas pu être déduit
+        if (isLmnpReel) {
+            amortissementReporteCumule = amortissementDisponible - amortissementDeductible;
+        }
+
+        amortissementCumule += amortissementDeductible;
+        totalDeductible += amortissementDeductible;
+        // Part mobilier dans ce qui a été effectivement déduit (proportionnelle à la déductibilité)
+        if (amortissementTotal > 0) {
+            totalMobilierDeduit += amortissementMobilier * (amortissementDeductible / amortissementTotal);
+        }
+
+        lignes.push({
+            annee,
+            amortissementImmo: Math.round(amortissementImmo),
+            amortissementTravaux: Math.round(amortissementTravaux),
+            amortissementMobilier: Math.round(amortissementMobilier),
+            amortissementTotal: Math.round(amortissementTotal),
+            amortissementDeductible: Math.round(amortissementDeductible),
+            amortissementReporteCumule: Math.round(amortissementReporteCumule),
+            amortissementCumule: Math.round(amortissementCumule),
+            baseImposableAvant: Math.round(baseAvant),
+            baseImposableApres: Math.round(baseApres),
+        });
+    }
+
+    const regimeLabel = regime === 'lmnp_reel' ? 'LMNP Réel' : 'SCI IS';
+
+    // Calcul de l'amortissement qui sera réintégré à la plus-value lors de la revente
+    // LMNP réel : réintégration = total déduit - mobilier déduit (V2-S05, Loi Le Meur 15/02/2025)
+    //             Les résidences de services sont exemptées (non gérable ici sans le champ typeResidence)
+    // SCI IS : réintégration = totalDeductible (base VNC = prix - amortissements cumulés)
+    const amortissementAReintegrer = isLmnpReel
+        ? Math.round(Math.max(0, totalDeductible - totalMobilierDeduit))
+        : Math.round(totalDeductible); // SCI IS : réintégration totale via VNC
+
+    return {
+        regime: regimeLabel,
+        modeAmortissement,
+        lignes,
+        totaux: {
+            totalAmortissements: Math.round(lignes.reduce((s, l) => s + l.amortissementTotal, 0)),
+            totalDeductible: Math.round(totalDeductible),
+            totalMobilierDeduit: Math.round(totalMobilierDeduit),
+            amortissementAReintegrer,
+            economieImpotEstimee: Math.round(totalDeductible * tauxImposition),
+        },
     };
 }
