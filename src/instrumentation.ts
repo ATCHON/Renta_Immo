@@ -1,56 +1,13 @@
-/* eslint-disable no-console */
 /**
  * Next.js Instrumentation Hook
  *
- * Ce fichier s'exécute au démarrage du serveur Next.js (runtime Node.js uniquement).
- * Il applique les migrations SQL pendantes via runner.ts.
- *
- * `pg` est externalisé via next.config.mjs (config.externals) pour que webpack
- * ne tente pas de le bundler — il est chargé nativement par Node.js au runtime.
+ * Ce fichier s'exécute pour tous les runtimes mais délègue à instrumentation.node.ts
+ * pour le code Node.js uniquement (pg, fs, path).
+ * Next.js exclut automatiquement les fichiers *.node.ts des bundles Edge.
  */
 export async function register() {
-  // Ne s'exécute que dans le runtime Node.js (pas edge, pas client)
-  if (process.env.NEXT_RUNTIME !== 'nodejs') return;
-
-  const isProduction = process.env.NODE_ENV === 'production';
-
-  // Import statique — webpack bundle le module mais `pg` et les built-ins Node.js
-  // sont externalisés via next.config.mjs (config.externals), donc non bundlés.
-  // La garde `NEXT_RUNTIME !== 'nodejs'` ci-dessus empêche l'exécution en Edge Runtime.
-  const { runMigrations, resolveMigrationsDir, migrationsDirectoryExists } =
-    await import('./server/migrations/runner');
-
-  const connectionString = process.env.DATABASE_URL;
-
-  if (!connectionString) {
-    if (isProduction) {
-      throw new Error('[migrate] DATABASE_URL manquant — déploiement impossible sans connexion DB');
-    }
-    console.warn('[migrate] ⚠️  DATABASE_URL absent — migrations ignorées');
-    return;
-  }
-
-  const migrationsDir = resolveMigrationsDir();
-
-  if (!migrationsDirectoryExists(migrationsDir)) {
-    console.log('[migrate] ℹ️  Dossier migrations absent — supposé appliqué au build');
-    return;
-  }
-
-  try {
-    console.log('[migrate] Vérification des migrations pendantes...');
-    const { applied, skipped } = await runMigrations(connectionString, migrationsDir);
-
-    if (applied > 0) {
-      console.log(`[migrate] ✅ ${applied} migration(s) appliquée(s)`);
-    } else {
-      console.log(`[migrate] ✅ Schéma à jour (${skipped} migration(s) déjà appliquée(s))`);
-    }
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    if (isProduction) {
-      throw new Error(`[migrate] Échec critique : ${message}`);
-    }
-    console.warn(`[migrate] ⚠️  Échec non-bloquant en dev : ${message}`);
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    const { setupMigrations } = await import('./instrumentation.node');
+    await setupMigrations();
   }
 }
