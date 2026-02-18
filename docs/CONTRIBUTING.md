@@ -266,20 +266,7 @@ npm run test:e2e:debug
 
 Créez un fichier `.env.local` à la racine du projet :
 
-**Obtenir les valeurs Supabase :**
-1. Allez sur [Supabase Dashboard](https://supabase.com/dashboard)
-2. Sélectionnez votre projet
-3. **Settings** → **API**
-4. Copiez `Project URL` et `anon/public` key
-
-**Générer BETTER_AUTH_SECRET :**
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
-
 ### CI/CD (GitHub Actions)
-
-Les secrets doivent être configurés dans GitHub :
 
 Voir [Configuration CI](#ci-automatique) pour plus de détails.
 
