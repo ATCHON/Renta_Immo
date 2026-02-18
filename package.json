@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "node scripts/migrate.mjs && next dev",
     "db:migrate": "node scripts/migrate.mjs",
-    "build": "next build",
+    "build": "node scripts/migrate.mjs && next build",
+    "db:status": "node scripts/db-status.mjs",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
