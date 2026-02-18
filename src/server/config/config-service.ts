@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabase/server';
 import type { ConfigParam, ResolvedConfig, ConfigBloc } from './config-types';
+import { CLE_TO_FIELD } from './config-types';
 
 interface CacheEntry {
     data: ResolvedConfig;
@@ -56,7 +57,7 @@ export class ConfigService {
             if (!p) {
                 // Si un paramètre manque en BDD, on tente de récupérer sa valeur par défaut
                 console.warn(`Paramètre manquant en BDD : ${cle} (année ${year}). Utilisation du fallback.`);
-                return this.getFallbackValue(cle);
+                return this.getFallbackValue(cle, year);
             }
             return Number(p.valeur);
         };
@@ -177,59 +178,9 @@ export class ConfigService {
         };
     }
 
-    private getFallbackValue(cle: string): number {
-        const config = this.getFallbackConfig(new Date().getFullYear());
-        // Mapping manuel si nécessaire, ou utilisation d'une map pour plus d'efficacité
-        const fieldMap: Record<string, keyof ResolvedConfig> = {
-            TAUX_PS_FONCIER: 'tauxPsFoncier',
-            TAUX_PS_REVENUS_BIC_LMNP: 'tauxPsRevenusBicLmnp',
-            MICRO_FONCIER_ABATTEMENT: 'microFoncierAbattement',
-            MICRO_FONCIER_PLAFOND: 'microFoncierPlafond',
-            MICRO_BIC_MEUBLE_LONGUE_DUREE_ABATTEMENT: 'microBicMeubleLongueDureeAbattement',
-            MICRO_BIC_MEUBLE_LONGUE_DUREE_PLAFOND: 'microBicMeubleLongueDureePlafond',
-            MICRO_BIC_TOURISME_CLASSE_ABATTEMENT: 'microBicTourismeClasseAbattement',
-            MICRO_BIC_TOURISME_CLASSE_PLAFOND: 'microBicTourismeClassePlafond',
-            MICRO_BIC_TOURISME_NON_CLASSE_ABATTEMENT: 'microBicTourismeNonClasseAbattement',
-            MICRO_BIC_TOURISME_NON_CLASSE_PLAFOND: 'microBicTourismeNonClassePlafond',
-            IS_TAUX_REDUIT: 'isTauxReduit',
-            IS_TAUX_NORMAL: 'isTauxNormal',
-            IS_SEUIL_TAUX_REDUIT: 'isSeuilTauxReduit',
-            FLAT_TAX: 'flatTax',
-            DEFICIT_FONCIER_PLAFOND_IMPUTATION: 'deficitFoncierPlafondImputation',
-            DEFICIT_FONCIER_PLAFOND_ENERGIE: 'deficitFoncierPlafondEnergie',
-            DEFICIT_FONCIER_DUREE_REPORT: 'deficitFoncierDureeReport',
-            PLUS_VALUE_TAUX_IR: 'plusValueTauxIr',
-            PLUS_VALUE_TAUX_PS: 'plusValueTauxPs',
-            PLUS_VALUE_FORFAIT_FRAIS_ACQUISITION: 'plusValueForfaitFraisAcquisition',
-            PLUS_VALUE_FORFAIT_TRAVAUX_PV: 'plusValueForfaitTravauxPv',
-            PLUS_VALUE_SEUIL_SURTAXE: 'plusValueSeuilSurtaxe',
-            HCSF_TAUX_MAX: 'hcsfTauxMax',
-            HCSF_DUREE_MAX_ANNEES: 'hcsfDureeMaxAnnees',
-            HCSF_PONDERATION_LOCATIFS: 'hcsfPonderationLocatifs',
-            DECOTE_DPE_FG: 'decoteDpeFg',
-            DECOTE_DPE_E: 'decoteDpeE',
-            LMP_SEUIL_ALERTE: 'lmpSeuilAlerte',
-            LMP_SEUIL_LMP: 'lmpSeuilLmp',
-            RESTE_A_VIVRE_SEUIL_MIN: 'resteAVivreSeuilMin',
-            RESTE_A_VIVRE_SEUIL_CONFORT: 'resteAVivreSeuilConfort',
-            DEFAULTS_ASSURANCE_PNO: 'defaultsAssurancePno',
-            DEFAULTS_CHARGES_COPRO_M2: 'defaultsChargesCoproM2',
-            DEFAULTS_TAXE_FONCIERES_MOIS: 'defaultsTaxeFoncieresMois',
-            DEFAULTS_FRAIS_DOSSIER_BANQUE: 'defaultsFraisDossierBanque',
-            DEFAULTS_FRAIS_GARANTIE_CREDIT: 'defaultsFraisGarantieCredit',
-            DEFAULTS_COMPTABLE_ANNUEL: 'defaultsComptableLmnp',
-            DEFAULTS_CFE_MIN: 'defaultsCfeMin',
-            CFE_SEUIL_EXONERATION: 'cfeSeuilExoneration',
-            FRAIS_REVENTE_TAUX_AGENCE_DEFAUT: 'fraisReventeTauxAgenceDefaut',
-            FRAIS_REVENTE_DIAGNOSTICS: 'fraisReventeDiagnostics',
-            NOTAIRE_TAUX_ANCIEN: 'notaireTauxAncien',
-            NOTAIRE_TAUX_NEUF: 'notaireTauxNeuf',
-            PROJECTION_INFLATION_LOYER: 'projectionInflationLoyer',
-            PROJECTION_INFLATION_CHARGES: 'projectionInflationCharges',
-            PROJECTION_REVALORISATION_BIEN: 'projectionRevalorisation',
-        };
-
-        const field = fieldMap[cle];
+    private getFallbackValue(cle: string, year: number): number {
+        const config = this.getFallbackConfig(year);
+        const field = CLE_TO_FIELD[cle];
         return field ? (config[field] as number) : 0;
     }
 }

@@ -451,11 +451,7 @@ describe('CAS 9 — Alerte LMP (recettes > 23 000€)', () => {
     if (!res.success) throw new Error('API Error');
   });
 
-  it('Alerte LMP documentée (seuil 23 000€ — fonctionnalité à implémenter)', () => {
-    // NOTE: L'alerte LMP n'est pas encore implémentée dans performCalculations()
-    // Selon regles_metier_explications_v2.md §8 / FEAT-05 :
-    // Si recettes LMNP > 23 000€, afficher un avertissement LMP.
-    // Ce test documente le comportement ATTENDU (actuellement non implémenté).
+  it('Alerte LMP déclenchée quand recettes > seuil LMP (23 000€)', () => {
     const synth = (res as CalculationResult).resultats.synthese;
     const allText = [
       ...((res as CalculationResult).alertes ?? []).map((a: string | { message?: string }) => typeof a === 'string' ? a : a.message ?? ''),
@@ -463,14 +459,8 @@ describe('CAS 9 — Alerte LMP (recettes > 23 000€)', () => {
       ...(synth.recommandations_detail ?? []).map((r: { description?: string }) => r.description ?? ''),
     ].join(' ').toLowerCase();
 
-    // TODO FEAT-05: implémenter alerte LMP dans genererSynthese() ou genererAlertes()
-    // Pour l'instant on vérifie que les recettes dépassent bien le seuil
-    const recettesAnnuelles = 2100 * 12; // 25 200€
-    expect(recettesAnnuelles).toBeGreaterThan(23000);
-    // Et on attend l'alerte (test à activer quand FEAT-05 sera implémenté)
-    // expect(allText.includes('lmp')).toBe(true);
-    // Actuellement : alertes vides
-    expect((res as CalculationResult).alertes).toBeDefined();
+    // V2-S17 : genererAlertesLmp() intégré dans genererSynthese() via points_attention_detail
+    expect(allText.includes('lmp')).toBe(true);
   });
 });
 

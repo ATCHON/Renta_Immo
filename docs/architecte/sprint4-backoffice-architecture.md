@@ -289,7 +289,7 @@ ALTER TABLE "user" ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'user'
 CREATE INDEX IF NOT EXISTS idx_user_role ON "user"(role) WHERE role = 'admin';
 ```
 
-### Populating initial — données de seed
+### Données initiales de seed
 
 ```sql
 -- Seed 2026 — extrait (complet dans la migration)

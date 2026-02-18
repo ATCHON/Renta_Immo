@@ -41,7 +41,6 @@ export function calculerTRI(flux: number[], guess: number = 0.1): number {
     if (!hasNegative || !hasPositive) return 0;
 
     const maxIterations = TRI_MAX_ITERATIONS;
-    const precision = TRI_PRECISION;
     let tri = guess;
 
     for (let i = 0; i < maxIterations; i++) {
@@ -58,7 +57,7 @@ export function calculerTRI(flux: number[], guess: number = 0.1): number {
             }
         }
 
-        if (Math.abs(npv) < precision) return tri * 100;
+        if (Math.abs(npv) < TRI_PRECISION) return tri * 100;
         if (dNpv === 0 || !isFinite(dNpv)) break;
 
         const nextTri = tri - npv / dNpv;
@@ -66,7 +65,7 @@ export function calculerTRI(flux: number[], guess: number = 0.1): number {
         // Sécurité supplémentaire : si le TRI s'emballe
         if (Math.abs(nextTri) > 1000) break; // Cap à 100000%
 
-        if (Math.abs(nextTri - tri) < precision) return nextTri * 100;
+        if (Math.abs(nextTri - tri) < TRI_PRECISION) return nextTri * 100;
         tri = nextTri;
     }
 
