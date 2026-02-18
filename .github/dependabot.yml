@@ -1,2 +1,10 @@
+# Dependabot désactivé temporairement
+# Pour réactiver, décommenter la section updates ci-dessous
 version: 2
-updates: []
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+    open-pull-requests-limit: 0
