@@ -1,7 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverComponentsExternalPackages: ['@react-pdf/renderer'],
+    serverComponentsExternalPackages: ['@react-pdf/renderer', 'pg'],
+    instrumentationHook: true,
+    outputFileTracingIncludes: {
+      '/**': ['./supabase/migrations/**'],
+    },
   },
   images: {
     remotePatterns: [
@@ -55,9 +59,48 @@ const nextConfig = {
       },
     ];
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     // Prevent canvas errors with react-pdf
     config.resolve.alias.canvas = false;
+
+    if (isServer) {
+      // Externalise pg, ses dépendances, et les built-ins Node.js pour le bundle serveur
+      // (y compris instrumentation.ts). serverComponentsExternalPackages ne couvre que
+      // les Server Components, pas instrumentation.ts.
+      const nodeBuiltins = ['fs', 'path', 'stream', 'net', 'tls', 'dns', 'crypto', 'os', 'util', 'events', 'buffer', 'url', 'http', 'https', 'zlib', 'child_process'];
+      const pgModules = [
+        'pg',
+        'pg-native',
+        'pg-connection-string',
+        'pgpass',
+        'pg-pool',
+        'pg-protocol',
+        'pg-types',
+      ];
+      const externalModules = [...nodeBuiltins, ...pgModules];
+      config.externals = [
+        ...(Array.isArray(config.externals) ? config.externals : [config.externals].filter(Boolean)),
+        ({ request }, callback) => {
+          if (externalModules.some((mod) => request === mod || request?.startsWith(mod + '/'))) {
+            return callback(null, 'commonjs ' + request);
+          }
+          callback();
+        },
+      ];
+    } else {
+      // Côté client : indiquer que ces modules ne sont pas disponibles
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        stream: false,
+        net: false,
+        tls: false,
+        dns: false,
+        crypto: false,
+      };
+    }
+
     return config;
   },
 };
