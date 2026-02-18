@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { calculerAmortissementComposants, calculerLmnpReel, calculerFiscaliteSciIs } from '@/server/calculations/fiscalite';
+import { genererTableauAmortissementFiscal } from '@/server/calculations/projection';
 import { mockConfig } from '@/server/calculations/__tests__/mock-config';
+import type { CalculationInput } from '@/server/calculations/types';
 
 describe('AUDIT-104 : Amortissement par composants', () => {
   describe('calculerAmortissementComposants', () => {
@@ -126,4 +128,114 @@ describe('AUDIT-104 : Amortissement par composants', () => {
       expect(resultComp.impot_total).toBeLessThanOrEqual(resultSimp.impot_total);
     });
   });
+});
+
+// ============================================================================
+// genererTableauAmortissementFiscal — tests de couverture
+// ============================================================================
+describe('genererTableauAmortissementFiscal', () => {
+    const baseBien = {
+        prix_achat: 200000,
+        montant_travaux: 0,
+        valeur_mobilier: 0,
+        part_terrain: 0.15,
+        adresse: 'Test',
+        surface: 50,
+        type_bien: 'appartement' as const,
+        etat_bien: 'ancien' as const,
+    };
+    const baseFinancement = {
+        apport: 20000,
+        taux_interet: 4,
+        duree_emprunt: 20,
+        assurance_pret: 0.1,
+        frais_dossier: 0,
+        frais_garantie: 0,
+    };
+    const baseExploitation = {
+        loyer_mensuel: 1000,
+        taux_occupation: 1,
+        charges_copro: 0,
+        taxe_fonciere: 0,
+        assurance_pno: 0,
+        gestion_locative: 0,
+        provision_travaux: 0,
+        provision_vacance: 0,
+        assurance_gli: 0,
+        cfe_estimee: 0,
+        comptable_annuel: 0,
+        type_location: 'meublee_longue_duree' as const,
+        charges_copro_recuperables: 0,
+    };
+
+    it('retourne null pour un régime sans amortissement (micro_foncier)', () => {
+        const input = {
+            bien: baseBien,
+            financement: baseFinancement,
+            exploitation: baseExploitation,
+            structure: { type: 'nom_propre' as const, tmi: 30, regime_fiscal: 'micro_foncier' as const, associes: [] },
+            options: {},
+        } as unknown as CalculationInput;
+        expect(genererTableauAmortissementFiscal(input, mockConfig, 5)).toBeNull();
+    });
+
+    it('retourne un tableau LMNP réel avec economieImpotEstimee basée sur TMI + PS', () => {
+        // valeurBati = 200000 * 0.85 = 170000, amort annuel = 170000/33 ≈ 5151.52
+        // loyer 12000, cap à 5151.52/an → totalDeductible = 5 * 5151.52 ≈ 25758
+        // tauxImposition = 0.30 + 0.172 = 0.472
+        // economieImpot ≈ 25758 * 0.472 ≈ 12158
+        const input = {
+            bien: baseBien,
+            financement: baseFinancement,
+            exploitation: baseExploitation,
+            structure: { type: 'nom_propre' as const, tmi: 30, regime_fiscal: 'lmnp_reel' as const, associes: [] },
+            options: {},
+        } as unknown as CalculationInput;
+        const result = genererTableauAmortissementFiscal(input, mockConfig, 5);
+        expect(result).not.toBeNull();
+        expect(result!.regime).toBe('LMNP Réel');
+        // totalDeductible proche de 5 * 5152 = 25758
+        expect(result!.totaux.totalDeductible).toBeCloseTo(25758, -2);
+        // economieImpot = totalDeductible * 0.472
+        expect(result!.totaux.economieImpotEstimee).toBeCloseTo(result!.totaux.totalDeductible * 0.472, -2);
+        // amortissementAReintegrer = totalDeductible - mobilier (0)
+        expect(result!.totaux.amortissementAReintegrer).toBe(result!.totaux.totalDeductible);
+    });
+
+    it('retourne un tableau SCI IS avec economieImpotEstimee basée sur isTauxReduit (pas TMI)', () => {
+        // tauxImposition SCI IS = config.isTauxReduit = 0.15
+        const input = {
+            bien: baseBien,
+            financement: baseFinancement,
+            exploitation: baseExploitation,
+            structure: { type: 'sci_is' as const, tmi: 41, associes: [], distribution_dividendes: false },
+            options: {},
+        } as unknown as CalculationInput;
+        const result = genererTableauAmortissementFiscal(input, mockConfig, 5);
+        expect(result).not.toBeNull();
+        expect(result!.regime).toBe('SCI IS');
+        const economieAttendue = result!.totaux.totalDeductible * mockConfig.isTauxReduit;
+        expect(result!.totaux.economieImpotEstimee).toBeCloseTo(economieAttendue, -1);
+        // SCI IS: réintégration totale via VNC
+        expect(result!.totaux.amortissementAReintegrer).toBe(result!.totaux.totalDeductible);
+    });
+
+    it('LMNP réel : l\'amortissement excédentaire est reporté (cap à 0 base imposable)', () => {
+        // Loyer très faible : amortissement > base → report obligatoire
+        const exploitation = { ...baseExploitation, loyer_mensuel: 200 }; // 2400/an < 5151
+        const input = {
+            bien: baseBien,
+            financement: baseFinancement,
+            exploitation,
+            structure: { type: 'nom_propre' as const, tmi: 30, regime_fiscal: 'lmnp_reel' as const, associes: [] },
+            options: {},
+        } as unknown as CalculationInput;
+        const result = genererTableauAmortissementFiscal(input, mockConfig, 3);
+        expect(result).not.toBeNull();
+        // Chaque année : base 2400 → déduit 2400, report = 5151 - 2400 = 2751
+        // An 1: report = 2751
+        expect(result!.lignes[0].amortissementReporteCumule).toBeGreaterThan(0);
+        // amortissementDeductible < amortissementTotal (cap par les revenus)
+        expect(result!.lignes[0].amortissementDeductible).toBeLessThan(result!.lignes[0].amortissementTotal);
+    });
 });

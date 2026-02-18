@@ -35,7 +35,9 @@ export class ConfigService {
 
         if (error || !data?.length) {
             // Fallback sur les constantes hardcodées si la DB est vide ou en cas d'erreur
-            return this.getFallbackConfig(year);
+            const fallbackConfig = this.getFallbackConfig(year);
+            cache.set(year, { data: fallbackConfig, fetchedAt: Date.now() });
+            return fallbackConfig;
         }
 
         const resolved = this.mapToResolvedConfig(year, data as any[]);

@@ -391,8 +391,8 @@ export interface ResolvedConfig {
   // LMP / Scoring
   lmpSeuilAlerte: number;
   lmpSeuilLmp: number;
-  resteAVivreSeuileMin: number;
-  resteAVivreSeuileConfort: number;
+  resteAVivreSeuilMin: number;
+  resteAVivreSeuilConfort: number;
   // Charges
   defaultsAssurancePno: number;
   defaultsChargesCoproM2: number;

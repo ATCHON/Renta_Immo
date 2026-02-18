@@ -536,7 +536,9 @@ export function genererProjections(
     }
 
     // AUDIT-108 : Frais de revente
-    const tauxAgenceRevente = (input.options.taux_agence_revente ?? (config.fraisReventeTauxAgenceDefaut * 100)) / 100;
+    const tauxAgenceRevente = input.options.taux_agence_revente != null
+        ? input.options.taux_agence_revente / 100
+        : config.fraisReventeTauxAgenceDefaut;
     const fraisAgence = prixRevente * tauxAgenceRevente;
     const fraisDiagnostics = config.fraisReventeDiagnostics;
     const fraisReventeTotal = Math.round(fraisAgence + fraisDiagnostics);
@@ -594,12 +596,15 @@ export function genererTableauAmortissementFiscal(
     const montantTravaux = input.bien.montant_travaux || 0;
     const valeurMobilier = input.bien.valeur_mobilier || 0;
     const tmi = input.structure.tmi ?? 30;
+    const isLmnpReel = regime === 'lmnp_reel';
 
     // Taux PS selon le régime
-    const tauxPs = regime === 'lmnp_reel'
-        ? config.tauxPsRevenusBicLmnp
-        : 0;
-    const tauxImposition = (tmi / 100) + tauxPs;
+    const tauxPs = isLmnpReel ? config.tauxPsRevenusBicLmnp : 0;
+    // Pour LMNP réel : IR (TMI) + prélèvements sociaux
+    // Pour SCI IS : taux IS réduit à titre estimatif (l'économie d'impôt est indicative)
+    const tauxImposition = isLmnpReel
+        ? (tmi / 100) + tauxPs
+        : config.isTauxReduit;
 
     const lignes: LigneAmortissementFiscal[] = [];
     let amortissementCumule = 0;
@@ -607,7 +612,6 @@ export function genererTableauAmortissementFiscal(
     let totalMobilierDeduit = 0;
     // LMNP réel uniquement : excédent d'amortissement reportable sans limite de durée
     let amortissementReporteCumule = 0;
-    const isLmnpReel = regime === 'lmnp_reel';
 
     for (let annee = 1; annee <= horizon; annee++) {
         // Amortissement immobilier (bâti)
