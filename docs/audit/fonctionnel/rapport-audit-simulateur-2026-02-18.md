@@ -1,0 +1,140 @@
+# Rapport d'Audit — Simulateur Renta_Immo
+**Version :** 1.0
+**Date :** 2026-02-18
+**Périmètre :** Audit de conformité des formules mathématiques, fiscales et réglementaires
+**Référence légale principale :** Code Général des Impôts (CGI), Décision HCSF 2024, Loi Climat-Résilience, LF 2025 (Loi Le Meur)
+
+---
+
+## Résumé Exécutif
+
+Le simulateur Renta_Immo est une application web de simulation d'investissement immobilier locatif. Ce rapport présente les résultats d'un audit complet de ses formules de calcul, couvrant 55 points de vérification répartis sur 9 domaines.
+
+### Verdict Global
+
+| Résultat | Quantité | Pourcentage |
+|---------|---------|-------------|
+| ✅ Conformes | 49/55 | 89,1 % |
+| ⚠️ Approximations mineures acceptables | 4/55 | 7,3 % |
+| ❌ Non-conformités à corriger | 2/55 | 3,6 % |
+
+**Le simulateur est globalement conforme à la législation française 2025-2026**, sous réserve de la correction de deux points identifiés.
+
+---
+
+## Partie A — Synthèse Exécutive
+
+### Domaines audités
+
+1. **Formules de financement** — PMT, frais de notaire, coût total d'acquisition, rentabilités, cashflow, effet de levier
+2. **Fiscalité** — 6 régimes fiscaux (micro-foncier, foncier réel, LMNP micro, LMNP réel, SCI IS, SCI IS avec distribution), déficit foncier, amortissements, plus-values
+3. **Conformité HCSF** — Taux d'endettement, pondération loyers, durée crédit, calcul par associé
+4. **Scoring investisseur** — Système propriétaire, profils Rentier/Patrimonial
+5. **Projections pluriannuelles** — TRI, tableau d'amortissement, DPE, inflation
+
+### Non-conformités identifiées
+
+#### ❌ NC-01 — Prélèvements sociaux LMNP (PRIORITÉ HAUTE)
+- **Valeur actuelle :** 18,6 % (DB `TAUX_PS_REVENUS_BIC_LMNP`)
+- **Valeur légale :** 17,2 % — Les revenus BIC de LMNP **non-professionnel** sont des revenus du patrimoine (CGI Art. 1600-0 C), soumis aux mêmes prélèvements sociaux que les revenus fonciers : 17,20 %
+- **Impact :** Surestimation de l'impôt ≈ 70 €/an pour une base imposable de 5 000 € — résultats conservateurs mais inexacts
+- **Correction :** Modifier le paramètre DB de 0,186 → 0,172
+
+#### ❌ NC-02 — Barème surtaxe plus-value (PRIORITÉ MOYENNE)
+- **Localisation :** `src/server/calculations/fiscalite.ts` ligne 557–561
+- **Problème :** La tranche 200 001–250 000 € de plus-value nette applique 6 % au lieu de 5 % (CGI Art. 1609 nonies G)
+- **Impact :** Surestimation de la surtaxe jusqu'à 2 500 € pour une plus-value nette entre 200k et 250k €
+- **Correction :** Modifier `TAUX: 0.06` → `TAUX: 0.05` pour cette tranche
+
+### Points forts du simulateur
+
+- ✅ **6 régimes fiscaux** tous conformes dans leurs paramètres principaux
+- ✅ **Déficit foncier** : séparation intérêts/hors-intérêts, plafonds 10 700 €/21 400 €, report 10 ans FIFO
+- ✅ **Amortissement par composants** (PCG Art. 214-9) : répartition et durées conformes
+- ✅ **Loi Le Meur** (15/02/2025) : réintégration amortissements LMNP correctement implémentée avec exemption résidences de services
+- ✅ **HCSF 2024** : taux 35 %, durée 25 ans, pondération 70 % tous conformes
+- ✅ **DPE** : interdictions 2025/2028/2034, gel des loyers F/G conformes à la Loi Climat-Résilience
+- ✅ **SCI IS** : taux IS 15 %/25 % (seuil 42 500 €), flat tax 30 % conformes
+
+### Recommandations prioritaires
+
+| Priorité | Action | Effort |
+|---------|--------|--------|
+| 🔴 Haute | Corriger PS LMNP : 18,6 % → 17,2 % (modification DB) | < 1h |
+| 🟠 Moyenne | Corriger surtaxe PV tranche 200k-250k (modification code) | < 30 min |
+| 🟡 Faible | Calculer frais notaire par tranches réelles + DMTO département | 1-2j |
+| 🟡 Faible | Rendre paramètres capacité résiduelle HCSF configurables | < 2h |
+| 🟢 Info | Documenter hypothèses inflation projections dans l'interface | < 1h |
+
+---
+
+## Partie B — Structure du Rapport Technique
+
+Ce rapport principal est accompagné de 6 annexes techniques :
+
+| Fichier | Contenu |
+|---------|---------|
+| [01-module-rentabilite.md](./01-module-rentabilite.md) | PMT, frais notaire, rendements, cashflow, financement |
+| [02-module-fiscalite.md](./02-module-fiscalite.md) | 6 régimes fiscaux, déficit, amortissements, plus-value |
+| [03-module-hcsf.md](./03-module-hcsf.md) | Taux d'endettement, pondération, reste à vivre |
+| [04-module-scoring-projections.md](./04-module-scoring-projections.md) | Scoring, TRI, projections 20 ans, DPE |
+| [05-tests-reels.md](./05-tests-reels.md) | 5 cas de test avec calculs manuels vérifiés |
+| [06-synthese-conformite.md](./06-synthese-conformite.md) | Tableau de conformité complet (55 points) + corrections |
+
+---
+
+## Méthode d'Audit
+
+### Étape 1 — Lecture du code source
+Lecture ligne par ligne des fichiers :
+- `src/server/calculations/rentabilite.ts` (239 lignes)
+- `src/server/calculations/fiscalite.ts` (1 001 lignes)
+- `src/server/calculations/hcsf.ts` (468 lignes)
+- `src/server/calculations/synthese.ts` (672 lignes)
+- `src/server/calculations/projection.ts` (704 lignes)
+- `src/server/calculations/constants.ts` (111 lignes)
+
+### Étape 2 — Vérification des paramètres de configuration
+Requête directe sur la base de données Supabase (table `config_params`, `annee_fiscale = 2026`) : 47 paramètres vérifiés.
+
+### Étape 3 — Vérification contre les textes légaux
+Cross-check systématique contre :
+- Code Général des Impôts (Légifrance)
+- Décision HCSF n°1 du 29/09/2021 (modifiée 2024)
+- Plan Comptable Général Art. 214-9
+- BOFiP (Base Officielle des Finances Publiques)
+- Loi Climat-Résilience (L.2021-1104)
+- Loi de Finances 2025 (Loi Le Meur)
+
+### Étape 4 — Vérification par calcul manuel
+5 cas de test complets réalisés par calcul manuel et comparés aux résultats attendus du moteur.
+
+---
+
+## Périmètre et Limites
+
+### Ce qui est couvert
+- Formules mathématiques et fiscales du moteur de calcul
+- Paramètres réglementaires en base de données (config_params)
+- Logique de gestion des régimes, déficits et amortissements
+- Conformité HCSF et DPE
+
+### Ce qui n'est pas couvert
+- Tests d'intégration via API (infrastructure locale non disponible lors de l'audit)
+- Interface utilisateur et validation des saisies
+- Sécurité applicative (couverte par l'Audit Technique 2026-02-07)
+- Performance et scalabilité (couverte par l'Audit Technique 2026-02-07)
+- Critère LMP double (50 % des revenus) — non vérifiable sans données complètes du foyer
+
+---
+
+## Conclusion
+
+Le simulateur Renta_Immo implémente correctement la grande majorité des règles fiscales et réglementaires françaises en vigueur pour 2025-2026. Les deux non-conformités identifiées sont mineures (légèrement surestimation de l'impôt dans les deux cas) et corrigeables rapidement.
+
+La conformité à la Loi Le Meur (réintégration LMNP), aux règles HCSF 2024, aux interdictions DPE et aux 6 régimes fiscaux principaux est confirmée. Le moteur de calcul peut être utilisé comme outil d'aide à la décision d'investissement immobilier, avec les réserves habituelles d'un simulateur (résultats indicatifs, à valider par un professionnel).
+
+---
+
+*Rapport produit dans le cadre de l'audit de conformité interne — Renta_Immo v2.0*
+*Les informations fiscales citées sont à jour au 18 février 2026 selon la législation française en vigueur.*
