@@ -46,7 +46,6 @@ _bmad-output
 _bmad
 .agent
 .bmad-core
-.github/
 .gemini/
 gha-creds-*.json
 
