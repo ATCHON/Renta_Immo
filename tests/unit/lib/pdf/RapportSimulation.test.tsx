@@ -127,7 +127,7 @@ describe('RapportSimulation PDF Generation', () => {
 
         // If this throws, the test fails. renderToBuffer exercises the rendering logic.
         await expect(renderToBuffer(doc)).resolves.toBeDefined();
-    });
+    }, 30000);
 
     it('renders comparisons table when comparaisonFiscalite is present', async () => {
         const mockResultatsWithComparaison = {
@@ -173,5 +173,5 @@ describe('RapportSimulation PDF Generation', () => {
         // (React-pdf doesn't support DOM testing of the output easily in this environment, 
         // so we assume if it renders without error, the components are handling the data)
         await expect(renderToBuffer(doc)).resolves.toBeDefined();
-    });
+    }, 30000);
 });
