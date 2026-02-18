@@ -36,7 +36,9 @@ describe('calculerFinancement (frais_notaire)', () => {
         const bienNeufMock = { ...bienMock, etat_bien: 'neuf' } as BienData;
         const result = calculerFinancement(bienNeufMock, financementMock, mockConfig);
 
-        // Pour 200k€ dans le neuf @ 2.5% = 5000
-        expect(result.frais_notaire).toBe(5000);
+        // REC-01 : frais par tranches (émoluments + DMTO réduit 0.715% + CSI + débours)
+        // Base = 200000 - 5000 (mobilier) = 195000 → ~4 700 €
+        expect(result.frais_notaire).toBeGreaterThan(3500);
+        expect(result.frais_notaire).toBeLessThan(5500);
     });
 });

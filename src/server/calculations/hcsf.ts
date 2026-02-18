@@ -9,7 +9,12 @@
  */
 
 import { ResolvedConfig } from '../config/config-types';
-import type { CalculationInput, HCSFCalculations, AssocieData, FinancementCalculations } from './types';
+import type {
+  CalculationInput,
+  HCSFCalculations,
+  AssocieData,
+  FinancementCalculations,
+} from './types';
 import { SEUILS } from './constants';
 
 // ============================================================================
@@ -71,7 +76,7 @@ export function calculerRevenusPonderes(
   revenusActiviteMensuels: number,
   revenusProjetBrutsMensuels: number,
   loyersActuelsMensuels: number = 0,
-  ponderationLoyers: number = 0.70 // Défaut HCSF fixe
+  ponderationLoyers: number = 0.7 // Défaut HCSF fixe
 ): { bruts: number; ponderes: number; total: number } {
   const projetPonderes = revenusProjetBrutsMensuels * ponderationLoyers;
   const actuelsPonderes = loyersActuelsMensuels * ponderationLoyers;
@@ -94,11 +99,14 @@ function calculerCapaciteResiduelle(
 ): number {
   const chargeMaximaleAutorisee = revenusTotauxPonderesMensuels * config.hcsfTauxMax;
   const chargesActuellesAvecNouveauCredit = chargesExistantesMensuelles + nouvelleChargeMensuelle;
-  const margeMensuelleDisponible = Math.max(0, chargeMaximaleAutorisee - chargesActuellesAvecNouveauCredit);
+  const margeMensuelleDisponible = Math.max(
+    0,
+    chargeMaximaleAutorisee - chargesActuellesAvecNouveauCredit
+  );
 
-  // Conversion en capital empruntable : 20 ans (240 mois), taux 3.5% (Taux de marché par défaut)
-  const tauxMensuel = 0.035 / 12;
-  const dureeMois = 240;
+  // Conversion en capital empruntable (taux et durée configurables — REC-02)
+  const tauxMensuel = config.hcsfTauxReferenceCapacite / 12;
+  const dureeMois = config.hcsfDureeCapaciteResiduelleAnnees * 12;
 
   if (tauxMensuel === 0) {
     return margeMensuelleDisponible * dureeMois;
@@ -114,7 +122,7 @@ function calculerCapaciteResiduelle(
 
 /**
  * Calcule le HCSF en mode nom propre
- * 
+ *
  * @ref docs/core/specification-calculs.md#62-calcul-du-taux-dendettement
  * @ref docs/core/specification-calculs.md#63-revenus-pondérés-mode-nom-propre
  */
@@ -126,18 +134,23 @@ export function calculerHcsfNomPropre(
   ponderationLoyers?: number
 ): HcsfDetail {
   const alertes: string[] = [];
-  const ponderation = ponderationLoyers !== undefined ? ponderationLoyers / 100 : config.hcsfPonderationLocatifs;
+  const ponderation =
+    ponderationLoyers !== undefined ? ponderationLoyers / 100 : config.hcsfPonderationLocatifs;
 
-  // Vérification durée du crédit
-  if (data.financement.duree_emprunt > config.hcsfDureeMaxAnnees) {
+  // Vérification durée du crédit (REC-04 : dérogation 27 ans pour VEFA)
+  const dureeMaxNomPropre = data.bien?.is_vefa
+    ? config.hcsfDureeMaxAnneesVefa
+    : config.hcsfDureeMaxAnnees;
+  if (data.financement.duree_emprunt > dureeMaxNomPropre) {
     alertes.push(
-      `Durée du crédit (${data.financement.duree_emprunt} ans) supérieure au maximum HCSF (${config.hcsfDureeMaxAnnees} ans)`
+      `Durée du crédit (${data.financement.duree_emprunt} ans) supérieure au maximum HCSF (${dureeMaxNomPropre} ans)`
     );
   }
 
-  const revenusActiviteMensuelsEstimes = data.structure.revenus_activite && data.structure.revenus_activite > 0
-    ? data.structure.revenus_activite
-    : estimerRevenusDepuisTmi(data.structure.tmi ?? 0);
+  const revenusActiviteMensuelsEstimes =
+    data.structure.revenus_activite && data.structure.revenus_activite > 0
+      ? data.structure.revenus_activite
+      : estimerRevenusDepuisTmi(data.structure.tmi ?? 0);
 
   const revenusPonderes = calculerRevenusPonderes(
     revenusActiviteMensuelsEstimes,
@@ -150,12 +163,12 @@ export function calculerHcsfNomPropre(
   const autresChargesMensuelles = data.structure.autres_charges || 0;
   const chargesFixesMensuelles = 0; // On pourrait ajouter d'autres charges ici si besoin
   const chargesTotalesMensuelles =
-    creditsExistantsMensuels + autresChargesMensuelles + chargesFixesMensuelles + mensualiteNouveauCredit;
+    creditsExistantsMensuels +
+    autresChargesMensuelles +
+    chargesFixesMensuelles +
+    mensualiteNouveauCredit;
 
-  const tauxEndettement = calculerTauxEndettement(
-    revenusPonderes.total,
-    chargesTotalesMensuelles
-  );
+  const tauxEndettement = calculerTauxEndettement(revenusPonderes.total, chargesTotalesMensuelles);
 
   const conforme = tauxEndettement <= config.hcsfTauxMax;
 
@@ -163,10 +176,8 @@ export function calculerHcsfNomPropre(
     alertes.push(
       `Taux d'endettement (${formatPourcent(tauxEndettement)}) supérieur au seuil HCSF (${formatPourcent(config.hcsfTauxMax)})`
     );
-  } else if (tauxEndettement > (config.hcsfTauxMax * 0.95)) {
-    alertes.push(
-      `Taux d'endettement (${formatPourcent(tauxEndettement)}) proche du seuil HCSF`
-    );
+  } else if (tauxEndettement > config.hcsfTauxMax * 0.95) {
+    alertes.push(`Taux d'endettement (${formatPourcent(tauxEndettement)}) proche du seuil HCSF`);
   }
 
   const capaciteResiduelle = calculerCapaciteResiduelle(
@@ -215,7 +226,7 @@ export function calculerHcsfNomPropre(
 
 /**
  * Calcule le HCSF en mode SCI IS (par associé)
- * 
+ *
  * @ref docs/core/specification-calculs.md#67-mode-sci-is-par-associé
  */
 export function calculerHcsfSciIs(
@@ -226,13 +237,17 @@ export function calculerHcsfSciIs(
   ponderationLoyers?: number
 ): HcsfDetail {
   const alertes: string[] = [];
-  const ponderation = ponderationLoyers !== undefined ? ponderationLoyers / 100 : config.hcsfPonderationLocatifs;
+  const ponderation =
+    ponderationLoyers !== undefined ? ponderationLoyers / 100 : config.hcsfPonderationLocatifs;
   const associes = data.structure.associes ?? [];
 
-  // Vérification durée du crédit
-  if (data.financement.duree_emprunt > config.hcsfDureeMaxAnnees) {
+  // Vérification durée du crédit (REC-04 : dérogation 27 ans pour VEFA)
+  const dureeMaxSciIs = data.bien?.is_vefa
+    ? config.hcsfDureeMaxAnneesVefa
+    : config.hcsfDureeMaxAnnees;
+  if (data.financement.duree_emprunt > dureeMaxSciIs) {
     alertes.push(
-      `Durée du crédit (${data.financement.duree_emprunt} ans) supérieure au maximum HCSF (${config.hcsfDureeMaxAnnees} ans)`
+      `Durée du crédit (${data.financement.duree_emprunt} ans) supérieure au maximum HCSF (${dureeMaxSciIs} ans)`
     );
   }
 
@@ -300,7 +315,8 @@ export function calculerHcsfSciIs(
   if (associePlusContraint) {
     const revenusMensuelsAssocieContraint = associePlusContraint.revenus_totaux_ponderes_mensuels;
     const chargesExistantesAssocieContraint =
-      associePlusContraint.credits_existants_mensuels + associePlusContraint.charges_fixes_mensuelles;
+      associePlusContraint.credits_existants_mensuels +
+      associePlusContraint.charges_fixes_mensuelles;
     const nouvelleChargeAssocieContraint = associePlusContraint.quote_part_mensualite_credit;
 
     capaciteResiduelleGlobale = calculerCapaciteResiduelle(
@@ -313,7 +329,10 @@ export function calculerHcsfSciIs(
 
   // AUDIT-107 : Reste à vivre global (basé sur le total)
   const revenusTotauxGlobal = totalRevenusActiviteMensuels + loyerMensuelBrut * ponderation;
-  const chargesTotalesGlobal = resultatsAssocies.reduce((sum, a) => sum + a.charges_totales_mensuelles, 0);
+  const chargesTotalesGlobal = resultatsAssocies.reduce(
+    (sum, a) => sum + a.charges_totales_mensuelles,
+    0
+  );
   const resteAVivre = revenusTotauxGlobal - chargesTotalesGlobal;
 
   if (resteAVivre < config.resteAVivreSeuilMin) {
@@ -337,9 +356,7 @@ export function calculerHcsfSciIs(
       salaires_estimatif_mensuels: arrondir(totalRevenusActiviteMensuels),
       locatifs_bruts_mensuels: arrondir(loyerMensuelBrut),
       locatifs_ponderes_mensuels: arrondir(loyerMensuelBrut * ponderation),
-      total_mensuels: arrondir(
-        totalRevenusActiviteMensuels + loyerMensuelBrut * ponderation
-      ),
+      total_mensuels: arrondir(totalRevenusActiviteMensuels + loyerMensuelBrut * ponderation),
     },
     charges_detail: {
       credits_existants_mensuels: arrondir(totalCreditsExistantsMensuels),
@@ -390,7 +407,8 @@ function calculerHcsfPourAssocie(
     alertes.push(
       `${associe.nom ?? 'Associé'} : Taux d'endettement (${formatPourcent(tauxEndettement)}) > seuil HCSF (${formatPourcent(config.hcsfTauxMax)})`
     );
-  } else if (tauxEndettement > (config.hcsfTauxMax * 0.95)) { // ~33%
+  } else if (tauxEndettement > config.hcsfTauxMax * 0.95) {
+    // ~33%
     alertes.push(
       `${associe.nom ?? 'Associé'} : Taux d'endettement (${formatPourcent(tauxEndettement)}) proche du seuil HCSF`
     );
@@ -427,13 +445,26 @@ export function analyserHcsf(
   config: ResolvedConfig
 ): HcsfDetail {
   const mensualiteNouveauCredit = financement.mensualite_totale;
-  const ponderationLoyers = (data.options as { ponderation_loyers?: number } | undefined)?.ponderation_loyers;
+  const ponderationLoyers = (data.options as { ponderation_loyers?: number } | undefined)
+    ?.ponderation_loyers;
 
   if (data.structure.type === 'sci_is') {
-    return calculerHcsfSciIs(data, mensualiteNouveauCredit, loyerMensuelBrut, config, ponderationLoyers);
+    return calculerHcsfSciIs(
+      data,
+      mensualiteNouveauCredit,
+      loyerMensuelBrut,
+      config,
+      ponderationLoyers
+    );
   }
 
-  return calculerHcsfNomPropre(data, mensualiteNouveauCredit, loyerMensuelBrut, config, ponderationLoyers);
+  return calculerHcsfNomPropre(
+    data,
+    mensualiteNouveauCredit,
+    loyerMensuelBrut,
+    config,
+    ponderationLoyers
+  );
 }
 
 // ============================================================================

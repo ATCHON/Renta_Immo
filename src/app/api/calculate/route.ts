@@ -61,9 +61,8 @@ const CONFIG = {
   /** Timeout en ms */
   TIMEOUT_MS: 30000,
   /** Origines autorisées (configurable via env, pas de wildcard par défaut - Audit 1.5) */
-  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS
-    ?.split(',')
-    .map(o => o.trim())
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS?.split(',')
+    .map((o) => o.trim())
     .filter(Boolean) || ['https://renta-immo.vercel.app'],
 } as const;
 
@@ -196,9 +195,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       // Erreur de validation ou calcul
       const errorResult = result as CalculationError;
 
-      const errorCode: ErrorCode = errorResult.code === 'VALIDATION_ERROR'
-        ? 'VALIDATION_ERROR'
-        : 'CALCULATION_ERROR';
+      const errorCode: ErrorCode =
+        errorResult.code === 'VALIDATION_ERROR' ? 'VALIDATION_ERROR' : 'CALCULATION_ERROR';
 
       return NextResponse.json<ApiErrorResponse>(
         {
@@ -252,10 +250,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
           details:
             process.env.NODE_ENV === 'development'
               ? {
-                error: String(error),
-                stack: (error as Error)?.stack,
-                execution_time_ms: executionTime,
-              }
+                  error: String(error),
+                  stack: (error as Error)?.stack,
+                  execution_time_ms: executionTime,
+                }
               : undefined,
         },
         timestamp: new Date().toISOString(),

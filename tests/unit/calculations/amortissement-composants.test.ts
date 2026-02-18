@@ -196,8 +196,8 @@ describe('genererTableauAmortissementFiscal', () => {
         expect(result!.regime).toBe('LMNP Réel');
         // totalDeductible proche de 5 * 5152 = 25758
         expect(result!.totaux.totalDeductible).toBeCloseTo(25758, -2);
-        // economieImpot = totalDeductible * 0.472
-        expect(result!.totaux.economieImpotEstimee).toBeCloseTo(result!.totaux.totalDeductible * 0.472, -2);
+        // economieImpot = totalDeductible * (TMI + tauxPsRevenusBicLmnp) = * (0.30 + 0.186)
+        expect(result!.totaux.economieImpotEstimee).toBeCloseTo(result!.totaux.totalDeductible * (0.30 + mockConfig.tauxPsRevenusBicLmnp), -2);
         // amortissementAReintegrer = totalDeductible - mobilier (0)
         expect(result!.totaux.amortissementAReintegrer).toBe(result!.totaux.totalDeductible);
     });

@@ -228,3 +228,39 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
     });
   });
 });
+
+// NC-02 : Correction surtaxe tranche 200k-250k (6% → 5%)
+describe('NC-02 : Surtaxe PV tranche 200k-250k', () => {
+  // Pour obtenir pvNetteIR cible avec dureeDetention=2 (abattement=0) :
+  //   pvBrute = prixVente - prixAchat - prixAchat*0.075 = prixVente - prixAchat*1.075
+  //   prixAchat=100000 → prixVente = 100000*1.075 + pvCible
+
+  it('PV nette 230 000 € → surtaxe ≈ 6 000 € avec taux 5% tranche 200k-250k', () => {
+    // pvNetteIR = 337500 - 100000 - 7500 = 230000
+    const result = calculerPlusValueIR(337500, 100000, 2, mockConfig);
+    // Surtaxe : 49999×2% + 49999×3% + 49999×4% + 29999×5% ≈ 6000
+    expect(result.surtaxe).toBeCloseTo(5999.86, 0);
+  });
+
+  it('PV nette 260 000 € → tranche 250k-260k à 6%, total surtaxe ≈ 7 600 €', () => {
+    // pvNetteIR = 367500 - 100000 - 7500 = 260000
+    const result = calculerPlusValueIR(367500, 100000, 2, mockConfig);
+    // Surtaxe : 49999×2% + 49999×3% + 49999×4% + 49999×5% + 9999×6% ≈ 7600
+    expect(result.surtaxe).toBeCloseTo(7599.80, 0);
+  });
+
+  it('PV nette 175 000 € → tranche 200k non atteinte, surtaxe ≈ 3 500 €', () => {
+    // pvNetteIR = 282500 - 100000 - 7500 = 175000
+    const result = calculerPlusValueIR(282500, 100000, 2, mockConfig);
+    // Surtaxe : 49999×2% + 49999×3% + 24999×4% ≈ 3500
+    expect(result.surtaxe).toBeCloseTo(3499.91, 0);
+  });
+
+  it('PV nette 230 000 € → surtaxe inférieure avec taux 5% qu\'avec l\'ancien taux 6%', () => {
+    const result = calculerPlusValueIR(337500, 100000, 2, mockConfig);
+    // Avec l'ancien taux 6% : 29999×0.06 = 1799.94 → total ≈ 6300
+    // Avec le nouveau taux 5% : 29999×0.05 = 1499.95 → total ≈ 6000
+    expect(result.surtaxe).toBeLessThan(6100);
+    expect(result.surtaxe).toBeGreaterThan(5900);
+  });
+});

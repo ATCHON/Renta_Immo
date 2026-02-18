@@ -1,7 +1,7 @@
 /**
  * Module de synthèse et scoring/**
  * Génère une synthèse score et des recommandations basées sur les résultats
- * 
+ *
  * @ref docs/core/specification-calculs.md#7-scoring-et-synthèse
  * @param resultats - Résultats des calculs
  * - Autofinancement : 0-30 points (cashflow mensuel)
@@ -45,10 +45,16 @@ import {
 /**
  * Interpolation linéaire entre deux bornes
  */
-function interpoler(valeur: number, min: number, max: number, scoreMin: number, scoreMax: number): number {
+function interpoler(
+  valeur: number,
+  min: number,
+  max: number,
+  scoreMin: number,
+  scoreMax: number
+): number {
   if (valeur <= min) return scoreMin;
   if (valeur >= max) return scoreMax;
-  return scoreMin + (valeur - min) / (max - min) * (scoreMax - scoreMin);
+  return scoreMin + ((valeur - min) / (max - min)) * (scoreMax - scoreMin);
 }
 
 /**
@@ -88,11 +94,19 @@ export function ajustementHcsf(tauxEndettement: number, conforme: boolean): numb
 export function ajustementDpe(dpe?: DPE): number {
   if (!dpe) return 0; // Neutre si non renseigné
   switch (dpe) {
-    case 'A': case 'B': return DPE_CONFIG.SCORES.A;
-    case 'C': case 'D': return DPE_CONFIG.SCORES.C;
-    case 'E': return DPE_CONFIG.SCORES.E;
-    case 'F': case 'G': return DPE_CONFIG.SCORES.F;
-    default: return 0;
+    case 'A':
+    case 'B':
+      return DPE_CONFIG.SCORES.A;
+    case 'C':
+    case 'D':
+      return DPE_CONFIG.SCORES.C;
+    case 'E':
+      return DPE_CONFIG.SCORES.E;
+    case 'F':
+    case 'G':
+      return DPE_CONFIG.SCORES.F;
+    default:
+      return 0;
   }
 }
 
@@ -112,7 +126,10 @@ export function ajustementRatioPrixLoyer(prixAchat: number, loyerAnnuel: number)
  * Ajustement reste à vivre (-10 / +5)
  * Basé sur les revenus d'activité et les charges
  */
-export function ajustementResteAVivre(revenusActivite?: number, totalChargesMensuelles?: number): number {
+export function ajustementResteAVivre(
+  revenusActivite?: number,
+  totalChargesMensuelles?: number
+): number {
   if (!revenusActivite || revenusActivite <= 0) return 0; // Non calculable
   const charges = totalChargesMensuelles ?? 0;
   const resteAVivre = revenusActivite - charges;
@@ -152,8 +169,14 @@ export function genererAlertesDpe(dpe?: DPE, horizon?: number): PointAttention[]
         alertes.push({
           type: 'warning',
           categorie: 'general',
-          message: "L'interdiction de location interviendra dans " + anneesRestantes + " ans, avant la fin de votre horizon de projection (" + horizon + " ans)",
-          conseil: 'Prévoyez un budget de rénovation énergétique pour maintenir la rentabilité du bien.',
+          message:
+            "L'interdiction de location interviendra dans " +
+            anneesRestantes +
+            ' ans, avant la fin de votre horizon de projection (' +
+            horizon +
+            ' ans)',
+          conseil:
+            'Prévoyez un budget de rénovation énergétique pour maintenir la rentabilité du bien.',
         });
       }
     }
@@ -170,8 +193,8 @@ export function genererAlertesDpe(dpe?: DPE, horizon?: number): PointAttention[]
     alertes.push({
       type: 'warning',
       categorie: 'general',
-      message: "Gel des loyers prévu à partir de 2034 (DPE E)",
-      conseil: "Anticipez les travaux pour éviter le blocage des loyers.",
+      message: 'Gel des loyers prévu à partir de 2034 (DPE E)',
+      conseil: 'Anticipez les travaux pour éviter le blocage des loyers.',
     });
   }
 
@@ -202,11 +225,21 @@ export function calculerScoreGlobal(params: {
 
   const config = params.config;
   const ajCashflow = round(ajustementCashflow(params.cashflowMensuel) * poids.cashflow, 1);
-  const ajRentabilite = round(ajustementRentabilite(params.rentabiliteNetteNette) * poids.rentabilite, 1);
+  const ajRentabilite = round(
+    ajustementRentabilite(params.rentabiliteNetteNette) * poids.rentabilite,
+    1
+  );
   const ajHcsf = round(ajustementHcsf(params.tauxEndettement, params.hcsfConforme) * poids.hcsf, 1);
   const ajDpe = round(ajustementDpe(params.dpe) * poids.dpe, 1);
-  const ajRatio = round(ajustementRatioPrixLoyer(params.prixAchat, params.loyerAnnuel) * poids.ratio_prix_loyer, 1);
-  const ajRav = round(ajustementResteAVivre(params.revenusActivite, params.totalChargesMensuelles) * poids.reste_a_vivre, 1);
+  const ajRatio = round(
+    ajustementRatioPrixLoyer(params.prixAchat, params.loyerAnnuel) * poids.ratio_prix_loyer,
+    1
+  );
+  const ajRav = round(
+    ajustementResteAVivre(params.revenusActivite, params.totalChargesMensuelles) *
+      poids.reste_a_vivre,
+    1
+  );
 
   const sommeAjustements = ajCashflow + ajRentabilite + ajHcsf + ajDpe + ajRatio + ajRav;
   const total = Math.max(0, Math.min(100, SCORE_BASE + sommeAjustements));
@@ -262,7 +295,7 @@ export function genererPointsAttention(
       type: 'error',
       categorie: 'cashflow',
       message: `Cashflow très négatif : ${round(rentabilite.cashflow_mensuel)}€/mois`,
-      conseil: 'Effort d\'épargne trop important, revoyez les paramètres du projet',
+      conseil: "Effort d'épargne trop important, revoyez les paramètres du projet",
     });
   }
   // Cashflow négatif (mais pas critique)
@@ -281,7 +314,7 @@ export function genererPointsAttention(
       type: 'warning',
       categorie: 'rentabilite',
       message: `Rentabilité nette faible : ${round(rentabilite.rentabilite_nette, 2)}%`,
-      conseil: 'Vérifiez le prix d\'achat ou négociez les frais',
+      conseil: "Vérifiez le prix d'achat ou négociez les frais",
     });
   }
 
@@ -291,7 +324,7 @@ export function genererPointsAttention(
       type: 'error',
       categorie: 'financement',
       message: `Taux d'endettement (${hcsf.taux_endettement}%) > seuil HCSF (35%)`,
-      conseil: 'Le financement risque d\'être refusé. Augmentez l\'apport ou réduisez le montant',
+      conseil: "Le financement risque d'être refusé. Augmentez l'apport ou réduisez le montant",
     });
   } else if (hcsf.taux_endettement > SEUILS.TAUX_ENDETTEMENT_ALERTE) {
     points.push({
@@ -334,7 +367,10 @@ export function genererPointsAttention(
 /**
  * V2-S17 : Génère les alertes LMP selon les recettes LMNP annuelles
  */
-export function genererAlertesLmp(recettesLmnpAnnuelles: number, config: ResolvedConfig): PointAttention[] {
+export function genererAlertesLmp(
+  recettesLmnpAnnuelles: number,
+  config: ResolvedConfig
+): PointAttention[] {
   const alertes: PointAttention[] = [];
 
   if (recettesLmnpAnnuelles > config.lmpSeuilLmp) {
@@ -342,14 +378,16 @@ export function genererAlertesLmp(recettesLmnpAnnuelles: number, config: Resolve
       type: 'error',
       categorie: 'fiscalite',
       message: `Vos recettes LMNP (${Math.round(recettesLmnpAnnuelles).toLocaleString('fr-FR')} €) dépassent le seuil LMP (${config.lmpSeuilLmp.toLocaleString('fr-FR')} €).`,
-      conseil: "Vous pourriez être qualifié en LMP avec des conséquences sociales et fiscales différentes. Consultez un expert.",
+      conseil:
+        'Vous pourriez être qualifié en LMP avec des conséquences sociales et fiscales différentes. Consultez un expert.',
     });
   } else if (recettesLmnpAnnuelles > config.lmpSeuilAlerte) {
     alertes.push({
       type: 'warning',
       categorie: 'fiscalite',
       message: `Vos recettes LMNP (${Math.round(recettesLmnpAnnuelles).toLocaleString('fr-FR')} €) approchent du seuil LMP (${config.lmpSeuilLmp.toLocaleString('fr-FR')} €).`,
-      conseil: "Anticipez les conséquences fiscales et sociales du passage en LMP. Consultez un expert.",
+      conseil:
+        'Anticipez les conséquences fiscales et sociales du passage en LMP. Consultez un expert.',
     });
   }
 
@@ -382,8 +420,8 @@ export function genererRecommandations(
       actions: [
         'Négocier un taux de crédit plus bas',
         'Allonger la durée du prêt',
-        'Augmenter l\'apport personnel',
-        'Revoir le prix d\'achat à la baisse',
+        "Augmenter l'apport personnel",
+        "Revoir le prix d'achat à la baisse",
       ],
     });
   } else if (cfReference > 0) {
@@ -407,7 +445,7 @@ export function genererRecommandations(
       titre: 'Optimiser la rentabilité',
       description: `Rentabilité nette de ${round(rentabilite.rentabilite_nette, 2)}% (cible : 7%)`,
       actions: [
-        'Négocier le prix d\'achat',
+        "Négocier le prix d'achat",
         'Vérifier le potentiel locatif du marché',
         'Optimiser les charges (assurances, copropriété)',
         'Envisager des travaux pour augmenter le loyer',
@@ -424,7 +462,7 @@ export function genererRecommandations(
         priorite: 'haute',
         categorie: 'fiscalite',
         titre: 'Régime fiscal à revoir',
-        description: 'Le micro-foncier n\'est pas possible au-delà de 15 000€/an',
+        description: "Le micro-foncier n'est pas possible au-delà de 15 000€/an",
         actions: [
           'Passer au régime réel (déduction des charges)',
           'Étudier le passage en LMNP si possible',
@@ -439,8 +477,8 @@ export function genererRecommandations(
         titre: 'Optimisation fiscale possible',
         description: `TMI de ${structure.tmi}% : l'imposition sera significative`,
         actions: [
-          'Étudier le régime LMNP pour l\'amortissement',
-          'Simuler une SCI à l\'IS pour comparer',
+          "Étudier le régime LMNP pour l'amortissement",
+          "Simuler une SCI à l'IS pour comparer",
           'Consulter un expert-comptable',
         ],
       });
@@ -453,9 +491,9 @@ export function genererRecommandations(
       priorite: 'haute',
       categorie: 'financement',
       titre: 'Conformité HCSF requise',
-      description: 'Le dossier risque d\'être refusé par les banques',
+      description: "Le dossier risque d'être refusé par les banques",
       actions: [
-        'Augmenter l\'apport (réduire le montant emprunté)',
+        "Augmenter l'apport (réduire le montant emprunté)",
         'Trouver un co-emprunteur',
         'Reporter le projet et augmenter les revenus',
         'Cibler un bien moins cher',
@@ -463,18 +501,17 @@ export function genererRecommandations(
     });
   }
 
-
   // AUDIT-110 : Recommandations DPE passoires
-  if (bien?.dpe && ["F", "G"].includes(bien.dpe)) {
+  if (bien?.dpe && ['F', 'G'].includes(bien.dpe)) {
     recommandations.push({
-      priorite: "haute",
-      categorie: "general",
-      titre: "Rénovation énergétique nécessaire",
-      description: "Votre bien est classé DPE " + bien.dpe + " (passoire énergétique)",
+      priorite: 'haute',
+      categorie: 'general',
+      titre: 'Rénovation énergétique nécessaire',
+      description: 'Votre bien est classé DPE ' + bien.dpe + ' (passoire énergétique)',
       actions: [
-        "Prévoir un budget de rénovation énergétique pour améliorer le DPE",
+        'Prévoir un budget de rénovation énergétique pour améliorer le DPE',
         "Vérifier l'éligibilité aux aides MaPrimeRénov'",
-        "Consulter un diagnostiqueur pour estimer les travaux nécessaires",
+        'Consulter un diagnostiqueur pour estimer les travaux nécessaires',
         "Attention : le gel des loyers s'applique aux biens classés F et G",
       ],
     });
@@ -502,7 +539,7 @@ export function genererRecommandations(
       actions: [
         'Revoir les paramètres du projet',
         'Chercher un autre bien avec un meilleur potentiel',
-        'Consulter un professionnel de l\'investissement',
+        "Consulter un professionnel de l'investissement",
       ],
     });
   }
@@ -531,10 +568,10 @@ function getRecommandationPrincipale(scoreInterne: number): string {
     return 'Investissement très viable. Tous les indicateurs sont au vert : autofinancement positif, bonne rentabilité et conformité HCSF.';
   }
   if (scoreInterne === 3) {
-    return 'Investissement viable. La majorité des critères sont respectés. Vérifiez les points d\'attention avant de vous engager.';
+    return "Investissement viable. La majorité des critères sont respectés. Vérifiez les points d'attention avant de vous engager.";
   }
   if (scoreInterne === 2) {
-    return 'Investissement à optimiser. Plusieurs critères ne sont pas satisfaits. Envisagez de négocier le prix ou d\'augmenter le loyer.';
+    return "Investissement à optimiser. Plusieurs critères ne sont pas satisfaits. Envisagez de négocier le prix ou d'augmenter le loyer.";
   }
   return 'Investissement risqué. La majorité des critères ne sont pas respectés. Reconsidérez ce projet ou cherchez des optimisations significatives.';
 }
@@ -614,14 +651,17 @@ export function genererSynthese(
     loyerAnnuel: rentabilite.loyer_annuel,
     revenusActivite: structure?.revenus_activite,
     totalChargesMensuelles: chargesMensuellesHcsf,
-    config
+    config,
   };
 
   // Calcul du score détaillé sur 100 (AUDIT-106)
   // V2-S16 : Pondération selon profil investisseur + pré-calcul des deux profils
   const scoreDetail = calculerScoreGlobal({ ...scoreParams, profilInvestisseur });
   const scoreRentier = calculerScoreGlobal({ ...scoreParams, profilInvestisseur: 'rentier' });
-  const scorePatrimonial = calculerScoreGlobal({ ...scoreParams, profilInvestisseur: 'patrimonial' });
+  const scorePatrimonial = calculerScoreGlobal({
+    ...scoreParams,
+    profilInvestisseur: 'patrimonial',
+  });
 
   const { evaluation, couleur } = genererEvaluation(scoreDetail.total);
   const recommandation = getRecommandationPrincipale(scoreInterne);
@@ -631,14 +671,22 @@ export function genererSynthese(
     : [];
 
   // V2-S17 : Alertes LMP si régime LMNP (recettes = loyer annuel avec taux d'occupation)
-  const isLmnp = structure?.regime_fiscal === 'lmnp_reel' || structure?.regime_fiscal === 'lmnp_micro';
+  const isLmnp =
+    structure?.regime_fiscal === 'lmnp_reel' || structure?.regime_fiscal === 'lmnp_micro';
   if (isLmnp) {
     const recettesLmnp = rentabilite.loyer_annuel;
     points_attention_detail.push(...genererAlertesLmp(recettesLmnp, config));
   }
 
   const recommandations_detail = structure
-    ? genererRecommandations(structure, rentabilite, hcsf, scoreDetail, bien, cashflowNetImpotMensuel)
+    ? genererRecommandations(
+        structure,
+        rentabilite,
+        hcsf,
+        scoreDetail,
+        bien,
+        cashflowNetImpotMensuel
+      )
     : [];
 
   return {

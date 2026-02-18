@@ -101,3 +101,53 @@ describe('AUDIT-110 & V2-S14 : Revalorisation selon DPE', () => {
         expect(result.projections[0].valeurBien).toBeCloseTo(100000, -1);
     });
 });
+
+// ============================================================================
+// REC-05 : Alerte TRI quand apport = 0
+// ============================================================================
+describe('REC-05 : alerteApportZero dans les projections', () => {
+    const baseInput = {
+        bien: {
+            adresse: 'Test', prix_achat: 200000, type_bien: 'appartement',
+            etat_bien: 'ancien', montant_travaux: 0, valeur_mobilier: 0,
+        },
+        exploitation: {
+            loyer_mensuel: 900, charges_copro: 100, taxe_fonciere: 800,
+            assurance_pno: 150, gestion_locative: 0, provision_travaux: 0,
+            provision_vacance: 0, type_location: 'nue',
+        },
+        structure: { type: 'nom_propre', tmi: 30, regime_fiscal: 'reel' },
+        options: { horizon_projection: 10, taux_evolution_loyer: 0 },
+    };
+
+    it('apport = 0 → alerteApportZero === true', () => {
+        const input = {
+            ...baseInput,
+            financement: { apport: 0, taux_interet: 3.5, duree_emprunt: 20, assurance_pret: 0.3, frais_dossier: 0, frais_garantie: 0 },
+        } as unknown as ValidatedFormData;
+        const result = genererProjections(input, mockConfig, 10);
+        expect(result.alerteApportZero).toBe(true);
+    });
+
+    it('apport > 0 → alerteApportZero === false', () => {
+        const input = {
+            ...baseInput,
+            financement: { apport: 40000, taux_interet: 3.5, duree_emprunt: 20, assurance_pret: 0.3, frais_dossier: 0, frais_garantie: 0 },
+        } as unknown as ValidatedFormData;
+        const result = genererProjections(input, mockConfig, 10);
+        expect(result.alerteApportZero).toBe(false);
+    });
+
+    it('hypothèses d\'inflation sont exposées dans le résultat', () => {
+        const input = {
+            ...baseInput,
+            financement: { apport: 40000, taux_interet: 3.5, duree_emprunt: 20, assurance_pret: 0.3, frais_dossier: 0, frais_garantie: 0 },
+            options: { horizon_projection: 10 }, // pas de taux_evolution_loyer/charges → utilise la config
+        } as unknown as ValidatedFormData;
+        const result = genererProjections(input, mockConfig, 10);
+        expect(result.hypotheses).toBeDefined();
+        expect(result.hypotheses!.inflationLoyer).toBe(mockConfig.projectionInflationLoyer);
+        expect(result.hypotheses!.inflationCharges).toBe(mockConfig.projectionInflationCharges);
+        expect(result.hypotheses!.revalorisationBien).toBe(mockConfig.projectionRevalorisation);
+    });
+});
