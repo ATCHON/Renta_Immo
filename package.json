@@ -20,7 +20,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@react-pdf/renderer": "^4.3.2",
     "@supabase/ssr": "^0.8.0",
-    "@supabase/supabase-js": "^2.94.1",
+    "@supabase/supabase-js": "^2.97.0",
     "@tanstack/react-query": "^5.90.21",
     "better-auth": "^1.4.18",
     "clsx": "^2.1.1",
