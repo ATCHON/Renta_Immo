@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireAdmin } from '@/lib/auth-helpers';
 import { z } from 'zod';
+import type { DbConfigParamRow } from '@/server/config/config-types';
 
 const QuerySchema = z.object({
   anneeFiscale: z.coerce.number().optional(),
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const formattedData = (data || []).map((row: Record<string, unknown>) => ({
+  const formattedData = (data as DbConfigParamRow[] || []).map((row) => ({
     ...row,
     isTemporary: row.is_temporary,
     dateExpiration: row.date_expiration,

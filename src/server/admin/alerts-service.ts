@@ -1,12 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/server';
-
-interface DbConfigParamRow {
-  id: string;
-  label: string;
-  cle: string;
-  date_expiration: string | null;
-  [key: string]: unknown;
-}
+import type { DbConfigParamRow } from '@/server/config/config-types';
 
 export interface ParamAlert {
   id: string;
