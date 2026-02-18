@@ -29,7 +29,7 @@ export function FormWizard() {
   const activeScenarioId = useCalculateurStore((state) => state.activeScenarioId);
   const scenarios = useCalculateurStore((state) => state.scenarios);
   const scenario = scenarios.find((s) => s.id === activeScenarioId) || scenarios[0];
-  const { bien, financement, exploitation, structure, options } = scenario;
+  const { structure } = scenario;
 
   const { calculate, isLoading } = useCalculateur();
 

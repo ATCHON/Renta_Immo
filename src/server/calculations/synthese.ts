@@ -223,7 +223,6 @@ export function calculerScoreGlobal(params: {
   // Note: Les poids de scoring ne sont pas encore en BDD, on les définit localement
   const poids = SCORING_PROFIL_WEIGHTS[profil];
 
-  const config = params.config;
   const ajCashflow = round(ajustementCashflow(params.cashflowMensuel) * poids.cashflow, 1);
   const ajRentabilite = round(
     ajustementRentabilite(params.rentabiliteNetteNette) * poids.rentabilite,

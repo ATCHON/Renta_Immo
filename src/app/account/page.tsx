@@ -2,8 +2,6 @@ import { getSessionWithRole } from '@/lib/auth-helpers';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { User, ShieldCheck } from 'lucide-react';
-import { Button } from '@/components/ui/Button'; // Assuming Button component existence
-import { authClient } from '@/lib/auth-client'; // For client-side logout if needed, but we'll stick to server-side rendering for data and maybe a client component for interactive parts if complex. kept simple for now.
 
 export default async function AccountPage() {
   const session = await getSessionWithRole();

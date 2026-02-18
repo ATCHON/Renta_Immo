@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/server';
-import { ConfigParam } from '@/server/config/config-types';
+import type { DbConfigParamRow } from '@/server/config/config-types';
 
 export interface ParamAlert {
   id: string;
@@ -29,7 +29,7 @@ export class AlertsService {
     const alerts: ParamAlert[] = [];
     const now = new Date();
 
-    data.forEach((row: any) => {
+    (data as DbConfigParamRow[]).forEach((row) => {
       if (!row.date_expiration) return;
 
       const expirationDate = new Date(row.date_expiration);

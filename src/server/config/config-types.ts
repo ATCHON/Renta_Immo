@@ -25,6 +25,22 @@ export interface ConfigParam {
   updatedAt: string;
 }
 
+/** Ligne brute retournée par Supabase depuis la table config_params (snake_case) */
+export interface DbConfigParamRow {
+  id: string;
+  annee_fiscale: number;
+  bloc: ConfigBloc;
+  cle: string;
+  valeur: number;
+  unite: string;
+  label: string;
+  description?: string | null;
+  is_temporary: boolean;
+  date_expiration?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ConfigParamAudit {
   id: string;
   configId: string;

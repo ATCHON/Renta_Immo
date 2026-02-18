@@ -1,6 +1,6 @@
-import { performCalculations, CalculationResult } from '@/server/calculations';
+import { performCalculations } from '@/server/calculations';
 import { configService } from '@/server/config/config-service';
-import { ResolvedConfig, CLE_TO_FIELD } from '@/server/config/config-types';
+import { CLE_TO_FIELD } from '@/server/config/config-types';
 import { FIXTURES } from './dry-run-fixtures';
 
 export interface ScenarioImpact {

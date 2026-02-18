@@ -531,17 +531,27 @@ export default function EnSavoirPlusPage() {
               <Card>
                 <CardHeader title="LMNP Micro-BIC" description="Meublé — Le compromis" />
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <StatBox label="Abattement" value="50%" />
-                    <StatBox label="Plafond" value="77.7 k€" />
+                  <div className="grid grid-cols-3 gap-3">
+                    <StatBox label="Longue durée" value="50%" sub="Plafond 77 700€" />
+                    <StatBox label="Tourisme classé" value="71%" sub="Plafond 188 700€" />
+                    <StatBox label="Tourisme non classé" value="30%" sub="Plafond 15 000€" />
                   </div>
                   <p className="text-sm text-pebble leading-relaxed">
-                    Abattement forfaitaire de 50% sur les recettes locatives meublées. Simple et
-                    souvent avantageux pour les petites surfaces meublées.
+                    Abattement forfaitaire sur les recettes locatives meublées selon la nature du
+                    bien. Simple et souvent avantageux pour les petites surfaces meublées en longue
+                    durée.
                   </p>
                   <ExpertTip variant="warning">
-                    <strong>Attention LF 2025 :</strong> Pour les meublés de tourisme non classés,
-                    l&apos;abattement est réduit à 30% avec un plafond de 15 000€.
+                    <strong>LF 2025 :</strong> Le taux pour les meublés de tourisme non classés a
+                    été réduit à 30% avec un plafond de 15 000€. Les meublés de tourisme{' '}
+                    <strong>classés</strong> conservent un abattement majoré à 71% (plafond 188
+                    700€).
+                  </ExpertTip>
+                  <ExpertTip variant="info">
+                    <strong>PS 18,6% (LFSS 2026) :</strong> Les revenus locatifs meublés (BIC) sont
+                    soumis aux prélèvements sociaux à <strong>18,6%</strong>, contre 17,2% pour les
+                    revenus fonciers (location nue). Cette différence s&apos;applique à la base
+                    imposable après abattement.
                   </ExpertTip>
                 </CardContent>
               </Card>
@@ -562,6 +572,12 @@ export default function EnSavoirPlusPage() {
                     <strong>Important :</strong> L&apos;amortissement ne peut pas créer de déficit
                     BIC. L&apos;excédent est reporté indéfiniment sur les exercices suivants.
                   </p>
+                  <ExpertTip variant="warning">
+                    <strong>PS 18,6% sur revenus BIC (LFSS 2026) :</strong> Même avec un résultat
+                    fiscal nul grâce aux amortissements, si un bénéfice BIC subsiste, il est soumis
+                    aux prélèvements sociaux à <strong>18,6%</strong> (taux BIC), distincts des
+                    17,2% applicables aux revenus fonciers de la location nue.
+                  </ExpertTip>
                 </CardContent>
               </Card>
 
@@ -669,6 +685,15 @@ export default function EnSavoirPlusPage() {
                 <FormulaBox>
                   Économie d&apos;impôt = min(Déficit hors intérêts, 10 700€) x TMI
                 </FormulaBox>
+
+                <ExpertTip variant="success">
+                  <strong>Travaux de rénovation énergétique (LF 2023) :</strong> Pour les dépenses
+                  de rénovation énergétique réalisées entre 2023 et 2025, le plafond du déficit
+                  foncier imputable sur le revenu global est majoré à{' '}
+                  <strong className="text-forest">21 400€/an</strong> (au lieu de 10 700€). Les
+                  travaux éligibles sont ceux permettant de sortir le bien des classes{' '}
+                  <strong>E, F ou G</strong>.
+                </ExpertTip>
 
                 <ExpertTip>
                   <strong>Exemple concret :</strong> Revenus fonciers 10 800€, charges (travaux) 18
@@ -853,6 +878,27 @@ export default function EnSavoirPlusPage() {
                 <CardContent className="space-y-6">
                   <FormulaBox>Plus-value brute = Prix de vente - Prix d&apos;achat</FormulaBox>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-forest/5 p-4 rounded-xl border border-forest/10">
+                      <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                        Forfait frais d&apos;acquisition (BOFiP)
+                      </p>
+                      <p className="text-sm text-charcoal">
+                        <strong className="text-forest">7,5%</strong> du prix d&apos;achat,
+                        déductibles du prix de revient (à défaut de justificatifs réels)
+                      </p>
+                    </div>
+                    <div className="bg-forest/5 p-4 rounded-xl border border-forest/10">
+                      <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                        Forfait travaux (BOFiP)
+                      </p>
+                      <p className="text-sm text-charcoal">
+                        <strong className="text-forest">15%</strong> du prix d&apos;achat,
+                        déductibles si détention &gt; 5 ans (à défaut de justificatifs réels)
+                      </p>
+                    </div>
+                  </div>
+
                   <p className="text-sm text-pebble leading-relaxed">
                     La plus-value est soumise à deux impôts distincts avec des abattements
                     différents :<strong> IR (19%)</strong> et{' '}
@@ -903,9 +949,30 @@ export default function EnSavoirPlusPage() {
                   </ExpertTip>
 
                   <ExpertTip variant="warning">
-                    <strong>Surtaxe :</strong> Pour une plus-value nette IR supérieure à{' '}
-                    <strong>50 000€</strong>, une surtaxe de 2% à 7% s&apos;applique (barème
-                    progressif).
+                    <strong>Surtaxe (barème progressif) :</strong> Pour une plus-value nette IR
+                    supérieure à <strong>50 000€</strong> :
+                    <table className="mt-2 w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-amber-200">
+                          <th className="text-left py-1 font-bold">Tranche PV nette IR</th>
+                          <th className="text-right py-1 font-bold">Surtaxe</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { tranche: '50 001 – 100 000€', taux: '2%' },
+                          { tranche: '100 001 – 150 000€', taux: '3%' },
+                          { tranche: '150 001 – 200 000€', taux: '4%' },
+                          { tranche: '200 001 – 250 000€', taux: '5%' },
+                          { tranche: '> 250 000€', taux: '6%' },
+                        ].map((row, i) => (
+                          <tr key={i} className="border-b border-amber-100">
+                            <td className="py-1">{row.tranche}</td>
+                            <td className="py-1 text-right font-bold">{row.taux}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </ExpertTip>
                 </CardContent>
               </Card>
@@ -930,6 +997,14 @@ export default function EnSavoirPlusPage() {
                     plus-value brute augmente de 50 000€. C&apos;est le prix à payer pour des années
                     d&apos;impôt zéro. À long terme (&gt;22 ans), l&apos;exonération IR compense
                     largement.
+                  </ExpertTip>
+                  <ExpertTip variant="success">
+                    <strong>Exception — Résidences de services (LF 2025) :</strong> Les biens
+                    détenus en LMNP dans les <strong>résidences de services</strong> (EHPAD,
+                    résidences étudiantes, résidences seniors, résidences de tourisme) sont{' '}
+                    <strong>exemptés</strong> de la réintégration des amortissements dans le calcul
+                    de la plus-value. Ils continuent de bénéficier du régime de la plus-value des
+                    particuliers sans majoration.
                   </ExpertTip>
                 </CardContent>
               </Card>
@@ -1001,7 +1076,7 @@ export default function EnSavoirPlusPage() {
                       Durée Crédit Max
                     </p>
                     <p className="text-4xl font-black text-charcoal tracking-tighter">25 ans</p>
-                    <p className="text-xs text-pebble">27 ans avec différé travaux</p>
+                    <p className="text-xs text-pebble">27 ans pour les achats en VEFA</p>
                   </div>
                   <div className="text-center space-y-2">
                     <p className="text-[10px] font-bold text-pebble uppercase tracking-widest">
@@ -1061,14 +1136,14 @@ export default function EnSavoirPlusPage() {
                       <p className="text-xs font-bold text-pebble uppercase tracking-wider">
                         Insuffisant
                       </p>
-                      <p className="text-2xl font-black text-terracotta">&lt; 700€</p>
+                      <p className="text-2xl font-black text-terracotta">&lt; 800€</p>
                       <p className="text-xs text-pebble mt-1">Refus de prêt probable</p>
                     </div>
                     <div className="bg-surface p-4 rounded-xl border border-sand text-center">
                       <p className="text-xs font-bold text-pebble uppercase tracking-wider">
                         Correct
                       </p>
-                      <p className="text-2xl font-black text-charcoal">700 - 1 500€</p>
+                      <p className="text-2xl font-black text-charcoal">800 - 1 500€</p>
                       <p className="text-xs text-pebble mt-1">Acceptable, marge limitée</p>
                     </div>
                     <div className="bg-forest/5 p-4 rounded-xl border border-forest/10 text-center">
@@ -1082,8 +1157,8 @@ export default function EnSavoirPlusPage() {
                   <ExpertTip variant="success">
                     <strong>Scoring :</strong> Le reste à vivre impacte directement votre score
                     d&apos;investissement :<strong> +5 points</strong> au-dessus de 1 500€,{' '}
-                    <strong>0 point</strong> entre 700 et 1 500€, et <strong>-10 points</strong> en
-                    dessous de 700€. Un investisseur peut être sous le seuil de 35%
+                    <strong>0 point</strong> entre 800 et 1 500€, et <strong>-10 points</strong> en
+                    dessous de 800€. Un investisseur peut être sous le seuil de 35%
                     d&apos;endettement mais avoir un reste à vivre insuffisant, ce qui entraînerait
                     un refus de prêt.
                   </ExpertTip>
@@ -1175,12 +1250,14 @@ export default function EnSavoirPlusPage() {
                 </div>
 
                 <h4 className="text-sm font-bold text-charcoal uppercase tracking-widest px-3 border-l-4 border-terracotta mt-2">
-                  Gel des loyers (DPE F et G)
+                  Gel des loyers (DPE E, F et G)
                 </h4>
                 <p className="text-sm text-pebble leading-relaxed">
                   Les logements classés <strong>F ou G</strong> ne peuvent plus faire l&apos;objet
-                  d&apos;une augmentation de loyer : l&apos;IRL (Indice de Référence des Loyers) est{' '}
-                  <strong>inapplicable</strong>.
+                  d&apos;une augmentation de loyer depuis 2022 : l&apos;IRL (Indice de Référence
+                  des Loyers) est <strong>inapplicable</strong>. Le DPE <strong>E</strong> sera
+                  soumis au même gel à partir du <strong>1er janvier 2034</strong>, date à laquelle
+                  sa location sera interdite.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-surface p-4 rounded-xl border border-sand">
@@ -1207,6 +1284,32 @@ export default function EnSavoirPlusPage() {
                   à un DPE C avec inflation de 2%. Notre simulateur applique automatiquement le gel
                   pour les DPE F et G.
                 </ExpertTip>
+
+                <h4 className="text-sm font-bold text-charcoal uppercase tracking-widest px-3 border-l-4 border-terracotta mt-2">
+                  Décotes sur la valeur vénale
+                </h4>
+                <p className="text-sm text-pebble leading-relaxed">
+                  Les passoires thermiques subissent des décotes significatives à la revente
+                  (source : Notaires France 2024). Notre simulateur intègre ces décotes dans le
+                  calcul de la valeur patrimoniale et du TRI.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-surface p-4 rounded-xl border border-sand text-center">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">DPE A à D</p>
+                    <p className="text-2xl font-black text-forest">0%</p>
+                    <p className="text-xs text-pebble mt-1">Pas de décote</p>
+                  </div>
+                  <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-center">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">DPE E</p>
+                    <p className="text-2xl font-black text-amber-600">-5%</p>
+                    <p className="text-xs text-pebble mt-1">Décote modérée</p>
+                  </div>
+                  <div className="bg-terracotta/5 p-4 rounded-xl border border-terracotta/10 text-center">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">DPE F ou G</p>
+                    <p className="text-2xl font-black text-terracotta">-15%</p>
+                    <p className="text-xs text-pebble mt-1">Décote passoire thermique</p>
+                  </div>
+                </div>
 
                 <h4 className="text-sm font-bold text-charcoal uppercase tracking-widest px-3 border-l-4 border-forest mt-2">
                   Alertes et recommandations
@@ -1422,16 +1525,16 @@ export default function EnSavoirPlusPage() {
                         Multiplicateurs de score
                       </p>
                       {[
-                        { label: 'Cash-flow net', mult: '×1.0', note: 'déterminant' },
-                        { label: 'Rentabilité nette', mult: '×1.0', note: 'standard' },
-                        { label: 'HCSF endettement', mult: '×1.0', note: 'standard' },
-                        { label: 'DPE', mult: '×1.0', note: 'standard' },
-                        { label: 'Ratio prix/loyer', mult: '×1.0', note: 'standard' },
-                        { label: 'Reste à vivre', mult: '×1.0', note: 'standard' },
+                        { label: 'Cash-flow net', mult: '×1.5', note: 'déterminant', color: 'text-forest' },
+                        { label: 'Rentabilité nette', mult: '×1.2', note: 'renforcé', color: 'text-forest' },
+                        { label: 'HCSF endettement', mult: '×1.0', note: 'standard', color: 'text-charcoal' },
+                        { label: 'DPE', mult: '×0.8', note: 'atténué', color: 'text-amber-600' },
+                        { label: 'Ratio prix/loyer', mult: '×0.5', note: 'atténué', color: 'text-amber-600' },
+                        { label: 'Reste à vivre', mult: '×0.5', note: 'atténué', color: 'text-amber-600' },
                       ].map((r, i) => (
                         <div key={i} className="flex items-center justify-between text-xs">
                           <span className="text-charcoal">{r.label}</span>
-                          <span className="font-mono font-bold text-forest">{r.mult}</span>
+                          <span className={cn('font-mono font-bold', r.color)}>{r.mult}</span>
                         </div>
                       ))}
                     </div>
@@ -1460,28 +1563,28 @@ export default function EnSavoirPlusPage() {
                         },
                         {
                           label: 'Rentabilité nette',
-                          mult: '×1.5',
-                          note: 'renforcé',
-                          color: 'text-forest',
+                          mult: '×1.0',
+                          note: 'standard',
+                          color: 'text-charcoal',
                         },
                         {
                           label: 'HCSF endettement',
-                          mult: '×1.0',
-                          note: 'standard',
+                          mult: '×1.2',
+                          note: 'renforcé',
                           color: 'text-forest',
                         },
                         { label: 'DPE', mult: '×1.5', note: 'renforcé', color: 'text-forest' },
                         {
                           label: 'Ratio prix/loyer',
-                          mult: '×1.5',
-                          note: 'renforcé',
-                          color: 'text-forest',
+                          mult: '×1.0',
+                          note: 'standard',
+                          color: 'text-charcoal',
                         },
                         {
                           label: 'Reste à vivre',
-                          mult: '×0.75',
-                          note: 'atténué',
-                          color: 'text-amber-600',
+                          mult: '×1.2',
+                          note: 'renforcé',
+                          color: 'text-forest',
                         },
                       ].map((r, i) => (
                         <div key={i} className="flex items-center justify-between text-xs">
@@ -1543,7 +1646,7 @@ export default function EnSavoirPlusPage() {
                       Inflation loyers
                     </p>
                     <p className="text-2xl font-black text-charcoal">
-                      +2%<span className="text-xs font-normal text-pebble">/an</span>
+                      +1,5%<span className="text-xs font-normal text-pebble">/an</span>
                     </p>
                   </div>
                   <div className="bg-surface p-4 rounded-xl border border-sand text-center">
@@ -1551,7 +1654,7 @@ export default function EnSavoirPlusPage() {
                       Inflation charges
                     </p>
                     <p className="text-2xl font-black text-charcoal">
-                      +2.5%<span className="text-xs font-normal text-pebble">/an</span>
+                      +2,0%<span className="text-xs font-normal text-pebble">/an</span>
                     </p>
                   </div>
                   <div className="bg-surface p-4 rounded-xl border border-sand text-center">
@@ -1559,7 +1662,7 @@ export default function EnSavoirPlusPage() {
                       Revalorisation bien
                     </p>
                     <p className="text-2xl font-black text-charcoal">
-                      +1.5%<span className="text-xs font-normal text-pebble">/an</span>
+                      +1,0%<span className="text-xs font-normal text-pebble">/an</span>
                     </p>
                   </div>
                 </div>

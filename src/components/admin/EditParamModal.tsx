@@ -32,7 +32,7 @@ export default function EditParamModal({ param, onClose, onSuccess }: EditParamM
       } else {
         toast.error(json.error.message || 'Erreur lors de la mise à jour');
       }
-    } catch (err) {
+    } catch {
       toast.error('Erreur réseau');
     } finally {
       setSaving(false);
