@@ -35,7 +35,11 @@ export function HCSFIndicator({ hcsf }: HCSFIndicatorProps) {
         {/* Jauge principale compacte */}
         <div className="flex items-center gap-6">
           <div className="flex-1">
-            <HCSFGauge value={hcsf.taux_endettement} maxValue={50} threshold={HCSF.TAUX_ENDETTEMENT_MAX} />
+            <HCSFGauge
+              value={hcsf.taux_endettement}
+              maxValue={50}
+              threshold={HCSF.TAUX_ENDETTEMENT_MAX}
+            />
           </div>
           <div className="shrink-0 text-right">
             <p className="nordic-label-xs mb-1">Taux Global</p>
@@ -61,7 +65,12 @@ export function HCSFIndicator({ hcsf }: HCSFIndicatorProps) {
               {hcsf.details_associes.map((associe, index) => (
                 <div key={index} className="flex justify-between items-center text-[11px]">
                   <span className="text-stone font-medium">{associe.nom}</span>
-                  <span className={cn("font-bold", associe.conforme ? "text-forest" : "text-terracotta")}>
+                  <span
+                    className={cn(
+                      'font-bold',
+                      associe.conforme ? 'text-forest' : 'text-terracotta'
+                    )}
+                  >
                     {formatPercent(associe.taux_endettement)}
                   </span>
                 </div>
@@ -103,7 +112,8 @@ export function HCSFIndicator({ hcsf }: HCSFIndicatorProps) {
         {/* Information Rappel (Ultra-compact) */}
         <div className="mt-4 pt-4 border-t border-sand/50">
           <p className="text-[10px] text-stone leading-relaxed italic">
-            <strong className="text-charcoal not-italic">HCSF :</strong> Max 35% d&apos;endettement sur 25 ans.
+            <strong className="text-charcoal not-italic">HCSF :</strong> Max 35% d&apos;endettement
+            sur 25 ans.
           </p>
         </div>
       </CardContent>
@@ -141,5 +151,3 @@ function HCSFGauge({ value, maxValue, threshold }: HCSFGaugeProps) {
     </div>
   );
 }
-
-

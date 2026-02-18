@@ -2,7 +2,12 @@
 
 import { Card } from '@/components/ui';
 import { formatCurrency } from '@/lib/utils';
-import type { BienData, FinancementData, ExploitationData, StructureData } from '@/types/calculateur';
+import type {
+  BienData,
+  FinancementData,
+  ExploitationData,
+  StructureData,
+} from '@/types/calculateur';
 
 interface InputRecapProps {
   bien: Partial<BienData>;
@@ -48,9 +53,16 @@ function RecapCol({ title, items }: { title: string; items: { label: string; val
 export function InputRecap({ bien, financement, exploitation, structure }: InputRecapProps) {
   const bienItems = [
     { label: 'Prix', value: formatCurrency(bien.prix_achat ?? 0) },
-    { label: 'Type', value: `${bien.surface ? `${bien.surface}m²` : ''} ${TYPE_BIEN_LABELS[bien.type_bien ?? ''] ?? ''}`.trim() || '--' },
+    {
+      label: 'Type',
+      value:
+        `${bien.surface ? `${bien.surface}m²` : ''} ${TYPE_BIEN_LABELS[bien.type_bien ?? ''] ?? ''}`.trim() ||
+        '--',
+    },
     ...(bien.dpe ? [{ label: 'DPE', value: bien.dpe }] : []),
-    ...(bien.montant_travaux ? [{ label: 'Travaux', value: formatCurrency(bien.montant_travaux) }] : []),
+    ...(bien.montant_travaux
+      ? [{ label: 'Travaux', value: formatCurrency(bien.montant_travaux) }]
+      : []),
   ];
 
   const financementItems = [
@@ -61,14 +73,24 @@ export function InputRecap({ bien, financement, exploitation, structure }: Input
 
   const exploitationItems = [
     { label: 'Loyer', value: `${formatCurrency(exploitation.loyer_mensuel ?? 0)}/m` },
-    { label: 'Charges', value: `${formatCurrency((exploitation.charges_copro ?? 0) + (exploitation.assurance_pno ?? 0))}/an` },
+    {
+      label: 'Charges',
+      value: `${formatCurrency((exploitation.charges_copro ?? 0) + (exploitation.assurance_pno ?? 0))}/an`,
+    },
     { label: 'Taxe fonc.', value: `${formatCurrency(exploitation.taxe_fonciere ?? 0)}/an` },
   ];
 
   const structureItems = [
     { label: 'Structure', value: TYPE_STRUCTURE_LABELS[structure.type ?? ''] ?? '--' },
     { label: 'TMI', value: `${structure.tmi ?? 0}%` },
-    ...(structure.regime_fiscal ? [{ label: 'Régime', value: REGIME_LABELS[structure.regime_fiscal] ?? structure.regime_fiscal }] : []),
+    ...(structure.regime_fiscal
+      ? [
+          {
+            label: 'Régime',
+            value: REGIME_LABELS[structure.regime_fiscal] ?? structure.regime_fiscal,
+          },
+        ]
+      : []),
   ];
 
   return (

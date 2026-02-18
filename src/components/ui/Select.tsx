@@ -77,7 +77,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       }
     };
 
-    const selectedOption = options.find(opt => String(opt.value) === String(internalValue));
+    const selectedOption = options.find((opt) => String(opt.value) === String(internalValue));
 
     return (
       <div className="w-full" ref={containerRef}>
@@ -129,16 +129,15 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             aria-haspopup="listbox"
             disabled={disabled}
           >
-            <span className={cn(
-              "block truncate",
-              !selectedOption && "text-pebble"
-            )}>
-              {selectedOption ? selectedOption.label : (placeholder || "Sélectionner...")}
+            <span className={cn('block truncate', !selectedOption && 'text-pebble')}>
+              {selectedOption ? selectedOption.label : placeholder || 'Sélectionner...'}
             </span>
-            <ChevronDown className={cn(
-              "h-4 w-4 text-pebble transition-transform duration-200",
-              isOpen && "transform rotate-180"
-            )} />
+            <ChevronDown
+              className={cn(
+                'h-4 w-4 text-pebble transition-transform duration-200',
+                isOpen && 'transform rotate-180'
+              )}
+            />
           </button>
 
           {/* Custom Dropdown */}
@@ -161,9 +160,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                       role="option"
                       aria-selected={isSelected}
                       className={cn(
-                        "px-4 py-2.5 text-sm cursor-pointer flex items-center justify-between transition-colors",
-                        option.disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-sand/10",
-                        isSelected && "bg-forest/5 text-forest font-medium"
+                        'px-4 py-2.5 text-sm cursor-pointer flex items-center justify-between transition-colors',
+                        option.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-sand/10',
+                        isSelected && 'bg-forest/5 text-forest font-medium'
                       )}
                       onClick={() => !option.disabled && handleSelect(option.value)}
                     >
@@ -181,9 +180,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             {error}
           </p>
         )}
-        {hint && !error && (
-          <p className="text-sm text-pebble mt-1">{hint}</p>
-        )}
+        {hint && !error && <p className="text-sm text-pebble mt-1">{hint}</p>}
       </div>
     );
   }

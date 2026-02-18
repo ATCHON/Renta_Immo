@@ -77,10 +77,7 @@ export function calculateMensualite(
 /**
  * Calcule la rentabilité brute
  */
-export function calculateRentabiliteBrute(
-  loyerMensuel: number,
-  prixAchat: number
-): number {
+export function calculateRentabiliteBrute(loyerMensuel: number, prixAchat: number): number {
   if (prixAchat <= 0) return 0;
   return (loyerMensuel * 12 * 100) / prixAchat;
 }

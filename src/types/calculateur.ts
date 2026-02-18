@@ -9,7 +9,11 @@ export type TypeBien = 'appartement' | 'maison' | 'immeuble';
 export type EtatBien = 'ancien' | 'neuf';
 
 // Types de location
-export type TypeLocation = 'nue' | 'meublee_longue_duree' | 'meublee_tourisme_classe' | 'meublee_tourisme_non_classe';
+export type TypeLocation =
+  | 'nue'
+  | 'meublee_longue_duree'
+  | 'meublee_tourisme_classe'
+  | 'meublee_tourisme_non_classe';
 
 // Types de structure juridique
 export type TypeStructure = 'nom_propre' | 'sci_is';
@@ -46,6 +50,8 @@ export interface BienData {
   // Audit Phase 2 : Déficit foncier majoré (AUDIT-110 & V2-S15)
   renovation_energetique?: boolean;
   annee_travaux?: number;
+  // REC-04 : Vente en l'État Futur d'Achèvement (VEFA)
+  is_vefa?: boolean;
 }
 
 /**
@@ -437,6 +443,14 @@ export interface ProjectionData {
     frais_revente?: number;
   };
   plusValue?: PlusValueResultat;
+  /** REC-05 : TRI non significatif quand l'apport est nul */
+  alerteApportZero?: boolean;
+  /** REC-03 : Hypothèses utilisées pour les projections */
+  hypotheses?: {
+    inflationLoyer: number;
+    inflationCharges: number;
+    revalorisationBien: number;
+  };
 }
 
 /**

@@ -21,13 +21,16 @@ const associeSchema = z.object({
 });
 
 const associesStepSchema = z.object({
-  associes: z.array(associeSchema).min(1, 'Au moins un associé est requis').refine(
-    (items) => {
-      const total = items.reduce((sum, item) => sum + item.parts, 0);
-      return Math.abs(total - 100) < 0.01;
-    },
-    { message: 'Le total des parts doit être égal à 100%' }
-  ),
+  associes: z
+    .array(associeSchema)
+    .min(1, 'Au moins un associé est requis')
+    .refine(
+      (items) => {
+        const total = items.reduce((sum, item) => sum + item.parts, 0);
+        return Math.abs(total - 100) < 0.01;
+      },
+      { message: 'Le total des parts doit être égal à 100%' }
+    ),
 });
 
 type AssociesStepFormData = z.infer<typeof associesStepSchema>;
@@ -60,11 +63,15 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
     },
   });
 
-  useScenarioFormReset(reset, {
-    associes: structure.associes?.length
-      ? structure.associes
-      : [{ nom: '', parts: 100, revenus: 0, mensualites: 0, charges: 0 }],
-  }, activeScenarioId);
+  useScenarioFormReset(
+    reset,
+    {
+      associes: structure.associes?.length
+        ? structure.associes
+        : [{ nom: '', parts: 100, revenus: 0, mensualites: 0, charges: 0 }],
+    },
+    activeScenarioId
+  );
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -72,7 +79,8 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
   });
 
   const watchedAssocies = watch('associes');
-  const totalParts = watchedAssocies?.reduce((sum: number, a: { parts?: number }) => sum + (a.parts || 0), 0) || 0;
+  const totalParts =
+    watchedAssocies?.reduce((sum: number, a: { parts?: number }) => sum + (a.parts || 0), 0) || 0;
 
   // Si nom propre, passer directement à l'étape suivante
   useEffect(() => {
@@ -124,7 +132,7 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
         )}
       >
         <p className="text-sm font-medium text-charcoal">
-          Total des parts : {' '}
+          Total des parts :{' '}
           <span
             className={cn(
               'text-lg font-bold',
@@ -134,9 +142,7 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
             {totalParts.toFixed(1)}%
           </span>
           {Math.abs(totalParts - 100) >= 0.01 && (
-            <span className="text-amber-700 ml-2 font-normal">
-              (doit être égal à 100%)
-            </span>
+            <span className="text-amber-700 ml-2 font-normal">(doit être égal à 100%)</span>
           )}
         </p>
       </div>
@@ -144,21 +150,11 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
       {/* Liste des associés */}
       <div className="space-y-6">
         {fields.map((field, index) => (
-          <div
-            key={field.id}
-            className="bg-surface border border-sand rounded-xl p-5"
-          >
+          <div key={field.id} className="bg-surface border border-sand rounded-xl p-5">
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-sand/50">
-              <h3 className="font-bold text-charcoal">
-                Associé {index + 1}
-              </h3>
+              <h3 className="font-bold text-charcoal">Associé {index + 1}</h3>
               {fields.length > 1 && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => remove(index)}
-                >
+                <Button type="button" variant="ghost" size="sm" onClick={() => remove(index)}>
                   Supprimer
                 </Button>
               )}
@@ -208,17 +204,10 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
       </div>
 
       {/* Erreur globale sur les parts */}
-      {errors.associes?.root && (
-        <p className="error-message">{errors.associes.root.message}</p>
-      )}
+      {errors.associes?.root && <p className="error-message">{errors.associes.root.message}</p>}
 
       {/* Bouton ajouter */}
-      <Button
-        type="button"
-        variant="secondary"
-        onClick={addAssocie}
-        className="w-full"
-      >
+      <Button type="button" variant="secondary" onClick={addAssocie} className="w-full">
         + Ajouter un associé
       </Button>
 
@@ -226,9 +215,7 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
         <Button type="button" variant="secondary" onClick={onPrev}>
           Retour
         </Button>
-        <Button type="submit">
-          Continuer
-        </Button>
+        <Button type="submit">Continuer</Button>
       </div>
     </form>
   );

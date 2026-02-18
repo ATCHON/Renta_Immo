@@ -41,25 +41,29 @@ export function StepBien({ onNext }: StepBienProps) {
     },
   });
 
-  useScenarioFormReset(reset, {
-    adresse: bien.adresse || '',
-    prix_achat: bien.prix_achat || undefined,
-    surface: bien.surface || undefined,
-    type_bien: bien.type_bien || 'appartement',
-    annee_construction: bien.annee_construction || undefined,
-    etat_bien: bien.etat_bien || 'ancien',
-    montant_travaux: bien.montant_travaux || 0,
-    valeur_mobilier: bien.valeur_mobilier || 0,
-    part_terrain: bien.part_terrain != null ? bien.part_terrain * 100 : undefined,
-    dpe: bien.dpe || undefined,
-    renovation_energetique: bien.renovation_energetique || false,
-    annee_travaux: bien.annee_travaux || undefined,
-  }, activeScenarioId);
+  useScenarioFormReset(
+    reset,
+    {
+      adresse: bien.adresse || '',
+      prix_achat: bien.prix_achat || undefined,
+      surface: bien.surface || undefined,
+      type_bien: bien.type_bien || 'appartement',
+      annee_construction: bien.annee_construction || undefined,
+      etat_bien: bien.etat_bien || 'ancien',
+      montant_travaux: bien.montant_travaux || 0,
+      valeur_mobilier: bien.valeur_mobilier || 0,
+      part_terrain: bien.part_terrain != null ? bien.part_terrain * 100 : undefined,
+      dpe: bien.dpe || undefined,
+      renovation_energetique: bien.renovation_energetique || false,
+      annee_travaux: bien.annee_travaux || undefined,
+    },
+    activeScenarioId
+  );
 
   const onSubmit = (data: BienFormData) => {
     // Convertir part_terrain de % vers ratio (ex: 10 → 0.10)
     const bienData: BienData = {
-      ...data as BienData,
+      ...(data as BienData),
       part_terrain: data.part_terrain != null ? data.part_terrain / 100 : undefined,
     };
     updateBien(bienData);
@@ -70,9 +74,7 @@ export function StepBien({ onNext }: StepBienProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-charcoal">Informations du bien</h2>
-        <p className="text-pebble mt-1">
-          Renseignez les caractéristiques du bien immobilier
-        </p>
+        <p className="text-pebble mt-1">Renseignez les caractéristiques du bien immobilier</p>
       </div>
 
       <Input
@@ -122,7 +124,6 @@ export function StepBien({ onNext }: StepBienProps) {
           error={errors.etat_bien?.message}
           {...register('etat_bien')}
         />
-
 
         <Input
           label="Année de construction"
@@ -192,9 +193,11 @@ export function StepBien({ onNext }: StepBienProps) {
               Rénovation énergétique éligible
             </span>
             <span className="text-xs text-gray-500 mt-1">
-              Cochez cette case si les travaux permettent de passer d&apos;une classe E/F/G à A/B/C/D.
+              Cochez cette case si les travaux permettent de passer d&apos;une classe E/F/G à
+              A/B/C/D.
               <br />
-              Le plafond du déficit foncier est doublé à <strong>21 400 €</strong> pour les paiements effectués entre 2023 et 2025.
+              Le plafond du déficit foncier est doublé à <strong>21 400 €</strong> pour les
+              paiements effectués entre 2023 et 2025.
             </span>
           </div>
         </label>
@@ -216,8 +219,14 @@ export function StepBien({ onNext }: StepBienProps) {
               const annee = watch('annee_travaux') as number | undefined;
               if (annee && (annee < 2023 || annee > 2025)) {
                 return (
-                  <Alert variant="warning" icon={AlertTriangle} title="Dispositif non applicable" className="mt-2 text-sm">
-                    Le plafond majoré de 21 400 € s&apos;applique uniquement aux travaux payés entre le 01/01/2023 et le 31/12/2025.
+                  <Alert
+                    variant="warning"
+                    icon={AlertTriangle}
+                    title="Dispositif non applicable"
+                    className="mt-2 text-sm"
+                  >
+                    Le plafond majoré de 21 400 € s&apos;applique uniquement aux travaux payés entre
+                    le 01/01/2023 et le 31/12/2025.
                     <br />
                     Pour l&apos;année {annee}, le plafond standard de 10 700 € s&apos;appliquera.
                   </Alert>
@@ -230,9 +239,7 @@ export function StepBien({ onNext }: StepBienProps) {
       </div>
 
       <div className="flex justify-end pt-4">
-        <Button type="submit">
-          Continuer
-        </Button>
+        <Button type="submit">Continuer</Button>
       </div>
     </form>
   );

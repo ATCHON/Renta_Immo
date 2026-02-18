@@ -12,7 +12,11 @@ import { useScenarioFormReset } from '@/hooks/useScenarioFormReset';
 import { cn } from '@/lib/utils';
 import type { TypeStructure, RegimeFiscal } from '@/types';
 
-import { structureSchema, type StructureFormData, type StructureFormDataInput } from '@/lib/validators';
+import {
+  structureSchema,
+  type StructureFormData,
+  type StructureFormDataInput,
+} from '@/lib/validators';
 
 interface StepStructureProps {
   onNext: () => void;
@@ -53,25 +57,30 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
     currentRegime?.startsWith('lmnp') ? 'meublee' : 'nue'
   );
 
-  useScenarioFormReset(reset, {
-    type: structure.type || 'nom_propre',
-    tmi: structure.tmi ?? 30,
-    associes: structure.associes || [],
-    regime_fiscal: structure.regime_fiscal ?? 'micro_foncier',
-    credits_immobiliers: structure.credits_immobiliers ?? 0,
-    loyers_actuels: structure.loyers_actuels ?? 0,
-    revenus_activite: structure.revenus_activite ?? 0,
-    distribution_dividendes: structure.distribution_dividendes ?? false,
-    autres_charges: structure.autres_charges ?? 0,
-    mode_amortissement: structure.mode_amortissement ?? 'simplifie',
-  }, activeScenarioId, () => {
-    setTypeExploitation(structure.regime_fiscal?.startsWith('lmnp') ? 'meublee' : 'nue');
-  });
+  useScenarioFormReset(
+    reset,
+    {
+      type: structure.type || 'nom_propre',
+      tmi: structure.tmi ?? 30,
+      associes: structure.associes || [],
+      regime_fiscal: structure.regime_fiscal ?? 'micro_foncier',
+      credits_immobiliers: structure.credits_immobiliers ?? 0,
+      loyers_actuels: structure.loyers_actuels ?? 0,
+      revenus_activite: structure.revenus_activite ?? 0,
+      distribution_dividendes: structure.distribution_dividendes ?? false,
+      autres_charges: structure.autres_charges ?? 0,
+      mode_amortissement: structure.mode_amortissement ?? 'simplifie',
+    },
+    activeScenarioId,
+    () => {
+      setTypeExploitation(structure.regime_fiscal?.startsWith('lmnp') ? 'meublee' : 'nue');
+    }
+  );
 
   const selectedType = watch('type');
   const selectedRegime = watch('regime_fiscal');
 
-  const filteredRegimeOptions = REGIME_FISCAL_OPTIONS.filter(opt => {
+  const filteredRegimeOptions = REGIME_FISCAL_OPTIONS.filter((opt) => {
     if (typeExploitation === 'meublee') return opt.value.startsWith('lmnp');
     return !opt.value.startsWith('lmnp');
   });
@@ -92,9 +101,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-charcoal">Structure juridique</h2>
-        <p className="text-pebble mt-1">
-          Choisissez le mode de détention du bien
-        </p>
+        <p className="text-pebble mt-1">Choisissez le mode de détention du bien</p>
       </div>
 
       {/* Selection de la structure */}
@@ -112,9 +119,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
             />
           ))}
         </div>
-        {errors.type && (
-          <p className="error-message">{errors.type.message}</p>
-        )}
+        {errors.type && <p className="error-message">{errors.type.message}</p>}
       </div>
 
       {/* Options pour nom propre */}
@@ -185,10 +190,10 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                   setValue('regime_fiscal', 'micro_foncier');
                 }}
                 className={cn(
-                  "p-3 rounded-lg border text-center transition-all",
+                  'p-3 rounded-lg border text-center transition-all',
                   typeExploitation === 'nue'
-                    ? "bg-forest/10 border-forest text-forest font-semibold"
-                    : "bg-white border-sand text-charcoal hover:border-pebble"
+                    ? 'bg-forest/10 border-forest text-forest font-semibold'
+                    : 'bg-white border-sand text-charcoal hover:border-pebble'
                 )}
               >
                 Location Nue
@@ -200,10 +205,10 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                   setValue('regime_fiscal', 'lmnp_micro');
                 }}
                 className={cn(
-                  "p-3 rounded-lg border text-center transition-all",
+                  'p-3 rounded-lg border text-center transition-all',
                   typeExploitation === 'meublee'
-                    ? "bg-forest/10 border-forest text-forest font-semibold"
-                    : "bg-white border-sand text-charcoal hover:border-pebble"
+                    ? 'bg-forest/10 border-forest text-forest font-semibold'
+                    : 'bg-white border-sand text-charcoal hover:border-pebble'
                 )}
               >
                 Location Meublée (LMNP)
@@ -245,8 +250,8 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
               />
               {watch('mode_amortissement') === 'composants' && (
                 <p className="text-xs text-forest/70">
-                  Gros oeuvre 40% sur 50 ans, Façade 20% sur 25 ans, Installations 20% sur 15 ans, Agencements 20% sur 10 ans.
-                  L&apos;amortissement diminue progressivement.
+                  Gros oeuvre 40% sur 50 ans, Façade 20% sur 25 ans, Installations 20% sur 15 ans,
+                  Agencements 20% sur 10 ans. L&apos;amortissement diminue progressivement.
                 </p>
               )}
             </div>
@@ -258,26 +263,30 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
               <p className="text-sm text-forest leading-relaxed">
                 {selectedRegime === 'micro_foncier' && (
                   <>
-                    <strong className="block mb-1">Micro-foncier</strong> Abattement forfaitaire de 30% sur vos revenus locatifs.
-                    Plafond de 15 000 euros/an de revenus fonciers bruts. Idéal pour une gestion simple.
+                    <strong className="block mb-1">Micro-foncier</strong> Abattement forfaitaire de
+                    30% sur vos revenus locatifs. Plafond de 15 000 euros/an de revenus fonciers
+                    bruts. Idéal pour une gestion simple.
                   </>
                 )}
                 {selectedRegime === 'reel' && (
                   <>
-                    <strong className="block mb-1">Foncier réel</strong> Déduction des charges réelles (intérêts, travaux, taxe foncière...).
-                    Obligatoire si revenus &gt; 15 000 euros ou si vos charges dépassent 30%.
+                    <strong className="block mb-1">Foncier réel</strong> Déduction des charges
+                    réelles (intérêts, travaux, taxe foncière...). Obligatoire si revenus &gt; 15
+                    000 euros ou si vos charges dépassent 30%.
                   </>
                 )}
                 {selectedRegime === 'lmnp_micro' && (
                   <>
-                    <strong className="block mb-1">LMNP Micro-BIC</strong> Abattement forfaitaire de 50% sur vos revenus locatifs meublé.
-                    Plafond de 77 700 euros/an de recettes. Très avantageux pour démarrer.
+                    <strong className="block mb-1">LMNP Micro-BIC</strong> Abattement forfaitaire de
+                    50% sur vos revenus locatifs meublé. Plafond de 77 700 euros/an de recettes.
+                    Très avantageux pour démarrer.
                   </>
                 )}
                 {selectedRegime === 'lmnp_reel' && (
                   <>
-                    <strong className="block mb-1">LMNP Réel</strong> Déduction des charges + amortissement du bien.
-                    Permet souvent d&apos;effacer totalement l&apos;imposition grâce à l&apos;amortissement comptable.
+                    <strong className="block mb-1">LMNP Réel</strong> Déduction des charges +
+                    amortissement du bien. Permet souvent d&apos;effacer totalement
+                    l&apos;imposition grâce à l&apos;amortissement comptable.
                   </>
                 )}
               </p>
@@ -286,7 +295,9 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                 <button
                   type="button"
                   className="text-xs font-bold underline hover:text-forest-dark"
-                  onClick={() => {/* Trigger comparateur modal or link */ }}
+                  onClick={() => {
+                    /* Trigger comparateur modal or link */
+                  }}
                 >
                   Ouvrir le comparateur fiscal
                 </button>
@@ -300,15 +311,19 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
       {selectedType === 'sci_is' && (
         <div className="bg-surface rounded-xl p-4 border border-sand space-y-4">
           <p className="text-sm text-charcoal">
-            <strong className="text-forest">SCI à l&apos;IS</strong> Vous allez configurer les associés
-            et leurs revenus à l&apos;étape suivante pour le calcul du taux
+            <strong className="text-forest">SCI à l&apos;IS</strong> Vous allez configurer les
+            associés et leurs revenus à l&apos;étape suivante pour le calcul du taux
             d&apos;endettement HCSF.
           </p>
 
           <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-sand">
             <div>
-              <p className="font-semibold text-sm text-charcoal">Distribuer les bénéfices (Dividendes)</p>
-              <p className="text-xs text-pebble">Active la distribution annuelle et applique la Flat Tax de 30%.</p>
+              <p className="font-semibold text-sm text-charcoal">
+                Distribuer les bénéfices (Dividendes)
+              </p>
+              <p className="text-xs text-pebble">
+                Active la distribution annuelle et applique la Flat Tax de 30%.
+              </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -322,8 +337,8 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
           </div>
 
           <p className="text-xs text-pebble">
-            L&apos;IS permet de déduire l&apos;amortissement du bien et d&apos;être imposé
-            à 15% jusqu&apos;à 42 500 euros puis 25% au-delà.
+            L&apos;IS permet de déduire l&apos;amortissement du bien et d&apos;être imposé à 15%
+            jusqu&apos;à 42 500 euros puis 25% au-delà.
           </p>
 
           {/* Mode amortissement (AUDIT-104) - aussi pour SCI IS */}
@@ -339,7 +354,8 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
             />
             {watch('mode_amortissement') === 'composants' && (
               <p className="text-xs text-forest/70">
-                Gros oeuvre 40% sur 50 ans, Façade 20% sur 25 ans, Installations 20% sur 15 ans, Agencements 20% sur 10 ans.
+                Gros oeuvre 40% sur 50 ans, Façade 20% sur 25 ans, Installations 20% sur 15 ans,
+                Agencements 20% sur 10 ans.
               </p>
             )}
           </div>
@@ -350,9 +366,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
         <Button type="button" variant="secondary" onClick={onPrev}>
           Retour
         </Button>
-        <Button type="submit">
-          Continuer
-        </Button>
+        <Button type="submit">Continuer</Button>
       </div>
     </form>
   );
@@ -366,12 +380,7 @@ interface StructureCardProps {
   onSelect: () => void;
 }
 
-function StructureCard({
-  label,
-  description,
-  isSelected,
-  onSelect,
-}: StructureCardProps) {
+function StructureCard({ label, description, isSelected, onSelect }: StructureCardProps) {
   return (
     <button
       type="button"
@@ -392,20 +401,20 @@ function StructureCard({
           )}
         >
           {isSelected && (
-            <svg
-              className="w-3 h-3 text-white"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
+            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
               <circle cx="10" cy="10" r="4" />
             </svg>
           )}
         </div>
         <div>
-          <p className={cn(
-            'font-bold transition-colors',
-            isSelected ? 'text-forest' : 'text-charcoal'
-          )}>{label}</p>
+          <p
+            className={cn(
+              'font-bold transition-colors',
+              isSelected ? 'text-forest' : 'text-charcoal'
+            )}
+          >
+            {label}
+          </p>
           <p className="text-sm text-pebble mt-1 leading-relaxed">{description}</p>
         </div>
       </div>
@@ -421,12 +430,7 @@ interface RegimeCardProps {
   onSelect: () => void;
 }
 
-function RegimeCard({
-  label,
-  description,
-  isSelected,
-  onSelect,
-}: RegimeCardProps) {
+function RegimeCard({ label, description, isSelected, onSelect }: RegimeCardProps) {
   return (
     <button
       type="button"
@@ -447,20 +451,15 @@ function RegimeCard({
           )}
         >
           {isSelected && (
-            <svg
-              className="w-2 h-2 text-white"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
+            <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
               <circle cx="10" cy="10" r="5" />
             </svg>
           )}
         </div>
         <div>
-          <p className={cn(
-            'font-semibold text-sm',
-            isSelected ? 'text-forest' : 'text-charcoal'
-          )}>{label}</p>
+          <p className={cn('font-semibold text-sm', isSelected ? 'text-forest' : 'text-charcoal')}>
+            {label}
+          </p>
           <p className="text-xs text-pebble mt-0.5">{description}</p>
         </div>
       </div>

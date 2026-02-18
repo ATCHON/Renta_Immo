@@ -12,20 +12,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  (
-    {
-      className,
-      type = 'text',
-      label,
-      error,
-      hint,
-      leftAddon,
-      rightAddon,
-      id,
-      ...props
-    },
-    ref
-  ) => {
+  ({ className, type = 'text', label, error, hint, leftAddon, rightAddon, id, ...props }, ref) => {
     const inputId = id || props.name;
 
     return (
@@ -67,9 +54,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {error}
           </p>
         )}
-        {hint && !error && (
-          <p className="text-sm text-pebble mt-1">{hint}</p>
-        )}
+        {hint && !error && <p className="text-sm text-pebble mt-1">{hint}</p>}
       </div>
     );
   }
@@ -80,40 +65,17 @@ Input.displayName = 'Input';
 /**
  * Input pour les montants en euros
  */
-export const CurrencyInput = forwardRef<HTMLInputElement, InputProps>(
-  (props, ref) => {
-    return (
-      <Input
-        ref={ref}
-        type="number"
-        min="0"
-        step="1"
-        rightAddon="€"
-        {...props}
-      />
-    );
-  }
-);
+export const CurrencyInput = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
+  return <Input ref={ref} type="number" min="0" step="1" rightAddon="€" {...props} />;
+});
 
 CurrencyInput.displayName = 'CurrencyInput';
 
 /**
  * Input pour les pourcentages
  */
-export const PercentInput = forwardRef<HTMLInputElement, InputProps>(
-  (props, ref) => {
-    return (
-      <Input
-        ref={ref}
-        type="number"
-        min="0"
-        max="100"
-        step="0.01"
-        rightAddon="%"
-        {...props}
-      />
-    );
-  }
-);
+export const PercentInput = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
+  return <Input ref={ref} type="number" min="0" max="100" step="0.01" rightAddon="%" {...props} />;
+});
 
 PercentInput.displayName = 'PercentInput';

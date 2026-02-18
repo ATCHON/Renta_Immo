@@ -51,17 +51,21 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
     }
   }, [session, setValue]);
 
-  useScenarioFormReset(reset, {
-    generer_pdf: options.generer_pdf ?? true,
-    envoyer_email: options.envoyer_email ?? false,
-    email: session?.user?.email || options.email || '',
-    horizon_projection: options.horizon_projection ?? 20,
-    taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
-    taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
-    taux_agence_revente: options.taux_agence_revente ?? 5,
-    prix_revente: options.prix_revente ?? undefined,
-    duree_detention: options.duree_detention ?? undefined,
-  }, activeScenarioId);
+  useScenarioFormReset(
+    reset,
+    {
+      generer_pdf: options.generer_pdf ?? true,
+      envoyer_email: options.envoyer_email ?? false,
+      email: session?.user?.email || options.email || '',
+      horizon_projection: options.horizon_projection ?? 20,
+      taux_evolution_loyer: options.taux_evolution_loyer ?? 2,
+      taux_evolution_charges: options.taux_evolution_charges ?? 2.5,
+      taux_agence_revente: options.taux_agence_revente ?? 5,
+      prix_revente: options.prix_revente ?? undefined,
+      duree_detention: options.duree_detention ?? undefined,
+    },
+    activeScenarioId
+  );
 
   const watchedValues = watch();
 
@@ -86,9 +90,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-charcoal">Options</h2>
-        <p className="text-pebble mt-1">
-          Configurez les options de génération des résultats
-        </p>
+        <p className="text-pebble mt-1">Configurez les options de génération des résultats</p>
       </div>
 
       {/* Options de génération */}
@@ -158,7 +160,9 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       <div className="bg-surface p-4 rounded-xl border border-sand space-y-4">
         <div>
           <p className="text-sm font-semibold text-charcoal">Simulation plus-value à la revente</p>
-          <p className="text-xs text-pebble mt-0.5">Optionnel — si non renseigné, la valeur revaluée à l&apos;horizon est utilisée</p>
+          <p className="text-xs text-pebble mt-0.5">
+            Optionnel — si non renseigné, la valeur revaluée à l&apos;horizon est utilisée
+          </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <CurrencyInput
@@ -197,10 +201,12 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
             placeholder="votre@email.com"
             error={errors.email?.message}
             {...register('email')}
-          // disabled={!!session?.user?.email} // Désactivé si connecté
+            // disabled={!!session?.user?.email} // Désactivé si connecté
           />
           <p className="text-xs text-pebble mt-1">
-            {session?.user?.email ? "Email associé à votre compte" : "Saisissez l'email de réception"}
+            {session?.user?.email
+              ? 'Email associé à votre compte'
+              : "Saisissez l'email de réception"}
           </p>
         </div>
       )}
@@ -222,7 +228,8 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
             <span className="text-forest">✓</span> Vérification conformité HCSF
           </li>
           <li className="flex items-center gap-2">
-            <span className="text-forest">✓</span> Projection pluriannuelle sur {watchedValues.horizon_projection} ans
+            <span className="text-forest">✓</span> Projection pluriannuelle sur{' '}
+            {watchedValues.horizon_projection} ans
           </li>
           {watchedValues.generer_pdf && (
             <li className="flex items-center gap-2">
@@ -231,7 +238,8 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
           )}
           {watchedValues.envoyer_email && (
             <li className="flex items-center gap-2">
-              <span className="text-forest">✓</span> Envoi par email à {watchedValues.email || "..."}
+              <span className="text-forest">✓</span> Envoi par email à{' '}
+              {watchedValues.email || '...'}
             </li>
           )}
         </ul>
@@ -273,9 +281,7 @@ function OptionToggle({ label, description, checked, onChange }: OptionTogglePro
         className={cn(
           'w-6 h-6 rounded border-2 flex-shrink-0 mt-0.5',
           'flex items-center justify-center transition-colors',
-          checked
-            ? 'bg-forest border-forest'
-            : 'bg-white border-sand'
+          checked ? 'bg-forest border-forest' : 'bg-white border-sand'
         )}
       >
         {checked && (
@@ -286,19 +292,14 @@ function OptionToggle({ label, description, checked, onChange }: OptionTogglePro
             stroke="currentColor"
             strokeWidth={3}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         )}
       </div>
       <div>
-        <p className={cn(
-          'font-bold transition-colors',
-          checked ? 'text-forest' : 'text-charcoal'
-        )}>{label}</p>
+        <p className={cn('font-bold transition-colors', checked ? 'text-forest' : 'text-charcoal')}>
+          {label}
+        </p>
         <p className="text-sm text-pebble mt-1 leading-relaxed">{description}</p>
       </div>
     </button>

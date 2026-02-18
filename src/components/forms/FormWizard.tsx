@@ -20,15 +20,8 @@ import type { CalculateurFormData } from '@/types';
 
 export function FormWizard() {
   const router = useRouter();
-  const {
-    currentStep,
-    setStep,
-    nextStep,
-    prevStep,
-    status,
-    error,
-    getFormData,
-  } = useCalculateurStore();
+  const { currentStep, setStep, nextStep, prevStep, status, error, getFormData } =
+    useCalculateurStore();
 
   const hasHydrated = useHasHydrated();
 
@@ -56,14 +49,14 @@ export function FormWizard() {
   }, [getFormData, calculate]);
 
   // Déterminer les étapes à afficher selon la structure
-  const visibleSteps = structure.type === 'nom_propre'
-    ? STEP_LABELS.filter((_, index) => index !== 4) // Exclure l'étape Associés
-    : STEP_LABELS;
+  const visibleSteps =
+    structure.type === 'nom_propre'
+      ? STEP_LABELS.filter((_, index) => index !== 4) // Exclure l'étape Associés
+      : STEP_LABELS;
 
   // Ajuster le currentStep pour l'affichage si nom propre
-  const displayStep = structure.type === 'nom_propre' && currentStep > 4
-    ? currentStep - 1
-    : currentStep;
+  const displayStep =
+    structure.type === 'nom_propre' && currentStep > 4 ? currentStep - 1 : currentStep;
 
   // Rendre le composant de l'étape actuelle
   const renderStep = () => {
@@ -104,9 +97,7 @@ export function FormWizard() {
         currentStep={displayStep + 1}
         totalSteps={visibleSteps.length}
         onStepClick={(step) => {
-          const actualIndex = structure.type === 'nom_propre' && step > 4
-            ? step
-            : step - 1;
+          const actualIndex = structure.type === 'nom_propre' && step > 4 ? step : step - 1;
           setStep(actualIndex);
         }}
         isAllEnabled={status === 'success'}

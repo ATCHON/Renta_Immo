@@ -35,7 +35,7 @@ const PROFIL_CONFIG = {
       title: 'Profil Patrimonial — Valorisation long terme',
       lines: [
         'Priorité au TRI sur 20 ans et à la valorisation du bien.',
-        'Idéal si vous visez la constitution d\'un patrimoine durable.',
+        "Idéal si vous visez la constitution d'un patrimoine durable.",
         '',
         'Pondérations ajustées :',
         '• Cash-flow net  ×0.5 (moins déterminant)',
@@ -88,10 +88,13 @@ export function ProfilInvestisseurToggle({ profil, onChange }: ProfilInvestisseu
                     line === '' ? (
                       <div key={i} className="h-2" />
                     ) : (
-                      <p key={i} className={cn(
-                        'text-xs leading-relaxed',
-                        line.startsWith('•') ? 'text-white/80 pl-1 font-mono' : 'text-white/90'
-                      )}>
+                      <p
+                        key={i}
+                        className={cn(
+                          'text-xs leading-relaxed',
+                          line.startsWith('•') ? 'text-white/80 pl-1 font-mono' : 'text-white/90'
+                        )}
+                      >
                         {line}
                       </p>
                     )
