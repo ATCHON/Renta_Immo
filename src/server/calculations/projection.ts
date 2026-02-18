@@ -58,7 +58,7 @@ export function calculerTRI(flux: number[], guess: number = 0.1): number {
             }
         }
 
-        if (Math.abs(npv) < TRI_PRECISION) return tri * 100;
+        if (Math.abs(npv) < precision) return tri * 100;
         if (dNpv === 0 || !isFinite(dNpv)) break;
 
         const nextTri = tri - npv / dNpv;
@@ -66,7 +66,7 @@ export function calculerTRI(flux: number[], guess: number = 0.1): number {
         // Sécurité supplémentaire : si le TRI s'emballe
         if (Math.abs(nextTri) > 1000) break; // Cap à 100000%
 
-        if (Math.abs(nextTri - tri) < TRI_PRECISION) return nextTri * 100;
+        if (Math.abs(nextTri - tri) < precision) return nextTri * 100;
         tri = nextTri;
     }
 
@@ -218,8 +218,8 @@ function calculerImpotAnnuel(params: {
         deficitReportableEntrant, config
     } = params;
 
-    const mobilierEffectif = annee <= 10 ? params.valeurMobilier : 0;
-    const travauxEffectif = annee <= 15 ? params.montantTravaux : 0;
+    const mobilierEffectif = annee <= DUREE_AMORTISSEMENT_MOBILIER ? params.valeurMobilier : 0;
+    const travauxEffectif = annee <= DUREE_AMORTISSEMENT_TRAVAUX ? params.montantTravaux : 0;
 
     switch (regime) {
         case 'micro_foncier':
@@ -537,7 +537,7 @@ export function genererProjections(
 
     // AUDIT-108 : Frais de revente
     const tauxAgenceRevente = (input.options.taux_agence_revente ?? (config.fraisReventeTauxAgenceDefaut * 100)) / 100;
-    const fraisAgence = derniereProjection.valeurBien * tauxAgenceRevente;
+    const fraisAgence = prixRevente * tauxAgenceRevente;
     const fraisDiagnostics = config.fraisReventeDiagnostics;
     const fraisReventeTotal = Math.round(fraisAgence + fraisDiagnostics);
 

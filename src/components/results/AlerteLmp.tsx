@@ -5,13 +5,11 @@ import { cn } from '@/lib/utils';
 import { CONSTANTS } from '@/config/constants';
 
 interface AlerteLmpProps {
-  recettesLmnpAnnuelles: number;
+  typeAlerte: 'warning' | 'error';
 }
 
-export function AlerteLmp({ recettesLmnpAnnuelles }: AlerteLmpProps) {
-  if (recettesLmnpAnnuelles <= CONSTANTS.LMP.SEUIL_ALERTE) return null;
-
-  const isRouge = recettesLmnpAnnuelles > CONSTANTS.LMP.SEUIL_LMP;
+export function AlerteLmp({ typeAlerte }: AlerteLmpProps) {
+  const isRouge = typeAlerte === 'error';
 
   return (
     <div

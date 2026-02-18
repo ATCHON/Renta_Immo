@@ -119,3 +119,80 @@ describe('V2-S18 : Pondération loyers HCSF configurable', () => {
         expect(result80.taux_endettement).toBeLessThan(result70.taux_endettement);
     });
 });
+
+// ============================================================================
+// estimerRevenusDepuisTmi — couverture par tranche
+// Taux = (credits 1000 + mensualité 625) / (revenusTMI + 0.7 * loyerAnnuel 1000)
+//      = 1625 / (revenusTMI + 700)
+// ============================================================================
+describe('estimerRevenusDepuisTmi — couverture par tranche', () => {
+    const baseInput = {
+        structure: {
+            type: 'nom_propre' as const,
+            credits_immobiliers: 1000,
+            loyers_actuels: 0,
+            associes: [],
+        },
+        financement: {
+            apport: 20000,
+            taux_interet: 4,
+            duree_emprunt: 20,
+            assurance_pret: 0.3,
+            frais_dossier: 0,
+            frais_garantie: 0,
+        },
+    };
+
+    const fakeFinancement = {
+        montant_emprunt: 100000,
+        mensualite_credit: 600,
+        mensualite_assurance: 25,
+        mensualite_totale: 625,
+        remboursement_annuel: 7500,
+        cout_total_credit: 50000,
+        cout_total_interets: 15000,
+        cout_total_acquisition: 120000,
+        taux_interet: 4,
+        frais_notaire: 8000,
+    };
+
+    it('TMI 0 → estimation 800 €/mois → taux > 100%', () => {
+        const input = { ...baseInput, structure: { ...baseInput.structure, tmi: 0 } };
+        const result = analyserHcsf(input as unknown as CalculationInput, fakeFinancement, 1000, mockConfig);
+        // 1625 / (800 + 700) = 1625 / 1500 ≈ 108.33%
+        expect(result.taux_endettement).toBeCloseTo(108.33, 1);
+        expect(result.revenus_detail.salaires_estimatif_mensuels).toBe(800);
+    });
+
+    it('TMI 11 → estimation 1 800 €/mois → taux ≈ 65%', () => {
+        const input = { ...baseInput, structure: { ...baseInput.structure, tmi: 11 } };
+        const result = analyserHcsf(input as unknown as CalculationInput, fakeFinancement, 1000, mockConfig);
+        // 1625 / (1800 + 700) = 1625 / 2500 = 65.00%
+        expect(result.taux_endettement).toBeCloseTo(65.00, 1);
+        expect(result.revenus_detail.salaires_estimatif_mensuels).toBe(1800);
+    });
+
+    it('TMI 30 → estimation 3 500 €/mois → taux ≈ 38.7%', () => {
+        const input = { ...baseInput, structure: { ...baseInput.structure, tmi: 30 } };
+        const result = analyserHcsf(input as unknown as CalculationInput, fakeFinancement, 1000, mockConfig);
+        // 1625 / (3500 + 700) = 1625 / 4200 ≈ 38.69%
+        expect(result.taux_endettement).toBeCloseTo(38.69, 1);
+        expect(result.revenus_detail.salaires_estimatif_mensuels).toBe(3500);
+    });
+
+    it('TMI 41 → estimation 7 000 €/mois → taux ≈ 21.1%', () => {
+        const input = { ...baseInput, structure: { ...baseInput.structure, tmi: 41 } };
+        const result = analyserHcsf(input as unknown as CalculationInput, fakeFinancement, 1000, mockConfig);
+        // 1625 / (7000 + 700) = 1625 / 7700 ≈ 21.10%
+        expect(result.taux_endettement).toBeCloseTo(21.10, 1);
+        expect(result.revenus_detail.salaires_estimatif_mensuels).toBe(7000);
+    });
+
+    it('TMI 45 → estimation 15 000 €/mois → taux ≈ 10.4%', () => {
+        const input = { ...baseInput, structure: { ...baseInput.structure, tmi: 45 } };
+        const result = analyserHcsf(input as unknown as CalculationInput, fakeFinancement, 1000, mockConfig);
+        // 1625 / (15000 + 700) = 1625 / 15700 ≈ 10.35%
+        expect(result.taux_endettement).toBeCloseTo(10.35, 1);
+        expect(result.revenus_detail.salaires_estimatif_mensuels).toBe(15000);
+    });
+});

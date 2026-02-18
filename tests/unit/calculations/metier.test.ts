@@ -399,11 +399,11 @@ describe('CAS 7 — HCSF : pondération loyers 70%', () => {
     p.structure.credits_immobiliers = 4000; // 4000€/mois de crédits existants
     p.structure.revenus_activite = 10000; // 10000€/an = 833€/mois
     const res2 = await performCalculations(p, TEST_CONFIG);
-    if (res2.success) {
-      // taux_endettement = (4000 + mensualité) / (833 + loyers×70%) >> 35%
-      expect((res2 as CalculationResult).resultats.hcsf.taux_endettement).toBeGreaterThan(35);
-      expect((res2 as CalculationResult).resultats.hcsf.conforme).toBe(false);
-    }
+    // Ces inputs sont valides : le calcul doit réussir, seul le résultat HCSF est non conforme
+    expect(res2.success).toBe(true);
+    // taux_endettement = (4000 + mensualité) / (833 + loyers×70%) >> 35%
+    expect((res2 as CalculationResult).resultats.hcsf.taux_endettement).toBeGreaterThan(35);
+    expect((res2 as CalculationResult).resultats.hcsf.conforme).toBe(false);
   });
 });
 
@@ -423,12 +423,11 @@ describe('CAS 8 — Projections sur 15 ans (TRI + évolution)', () => {
     const projections = (res as CalculationResult).resultats.projections;
     // Structure réelle : projections = { horizon, projections (array), totaux, plusValue }
     const totaux = (projections as any)?.totaux as Record<string, unknown> | undefined;
-    const tri = totaux?.tri ?? totaux?.taux_rendement_interne ?? totaux?.triNet;
-    console.log('[TOTAUX KEYS]', Object.keys(totaux || {}).join(', '));
     expect(totaux).toBeDefined();
-    // Le TRI peut être dans totaux ou dans une autre propriété
-    const hasTri = tri != null || Object.values(totaux || {}).some(v => typeof v === 'number' && v > -10 && v < 50);
-    expect(hasTri).toBe(true);
+    // Le TRI est dans totaux.tri
+    const tri = totaux?.tri ?? totaux?.taux_rendement_interne ?? totaux?.triNet;
+    expect(tri).toBeDefined();
+    expect(typeof tri).toBe('number');
   });
 
   it('Plus-value calculée dans projections.plusValue', () => {
@@ -647,16 +646,11 @@ describe('CAS 14 — Rentabilité Nette et Nette-Nette cohérentes', () => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('CAS 15 — Validation métier : cohérence apport / prix achat', () => {
-  it('Apport > prix achat → erreur de validation', async () => {
+  it('Apport > prix achat → erreur de validation rejetée par le moteur', async () => {
     const p = clone(BASE);
     p.financement.apport = 250000; // > prix achat 200000
     const res = await performCalculations(p, TEST_CONFIG);
-    // Devrait échouer (apport > prix achat est invalide)
-    // Si l'API laisse passer, le montant_emprunt serait négatif → incohérent
-    if (res.success) {
-      expect((res as CalculationResult).resultats.financement.montant_emprunt).toBeGreaterThanOrEqual(0);
-    } else {
-      expect(res.success).toBe(false);
-    }
+    // Le moteur rejette explicitement cet input (apport > coût total acquisition)
+    expect(res.success).toBe(false);
   });
 });

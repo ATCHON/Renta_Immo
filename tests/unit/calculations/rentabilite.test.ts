@@ -43,3 +43,34 @@ describe('calculerChargesAnnuelles (Fix Vacance)', () => {
         expect(result.charges_proportionnelles_annuelles).toBe(0);
     });
 });
+
+describe('calculerChargesAnnuelles - CFE pilotée par config (cfeSeuilExoneration = 5 000 €)', () => {
+    // mockConfig.cfeSeuilExoneration = 5000
+
+    const baseExploitation = {
+        charges_copro: 0,
+        charges_copro_recuperables: 0,
+        taxe_fonciere: 0,
+        assurance_pno: 0,
+        assurance_gli: 0,
+        cfe_estimee: 300, // CFE à inclure ou exclure selon le seuil
+        comptable_annuel: 0,
+        gestion_locative: 0,
+        provision_travaux: 0,
+        provision_vacance: 0,
+        loyer_mensuel: 1000,
+        type_location: 'nue',
+    } as unknown as ExploitationData;
+
+    it('devrait exclure la CFE si loyerAnnuel < cfeSeuilExoneration (4 900 € < 5 000 €)', () => {
+        const loyerAnnuel = 4900; // sous le seuil → exonéré
+        const result = calculerChargesAnnuelles(baseExploitation, loyerAnnuel, undefined, mockConfig);
+        expect(result.charges_fixes_annuelles).toBe(0); // CFE exclue
+    });
+
+    it('devrait inclure la CFE si loyerAnnuel >= cfeSeuilExoneration (5 100 € >= 5 000 €)', () => {
+        const loyerAnnuel = 5100; // au dessus du seuil → CFE incluse
+        const result = calculerChargesAnnuelles(baseExploitation, loyerAnnuel, undefined, mockConfig);
+        expect(result.charges_fixes_annuelles).toBe(300); // CFE incluse
+    });
+});

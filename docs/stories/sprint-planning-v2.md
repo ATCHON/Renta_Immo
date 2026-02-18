@@ -63,7 +63,7 @@ Corriger les bugs critiques du calcul de plus-value et propager la vacance locat
 | S05 — Réintégration amortissements LMNP | ⛔ NON TESTABLE | Champ `amortissements_cumules` absent de l'UI |
 | S06 — Revenus annuels avec taux d'occupation 92% | ❌ ECHEC | **BUG** : `taux_occupation` strippé par Zod → 12 000 € au lieu de 11 040 € |
 | S07 — Rentabilité brute (loyer facial 6%) | ✅ PASSE | Correct, mais **par effet du bug S06** (loyer non pondéré) |
-| S08 — Régression taux occupation 100% | ✅ PASSE | Correct par défaut (12 000 €), à re-vérifier après correction S06 |
+| S08 — Régression taux d'occupation 100% | ✅ PASSE | Correct par défaut (12 000 €), à re-vérifier après correction S06 |
 
 **Bilan : 3 tests passés / 3 testables via UI (11 non testables faute d'UI, 1 échec)**
 

@@ -25,7 +25,6 @@ import {
   AlerteLmp,
 } from './';
 import { SaveSimulationButton } from '../simulations/SaveSimulationButton';
-import { CONSTANTS } from '@/config/constants';
 
 const ChartSkeleton = () => (
   <div className="h-[350px] w-full bg-surface/50 rounded-xl animate-pulse" />
@@ -237,15 +236,16 @@ export function Dashboard() {
       {/* 6. Points d'Attention + Alerte LMP (V2-S17) */}
       {(() => {
         const isLmnp = structure?.regime_fiscal === 'lmnp_reel' || structure?.regime_fiscal === 'lmnp_micro';
-        // Utiliser loyer_annuel du backend (déjà pondéré par taux_occupation) pour rester cohérent avec genererAlertesLmp
-        const recettesAnnuelles = resultats.rentabilite.loyer_annuel ?? 0;
         const hasPoints = resultats.synthese.points_attention_detail?.length || resultats.synthese.points_attention?.length;
-        const hasLmpAlert = isLmnp && recettesAnnuelles > CONSTANTS.LMP.SEUIL_ALERTE;
-        if (!hasPoints && !hasLmpAlert) return null;
+        // L'alerte LMP est générée par le moteur de calcul (genererAlertesLmp) avec les seuils de la config
+        const lmpAlerte = isLmnp
+          ? resultats.synthese.points_attention_detail?.find(p => p.categorie === 'fiscalite' && p.message?.includes('LMNP'))
+          : undefined;
+        if (!hasPoints && !lmpAlerte) return null;
         return (
           <div className="space-y-3">
             <SectionTitle>Points d&apos;Attention</SectionTitle>
-            {hasLmpAlert && <AlerteLmp recettesLmnpAnnuelles={recettesAnnuelles} />}
+            {lmpAlerte && <AlerteLmp typeAlerte={lmpAlerte.type as 'warning' | 'error'} />}
             <PointsAttention
               points={resultats.synthese.points_attention}
               pointsDetail={resultats.synthese.points_attention_detail}

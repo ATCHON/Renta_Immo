@@ -146,9 +146,21 @@ describe('calculerLmnpMicro', () => {
         expect(result.base_imposable).toBe(7000);
     });
 
-    // Test plafond dépassement
+    // Test plafond dépassement tourisme classé
     it('devrait alerter si dépassement plafond tourisme classé (>188 700)', () => {
         const result = calculerLmnpMicro(190000, 30, mockConfig, 'meublee_tourisme_classe');
+        expect(result.alertes.length).toBeGreaterThan(0);
+        expect(result.alertes[0]).toContain('plafond micro-BIC');
+    });
+
+    // Tests bord plafond tourisme non classé 15 000 € (post-Loi Le Meur)
+    it('ne devrait pas alerter si revenus juste en dessous du plafond tourisme non classé (14 900 €)', () => {
+        const result = calculerLmnpMicro(14900, 30, mockConfig, 'meublee_tourisme_non_classe');
+        expect(result.alertes.length).toBe(0);
+    });
+
+    it('devrait alerter si revenus juste au dessus du plafond tourisme non classé (15 100 €)', () => {
+        const result = calculerLmnpMicro(15100, 30, mockConfig, 'meublee_tourisme_non_classe');
         expect(result.alertes.length).toBeGreaterThan(0);
         expect(result.alertes[0]).toContain('plafond micro-BIC');
     });
