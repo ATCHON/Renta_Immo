@@ -54,11 +54,7 @@ export function validateFormData(input: unknown): CalculateurFormData {
       ? `${firstFieldError[0]}: ${firstFieldError[1]?.[0] || 'Invalide'}`
       : flatErrors.formErrors[0] || 'Données invalides';
 
-    throw new ValidationError(
-      errorMessage,
-      firstFieldError?.[0],
-      { errors: flatErrors }
-    );
+    throw new ValidationError(errorMessage, firstFieldError?.[0], { errors: flatErrors });
   }
 
   return result.data;
@@ -79,8 +75,10 @@ export function normalizeFormData(data: CalculateurFormData): ValidatedFormData 
   const exploitation = {
     ...data.exploitation,
     gestion_locative: data.exploitation.gestion_locative ?? DEFAULTS.exploitation.gestion_locative,
-    provision_travaux: data.exploitation.provision_travaux ?? DEFAULTS.exploitation.provision_travaux,
-    provision_vacance: data.exploitation.provision_vacance ?? DEFAULTS.exploitation.provision_vacance,
+    provision_travaux:
+      data.exploitation.provision_travaux ?? DEFAULTS.exploitation.provision_travaux,
+    provision_vacance:
+      data.exploitation.provision_vacance ?? DEFAULTS.exploitation.provision_vacance,
   };
 
   const structure = {
@@ -91,8 +89,9 @@ export function normalizeFormData(data: CalculateurFormData): ValidatedFormData 
   };
 
   // Part terrain : valeur saisie ou défaut selon type de bien
-  const partTerrainDefaut = CONSTANTS.AMORTISSEMENT.PART_TERRAIN_DEFAUT[data.bien.type_bien.toUpperCase()]
-    ?? CONSTANTS.AMORTISSEMENT.PART_TERRAIN;
+  const partTerrainDefaut =
+    CONSTANTS.AMORTISSEMENT.PART_TERRAIN_DEFAUT[data.bien.type_bien.toUpperCase()] ??
+    CONSTANTS.AMORTISSEMENT.PART_TERRAIN;
   const bien = {
     ...data.bien,
     part_terrain: data.bien.part_terrain ?? partTerrainDefaut,
@@ -142,10 +141,7 @@ export function validateBusinessRules(data: ValidatedFormData): string[] {
 
     // Vérifier qu'il y a au moins un associé
     if (data.structure.associes.length === 0) {
-      throw new ValidationError(
-        'Une SCI doit avoir au moins un associé',
-        'structure.associes'
-      );
+      throw new ValidationError('Une SCI doit avoir au moins un associé', 'structure.associes');
     }
   }
 

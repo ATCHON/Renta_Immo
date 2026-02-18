@@ -11,7 +11,11 @@ import { calculerRentabilite } from './rentabilite';
 import { calculerFiscalite, calculerToutesFiscalites } from './fiscalite';
 import { analyserHcsf } from './hcsf';
 import { genererSynthese } from './synthese';
-import { genererProjections, genererTableauAmortissement, genererTableauAmortissementFiscal } from './projection';
+import {
+  genererProjections,
+  genererTableauAmortissement,
+  genererTableauAmortissementFiscal,
+} from './projection';
 import { ResolvedConfig } from '../config/config-types';
 
 // Re-export des types et erreurs pour usage externe
@@ -63,12 +67,7 @@ export async function performCalculations(
     }
 
     // Étape 2 : Calculs de rentabilité (financement, charges, rendements)
-    const rentabilite = calculerRentabilite(
-      data.bien,
-      data.financement,
-      data.exploitation,
-      config
-    );
+    const rentabilite = calculerRentabilite(data.bien, data.financement, data.exploitation, config);
 
     // Étape 3 : Calculs de fiscalité
     const fiscalite = calculerFiscalite(
@@ -90,15 +89,33 @@ export async function performCalculations(
     // Étape 4bis : Comparaison fiscale complète
     const comparaisonFiscalite = calculerToutesFiscalites(data, rentabilite, config);
 
-
-
     // Étape 5 : Synthèse et scoring (AUDIT-106 : nouveau scoring avec DPE et ratio)
     // V2-S16 : Profil investisseur pour pondération du scoring
-    const profilInvestisseur = (data.options as { profil_investisseur?: 'rentier' | 'patrimonial' }).profil_investisseur;
-    const synthese = genererSynthese(rentabilite, hcsf, config, fiscalite, data.structure, data.bien, profilInvestisseur);
+    const profilInvestisseur = (data.options as { profil_investisseur?: 'rentier' | 'patrimonial' })
+      .profil_investisseur;
+    const synthese = genererSynthese(
+      rentabilite,
+      hcsf,
+      config,
+      fiscalite,
+      data.structure,
+      data.bien,
+      profilInvestisseur
+    );
 
     // Étape 6 : Projections pluriannuelles
     const projections = genererProjections(data, config, data.options.horizon_projection);
+
+    // REC-05 : Alerte TRI non significatif si apport = 0
+    if (projections.alerteApportZero) {
+      synthese.points_attention_detail.push({
+        type: 'warning',
+        categorie: 'rentabilite',
+        message: 'TRI non significatif : aucun apport renseigné',
+        conseil:
+          'Le TRI mesure le rendement de votre apport. Sans apport, il ne peut pas être interprété.',
+      });
+    }
 
     // Étape 7 : Tableau d'amortissement détaillé
     const tauxCredit = (data.financement.taux_interet || 0) / 100;
@@ -161,7 +178,9 @@ export async function performCalculations(
       },
       projections,
       tableauAmortissement,
-      tableauAmortissementFiscal: genererTableauAmortissementFiscal(data, config, data.options.horizon_projection) ?? undefined,
+      tableauAmortissementFiscal:
+        genererTableauAmortissementFiscal(data, config, data.options.horizon_projection) ??
+        undefined,
     };
 
     // Fusionner les alertes de validation avec celles des calculs (V2-S22)
@@ -170,8 +189,8 @@ export async function performCalculations(
       ...hcsf.alertes,
       ...(fiscalite.alertes ?? []),
       ...(synthese.points_attention_detail ?? [])
-        .filter(p => p.type === 'error' || p.type === 'warning')
-        .map(p => p.message),
+        .filter((p) => p.type === 'error' || p.type === 'warning')
+        .map((p) => p.message),
     ];
 
     const uniqueAlertes = Array.from(new Set(toutesAlertes.filter(Boolean)));

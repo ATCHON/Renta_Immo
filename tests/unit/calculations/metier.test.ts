@@ -466,21 +466,24 @@ describe('CAS 9 — Alerte LMP (recettes > 23 000€)', () => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('CAS 10 — Frais notaire : ancien ~8%, neuf ~2,5%', () => {
-  it('Frais notaire ancien dans [14 000€ - 18 000€]', async () => {
+  it('Frais notaire ancien dans [13 000€ - 17 000€] (tranches réelles)', async () => {
+    // REC-01 : frais par tranches (émoluments + DMTO 5.80665% + CSI 0.1% + débours 800)
+    // Base = 200000 - 5000 (mobilier) = 195000 → ~14 700 €
     const res = await performCalculations(clone(BASE), TEST_CONFIG);
     if (!res.success) throw new Error('API Error');
     const fn = (res as CalculationResult).resultats.financement.frais_notaire;
-    expect(fn).toBeGreaterThan(14000);
-    expect(fn).toBeLessThan(18000);
+    expect(fn).toBeGreaterThan(13000);
+    expect(fn).toBeLessThan(17000);
   });
 
-  it('Frais notaire neuf dans [3 000€ - 7 000€] (~2,5%)', async () => {
+  it('Frais notaire neuf dans [3 000€ - 6 000€] (DMTO réduit 0.715%)', async () => {
+    // REC-01 : neuf → DMTO 0.715% au lieu de 5.80665%
     const p = clone(BASE) as any; p.bien.etat_bien = 'neuf';
     const res = await performCalculations(p, TEST_CONFIG);
     if (!res.success) throw new Error('API Error');
     const fn = (res as CalculationResult).resultats.financement.frais_notaire;
     expect(fn).toBeGreaterThan(3000);
-    expect(fn).toBeLessThan(7000);
+    expect(fn).toBeLessThan(6000);
   });
 
   it('Frais notaire neuf < Frais notaire ancien (même prix)', async () => {

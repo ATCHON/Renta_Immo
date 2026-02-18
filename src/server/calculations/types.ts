@@ -180,10 +180,10 @@ export interface DeficitFoncierDetail {
   deficit_total: number;
   deficit_hors_interets: number;
   deficit_interets: number;
-  imputable_revenu_global: number;  // min(deficit_hors_interets, 10700)
-  economie_impot: number;           // imputable * TMI
-  reportable: number;               // deficit restant reportable
-  duree_report: number;             // 10 ans
+  imputable_revenu_global: number; // min(deficit_hors_interets, 10700)
+  economie_impot: number; // imputable * TMI
+  reportable: number; // deficit restant reportable
+  duree_report: number; // 10 ans
 }
 
 /**
@@ -217,12 +217,12 @@ export interface PlusValueDetail {
 export interface ScoreDetail {
   base: number; // 40
   ajustements: {
-    cashflow: number;        // -20 à +20
-    rentabilite: number;     // -15 à +20
-    hcsf: number;            // -25 à +20
-    dpe: number;             // -10 à +5
+    cashflow: number; // -20 à +20
+    rentabilite: number; // -15 à +20
+    hcsf: number; // -25 à +20
+    dpe: number; // -10 à +5
     ratio_prix_loyer: number; // -5 à +10
-    reste_a_vivre: number;    // -10 à +5
+    reste_a_vivre: number; // -10 à +5
   };
   total: number; // 0 à 100
 }
@@ -247,8 +247,6 @@ export interface Recommandation {
   description: string;
   actions: string[];
 }
-
-
 
 /**
  * Données d'une année de projection
@@ -284,6 +282,14 @@ export interface ProjectionData {
     frais_revente?: number;
   };
   plusValue?: PlusValueDetail;
+  /** REC-05 : TRI non significatif quand l'apport est nul */
+  alerteApportZero?: boolean;
+  /** REC-03 : Hypothèses utilisées pour les projections */
+  hypotheses?: {
+    inflationLoyer: number;
+    inflationCharges: number;
+    revalorisationBien: number;
+  };
 }
 
 /**

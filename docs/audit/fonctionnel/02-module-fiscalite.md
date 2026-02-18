@@ -13,16 +13,18 @@
 | Paramètre | Valeur DB | Taux légal | Statut |
 |-----------|-----------|------------|--------|
 | TAUX_PS_FONCIER | 17,20 % | 17,20 % (revenus du patrimoine) | ✅ Conforme |
-| TAUX_PS_REVENUS_BIC_LMNP | 18,60 % | **17,20 % pour LMNP non-professionnel** | ❌ Écart |
+| TAUX_PS_REVENUS_BIC_LMNP | 18,60 % | **18,60 % (LFSS 2026)** | ✅ Conforme |
 
-### Analyse écart PS LMNP
-Les prélèvements sociaux sur les revenus BIC de LMNP **non-professionnel** sont des **revenus du patrimoine** (CGI Art. 1600-0 C), soumis aux mêmes prélèvements sociaux que les revenus fonciers : **17,20 %** (CSG 9,20 % + CRDS 0,50 % + prélèvement de solidarité 7,50 %).
+### Mise à jour réglementaire — LFSS 2026
+La **Loi de Financement de la Sécurité Sociale 2026 (LFSS 2026)** a relevé la CSG de **9,20 % à 10,60 %** sur les revenus du patrimoine, portant le taux global des prélèvements sociaux à **18,60 %** (CSG 10,60 % + CRDS 0,50 % + prélèvement de solidarité 7,50 %).
 
-Le taux de 18,60 % correspond aux **travailleurs indépendants / LMP** (Location Meublée Professionnelle) assujettis aux cotisations sociales RSI/TNS.
+Ce nouveau taux s'applique aux **revenus BIC des LMNP non-professionnels**, rétroactivement aux revenus 2025 déclarés au printemps 2026.
 
-**Impact :** Le simulateur surestime les prélèvements sociaux LMNP non-professionnel de **1,4 point** (18,6 % − 17,2 %), ce qui crée un résultat fiscal **pénalisant** (plus conservateur). Pour un loyer de 10 800 €/an avec base imposable de 5 000 € (après amortissements), l’excès de PS est ≈ 70 €/an.
+**Distinctions importantes :**
+- Les **plus-values immobilières** restent soumises à 17,20 % (non impactées par la LFSS 2026)
+- Les **revenus fonciers** (location nue) ne sont pas concernés par cette hausse
 
-❌ **Non-conforme** — À corriger dans la DB (18,6 % → 17,2 %) pour les LMNP non-professionnels.
+✅ **Conforme** — Le taux de 18,60 % en base est correct pour les revenus BIC LMNP non-professionnels en 2026 (LFSS 2026).
 
 ---
 
@@ -83,7 +85,7 @@ reportable = deficitTotal − imputationRevenuGlobal
 | Tourisme non classé | 30 % | 30 % | 15 000 € | 15 000 € | ✅ |
 
 ### PS appliqués : 18,60 %
-⚠️ **Voir point 1** — Taux PS LMNP surévalué (18,6 % au lieu de 17,2 %).
+✅ **Conforme** — Taux de 18,60 % correct pour les revenus BIC LMNP non-professionnels en 2026 (LFSS 2026).
 
 ### Conformité — CGI Art. 50-0
 ✅ **Conforme** pour les seuils et abattements (LF 2024/2025).
@@ -207,7 +209,7 @@ if (typeResidence === 'services' && dateCession >= dateLoiLeMeur) {
 | Critère | Statut | Référence |
 |---------|--------|----------|
 | PS foncier 17,20 % | ✅ Conforme | Revenus du patrimoine |
-| PS LMNP 18,60 % | ❌ Non-conforme | Doit être 17,20 % pour LMNP non-prof |
+| PS LMNP 18,60 % | ✅ Conforme | LFSS 2026 : CSG relevée à 10,60 % |
 | Micro-foncier 30 %/15k€ | ✅ Conforme | CGI Art. 32 |
 | Foncier réel charges | ✅ Conforme | CGI Art. 28 |
 | Déficit foncier 10 700 €/21 400 € | ✅ Conforme | CGI Art. 156 |

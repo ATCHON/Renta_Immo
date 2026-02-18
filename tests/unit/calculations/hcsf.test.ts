@@ -196,3 +196,126 @@ describe('estimerRevenusDepuisTmi — couverture par tranche', () => {
         expect(result.revenus_detail.salaires_estimatif_mensuels).toBe(15000);
     });
 });
+
+// ============================================================================
+// REC-02 : Capacité résiduelle HCSF configurable
+// ============================================================================
+describe('REC-02 : calculerCapaciteResiduelle avec config custom', () => {
+    const baseInput = {
+        structure: {
+            type: 'nom_propre' as const,
+            tmi: 30,
+            revenus_activite: 10000,
+            credits_immobiliers: 0,
+            loyers_actuels: 0,
+            associes: [],
+        },
+        financement: {
+            apport: 20000,
+            taux_interet: 4,
+            duree_emprunt: 20,
+            assurance_pret: 0,
+            frais_dossier: 0,
+            frais_garantie: 0,
+        },
+        options: {},
+    };
+
+    const fakeFinancement = {
+        montant_emprunt: 200000,
+        mensualite_credit: 1000,
+        mensualite_assurance: 0,
+        mensualite_totale: 1000,
+        remboursement_annuel: 12000,
+        cout_total_credit: 80000,
+        cout_total_interets: 30000,
+        cout_total_acquisition: 230000,
+        taux_interet: 4,
+        frais_notaire: 16000,
+    };
+
+    it('valeurs par défaut (3.5%/20 ans) → capacité ≈ 515 000 €', () => {
+        // revenusPonderes = 10000 + 0.7*2000 = 11400
+        // chargeMax = 11400 * 35% = 3990
+        // marge = 3990 - 1000 = 2990
+        // facteur ≈ 172.35 → capacite = 2990 * 172.35 ≈ 515127
+        const result = analyserHcsf(baseInput as unknown as CalculationInput, fakeFinancement, 2000, mockConfig);
+        expect(result.capacite_emprunt_residuelle).toBeGreaterThan(500000);
+        expect(result.capacite_emprunt_residuelle).toBeLessThan(530000);
+    });
+
+    it('taux 5%/15 ans → capacité inférieure à celle avec 3.5%/20 ans', () => {
+        const configHautTaux = { ...mockConfig, hcsfTauxReferenceCapacite: 0.05, hcsfDureeCapaciteResiduelleAnnees: 15 };
+        const resultDefault = analyserHcsf(baseInput as unknown as CalculationInput, fakeFinancement, 2000, mockConfig);
+        const resultHautTaux = analyserHcsf(baseInput as unknown as CalculationInput, fakeFinancement, 2000, configHautTaux);
+        // Facteur pour 5%/15 ans ≈ 126 vs 172 pour 3.5%/20 ans
+        expect(resultHautTaux.capacite_emprunt_residuelle).toBeLessThan(resultDefault.capacite_emprunt_residuelle);
+    });
+});
+
+// ============================================================================
+// REC-04 : VEFA HCSF durée 27 ans
+// ============================================================================
+describe('REC-04 : VEFA HCSF durée 27 ans', () => {
+    const baseStructure = {
+        type: 'nom_propre' as const,
+        tmi: 30,
+        revenus_activite: 8000,
+        credits_immobiliers: 0,
+        loyers_actuels: 0,
+        associes: [],
+    };
+
+    const fakeFinancement = {
+        montant_emprunt: 200000,
+        mensualite_credit: 900,
+        mensualite_assurance: 0,
+        mensualite_totale: 900,
+        remboursement_annuel: 10800,
+        cout_total_credit: 90000,
+        cout_total_interets: 35000,
+        cout_total_acquisition: 220000,
+        taux_interet: 3.5,
+        frais_notaire: 16000,
+    };
+
+    it('crédit 26 ans + is_vefa=true → pas d\'alerte durée', () => {
+        const input = {
+            structure: baseStructure,
+            financement: { apport: 20000, taux_interet: 3.5, duree_emprunt: 26, assurance_pret: 0, frais_dossier: 0, frais_garantie: 0 },
+            bien: { is_vefa: true },
+            options: {},
+        };
+        const result = analyserHcsf(input as unknown as CalculationInput, fakeFinancement, 1500, mockConfig);
+        const alertesDuree = result.alertes.filter(a => a.includes('Durée'));
+        expect(alertesDuree).toHaveLength(0);
+    });
+
+    it('crédit 26 ans + is_vefa=false → alerte durée (max 25 ans)', () => {
+        const input = {
+            structure: baseStructure,
+            financement: { apport: 20000, taux_interet: 3.5, duree_emprunt: 26, assurance_pret: 0, frais_dossier: 0, frais_garantie: 0 },
+            bien: { is_vefa: false },
+            options: {},
+        };
+        const result = analyserHcsf(input as unknown as CalculationInput, fakeFinancement, 1500, mockConfig);
+        const alertesDuree = result.alertes.filter(a => a.includes('Durée'));
+        expect(alertesDuree).toHaveLength(1);
+        expect(alertesDuree[0]).toContain('26');
+        expect(alertesDuree[0]).toContain('25');
+    });
+
+    it('crédit 28 ans + is_vefa=true → alerte durée (max 27 ans)', () => {
+        const input = {
+            structure: baseStructure,
+            financement: { apport: 20000, taux_interet: 3.5, duree_emprunt: 28, assurance_pret: 0, frais_dossier: 0, frais_garantie: 0 },
+            bien: { is_vefa: true },
+            options: {},
+        };
+        const result = analyserHcsf(input as unknown as CalculationInput, fakeFinancement, 1500, mockConfig);
+        const alertesDuree = result.alertes.filter(a => a.includes('Durée'));
+        expect(alertesDuree).toHaveLength(1);
+        expect(alertesDuree[0]).toContain('28');
+        expect(alertesDuree[0]).toContain('27');
+    });
+});
