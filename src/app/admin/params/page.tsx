@@ -1,7 +1,7 @@
 // src/app/admin/params/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ConfigBloc, ConfigParam } from '@/server/config/config-types';
 import { toast } from 'react-hot-toast';
 import ParamsTable from '@/components/admin/ParamsTable';
@@ -29,11 +29,7 @@ export default function ParamsManagement() {
   const [editingParam, setEditingParam] = useState<ConfigParam | null>(null);
   const [viewingHistory, setViewingHistory] = useState<ConfigParam | null>(null);
 
-  useEffect(() => {
-    fetchParams();
-  }, [activeBloc, anneeFiscale]);
-
-  const fetchParams = async () => {
+  const fetchParams = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/params?anneeFiscale=${anneeFiscale}&bloc=${activeBloc}`);
@@ -41,12 +37,16 @@ export default function ParamsManagement() {
       if (json.success) {
         setParams(json.data);
       }
-    } catch (err) {
+    } catch {
       toast.error('Erreur lors du chargement des paramètres');
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeBloc, anneeFiscale]);
+
+  useEffect(() => {
+    fetchParams();
+  }, [fetchParams]);
 
   return (
     <div className="space-y-6">

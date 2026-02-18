@@ -1,8 +1,14 @@
 // src/server/config/config-service.ts
 
 import { createAdminClient } from '@/lib/supabase/server';
-import type { ConfigParam, ResolvedConfig, ConfigBloc } from './config-types';
+import type { ResolvedConfig } from './config-types';
 import { CLE_TO_FIELD } from './config-types';
+
+interface DbConfigRow {
+  cle: string;
+  valeur: number;
+  [key: string]: unknown;
+}
 
 interface CacheEntry {
   data: ResolvedConfig;
@@ -41,7 +47,7 @@ export class ConfigService {
       return fallbackConfig;
     }
 
-    const resolved = this.mapToResolvedConfig(year, data as any[]);
+    const resolved = this.mapToResolvedConfig(year, data as DbConfigRow[]);
     cache.set(year, { data: resolved, fetchedAt: Date.now() });
     return resolved;
   }
@@ -51,7 +57,7 @@ export class ConfigService {
     else cache.clear();
   }
 
-  private mapToResolvedConfig(year: number, params: any[]): ResolvedConfig {
+  private mapToResolvedConfig(year: number, params: DbConfigRow[]): ResolvedConfig {
     const get = (cle: string): number => {
       const p = params.find((p) => p.cle === cle);
       if (!p) {

@@ -15,7 +15,6 @@ import type {
   AssocieData,
   FinancementCalculations,
 } from './types';
-import { SEUILS } from './constants';
 
 // ============================================================================
 // TYPES LOCAUX (selon spécification TECH-005)

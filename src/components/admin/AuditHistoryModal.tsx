@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ConfigParam } from '@/server/config/config-types';
 import { toast } from 'react-hot-toast';
 
@@ -10,14 +10,17 @@ interface AuditHistoryModalProps {
 }
 
 export default function AuditHistoryModal({ param, onClose }: AuditHistoryModalProps) {
-  const [history, setHistory] = useState<any[]>([]);
+  interface AuditEntry {
+    ancienne_valeur: number;
+    nouvelle_valeur: number;
+    modifie_le: string;
+    motif?: string;
+  }
+
+  const [history, setHistory] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchHistory();
-  }, [param]);
-
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/params/${param.id}/audit`);
@@ -25,12 +28,16 @@ export default function AuditHistoryModal({ param, onClose }: AuditHistoryModalP
       if (json.success) {
         setHistory(json.data);
       }
-    } catch (err) {
+    } catch {
       toast.error('Erreur chargement historique');
     } finally {
       setLoading(false);
     }
-  };
+  }, [param.id]);
+
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">

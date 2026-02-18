@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Next.js Instrumentation Hook
  *
@@ -13,12 +14,11 @@ export async function register() {
 
   const isProduction = process.env.NODE_ENV === 'production';
 
-  // On utilise une variable pour l'import dynamique afin d'éviter que le bundler Vercel
-  // ne détecte statiquement ce module et ne tente de l'inclure dans le Edge Runtime (middleware),
-  // ce qui causerait une erreur car 'pg' et 'fs' ne sont pas supportés sur Edge.
-  const runnerModule = './server/migrations/runner';
+  // Import statique — webpack bundle le module mais `pg` et les built-ins Node.js
+  // sont externalisés via next.config.mjs (config.externals), donc non bundlés.
+  // La garde `NEXT_RUNTIME !== 'nodejs'` ci-dessus empêche l'exécution en Edge Runtime.
   const { runMigrations, resolveMigrationsDir, migrationsDirectoryExists } =
-    (await import(runnerModule)) as typeof import('./server/migrations/runner');
+    await import('./server/migrations/runner');
 
   const connectionString = process.env.DATABASE_URL;
 

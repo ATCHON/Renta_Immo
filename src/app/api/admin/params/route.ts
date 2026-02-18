@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const formattedData = (data || []).map((row: any) => ({
+  const formattedData = (data || []).map((row: Record<string, unknown>) => ({
     ...row,
     isTemporary: row.is_temporary,
     dateExpiration: row.date_expiration,
