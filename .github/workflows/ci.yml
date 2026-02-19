@@ -16,10 +16,12 @@ on:
 
 # Variables CI partagées entre tous les jobs
 # Les valeurs réelles (Supabase, auth) viennent des secrets GitHub
-# DATABASE_URL est factice : auth.ts throw au module load si absente, mais le CI ne se connecte pas à la DB
+# Les valeurs factices satisfont les fail-fast au module load sans connexion réelle
 env:
   NODE_VERSION: '20.x'
   DATABASE_URL: postgresql://ci:ci@localhost:5432/ci_build
+  BETTER_AUTH_SECRET: ci-secret-not-used-in-build
+  RESEND_API_KEY: re_ci_fake_key_not_used_in_build
   NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
   NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
   BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
