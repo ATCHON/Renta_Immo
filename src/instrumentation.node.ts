@@ -5,7 +5,11 @@
  * Ce fichier est exclu des bundles Edge par Next.js (convention .node.ts).
  * Il est importé conditionnellement depuis instrumentation.ts.
  */
-import { runMigrations, resolveMigrationsDir, migrationsDirectoryExists } from './server/migrations/runner';
+import {
+  runMigrations,
+  resolveMigrationsDir,
+  migrationsDirectoryExists,
+} from './server/migrations/runner';
 
 export async function setupMigrations(): Promise<void> {
   const isProduction = process.env.NODE_ENV === 'production';

@@ -1254,10 +1254,10 @@ export default function EnSavoirPlusPage() {
                 </h4>
                 <p className="text-sm text-pebble leading-relaxed">
                   Les logements classés <strong>F ou G</strong> ne peuvent plus faire l&apos;objet
-                  d&apos;une augmentation de loyer depuis 2022 : l&apos;IRL (Indice de Référence
-                  des Loyers) est <strong>inapplicable</strong>. Le DPE <strong>E</strong> sera
-                  soumis au même gel à partir du <strong>1er janvier 2034</strong>, date à laquelle
-                  sa location sera interdite.
+                  d&apos;une augmentation de loyer depuis 2022 : l&apos;IRL (Indice de Référence des
+                  Loyers) est <strong>inapplicable</strong>. Le DPE <strong>E</strong> sera soumis
+                  au même gel à partir du <strong>1er janvier 2034</strong>, date à laquelle sa
+                  location sera interdite.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-surface p-4 rounded-xl border border-sand">
@@ -1289,23 +1289,29 @@ export default function EnSavoirPlusPage() {
                   Décotes sur la valeur vénale
                 </h4>
                 <p className="text-sm text-pebble leading-relaxed">
-                  Les passoires thermiques subissent des décotes significatives à la revente
-                  (source : Notaires France 2024). Notre simulateur intègre ces décotes dans le
-                  calcul de la valeur patrimoniale et du TRI.
+                  Les passoires thermiques subissent des décotes significatives à la revente (source
+                  : Notaires France 2024). Notre simulateur intègre ces décotes dans le calcul de la
+                  valeur patrimoniale et du TRI.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-surface p-4 rounded-xl border border-sand text-center">
-                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">DPE A à D</p>
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">
+                      DPE A à D
+                    </p>
                     <p className="text-2xl font-black text-forest">0%</p>
                     <p className="text-xs text-pebble mt-1">Pas de décote</p>
                   </div>
                   <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-center">
-                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">DPE E</p>
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">
+                      DPE E
+                    </p>
                     <p className="text-2xl font-black text-amber-600">-5%</p>
                     <p className="text-xs text-pebble mt-1">Décote modérée</p>
                   </div>
                   <div className="bg-terracotta/5 p-4 rounded-xl border border-terracotta/10 text-center">
-                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">DPE F ou G</p>
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">
+                      DPE F ou G
+                    </p>
                     <p className="text-2xl font-black text-terracotta">-15%</p>
                     <p className="text-xs text-pebble mt-1">Décote passoire thermique</p>
                   </div>
@@ -1525,12 +1531,37 @@ export default function EnSavoirPlusPage() {
                         Multiplicateurs de score
                       </p>
                       {[
-                        { label: 'Cash-flow net', mult: '×1.5', note: 'déterminant', color: 'text-forest' },
-                        { label: 'Rentabilité nette', mult: '×1.2', note: 'renforcé', color: 'text-forest' },
-                        { label: 'HCSF endettement', mult: '×1.0', note: 'standard', color: 'text-charcoal' },
+                        {
+                          label: 'Cash-flow net',
+                          mult: '×1.5',
+                          note: 'déterminant',
+                          color: 'text-forest',
+                        },
+                        {
+                          label: 'Rentabilité nette',
+                          mult: '×1.2',
+                          note: 'renforcé',
+                          color: 'text-forest',
+                        },
+                        {
+                          label: 'HCSF endettement',
+                          mult: '×1.0',
+                          note: 'standard',
+                          color: 'text-charcoal',
+                        },
                         { label: 'DPE', mult: '×0.8', note: 'atténué', color: 'text-amber-600' },
-                        { label: 'Ratio prix/loyer', mult: '×0.5', note: 'atténué', color: 'text-amber-600' },
-                        { label: 'Reste à vivre', mult: '×0.5', note: 'atténué', color: 'text-amber-600' },
+                        {
+                          label: 'Ratio prix/loyer',
+                          mult: '×0.5',
+                          note: 'atténué',
+                          color: 'text-amber-600',
+                        },
+                        {
+                          label: 'Reste à vivre',
+                          mult: '×0.5',
+                          note: 'atténué',
+                          color: 'text-amber-600',
+                        },
                       ].map((r, i) => (
                         <div key={i} className="flex items-center justify-between text-xs">
                           <span className="text-charcoal">{r.label}</span>

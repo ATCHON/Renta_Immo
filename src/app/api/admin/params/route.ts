@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const formattedData = (data as DbConfigParamRow[] || []).map((row) => ({
+  const formattedData = ((data as DbConfigParamRow[]) || []).map((row) => ({
     ...row,
     isTemporary: row.is_temporary,
     dateExpiration: row.date_expiration,

@@ -1,0 +1,12 @@
+# Normalise les fins de ligne en LF dans le repo (compatible CI Linux)
+* text=auto eol=lf
+
+# Binaires — pas de conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
