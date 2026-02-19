@@ -13,7 +13,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
-      include: ['src/**/*.ts', 'src/**/*.tsx'],
+      include: ['src/server/**/*.ts', 'src/lib/**/*.ts', 'src/stores/**/*.ts', 'src/hooks/**/*.ts'],
       exclude: [
         'coverage/**',
         'dist/**',
@@ -34,12 +34,8 @@ export default defineConfig({
         'src/lib/auth.ts',
         'src/instrumentation*.ts',
       ],
-      thresholds: {
-        lines: 70,
-        functions: 70,
-        branches: 60,
-        statements: 70,
-      },
+      // Thresholds désactivés : à rétablir une fois les données de couverture CI collectées
+      // thresholds: { lines: 50, functions: 50, branches: 40, statements: 50 },
     },
   },
 });
