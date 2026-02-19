@@ -6,9 +6,15 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
     getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => { store[key] = value.toString(); },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { store = {}; },
+    setItem: (key: string, value: string) => {
+      store[key] = value.toString();
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
   };
 })();
 
@@ -94,5 +100,70 @@ describe('Calculateur Store', () => {
     expect(formData.bien.prix_achat).toBe(150000);
     expect(formData.financement).toBeDefined();
     expect(formData.exploitation).toBeDefined();
+  });
+});
+
+describe('gestion des scénarios', () => {
+  beforeEach(() => {
+    useCalculateurStore.getState().reset();
+    localStorage.clear();
+  });
+
+  it('addScenario crée un nouveau scénario avec ID unique', () => {
+    useCalculateurStore.getState().addScenario();
+    const state = useCalculateurStore.getState();
+    expect(state.scenarios.length).toBe(2);
+    const ids = state.scenarios.map((s) => s.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('addScenario active le nouveau scénario', () => {
+    useCalculateurStore.getState().addScenario();
+    const state = useCalculateurStore.getState();
+    const lastId = state.scenarios[state.scenarios.length - 1].id;
+    expect(state.activeScenarioId).toBe(lastId);
+  });
+
+  it('duplicateScenario crée une copie avec les mêmes données bien', () => {
+    const store = useCalculateurStore.getState();
+    store.updateBien({ prix_achat: 300000, surface: 80 });
+    const originalId = useCalculateurStore.getState().activeScenarioId;
+
+    useCalculateurStore.getState().duplicateScenario(originalId);
+    const state = useCalculateurStore.getState();
+
+    expect(state.scenarios.length).toBe(2);
+    const original = state.scenarios.find((s) => s.id === originalId);
+    const duplicate = state.scenarios[state.scenarios.length - 1];
+    expect(duplicate?.bien.prix_achat).toBe(original?.bien.prix_achat);
+  });
+
+  it('removeScenario supprime le scénario ciblé', () => {
+    useCalculateurStore.getState().addScenario();
+    const state1 = useCalculateurStore.getState();
+    const idToRemove = state1.scenarios[state1.scenarios.length - 1].id;
+    const countBefore = state1.scenarios.length;
+
+    useCalculateurStore.getState().removeScenario(idToRemove);
+    expect(useCalculateurStore.getState().scenarios.length).toBe(countBefore - 1);
+    expect(
+      useCalculateurStore.getState().scenarios.find((s) => s.id === idToRemove)
+    ).toBeUndefined();
+  });
+
+  it('switchScenario change le scénario actif', () => {
+    useCalculateurStore.getState().addScenario();
+    const state = useCalculateurStore.getState();
+    const firstId = state.scenarios[0].id;
+
+    useCalculateurStore.getState().switchScenario(firstId);
+    expect(useCalculateurStore.getState().activeScenarioId).toBe(firstId);
+  });
+
+  it('reset remet le store à un seul scénario', () => {
+    useCalculateurStore.getState().addScenario();
+    useCalculateurStore.getState().addScenario();
+    useCalculateurStore.getState().reset();
+    expect(useCalculateurStore.getState().scenarios.length).toBe(1);
   });
 });

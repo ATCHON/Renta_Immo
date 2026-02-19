@@ -122,7 +122,19 @@
       "Bash(\"D:/Devs/Renta_Immo/docs/audit/04-module-scoring-projections.md\":*)",
       "Bash(git -C \"D:/Devs/Renta_Immo\" status:*)",
       "Bash(\"D:/Devs/Renta_Immo/docs/audit/05-tests-reels.md\":*)",
-      "Bash(\"D:/Devs/Renta_Immo/docs/audit/06-synthese-conformite.md\":*)"
+      "Bash(\"D:/Devs/Renta_Immo/docs/audit/06-synthese-conformite.md\":*)",
+      "Bash(npx next lint)",
+      "Bash(git remote get-url:*)",
+      "mcp__github__get_file_contents",
+      "mcp__github__list_issues",
+      "Bash(npm run format:check:*)",
+      "Bash(npm run format:*)",
+      "mcp__github__list_commits",
+      "mcp__github__get_commit",
+      "Bash(gh run list:*)",
+      "Bash(\"C:/Program Files/GitHub CLI/gh.exe\" run list --limit 5)",
+      "Bash(winget show:*)",
+      "Bash(npx husky init:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
