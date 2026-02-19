@@ -15,7 +15,13 @@
     "test:regression": "vitest run src/server/calculations/__tests__/regression.test.ts",
     "test:regression:watch": "vitest src/server/calculations/__tests__/regression.test.ts",
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,json}\""
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,json}\"",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "analyze": "ANALYZE=true next build",
+    "prepare": "husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
