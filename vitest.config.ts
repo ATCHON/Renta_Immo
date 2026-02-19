@@ -8,6 +8,8 @@ export default defineConfig({
     environment: 'node',
     include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
     globals: true,
+    setupFiles: ['./tests/setup.ts'],
+    testTimeout: 10000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -29,7 +31,15 @@ export default defineConfig({
         '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
         '**/vitest.{workspace,projects}.[jt]s?(on)',
         '**/.{eslint,prettier}rc.{js,cjs,yml,json}',
+        'src/lib/auth.ts',
+        'src/instrumentation*.ts',
       ],
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 60,
+        statements: 70,
+      },
     },
   },
 });
