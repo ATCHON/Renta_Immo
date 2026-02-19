@@ -128,6 +128,9 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
+          # DATABASE_URL factice pour satisfaire le fail-fast de auth.ts au module load
+          # Le build ne se connecte pas à la DB — les migrations tournent via Vercel
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci_build
         # Skip migrate.mjs in CI (no DATABASE_URL) — migrations run at deploy time via Vercel
         run: npx next build
 
