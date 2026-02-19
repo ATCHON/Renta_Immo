@@ -9,11 +9,11 @@ export async function loginAs(page: Page, email: string, password: string) {
   await page.goto('/auth/login');
   await page.getByLabel(/email/i).fill(email);
   await page.getByLabel(/mot de passe/i).fill(password);
-  await page.getByRole('button', { name: /connexion/i }).click();
+  await page.getByRole('button', { name: /se connecter/i }).click();
   await page.waitForURL(/\/(calculateur|simulations)/);
 }
 
 export async function logout(page: Page) {
-  await page.getByRole('button', { name: /déconnexion/i }).click();
+  await page.getByRole('button', { name: /se déconnecter/i }).click();
   await page.waitForURL('/auth/login');
 }
