@@ -48,6 +48,8 @@ _bmad
 .bmad-core
 .gemini/
 gha-creds-*.json
+claude*.md
+claude.md
 
 # Playwright
 coverage/

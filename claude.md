@@ -1,55 +1,24 @@
 # Renta_Immo
 
-Application web générée à partir d'un workflow n8n.
+Application web de simulation de rentabilité immobilière (Calcul des rendements, Cashflow, Impôts LMNP/Foncier/SCI, et Scoring Profilé).
 
-## Stack
+## Architecture & Métier
+- **Techniques** : Architecture Fullstack, APIs, et BDD → `docs/architecte/architecture-fullstack.md`
+- **Fonctionnel (Détaillé)** : Formules mathématiques (TRI, PMT), Taux (IS, Flat Tax, PS 18.6%), et Règles HCSF → `docs/architecte/architecture-fonctionnelle.md`
+- **Audit de Conformité** : Rapports de validation métiers → `docs/audit/fonctionnel/`
 
-- **Framework**: Next.js 14 (App Router)
-- **Langage**: TypeScript
-- **Styling**: Tailwind CSS
-- **État**: Zustand
-- **API/Cache**: React Query
+## Principes de Développement Incontournables
 
-## Outils disponibles
+1. **Paradigme de Branche** : Chaque développement s'effectue obligatoirement sur une **nouvelle branche** isolée (`feature/[nom]`, `fix/[nom]`).
+2. **TypeScript Strict** : Il est **strictement interdit** d'utiliser le type `any` en TypeScript. Le typage doit être inféré explicitement ou déclaré via des interfaces partagées (`src/types`).
+3. **Tests & TDD** :
+   - Tester l'application via TU (Tests Unitaires via Vitest), TI (Intégration) ou E2E (via MCP Chrome / Playwright pour le frontend).
+   - **Penser au TDD (Test Driven Development)** : Le code produit doit cibler le passage des tests. Ne jamais commit un code sans que les tests soient verts.
+   - Si une fonctionnalité existante évolue, **relancer systématiquement l'ensemble des suites de tests** pour déceler les effets de bord (régressions).
+4. **Docs par scope** : Ne charger dans le contexte LLM que ce qui est strictement nécessaire pour la tâche en cours afin d'éviter la pollution cognitive de l'agent.
 
-- **MCP n8n**: Accès aux workflows, configs de nœuds, templates
-- **MCP GitHub**: Push des modifications vers le repo
-- **Skills**: n8n, front-end designer
+## Directives Spécifiques par Périmètre
+Pour les instructions détaillées par stack, les erreurs récurrentes à éviter et les commandes de test spécifiques, consulte les fichiers dédiés :
 
-## Workflow de développement
-
-### 1. Optimisation n8n
-- Vérifier les entrées (webhook/trigger)
-- Vérifier les sorties (format JSON pour le front-end)
-- Tester le workflow isolément
-
-### 2. Développement front-end
-- Créer les composants React
-- Connecter l'API n8n via React Query
-- Tester localement (`npm run dev`)
-
-### 3. GitHub
-- Commit et push des modifications
-- Le repo doit être lié à Vercel
-
-### 4. Déploiement
-- Vercel déploie automatiquement à chaque push
-- Vérifier le déploiement en production
-
-## Structure
-
-```
-src/
-├── app/           # Pages et routes Next.js
-├── components/    # Composants React réutilisables
-├── hooks/         # Custom hooks (useQuery, etc.)
-├── stores/        # Stores Zustand
-├── lib/           # Client API n8n, utilitaires
-└── types/         # Types TypeScript
-```
-
-## Configuration n8n
-
-- **Webhook URL**: À définir après création du workflow
-- **Variables d'environnement**:
-  - `NEXT_PUBLIC_N8N_WEBHOOK_URL`: URL du webhook n8n
+- ➡️ [**Développement Backend (Base de Données, API, Moteur de Calcul)**](claude-backend.md)
+- ➡️ [**Développement Frontend (UI, Next.js App Router, Zustand)**](claude-frontend.md)
