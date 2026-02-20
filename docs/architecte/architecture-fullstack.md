@@ -1,1026 +1,727 @@
 # Architecture Fullstack - Renta_Immo
 
-> **Version** : 3.0
-> **Date** : 2026-02-04
+> **Version** : 4.0
+> **Date** : 2026-02-20
 > **Auteur** : Winston (Architecte)
-> **Statut** : Phase 2 - PDF + Supabase
+> **Statut** : Production — Back-Office Config opérationnel
 
 ---
 
 ## 1. Introduction
 
-Ce document formalise l'architecture fullstack complete pour **Renta_Immo**, un simulateur de rentabilite immobiliere. Il couvre l'ensemble des couches : frontend Next.js, backend de calcul, persistance Supabase, et generation PDF.
+Ce document formalise l'architecture fullstack complète pour **Renta_Immo**, un simulateur de rentabilité immobilière. Il couvre l'ensemble des couches : frontend Next.js, moteur de calcul, persistance Supabase, authentification Better Auth, génération PDF, envoi d'email et back-office de configuration.
 
 ### 1.1 Objectifs Architecturaux
 
-| Objectif | Description |
-|----------|-------------|
-| **Autonomie** | Zero dependance externe (n8n supprime) |
-| **Performance** | Calculs < 500ms, PDF < 2s |
-| **Type-safety** | TypeScript strict, types partages |
-| **Scalabilite** | Architecture modulaire, ready pour V1 |
-| **DX** | Developer experience optimisee |
+| Objectif        | Description                                           |
+| --------------- | ----------------------------------------------------- |
+| **Autonomie**   | Zéro dépendance externe non maîtrisée (n8n supprimé)  |
+| **Performance** | Calculs < 500ms, PDF < 2s                             |
+| **Type-safety** | TypeScript strict, types partagés frontend/backend    |
+| **Conformité**  | Paramètres fiscaux configurables sans redéploiement   |
+| **Sécurité**    | Authentification robuste, RBAC admin, RLS BDD         |
+| **DX**          | Migrations automatiques, dev bypass admin, 136+ tests |
 
-### 1.2 Documents de Reference
+### 1.2 Documents de Référence
 
-| Document | Chemin |
-|----------|--------|
-| PRD | [docs/prd.md](../prd.md) |
-| Architecture Backend (historique) | [docs/architecture.md](../architecture.md) |
-| Guide Implémentation Phase 2 | [docs/devs-guide/guide-implementation-phase2.md](../devs-guide/guide-implementation-phase2.md) |
+| Document                    | Chemin                                              |
+| --------------------------- | --------------------------------------------------- |
+| PRD                         | `docs/prd.md`                                       |
+| Guide développeur           | `docs/devs-guide/guidance-devs-2026-01-29.md`       |
+| Audit conformité simulateur | `docs/audit/rapport-audit-simulateur-2026-02-18.md` |
 
 ### 1.3 Changelog
 
-| Date | Version | Description | Auteur |
-|------|---------|-------------|--------|
-| 2026-01-25 | 1.0 | Creation initiale (backend) | Winston |
-| 2026-01-29 | 2.0 | Ajout Projections/TRI | Winston |
-| 2026-02-04 | 3.0 | Architecture Fullstack complete | Winston |
+| Date       | Version | Description                                           |
+| ---------- | ------- | ----------------------------------------------------- |
+| 2026-01-25 | 1.0     | Création initiale (backend)                           |
+| 2026-01-29 | 2.0     | Ajout Projections/TRI                                 |
+| 2026-02-04 | 3.0     | Architecture Fullstack complète                       |
+| 2026-02-20 | 4.0     | Better Auth · Back-Office Config · Email · Routing V2 |
 
 ---
 
 ## 2. Vue d'Ensemble Technique
 
-### 2.1 Resume Technique
+### 2.1 Résumé
 
-Renta_Immo est une application **monolithique modulaire** deployee sur Vercel, combinant un frontend Next.js 14 (App Router) avec un backend de calcul integre via API Routes. La persistance est assuree par Supabase (PostgreSQL) et la generation de rapports par @react-pdf/renderer cote serveur.
+Renta_Immo est une application **monolithique modulaire** déployée sur Vercel, combinant un frontend Next.js 14 (App Router) avec un backend de calcul intégré via API Routes. La persistance est assurée par Supabase (PostgreSQL), l'authentification par Better Auth (connexion directe `pg`), la génération de rapports par `@react-pdf/renderer` côté serveur, et l'envoi d'emails par Resend.
 
-L'architecture suit le pattern **Jamstack moderne** avec :
-- Pre-rendu statique pour les pages publiques
-- API Routes serverless pour les calculs
-- Client-side state management (Zustand)
-- BaaS (Supabase) pour la persistance et l'authentification future
+### 2.2 Infrastructure
 
-### 2.2 Plateforme et Infrastructure
+| Service              | Fournisseur                            | Usage                                       |
+| -------------------- | -------------------------------------- | ------------------------------------------- |
+| Hosting + API        | Vercel                                 | SSG/SSR, Serverless Functions, Edge Network |
+| Base de données      | Supabase (PostgreSQL 15+)              | Simulations, Config, Users                  |
+| Authentification     | **Better Auth**                        | Email/password + Google OAuth               |
+| Email transactionnel | Resend                                 | Envoi simulations PDF                       |
+| Migrations           | Script Node.js (`scripts/migrate.mjs`) | Auto au `dev` et `build`                    |
 
-**Plateforme** : Vercel + Supabase
-
-| Service | Fournisseur | Usage |
-|---------|-------------|-------|
-| Hosting Frontend | Vercel | SSG/SSR, Edge Network |
-| API Routes | Vercel Serverless | Calculs, PDF |
-| Base de donnees | Supabase (PostgreSQL) | Simulations |
-| Authentification | Supabase Auth | V1 (comptes utilisateurs) |
-| Stockage | Supabase Storage | PDFs (optionnel) |
-
-**Regions** : Auto (Vercel Edge) + EU-West (Supabase)
+**Régions** : Auto (Vercel Edge) + EU-West (Supabase)
 
 ### 2.3 Diagramme d'Architecture
 
 ```
-                    ┌─────────────────────────────────────────────────────┐
-                    │                    UTILISATEUR                       │
-                    └────────────────────────┬────────────────────────────┘
+                    ┌─────────────────────────────────────────────────────────┐
+                    │                     UTILISATEUR                          │
+                    └───────────────────────────┬─────────────────────────────┘
+                                                │
+                    ┌───────────────────────────▼─────────────────────────────┐
+                    │               VERCEL EDGE NETWORK                        │
+                    │          (CDN · SSL · Auto-scaling · Middleware)         │
+                    └───────────────────────────┬─────────────────────────────┘
+                                                │
+         ┌──────────────────────────────────────┼──────────────────────────────────┐
+         │                                      │                                  │
+         ▼                                      ▼                                  ▼
+┌─────────────────────┐           ┌─────────────────────┐         ┌─────────────────────┐
+│   PAGES NEXT.JS     │           │   API ROUTES         │         │   SUPABASE          │
+│   (App Router)      │           │   (Serverless)       │         │   (PostgreSQL)      │
+│                     │           │                      │         │                     │
+│ /                   │           │ /api/calculate       │◄───────►│ simulations         │
+│ /calculateur        │           │ /api/pdf             │         │ config_params       │
+│ /calculateur/result │           │ /api/send-simulation │         │ config_params_audit │
+│ /simulations/[id]   │           │ /api/simulations     │         │ user (Better Auth)  │
+│ /auth/login|signup  │           │ /api/auth/[...all]   │         │ session · account   │
+│ /account            │           │ /api/admin/*         │         │                     │
+│ /admin/params       │           │                      │         │ RLS: deny-all       │
+│ /en-savoir-plus     │           └──────────┬───────────┘         │ (service role only) │
+└─────────────────────┘                      │                     └─────────────────────┘
                                              │
-                    ┌────────────────────────▼────────────────────────────┐
-                    │              VERCEL EDGE NETWORK                     │
-                    │         (CDN, SSL, Auto-scaling)                     │
-                    └────────────────────────┬────────────────────────────┘
+                    ┌────────────────────────▼────────────────────────────────┐
+                    │                SERVICES MÉTIER                           │
+                    │                                                           │
+                    │  src/server/calculations/   (Moteur de calcul)           │
+                    │  validate → rentabilite → fiscalite → hcsf               │
+                    │              → synthese → projection                     │
+                    │                                                           │
+                    │  src/server/config/ConfigService  (cache 5min, 40 params)│
+                    │  src/server/admin/  (alerts-service · dry-run-service)   │
+                    └────────────────────────────────────────────────────────┘
                                              │
-         ┌───────────────────────────────────┼───────────────────────────────────┐
-         │                                   │                                   │
-         ▼                                   ▼                                   ▼
-┌─────────────────────┐          ┌─────────────────────┐          ┌─────────────────────┐
-│   PAGES STATIQUES   │          │   API ROUTES        │          │   SUPABASE          │
-│   (Next.js SSG)     │          │   (Serverless)      │          │   (PostgreSQL)      │
-│                     │          │                     │          │                     │
-│ • / (landing)       │          │ • POST /calculate   │◄────────►│ • simulations       │
-│ • /simulateur       │          │ • POST /api/pdf     │          │ • users (V1)        │
-│ • /resultats        │          │ • GET/POST /api/    │          │ • RLS policies      │
-│                     │          │   simulations       │          │                     │
-└─────────────────────┘          └──────────┬──────────┘          └─────────────────────┘
-                                            │
-                    ┌───────────────────────┴───────────────────────┐
-                    │           MOTEUR DE CALCUL                    │
-                    │           (src/server/calculations/)          │
-                    │                                               │
-                    │  ┌─────────┐ ┌─────────┐ ┌─────────┐         │
-                    │  │validate │►│rentabil.│►│fiscalite│         │
-                    │  └─────────┘ └─────────┘ └─────────┘         │
-                    │       │           │           │               │
-                    │       ▼           ▼           ▼               │
-                    │  ┌─────────┐ ┌─────────┐ ┌─────────┐         │
-                    │  │  hcsf   │►│synthese │►│project. │         │
-                    │  └─────────┘ └─────────┘ └─────────┘         │
-                    └───────────────────────────────────────────────┘
+                    ┌────────────────────────▼────────────────────────────────┐
+                    │             SERVICES EXTERNES                            │
+                    │         Better Auth (pg) · Resend API                   │
+                    └─────────────────────────────────────────────────────────┘
 ```
 
 ### 2.4 Patterns Architecturaux
 
-| Pattern | Implementation | Rationale |
-|---------|----------------|-----------|
-| **Monolith Modulaire** | Next.js App Router + src/server/ | Simplicite, partage types, deploy unifie |
-| **Component-Based UI** | React + TypeScript strict | Reutilisabilite, maintainabilite |
-| **Colocation** | Tests, types, composants ensemble | DX, navigation facile |
-| **Repository Pattern** | src/lib/supabase/ abstrait l'acces BDD | Testabilite, migration future |
-| **BFF (Backend for Frontend)** | API Routes adaptees au frontend | Optimisation payloads |
+| Pattern                | Implémentation                                | Rationale                                 |
+| ---------------------- | --------------------------------------------- | ----------------------------------------- |
+| **Monolith Modulaire** | Next.js App Router + `src/server/`            | Simplicité, types partagés, deploy unifié |
+| **Repository Pattern** | `src/lib/supabase/`                           | Testabilité, isolation BDD                |
+| **BFF**                | API Routes adaptées au frontend               | Optimisation payloads                     |
+| **Service Singleton**  | `ConfigService` (cache in-memory)             | Performance, isolation                    |
+| **RBAC**               | Colonne `role` dans `user` + `requireAdmin()` | Sécurité back-office                      |
+| **Config as Data**     | Paramètres fiscaux en BDD                     | Agilité réglementaire                     |
 
 ---
 
 ## 3. Stack Technique
 
-### 3.1 Tableau Definitif
-
-| Categorie | Technologie | Version | Purpose | Rationale |
-|-----------|-------------|---------|---------|-----------|
-| **Frontend Language** | TypeScript | 5.7.3 | Type-safety | Strict mode, coherence fullstack |
-| **Frontend Framework** | Next.js | 14.2.21 | SSG/SSR, API Routes | App Router, Vercel optimise |
-| **UI Component Library** | Custom + Tailwind | - | Design system | Flexibilite, performance |
-| **State Management** | Zustand | 5.0.10 | Client state | Simple, persist middleware |
-| **Data Fetching** | React Query | 5.90.19 | Server state | Cache, optimistic updates |
-| **Backend Language** | TypeScript | 5.7.3 | Type-safety | Types partages avec frontend |
-| **Backend Framework** | Next.js API Routes | 14.2.21 | Serverless API | Zero config, Vercel natif |
-| **API Style** | REST | - | Simplicite | Standard, bien compris |
-| **Database** | PostgreSQL | 15+ | Relational data | Via Supabase, robuste |
-| **Cache** | React Query | 5.90.19 | Client-side | Stale-while-revalidate |
-| **File Storage** | Supabase Storage | - | PDFs (optionnel) | Integre |
-| **Authentication** | Supabase Auth | - | V1 | OAuth ready, RLS integre |
-| **Validation** | Zod | 4.3.5 | Schema validation | Runtime + types |
-| **Forms** | React Hook Form | 7.71.1 | Form management | Performance, UX |
-| **Charts** | Recharts | 3.7.0 | Data visualization | React natif |
-| **PDF Generation** | @react-pdf/renderer | 3.x | Server-side PDF | Serverless compatible |
-| **Frontend Testing** | Vitest | 4.x | Unit tests | Rapide, TS natif |
-| **E2E Testing** | Playwright | 1.x | End-to-end | Multi-browser, fiable |
-| **CSS Framework** | Tailwind CSS | 3.4.17 | Utility-first | Rapid prototyping |
-| **Build Tool** | Next.js | 14.2.21 | Bundling | Integre |
-| **CI/CD** | Vercel | - | Deploy | Git-based, previews |
-| **Monitoring** | Vercel Analytics | - | Performance | Integre |
+| Catégorie            | Technologie                           | Version    |
+| -------------------- | ------------------------------------- | ---------- |
+| Framework            | Next.js                               | 14.2.23    |
+| Langage              | TypeScript                            | 5.7.3      |
+| CSS                  | Tailwind CSS                          | 3.4.17     |
+| State (client)       | Zustand                               | 5.0.11     |
+| Data fetching        | React Query (@tanstack)               | 5.90.21    |
+| Forms                | React Hook Form + @hookform/resolvers | 7.71.1     |
+| Validation           | Zod                                   | 4.3.6      |
+| **Authentification** | **Better Auth**                       | **1.4.18** |
+| BDD (browser)        | @supabase/ssr + @supabase/supabase-js | 0.8 / 2.94 |
+| BDD (Better Auth)    | pg (node-postgres)                    | 8.18       |
+| PDF                  | @react-pdf/renderer                   | 4.3.2      |
+| **Email**            | **Resend**                            | **6.9.2**  |
+| Icons                | Lucide React                          | 0.574      |
+| Charts               | Recharts                              | 3.7.0      |
+| Toasts               | React Hot Toast                       | 2.6.0      |
+| Tests unitaires      | Vitest                                | 4.0.18     |
+| Tests E2E            | Playwright                            | 1.58.2     |
+| CI/CD                | GitHub Actions + Vercel               | —          |
+| Git hooks            | Husky + lint-staged                   | 9.1.7      |
 
 ---
 
-## 4. Data Models
+## 4. Authentification (Better Auth)
 
-### 4.1 Core Entities
+### 4.1 Architecture
 
-#### CalculateurFormData
+L'authentification utilise **Better Auth** — pas Supabase Auth. Better Auth se connecte directement à PostgreSQL via `pg` et gère ses propres tables (`user`, `session`, `account`).
 
-**Purpose** : Donnees d'entree d'une simulation immobiliere
-
-```typescript
-// src/types/calculateur.ts
-
-export interface CalculateurFormData {
-  bien: BienData;
-  financement: FinancementData;
-  exploitation: ExploitationData;
-  structure: StructureData;
-  options: OptionsData;
-}
-
-export interface BienData {
-  adresse: string;
-  prix_achat: number;
-  surface?: number;
-  type_bien: 'appartement' | 'maison' | 'immeuble';
-  etat_bien: 'ancien' | 'neuf';
-  montant_travaux: number;
-  valeur_mobilier: number;
-}
-
-export interface FinancementData {
-  apport: number;
-  taux_interet: number;
-  duree_emprunt: number;
-  assurance_pret: number;
-  frais_dossier: number;
-  frais_garantie: number;
-}
-
-export interface ExploitationData {
-  loyer_mensuel: number;
-  charges_copro: number;
-  taxe_fonciere: number;
-  assurance_pno: number;
-  gestion_locative: number;
-  provision_travaux: number;
-  provision_vacance: number;
-  type_location: 'nue' | 'meublee_longue_duree' | 'meublee_tourisme_classe' | 'meublee_tourisme_non_classe';
-  charges_copro_recuperables: number;
-  assurance_gli: number;
-  cfe_estimee: number;
-  comptable_annuel: number;
-}
-
-export interface StructureData {
-  type: 'nom_propre' | 'sci_is';
-  tmi: number;
-  regime_fiscal?: 'micro_foncier' | 'reel' | 'lmnp_micro' | 'lmnp_reel';
-  associes: AssocieData[];
-  credits_immobiliers?: number;
-  loyers_actuels?: number;
-  revenus_activite?: number;
-  distribution_dividendes?: boolean;
-  autres_charges?: number;
-}
+```
+src/lib/
+├── auth.ts           # Configuration Better Auth (serveur uniquement)
+├── auth-client.ts    # Client Better Auth (browser)
+└── auth-helpers.ts   # requireAdmin(), getSessionWithRole()
 ```
 
-#### CalculResultats
+**Providers supportés** : Email/password + Google OAuth.
 
-**Purpose** : Resultats complets d'une simulation
+### 4.2 Gestion des rôles (RBAC)
 
-```typescript
-export interface CalculResultats {
-  rentabilite: RentabiliteResultat;
-  cashflow: CashflowResultat;
-  financement: FinancementResultat;
-  fiscalite: FiscaliteResultat;
-  hcsf: HCSFResultat;
-  synthese: SyntheseResultat;
-  projections?: ProjectionData;
-  tableauAmortissement?: TableauAmortissement;
-  comparaisonFiscalite?: FiscaliteComparaison;
-}
-```
+Le rôle est stocké dans la colonne `role TEXT` de la table `user` (valeurs : `'user'` | `'admin'`).
 
-#### Simulation (Database)
+Flux de vérification pour les routes admin :
 
-**Purpose** : Simulation persistee en base
+1. `requireAdmin()` appelle `getSessionWithRole()`
+2. Vérifie le cookie Better Auth via `auth.api.getSession()`
+3. Lit le rôle en BDD (pas dans le token JWT)
+4. Retourne `403 FORBIDDEN` si `role !== 'admin'`
 
-```typescript
-// src/types/database.ts
+**Bypass développement** : Si `DEV_ADMIN_ID` et `DEV_ADMIN_EMAIL` sont définis dans `.env.local`, le système retourne directement un utilisateur admin (uniquement en `NODE_ENV=development`).
 
-export interface Simulation {
-  id: string;
-  user_id: string;
-  name: string;
-  description: string | null;
-  created_at: string;
-  updated_at: string;
-  form_data: CalculateurFormData;
-  resultats: CalculResultats;
-  rentabilite_brute: number | null;
-  rentabilite_nette: number | null;
-  cashflow_mensuel: number | null;
-  score_global: number | null;
-  is_favorite: boolean;
-  is_archived: boolean;
-}
-```
+### 4.3 Middleware de protection
+
+Le middleware Next.js (`src/middleware.ts`) protège :
+
+- `/simulations/*` → redirige vers `/auth/login` si pas de cookie de session
+- `/auth/*` → redirige vers `/` si déjà connecté
+
+### 4.4 Pages
+
+| Route          | Usage                                   |
+| -------------- | --------------------------------------- |
+| `/auth/login`  | Connexion email/password + Google OAuth |
+| `/auth/signup` | Création de compte                      |
+| `/account`     | Profil utilisateur                      |
 
 ---
 
-## 5. API Specification
+## 5. Back-Office de Configuration (Sprint 4)
 
-### 5.1 Endpoints
+### 5.1 Principe
 
-| Methode | Endpoint | Description | Auth |
-|---------|----------|-------------|------|
-| POST | `/api/calculate` | Executer une simulation | Non |
-| POST | `/api/pdf` | Generer un rapport PDF | Non |
-| GET | `/api/simulations` | Lister les simulations | Oui |
-| GET | `/api/simulations/[id]` | Detail d'une simulation | Oui |
-| POST | `/api/simulations` | Creer une simulation | Oui |
-| PATCH | `/api/simulations/[id]` | Modifier une simulation | Oui |
-| DELETE | `/api/simulations/[id]` | Supprimer une simulation | Oui |
+Les paramètres fiscaux et réglementaires (~40 valeurs : taux PS, abattements, HCSF, DPE, etc.) sont stockés en base de données et modifiables via le back-office admin **sans redéploiement**. Le moteur de calcul les charge via `ConfigService` avec un cache in-memory de 5 minutes. En cas d'erreur BDD, un fallback hardcodé prend le relais.
 
-### 5.2 POST /api/calculate
+### 5.2 Architecture
 
-**Request:**
-```typescript
-{
-  bien: BienData;
-  financement: FinancementData;
-  exploitation: ExploitationData;
-  structure: StructureData;
-  options: OptionsData;
-}
+```
+src/server/config/
+├── config-types.ts    # ConfigParam, ResolvedConfig (~40 champs), CLE_TO_FIELD
+└── config-service.ts  # Singleton, cache TTL 5min, fallback hardcodé
+
+src/server/admin/
+├── alerts-service.ts  # Alertes paramètres temporaires/expirés
+└── dry-run-service.ts # Simulation calcul avec nouveaux params (sans sauvegarde)
+
+src/app/api/admin/
+├── params/route.ts              # GET, POST
+├── params/[id]/route.ts         # PATCH, DELETE
+├── params/[id]/audit/route.ts   # GET historique
+├── alerts/route.ts              # GET alertes expiration
+└── dry-run/route.ts             # POST simulation impact
+
+src/components/admin/
+├── ParamsTable.tsx
+├── EditParamModal.tsx
+├── AuditHistoryModal.tsx
+├── DryRunPanel.tsx
+└── ExpirationBanner.tsx
 ```
 
-**Response (200):**
-```typescript
-{
-  success: true;
-  resultats: CalculResultats;
-  timestamp: string;
-  alertes: string[];
-}
-```
+### 5.3 Tables BDD
 
-**Response (400):**
-```typescript
-{
-  success: false;
-  error: {
-    code: 'VALIDATION_ERROR';
-    message: string;
-    field?: string;
-    details?: Record<string, unknown>;
-  };
-}
-```
+**`config_params`** — Paramètres configurables
 
-### 5.3 POST /api/pdf
+| Colonne           | Type          | Description                                                                                                |
+| ----------------- | ------------- | ---------------------------------------------------------------------------------------------------------- |
+| `id`              | UUID PK       |                                                                                                            |
+| `annee_fiscale`   | INTEGER       | Ex : 2026                                                                                                  |
+| `bloc`            | TEXT          | `fiscalite` \| `hcsf` \| `plus_value` \| `foncier` \| `dpe` \| `lmp_scoring` \| `charges` \| `projections` |
+| `cle`             | TEXT          | SCREAMING_SNAKE_CASE — UNIQUE par (annee, bloc, cle)                                                       |
+| `valeur`          | DECIMAL(20,8) |                                                                                                            |
+| `unite`           | TEXT          | `decimal` \| `euros` \| `annees` \| `pourcentage`                                                          |
+| `is_temporary`    | BOOLEAN       | Dispositif fiscal temporaire                                                                               |
+| `date_expiration` | DATE          | Expiration du dispositif                                                                                   |
 
-**Request:**
-```typescript
-{
-  formData: CalculateurFormData;
-  resultats: CalculResultats;
-  options?: {
-    includeGraphs?: boolean;
-    language?: 'fr' | 'en';
-  };
-}
-```
+**`config_params_audit`** — Historique des modifications
 
-**Response (200):**
-```
-Content-Type: application/pdf
-Content-Disposition: attachment; filename="simulation-2026-02-04.pdf"
+| Colonne                               | Type                      | Description                      |
+| ------------------------------------- | ------------------------- | -------------------------------- |
+| `config_id`                           | UUID → `config_params.id` |                                  |
+| `ancienne_valeur` / `nouvelle_valeur` | DECIMAL                   |                                  |
+| `modifie_par`                         | TEXT → `user.id`          |                                  |
+| `motif`                               | TEXT                      | Justification de la modification |
 
-<binary PDF data>
-```
+### 5.4 Blocs de paramètres
+
+| Bloc          | Exemples de clés                                                                                  |
+| ------------- | ------------------------------------------------------------------------------------------------- |
+| `fiscalite`   | TAUX_PS_FONCIER, TAUX_PS_REVENUS_BIC_LMNP, MICRO_FONCIER_ABATTEMENT, IS_TAUX_REDUIT, FLAT_TAX     |
+| `foncier`     | DEFICIT_FONCIER_PLAFOND_IMPUTATION, DEFICIT_FONCIER_PLAFOND_ENERGIE, DEFICIT_FONCIER_DUREE_REPORT |
+| `plus_value`  | PLUS_VALUE_TAUX_IR, PLUS_VALUE_TAUX_PS, PLUS_VALUE_SEUIL_SURTAXE                                  |
+| `hcsf`        | HCSF_TAUX_MAX, HCSF_DUREE_MAX_ANNEES, HCSF_PONDERATION_LOCATIFS, HCSF_DUREE_MAX_ANNEES_VEFA       |
+| `dpe`         | DECOTE_DPE_FG, DECOTE_DPE_E                                                                       |
+| `lmp_scoring` | LMP_SEUIL_ALERTE, LMP_SEUIL_LMP, RESTE_A_VIVRE_SEUIL_MIN                                          |
+| `charges`     | DEFAULTS_ASSURANCE_PNO, NOTAIRE_TAUX_ANCIEN, FRAIS_REVENTE_TAUX_AGENCE_DEFAUT                     |
+| `projections` | PROJECTION_INFLATION_LOYER, PROJECTION_INFLATION_CHARGES, PROJECTION_REVALORISATION_BIEN          |
 
 ---
 
-## 6. Frontend Architecture
+## 6. Data Models
 
-### 6.1 Component Organization
+### 6.1 Input de Simulation (`CalculateurFormData`)
 
-```
-src/
-├── components/
-│   ├── ui/                    # Primitives (Button, Input, Card, etc.)
-│   │   ├── Button.tsx
-│   │   ├── Input.tsx
-│   │   ├── Card.tsx
-│   │   └── index.ts
-│   ├── forms/                 # Composants de formulaire
-│   │   ├── StepBien.tsx
-│   │   ├── StepFinancement.tsx
-│   │   ├── StepExploitation.tsx
-│   │   ├── StepStructure.tsx
-│   │   ├── StepAssocies.tsx
-│   │   ├── StepOptions.tsx
-│   │   └── index.ts
-│   ├── results/               # Composants de resultats
-│   │   ├── ScoreGauge.tsx
-│   │   ├── KeyMetrics.tsx
-│   │   ├── CashflowChart.tsx
-│   │   ├── PatrimoineChart.tsx
-│   │   ├── FiscalComparator.tsx
-│   │   └── index.ts
-│   ├── simulations/           # Composants de gestion simulations
-│   │   ├── SaveSimulationButton.tsx
-│   │   ├── SaveSimulationModal.tsx
-│   │   ├── SimulationsList.tsx
-│   │   ├── SimulationCard.tsx
-│   │   └── index.ts
-│   └── providers/
-│       └── QueryProvider.tsx
-```
+5 sections : `bien`, `financement`, `exploitation`, `structure`, `options`.
 
-### 6.2 Component Template
+**Champs notables ajoutés depuis V3 :**
 
-```typescript
-// Pattern standard pour un composant
+| Section            | Champ                              | Description                                 |
+| ------------------ | ---------------------------------- | ------------------------------------------- |
+| `BienData`         | `dpe?: DPE`                        | Classe énergétique A→G (scoring + décotes)  |
+| `BienData`         | `is_vefa?: boolean`                | VEFA → durée HCSF 27 ans                    |
+| `BienData`         | `renovation_energetique?: boolean` | Déficit foncier majoré                      |
+| `BienData`         | `part_terrain?: number`            | Part terrain paramétrée                     |
+| `FinancementData`  | `mode_assurance?`                  | `capital_initial` \| `capital_restant_du`   |
+| `ExploitationData` | `taux_occupation?: number`         | Taux d'occupation (défaut 0.92)             |
+| `StructureData`    | `mode_amortissement?`              | `simplifie` \| `composants`                 |
+| `OptionsData`      | `profil_investisseur?`             | `rentier` \| `patrimonial` (scoring dual)   |
+| `OptionsData`      | `ponderation_loyers?`              | Pondération HCSF (défaut 70, avec GLI → 80) |
+| `OptionsData`      | `prix_revente?`                    | Prix cible pour calcul plus-value           |
+| `OptionsData`      | `duree_detention?`                 | Durée de détention (abattements PV)         |
+| `OptionsData`      | `taux_agence_revente?`             | Frais agence à la revente                   |
 
-import { type FC } from 'react';
-import { cn } from '@/lib/utils';
+### 6.2 Résultats de Simulation (`CalculResultats`)
 
-interface ComponentProps {
-  className?: string;
-  // props specifiques
-}
+| Champ                         | Type                         | Description                                  |
+| ----------------------------- | ---------------------------- | -------------------------------------------- |
+| `rentabilite`                 | `RentabiliteResultat`        | Brute, nette, nette-nette, effet levier      |
+| `cashflow`                    | `CashflowResultat`           | Mensuel/annuel brut et net                   |
+| `financement`                 | `FinancementResultat`        | Mensualité, frais notaire (tranches réelles) |
+| `fiscalite`                   | `FiscaliteResultat`          | Impôt estimé, net en poche                   |
+| `hcsf`                        | `HCSFResultat`               | Taux endettement, reste à vivre              |
+| `synthese`                    | `SyntheseResultat`           | Score, recommandations, alertes              |
+| `projections?`                | `ProjectionData`             | Projections N ans, TRI, plus-value           |
+| `tableauAmortissement?`       | `TableauAmortissement`       | Amortissement financier                      |
+| `tableauAmortissementFiscal?` | `TableauAmortissementFiscal` | Amortissement LMNP réel / SCI IS             |
+| `comparaisonFiscalite?`       | `FiscaliteComparaison`       | Comparaison régimes fiscaux                  |
 
-export const Component: FC<ComponentProps> = ({ className, ...props }) => {
-  return (
-    <div className={cn('base-styles', className)}>
-      {/* content */}
-    </div>
-  );
-};
-```
+**Champs notables ajoutés depuis V3 :**
 
-### 6.3 State Management
+| Champ                                      | Description                                               |
+| ------------------------------------------ | --------------------------------------------------------- |
+| `SyntheseResultat.scores_par_profil`       | Scores pré-calculés pour Rentier et Patrimonial (V2-S16)  |
+| `SyntheseResultat.points_attention_detail` | Alertes structurées (type, catégorie, conseil)            |
+| `SyntheseResultat.recommandations_detail`  | Recommandations avec actions concrètes                    |
+| `ProjectionData.plusValue`                 | Calcul complet plus-value à la revente                    |
+| `ProjectionData.alerteApportZero`          | TRI non significatif si apport = 0 (REC-05)               |
+| `ProjectionData.hypotheses`                | Inflation loyer/charges/revalorisation affichées (REC-03) |
 
-**Structure Zustand :**
+### 6.3 Simulation (table BDD)
 
-```typescript
-// src/stores/calculateur.store.ts
-
-interface CalculateurState {
-  // Scenarios multiples
-  scenarios: Scenario[];
-  activeScenarioId: string | null;
-
-  // Actions
-  createScenario: () => string;
-  duplicateScenario: (id: string) => string;
-  deleteScenario: (id: string) => void;
-  setActiveScenario: (id: string) => void;
-
-  // Updates par section
-  updateBien: (id: string, data: Partial<BienData>) => void;
-  updateFinancement: (id: string, data: Partial<FinancementData>) => void;
-  // ...
-
-  // Resultats
-  setResultats: (id: string, resultats: CalculResultats) => void;
-  setStatus: (id: string, status: FormStatus) => void;
-}
-```
-
-**Patterns :**
-- Persist middleware pour localStorage
-- Selectors pour performance
-- Actions atomiques
-
-### 6.4 Routing
-
-```
-src/app/
-├── page.tsx                   # Landing / Formulaire
-├── resultats/
-│   └── page.tsx               # Resultats simulation
-├── simulations/
-│   ├── page.tsx               # Liste simulations
-│   └── [id]/
-│       └── page.tsx           # Detail simulation
-├── api/
-│   ├── calculate/
-│   │   └── route.ts
-│   ├── pdf/
-│   │   └── route.ts
-│   └── simulations/
-│       ├── route.ts
-│       └── [id]/
-│           └── route.ts
-└── layout.tsx
-```
-
-### 6.5 API Client
-
-```typescript
-// src/lib/api.ts
-
-const API_BASE = '/api';
-
-export async function calculate(formData: CalculateurFormData): Promise<ApiResponse<CalculResultats>> {
-  const response = await fetch(`${API_BASE}/calculate`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(formData),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new ApiError(error.error.code, error.error.message);
-  }
-
-  return response.json();
-}
-```
+| Colonne                       | Type             | Description                             |
+| ----------------------------- | ---------------- | --------------------------------------- |
+| `id`                          | UUID PK          |                                         |
+| `user_id`                     | TEXT → `user.id` | Utilisateur Better Auth                 |
+| `form_data`                   | JSONB            | `CalculateurFormData` sérialisé         |
+| `resultats`                   | JSONB            | `CalculResultats` sérialisé             |
+| `rentabilite_brute/nette`     | DECIMAL          | Dénormalisés pour tri/filtres           |
+| `cashflow_mensuel`            | DECIMAL          | Dénormalisé                             |
+| `score_global`                | INTEGER          | Toujours `Math.round()` avant insertion |
+| `is_favorite` / `is_archived` | BOOLEAN          |                                         |
 
 ---
 
-## 7. Backend Architecture
+## 7. API Specification
 
-### 7.1 Module de Calcul
+### 7.1 Endpoints
+
+| Méthode | Endpoint                       | Description                         | Auth    |
+| ------- | ------------------------------ | ----------------------------------- | ------- |
+| POST    | `/api/calculate`               | Exécuter une simulation             | Non     |
+| POST    | `/api/pdf`                     | Générer un rapport PDF              | Non     |
+| POST    | `/api/send-simulation`         | Envoyer le PDF par email (3/min/IP) | Non     |
+| GET     | `/api/simulations`             | Lister les simulations              | Session |
+| GET     | `/api/simulations/[id]`        | Détail d'une simulation             | Session |
+| POST    | `/api/simulations`             | Créer une simulation                | Session |
+| PATCH   | `/api/simulations/[id]`        | Modifier une simulation             | Session |
+| DELETE  | `/api/simulations/[id]`        | Supprimer une simulation            | Session |
+| `*`     | `/api/auth/[...all]`           | Better Auth handler                 | —       |
+| GET     | `/api/admin/params`            | Lister les paramètres config        | Admin   |
+| POST    | `/api/admin/params`            | Créer un paramètre                  | Admin   |
+| PATCH   | `/api/admin/params/[id]`       | Modifier un paramètre               | Admin   |
+| DELETE  | `/api/admin/params/[id]`       | Supprimer un paramètre              | Admin   |
+| GET     | `/api/admin/params/[id]/audit` | Historique modifications            | Admin   |
+| GET     | `/api/admin/alerts`            | Alertes params expirés              | Admin   |
+| POST    | `/api/admin/dry-run`           | Simuler l'impact d'un changement    | Admin   |
+
+### 7.2 Format d'erreur standard
+
+```json
+{ "success": false, "error": { "code": "VALIDATION_ERROR", "message": "...", "field": "..." } }
+```
+
+Codes : `VALIDATION_ERROR (400)` · `UNAUTHORIZED (401)` · `FORBIDDEN (403)` · `NOT_FOUND (404)` · `RATE_LIMIT (429)` · `CALCULATION_ERROR (500)` · `PDF_GENERATION_ERROR (500)` · `EMAIL_SEND_ERROR (500)`
+
+---
+
+## 8. Frontend Architecture
+
+### 8.1 Composants
+
+```
+src/components/
+├── ui/               # Primitives (Button, Input, Card, Alert, Collapsible)
+├── layout/           # Header
+├── providers/        # QueryProvider
+├── forms/            # FormWizard + 6 Steps (Bien, Financement, Exploitation, Structure, Associés, Options)
+├── results/          # 20+ composants Dashboard de résultats
+│   ├── Dashboard.tsx           # Orchestrateur
+│   ├── ScorePanel.tsx          # Score global + évaluation
+│   ├── ProfilInvestisseurToggle.tsx   # Bascule Rentier / Patrimonial
+│   ├── AlerteLmp.tsx           # Alertes seuil LMP
+│   ├── PointsAttention.tsx
+│   ├── RecommandationsPanel.tsx
+│   ├── FiscalComparator.tsx
+│   ├── FiscalAmortizationTable.tsx   # LMNP/SCI IS
+│   ├── ProjectionTable.tsx           # Projections + hypothèses
+│   ├── PatrimoineChart.tsx           # Recharts (lazy loaded)
+│   └── CashflowChart.tsx             # Recharts (lazy loaded)
+├── simulations/      # Simulations sauvegardées (liste, card, filtres URL)
+└── admin/            # Back-office (ParamsTable, EditParamModal, AuditHistoryModal, DryRunPanel, ExpirationBanner)
+```
+
+### 8.2 State Management (Zustand)
+
+Le store `src/stores/calculateur.store.ts` gère les scénarios multiples avec persist (localStorage). Il expose des actions atomiques par section (`updateBien`, `updateFinancement`, etc.) et des selectors pour les résultats.
+
+### 8.3 Routing (App Router)
+
+```
+/                         → Landing publique
+/en-savoir-plus           → Page d'information
+/calculateur              → Formulaire wizard (6 étapes)
+/calculateur/resultats    → Dashboard résultats
+/simulations              → Liste (filtres URL search params)
+/simulations/[id]         → Détail simulation sauvegardée
+/auth/login               → Connexion
+/auth/signup              → Inscription
+/account                  → Profil
+/admin                    → Dashboard admin
+/admin/params             → Gestion paramètres fiscaux
+```
+
+Les filtres de simulations sont basés sur les URL search params (partageables, navigation browser native).
+
+---
+
+## 9. Backend Architecture
+
+### 9.1 Moteur de Calcul
 
 ```
 src/server/calculations/
-├── index.ts              # Orchestrateur performCalculations()
-├── types.ts              # Types et constantes internes
-├── validation.ts         # Validation Zod + normalisation
-├── rentabilite.ts        # Calculs rentabilite
-├── fiscalite.ts          # Calculs fiscaux (IR/IS)
-├── hcsf.ts               # Analyse HCSF
-├── projection.ts         # Projections et TRI
-└── synthese.ts           # Scoring et recommandations
+├── index.ts        # Orchestrateur performCalculations()
+├── types.ts        # Types internes
+├── constants.ts    # Constantes métier (LMP.SEUIL_ALERTE, etc.)
+├── validation.ts   # Validation Zod + normalisation
+├── rentabilite.ts  # Brute, nette, nette-nette, frais notaire par tranches
+├── fiscalite.ts    # IR/IS, micro/réel, amortissements composants, PS LMNP 18,6%
+├── hcsf.ts         # Taux endettement, reste à vivre, VEFA, pondération GLI
+├── projection.ts   # Projections N ans, TRI, plus-value, frais revente
+├── synthese.ts     # Scoring dual profil (Rentier/Patrimonial), alertes LMP
+└── __tests__/      # 136+ tests unitaires + mock-config.ts
 ```
 
-**Orchestrateur :**
+L'orchestrateur charge `ResolvedConfig` via `ConfigService` avant chaque calcul. Les modules de calcul reçoivent la config en paramètre (testable via `mock-config.ts`).
 
-```typescript
-// src/server/calculations/index.ts
-
-export function performCalculations(input: unknown): CalculationResult {
-  // 1. Validation
-  const validated = validateAndNormalize(input);
-
-  // 2. Calculs sequentiels
-  const rentabilite = calculerRentabilite(validated);
-  const fiscalite = calculerFiscalite(validated, rentabilite);
-  const hcsf = analyserHCSF(validated, rentabilite);
-  const synthese = genererSynthese(rentabilite, fiscalite, hcsf);
-  const projections = genererProjections(validated, rentabilite);
-
-  // 3. Assemblage
-  return {
-    rentabilite,
-    fiscalite,
-    hcsf,
-    synthese,
-    projections,
-    // ...
-  };
-}
-```
-
-### 7.2 Generation PDF
+### 9.2 Génération PDF
 
 ```
 src/lib/pdf/
-├── index.ts              # Exports
-├── styles.ts             # StyleSheet centralise
-├── components/
-│   ├── Header.tsx
-│   ├── Footer.tsx
-│   ├── ScoreGauge.tsx
-│   ├── KeyMetrics.tsx
-│   └── Table.tsx
-└── templates/
-    └── RapportSimulation.tsx
+├── templates/RapportSimulation.tsx   # Template principal
+├── components/                       # Header, Footer, ScoreGauge, KeyMetrics,
+│                                     # CashflowWaterfall, HcsfAnalysis,
+│                                     # PointsAttention, ProjectCost, PropertyDetails
+└── utils/formatters.ts
 ```
 
-### 7.3 Client Supabase
+### 9.3 Accès Base de données
 
-```
-src/lib/supabase/
-├── index.ts              # Barrel exports
-├── client.ts             # Browser client (singleton)
-├── server.ts             # Server client (per-request)
-└── types.ts              # Database types
-```
+Tout accès depuis les API Routes utilise `createAdminClient()` (service role key). Le client browser utilise la clé anon avec les sessions Better Auth.
 
 ---
 
-## 8. Database Schema
+## 10. Base de données
 
-### 8.1 Table simulations
+### 10.1 Tables
 
-```sql
-CREATE TABLE public.simulations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  name VARCHAR(255) NOT NULL DEFAULT 'Simulation sans titre',
-  description TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+| Table                 | Propriétaire | Usage                                       |
+| --------------------- | ------------ | ------------------------------------------- |
+| `user`                | Better Auth  | Utilisateurs + colonne `role` (user\|admin) |
+| `session`             | Better Auth  | Sessions actives                            |
+| `account`             | Better Auth  | Liaisons OAuth                              |
+| `simulations`         | App          | Simulations persistées                      |
+| `config_params`       | App          | Paramètres fiscaux/réglementaires           |
+| `config_params_audit` | App          | Historique des modifications admin          |
 
-  -- Donnees JSON
-  form_data JSONB NOT NULL,
-  resultats JSONB NOT NULL,
+### 10.2 Row Level Security
 
-  -- Indicateurs denormalises (pour tri/filtres)
-  rentabilite_brute DECIMAL(5,2),
-  rentabilite_nette DECIMAL(5,2),
-  cashflow_mensuel DECIMAL(10,2),
-  score_global INTEGER CHECK (score_global >= 0 AND score_global <= 100),
+RLS activé en mode "deny all" par défaut sur toutes les tables applicatives. Tout accès passe par le service role key côté serveur.
 
-  -- Flags
-  is_favorite BOOLEAN DEFAULT FALSE,
-  is_archived BOOLEAN DEFAULT FALSE
-);
+### 10.3 Migrations
 
--- Index performance
-CREATE INDEX idx_simulations_user_id ON public.simulations(user_id);
-CREATE INDEX idx_simulations_created ON public.simulations(created_at DESC);
-CREATE INDEX idx_simulations_favorites ON public.simulations(user_id, is_favorite)
-  WHERE is_favorite = TRUE;
+Fichiers dans `supabase/migrations/`, exécutés automatiquement au démarrage via `src/instrumentation.ts` → `src/server/migrations/runner.ts`.
 
--- Trigger updated_at
-CREATE TRIGGER simulations_updated_at
-  BEFORE UPDATE ON public.simulations
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at();
-```
-
-### 8.2 Row Level Security
-
-```sql
-ALTER TABLE public.simulations ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view own simulations"
-  ON public.simulations FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own simulations"
-  ON public.simulations FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own simulations"
-  ON public.simulations FOR UPDATE
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own simulations"
-  ON public.simulations FOR DELETE
-  USING (auth.uid() = user_id);
-```
+| Migration                               | Contenu                            |
+| --------------------------------------- | ---------------------------------- |
+| `20260203_better_auth_setup.sql`        | Tables Better Auth                 |
+| `20260204_create_simulations_table.sql` | Table simulations + RLS            |
+| `20260207_fix_rls_policies.sql`         | Corrections RLS                    |
+| `20260208_fix_schema_drift.sql`         | Corrections drift schéma           |
+| `20260216_sprint4_config_params.sql`    | config_params + audit + rôle admin |
+| `20260218_audit_corrections.sql`        | Corrections post-audit conformité  |
 
 ---
 
-## 9. Project Structure
+## 11. Structure du Projet
 
 ```
 renta-immo/
-├── .github/
-│   └── workflows/
-│       └── ci.yaml              # CI (lint, type-check, tests)
+├── .github/workflows/ci.yaml   # CI : lint, type-check, test, build
 ├── docs/
-│   ├── prd.md
-│   ├── architecture.md          # (historique)
-│   ├── architecture-fullstack.md # CE DOCUMENT
-│   ├── stories/
-│   └── devs-guide/
-├── e2e/
-│   ├── fixtures/
-│   └── tests/
-│       ├── simulation-complete.spec.ts
-│       └── multi-scenarios.spec.ts
-├── public/
-│   └── assets/
+│   ├── architecte/             # CE DOCUMENT
+│   ├── audit/
+│   ├── devs-guide/
+│   └── stories/
+├── scripts/
+│   ├── migrate.mjs             # Runner migrations
+│   └── db-status.mjs
+├── supabase/migrations/        # SQL chronologiques
 ├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── calculate/route.ts
-│   │   │   ├── pdf/route.ts
-│   │   │   └── simulations/
+│   ├── app/                    # Pages + API Routes (App Router)
+│   │   ├── admin/
+│   │   ├── api/ (admin · auth · calculate · pdf · send-simulation · simulations)
+│   │   ├── auth/
+│   │   ├── calculateur/
 │   │   ├── simulations/
-│   │   ├── resultats/
-│   │   ├── page.tsx
-│   │   └── layout.tsx
-│   ├── components/
-│   │   ├── ui/
-│   │   ├── forms/
-│   │   ├── results/
-│   │   ├── simulations/
-│   │   └── providers/
-│   ├── hooks/
-│   │   ├── useCalculateur.ts
-│   │   ├── useDownloadPdf.ts
-│   │   ├── useSimulations.ts
-│   │   └── useSupabase.ts
+│   │   ├── account/
+│   │   └── en-savoir-plus/
+│   ├── components/ (admin · forms · layout · providers · results · simulations · ui)
+│   ├── hooks/ (useScenarioFormReset · useSimulationMutations · useSimulations · useSupabase)
 │   ├── lib/
-│   │   ├── api.ts
-│   │   ├── utils.ts
-│   │   ├── validators.ts
-│   │   ├── pdf/
-│   │   └── supabase/
+│   │   ├── auth.ts / auth-client.ts / auth-helpers.ts / auth/redirect.ts
+│   │   ├── email.ts (Resend) · logger.ts · rate-limit.ts
+│   │   ├── api.ts · utils.ts · validators.ts · constants.ts
+│   │   ├── pdf/ · supabase/
+│   ├── middleware.ts
+│   ├── instrumentation.ts / instrumentation.node.ts
 │   ├── server/
-│   │   └── calculations/
-│   ├── stores/
-│   │   └── calculateur.store.ts
-│   └── types/
-│       ├── calculateur.ts
-│       ├── api.ts
-│       ├── database.ts
-│       └── index.ts
-├── .env.example
-├── .env.local                   # (git-ignored)
-├── next.config.js
-├── tailwind.config.ts
-├── tsconfig.json
-├── vitest.config.ts
+│   │   ├── admin/ (alerts-service · dry-run-service)
+│   │   ├── calculations/ (+ __tests__)
+│   │   ├── config/ (config-service · config-types)
+│   │   └── migrations/runner.ts
+│   ├── stores/calculateur.store.ts
+│   └── types/ (api · calculateur · database · database.types · index)
+├── vitest.config.mts
 ├── playwright.config.ts
-├── package.json
-└── README.md
+└── package.json
 ```
 
 ---
 
-## 10. Development Workflow
+## 12. Workflow de Développement
 
-### 10.1 Prerequisites
-
-```bash
-# Node.js 20+
-node -v  # v20.x.x
-
-# Package manager
-npm -v   # 10.x.x
-```
-
-### 10.2 Initial Setup
+### 12.1 Setup initial
 
 ```bash
-# Clone et install
-git clone https://github.com/user/renta-immo.git
-cd renta-immo
 npm install
-
-# Configuration
 cp .env.example .env.local
-# Editer .env.local avec vos credentials Supabase
+# Renseigner les variables d'environnement (voir 12.3)
+npm run dev    # → migrations auto + Next.js dev server
 ```
 
-### 10.3 Development Commands
+### 12.2 Commandes
 
-```bash
-# Demarrer le serveur de dev
-npm run dev
+| Commande                  | Usage                                 |
+| ------------------------- | ------------------------------------- |
+| `npm run dev`             | Dev server (migrations auto)          |
+| `npm run build`           | Build prod (migrations auto)          |
+| `npm run type-check`      | Vérification TypeScript               |
+| `npm run lint`            | ESLint                                |
+| `npm run test`            | Vitest (136+ tests)                   |
+| `npm run test:coverage`   | Coverage V8                           |
+| `npm run test:regression` | Tests de régression calcul uniquement |
+| `npm run test:e2e`        | Playwright                            |
+| `npm run db:migrate`      | Forcer les migrations                 |
+| `npm run db:status`       | État de la BDD                        |
+| `npm run format`          | Prettier                              |
 
-# Type checking
-npm run type-check
+### 12.3 Variables d'environnement
 
-# Linting
-npm run lint
-
-# Tests unitaires
-npm run test
-
-# Tests avec coverage
-npm run test:coverage
-
-# Tests E2E
-npm run test:e2e
-
-# Build production
-npm run build
-```
-
-### 10.4 Environment Variables
-
-```bash
-# .env.local
-
-# Supabase (Phase 2)
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...  # Server-only, NEVER expose
-
-# (Deprecated)
-# NEXT_PUBLIC_N8N_WEBHOOK_URL=...
-```
+| Variable                                    | Usage                         | Exposition         |
+| ------------------------------------------- | ----------------------------- | ------------------ |
+| `NEXT_PUBLIC_SUPABASE_URL`                  | URL Supabase                  | Client             |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`             | Clé anon Supabase             | Client             |
+| `SUPABASE_SERVICE_ROLE_KEY`                 | Clé service Supabase          | Serveur uniquement |
+| `DATABASE_URL`                              | Connexion pg pour Better Auth | Serveur uniquement |
+| `BETTER_AUTH_SECRET`                        | Secret JWT (min 32 chars)     | Serveur uniquement |
+| `BETTER_AUTH_URL`                           | URL publique de l'app         | Serveur            |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | OAuth Google (optionnel)      | Serveur            |
+| `RESEND_API_KEY`                            | Envoi d'emails                | Serveur uniquement |
+| `EMAIL_SENDER`                              | Adresse expéditeur            | Serveur            |
+| `DEV_ADMIN_ID` / `DEV_ADMIN_EMAIL`          | Bypass auth admin (dev only)  | Dev local          |
 
 ---
 
-## 11. Deployment
+## 13. Déploiement
 
-### 11.1 Strategy
+| Composant      | Plateforme | Méthode                      |
+| -------------- | ---------- | ---------------------------- |
+| Frontend + API | Vercel     | Git push → auto deploy       |
+| Database       | Supabase   | Migrations auto au démarrage |
+| Preview        | Vercel     | PR → preview URL             |
 
-| Composant | Plateforme | Methode |
-|-----------|------------|---------|
-| Frontend + API | Vercel | Git push → auto deploy |
-| Database | Supabase | Migrations SQL |
-| Preview | Vercel | PR → preview URL |
+### 13.1 Environnements
 
-### 11.2 Environments
+| Env         | URL                     | Notes                   |
+| ----------- | ----------------------- | ----------------------- |
+| Development | localhost:3000          | Bypass auth admin actif |
+| Preview     | `*.vercel.app`          | Tests PR                |
+| Production  | `renta-immo.vercel.app` | Live                    |
 
-| Environment | Frontend URL | Backend URL | Purpose |
-|-------------|--------------|-------------|---------|
-| Development | localhost:3000 | localhost:3000/api | Local dev |
-| Preview | *.vercel.app | *.vercel.app/api | PR testing |
-| Production | renta-immo.vercel.app | renta-immo.vercel.app/api | Live |
+### 13.2 Pipeline CI/CD (`.github/workflows/ci.yml`)
 
-### 11.3 CI/CD Pipeline
+3 jobs séquentiels — déclenchés sur push `master` et PRs (hors `docs/**` et `*.md`) :
 
-```yaml
-# .github/workflows/ci.yaml
-
-name: CI
-
-on:
-  push:
-    branches: [master, develop]
-  pull_request:
-    branches: [master]
-
-jobs:
-  quality:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - run: npm ci
-      - run: npm run type-check
-      - run: npm run lint
-      - run: npm run test
-
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - run: npm ci
-      - run: npx playwright install --with-deps
-      - run: npm run test:e2e
 ```
+quality-checks  →  unit-tests  →  build
+(lint, tsc,        (vitest run     (next build,
+ format:check)      --coverage,     cache .next)
+                    lcov PR,
+                    seuils 50%)
+```
+
+- **Coverage** : rapport lcov commenté automatiquement sur les PRs via `lcov-reporter-action`
+- **Artifacts** : rapport de couverture et build `.next/` conservés 7 jours
+- **Cache Next.js** : keyed sur `package-lock.json` + fichiers `.ts/.tsx`
+- **Migrations** : skippées en CI (pas de BDD réelle), exécutées au déploiement Vercel
+- **Dependabot** : mises à jour npm mensuelles (`.github/dependabot.yml`)
 
 ---
 
-## 12. Security & Performance
+## 14. Sécurité
 
-### 12.1 Security
-
-**Frontend :**
-- CSP Headers via `next.config.js`
-- XSS Prevention : React escape par defaut
-- Secure Storage : Pas de secrets en localStorage
-
-**Backend :**
-- Input Validation : Zod sur toutes les entrees
-- Rate Limiting : Vercel auto (plan dependent)
-- CORS : Configure dans API Routes
-
-**Authentication (V1) :**
-- Supabase Auth avec RLS
-- JWT stocke en httpOnly cookie
-- Session refresh automatique
-
-### 12.2 Performance Targets
-
-| Metrique | Cible | Mesure |
-|----------|-------|--------|
-| API /calculate | < 500ms | Vercel Analytics |
-| API /pdf | < 2s | Logs |
-| LCP | < 2.5s | Core Web Vitals |
-| TTI | < 3s | Lighthouse |
-| Bundle Size | < 200KB (initial) | next-bundle-analyzer |
-
-**Optimisations :**
-- Code splitting automatique (Next.js)
-- Image optimization (next/image)
-- React Query caching (staleTime: 5min)
-- Lazy loading composants lourds
+| Aspect           | Implémentation                                                  |
+| ---------------- | --------------------------------------------------------------- |
+| Sessions         | Better Auth — cookies httpOnly                                  |
+| Rôles            | Colonne `role` en BDD, vérifiée à chaque appel API admin        |
+| Route guard      | Middleware Next.js (`/simulations/*`, `/auth/*`)                |
+| Accès BDD        | Service role key côté serveur uniquement                        |
+| Validation input | Zod sur toutes les API Routes                                   |
+| Rate limiting    | 3 req/min/IP sur `/api/send-simulation` (in-memory)             |
+| Headers          | CSP, X-Frame-Options, X-Content-Type-Options (`next.config.js`) |
 
 ---
 
-## 13. Testing Strategy
+## 15. Performance
 
-### 13.1 Testing Pyramid
+| Métrique       | Cible   |
+| -------------- | ------- |
+| API /calculate | < 500ms |
+| API /pdf       | < 2s    |
+| LCP            | < 2.5s  |
+| Bundle initial | < 200KB |
 
-```
-        E2E Tests (Playwright)
-       /                      \
-      Integration Tests (API)
-     /                        \
-    Frontend Unit    Backend Unit
-    (Vitest)         (Vitest)
-```
+**Optimisations actives :**
 
-### 13.2 Coverage Targets
-
-| Module | Target |
-|--------|--------|
-| src/server/calculations/ | 80% |
-| src/lib/ | 70% |
-| src/components/ | 60% |
-
-### 13.3 Test Examples
-
-**Unit Test (Backend) :**
-```typescript
-// src/server/calculations/rentabilite.test.ts
-
-describe('calculerRentabilite', () => {
-  it('should calculate brute correctly', () => {
-    const result = calculerRentabilite({
-      bien: { prix_achat: 100000 },
-      exploitation: { loyer_mensuel: 600 },
-      // ...
-    });
-
-    expect(result.brute).toBeCloseTo(7.2, 1);
-  });
-});
-```
-
-**E2E Test :**
-```typescript
-// e2e/tests/simulation-complete.spec.ts
-
-test('complete simulation flow', async ({ page }) => {
-  await page.goto('/');
-
-  // Fill form
-  await page.fill('[data-testid="prix-achat"]', '150000');
-  // ...
-
-  await page.click('[data-testid="calculer"]');
-
-  // Verify results
-  await expect(page.locator('[data-testid="score-global"]')).toBeVisible();
-});
-```
+- Recharts importé dynamiquement (code splitting)
+- React Query : `staleTime` 5min pour les simulations
+- `ConfigService` : cache in-memory TTL 5min (évite les requêtes BDD répétées)
+- Filtres simulations : URL search params (navigation browser native)
 
 ---
 
-## 14. Coding Standards
+## 16. Tests
 
-### 14.1 Critical Rules
+### 16.1 Structure des tests
 
-- **Type Sharing** : Toujours definir types dans `src/types/` et importer
-- **API Calls** : Utiliser `src/lib/api.ts`, jamais `fetch` direct
-- **Env Vars** : Acces via config, jamais `process.env` direct
-- **Error Handling** : Toutes les routes API utilisent le handler standard
-- **No Any** : Pas de `any` explicite, utiliser `unknown` + type guards
-
-### 14.2 Naming Conventions
-
-| Element | Frontend | Backend | Example |
-|---------|----------|---------|---------|
-| Components | PascalCase | - | `UserProfile.tsx` |
-| Hooks | camelCase + use | - | `useAuth.ts` |
-| API Routes | - | kebab-case | `/api/user-profile` |
-| Database Tables | - | snake_case | `user_profiles` |
-| Constants | SCREAMING_SNAKE | SCREAMING_SNAKE | `MAX_DURATION` |
-
----
-
-## 15. Error Handling
-
-### 15.1 Error Format
-
-```typescript
-interface ApiError {
-  error: {
-    code: string;
-    message: string;
-    field?: string;
-    details?: Record<string, unknown>;
-  };
-}
+```
+tests/
+├── setup.ts                        # Setup global Vitest
+├── helpers/test-config.ts          # ResolvedConfig mock partagée
+├── unit/
+│   ├── api/                        # Tests routes API (calculate, simulations CRUD, simulations/[id])
+│   ├── calculations/               # 136+ tests unitaires moteur de calcul
+│   │   └── (amortissement, assurance, deficit-foncier, fiscalite, hcsf, plus-value, scoring, ...)
+│   ├── stores/calculateur.store.test.ts
+│   ├── hooks/useDownloadPdf.test.ts
+│   └── lib/                        # format, logger, rate-limit, redirect, pdf/RapportSimulation
+└── e2e/
+    ├── helpers/auth.ts             # Helper Playwright authentification
+    ├── auth/                       # login, logout, signup, protected-routes
+    ├── simulations/                # crud, filters, pdf
+    ├── calculateur/validation.spec.ts
+    ├── multi-scenarios.spec.ts
+    └── simulation-complete.spec.ts
 ```
 
-### 15.2 Error Codes
+### 16.2 Configuration
 
-| Code | HTTP | Description |
-|------|------|-------------|
-| VALIDATION_ERROR | 400 | Donnees invalides |
-| UNAUTHORIZED | 401 | Non authentifie |
-| FORBIDDEN | 403 | Acces interdit |
-| NOT_FOUND | 404 | Ressource introuvable |
-| CALCULATION_ERROR | 500 | Erreur de calcul |
-| PDF_GENERATION_ERROR | 500 | Erreur generation PDF |
-| SERVER_ERROR | 500 | Erreur interne |
+**Vitest** (`vitest.config.mts`) :
 
-### 15.3 Frontend Error Handling
+- `environment: 'node'` — adapté aux calculs purs (intentionnel)
+- `setupFiles: ['./tests/setup.ts']`
+- `testTimeout: 10000`
+- Coverage V8 : reporters text/json/html/lcov, include `src/server/**`, `src/lib/**`, `src/stores/**`, `src/hooks/**`
+- Seuils de couverture actifs : lines/functions/branches/statements = **50%**
+- Couverture mesurée : 84% stmts, 75% branches, 75% funcs, 85% lines
 
-```typescript
-// src/lib/api.ts
+**Playwright** (`playwright.config.ts`) :
 
-export class ApiError extends Error {
-  constructor(public code: string, message: string) {
-    super(message);
-  }
-}
+- `baseURL` via `PLAYWRIGHT_BASE_URL` (`.env.test`) ou `localhost:3000`
+- Multi-browser : Chromium + Firefox
+- `webServer` actif (démarre `npm run dev`)
+- Retries : 2 en CI, 0 en local
 
-// Usage dans les hooks
-const { data, error } = useQuery({
-  queryKey: ['simulations'],
-  queryFn: fetchSimulations,
-  onError: (err) => {
-    if (err instanceof ApiError) {
-      toast.error(err.message);
-    }
-  },
-});
-```
+**Commandes utiles :**
+
+| Commande                  | Usage                                 |
+| ------------------------- | ------------------------------------- |
+| `npm run test`            | Tous les tests unitaires              |
+| `npm run test:coverage`   | Coverage avec rapport lcov            |
+| `npm run test:regression` | Tests de régression calcul uniquement |
+| `npm run test:e2e`        | Tests E2E Playwright                  |
 
 ---
 
-## 16. Monitoring
+## 17. Notes Techniques
 
-### 16.1 Stack
-
-| Aspect | Tool |
-|--------|------|
-| Frontend Perf | Vercel Analytics |
-| API Perf | Vercel Functions logs |
-| Errors | Console + Sentry (optionnel) |
-| Uptime | Vercel Status |
-
-### 16.2 Key Metrics
-
-**Frontend :**
-- Core Web Vitals (LCP, FID, CLS)
-- JS errors rate
-- API response times
-
-**Backend :**
-- Request rate
-- Error rate (< 0.1%)
-- P95 response time
+| Note                | Détail                                                                              |
+| ------------------- | ----------------------------------------------------------------------------------- |
+| `for...of` sur Map  | Non supporté selon target `tsconfig.json` → utiliser `.forEach()`                   |
+| `score_global`      | Type `INTEGER` en BDD → toujours `Math.round()` avant insertion                     |
+| Charts Recharts     | Dynamic import dans Dashboard (code splitting)                                      |
+| Filtres simulations | URL search params (shareable, back/forward nav)                                     |
+| Rate limiting       | In-memory → approximatif sur Vercel serverless (plusieurs instances)                |
+| ConfigService       | S'invalide après modification admin → calculs suivants utilisent la nouvelle valeur |
+| Better Auth tables  | Connexion pg directe (`DATABASE_URL`) — pas via Supabase JS                         |
 
 ---
 
-## 17. Prochaines Etapes
+## 18. Évolutions Planifiées
 
-### Phase 2 (En cours)
+### Audit Conformité Simulateur — DONE (2026-02-18)
 
-- [x] Documentation architecture fullstack
-- [ ] TECH-010 a TECH-012 : Dette technique
-- [ ] TECH-013 a TECH-016 : Generation PDF
-- [ ] TECH-017 a TECH-021 : Integration Supabase
-- [ ] TECH-022 a TECH-023 : Tests
+| Item                                         | Statut |
+| -------------------------------------------- | ------ |
+| NC-01 PS LMNP 18,6% (LFSS 2026)              | ✅     |
+| NC-02 Surtaxe PV 200k-250k                   | ✅     |
+| REC-01 Frais notaire par tranches            | ✅     |
+| REC-02 HCSF capacité résiduelle configurable | ✅     |
+| REC-03 Hypothèses inflation affichées        | ✅     |
+| REC-04 VEFA HCSF 27 ans                      | ✅     |
+| REC-05 Alerte TRI apport=0                   | ✅     |
 
-### V1 (Future)
+### Audit Technique — Phases restantes
 
-- [ ] Supabase Auth (comptes utilisateurs)
-- [ ] Partage de simulations
-- [ ] Historique cloud
-- [ ] Notifications email
+| Phase                    | Statut               | Contenu                                                                                                                                                                        |
+| ------------------------ | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Phase 4 — Tests & DevOps | ✅ DONE (2026-02-20) | CI/CD 3 jobs optimisé, Husky+lint-staged, tests unitaires API/store/hooks/lib, E2E auth+CRUD+filtres+PDF, multi-browser, config Vitest V8. Couverture 72%+, seuils 50% actifs. |
+| Phase 5 — Scalabilité    | TODO                 | Rate limiting distribué (Redis/KV), monitoring Sentry, cache Edge, pagination curseur                                                                                          |
 
 ---
 
-*Document genere par Winston (Architecte) - Mode YOLO*
+_Document généré par Winston (Architecte) — Version 4.0_
