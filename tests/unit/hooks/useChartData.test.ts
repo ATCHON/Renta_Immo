@@ -79,7 +79,7 @@ describe('useChartData', () => {
       expect(cashflowData[2].cashflowCumule).toBe(2000);
     });
 
-    it("utiliseles années basées sur l'année courante", () => {
+    it("utilise les années basées sur l'année courante", () => {
       const { cashflowData } = useChartData(mockProjections as never[]);
       const currentYear = new Date().getFullYear();
       expect(cashflowData[0].name).toBe(currentYear.toString());
@@ -116,6 +116,42 @@ describe('useChartData', () => {
       const { breakEvenYear } = useChartData(mockProjections as never[]);
       const currentYear = new Date().getFullYear();
       expect(breakEvenYear).toBe(currentYear);
+    });
+
+    it("retourne l'année correcte quand les premières années sont négatives puis deviennent positives", () => {
+      const mixedProjections = [
+        {
+          annee: 1,
+          cashflow: -1000,
+          cashflowNetImpot: -1000,
+          valeurBien: 150000,
+          capitalRestant: 95000,
+          patrimoineNet: 55000,
+          capitalRembourse: 5000,
+        },
+        {
+          annee: 2,
+          cashflow: -500,
+          cashflowNetImpot: -500,
+          valeurBien: 152000,
+          capitalRestant: 90000,
+          patrimoineNet: 62000,
+          capitalRembourse: 5000,
+        },
+        {
+          annee: 3,
+          cashflow: 2000,
+          cashflowNetImpot: 2000,
+          valeurBien: 155000,
+          capitalRestant: 85000,
+          patrimoineNet: 70000,
+          capitalRembourse: 5000,
+        },
+      ];
+      const { breakEvenYear } = useChartData(mixedProjections as never[]);
+      const currentYear = new Date().getFullYear();
+      // cashflowNetImpot becomes >= 0 at annee 3 (after being < 0 at annee 2)
+      expect(breakEvenYear).toBe(currentYear + 2);
     });
 
     it('retourne null si jamais positif', () => {

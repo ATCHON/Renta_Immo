@@ -30,19 +30,17 @@ L'application repose sur des fondations solides : TypeScript strict, validation 
 
 ### Bilan Global
 
-| Axe             | Score   | Apres Phase 1   | Apres Phase 2   | Apres Phase 3   | Commentaire     |
-| --------------- | ------- | --------------- | --------------- | --------------- | --------------- | ------------------------------------------------------------------------------------------------------- |
-| Axe             | Score   | Apres Phase 1   | Apres Phase 2   | Apres Phase 3   | Apres Phase 4   | Commentaire                                                                                             |
-| -----           | ------- | --------------- | --------------- | --------------- | --------------- | -------------                                                                                           |
-| Securite        | 4/10    | **7/10**        | 7/10            | **9/10**        | 9/10            | ~~Failles critiques~~ ~~Rate limiting, headers~~ Corriges.                                              |
-| Qualite de code | 6/10    | 6/10            | **8/10**        | 8/10            | 8/10            | ~~`any` excessifs, duplication, ESLint minimal~~ Corriges.                                              |
-| Architecture    | 7/10    | 7/10            | **8/10**        | **9/10**        | 9/10            | ~~Error Boundaries, Suspense, loading.tsx~~ Corriges.                                                   |
-| Performance     | 5/10    | 5/10            | 5/10            | **7/10**        | 7/10            | ~~Pas de memo, pas de code-splitting~~ Corriges. Reste: workers pour calculs lourds                     |
-| Scalabilite     | 4/10    | 4/10            | 4/10            | **6/10**        | 6/10            | ~~Pas de rate limiting, SELECT \*~~ Corriges. Reste: pagination curseur, cache HTTP                     |
-| Tests           | 3/10    | 3/10            | 3/10            | 3/10            | **9/10**        | ~~Couverture < 30%, E2E minimal~~ Corriges. Couverture 84%+, seuils 50% actifs, provider V8, 490 tests. |
-| DevOps          | 3/10    | 3/10            | 3/10            | 3/10            | **8/10**        | ~~CI/CD incomplet, pas de pre-commit hooks~~ Corriges. CI 3 jobs optimisé, Husky, Dependabot            |
-| Accessibilite   | 7/10    | 7/10            | 7/10            | 7/10            | 7/10            | Bonnes bases (labels, aria, skip-to-content)                                                            |
-| Documentation   | 4/10    | 4/10            | 4/10            | 4/10            | **6/10**        | ~~README obsolete~~ Corrige. Architecture v4.0 mise a jour.                                             |
+| Axe             | Score | Apres Phase 1 | Apres Phase 2 | Apres Phase 3 | Apres Phase 4 | Commentaire                                                                         |
+| --------------- | ----- | ------------- | ------------- | ------------- | ------------- | ----------------------------------------------------------------------------------- |
+| Securite        | 4/10  | **7/10**      | 7/10          | **9/10**      | 9/10          | ~~Failles critiques~~ ~~Rate limiting, headers~~ Corriges.                          |
+| Qualite de code | 6/10  | 6/10          | **8/10**      | 8/10          | 8/10          | ~~`any` excessifs, duplication, ESLint minimal~~ Corriges.                          |
+| Architecture    | 7/10  | 7/10          | **8/10**      | **9/10**      | 9/10          | ~~Error Boundaries, Suspense, loading.tsx~~ Corriges.                               |
+| Performance     | 5/10  | 5/10          | 5/10          | **7/10**      | 7/10          | ~~Pas de memo, pas de code-splitting~~ Corriges. Reste: workers pour calculs lourds |
+| Scalabilite     | 4/10  | 4/10          | 4/10          | **6/10**      | 6/10          | ~~Pas de rate limiting, SELECT \*~~ Corriges. Reste: pagination curseur, cache HTTP |
+| Tests           | 3/10  | 3/10          | 3/10          | 3/10          | **9/10**      | ~~Couverture < 30%, E2E minimal~~ Corriges. Couverture 84%+, seuils 50%, 490 tests. |
+| DevOps          | 3/10  | 3/10          | 3/10          | 3/10          | **8/10**      | ~~CI/CD incomplet, pas de pre-commit hooks~~ Corriges. CI 3 jobs, Husky, Dependabot |
+| Accessibilite   | 7/10  | 7/10          | 7/10          | 7/10          | 7/10          | Bonnes bases (labels, aria, skip-to-content)                                        |
+| Documentation   | 4/10  | 4/10          | 4/10          | 4/10          | **6/10**      | ~~README obsolete~~ Corrige. Architecture v4.0 mise a jour.                         |
 
 ### Synthese des Problemes
 
