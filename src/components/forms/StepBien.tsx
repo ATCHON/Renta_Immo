@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input, CurrencyInput, Select, Alert } from '@/components/ui';
+import { Input, CurrencyInput, Select, Alert, LabelTooltip } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { AlertTriangle } from 'lucide-react';
 import { bienSchema, type BienFormDataInput, type BienFormData } from '@/lib/validators';
@@ -152,7 +152,11 @@ export function StepBien({ onNext }: StepBienProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input
-          label="Part terrain (%, pour amortissement)"
+          label={
+            <LabelTooltip content="Seule la partie bâti est amortissable en LMNP/SCI IS. Le terrain (en général 15 à 20% du prix) ne s'amortit pas.">
+              Part terrain (%, pour amortissement)
+            </LabelTooltip>
+          }
           type="number"
           placeholder="10"
           rightAddon="%"
@@ -190,7 +194,9 @@ export function StepBien({ onNext }: StepBienProps) {
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-medium text-gray-900 group-hover:text-brand-700 transition-colors">
-              Rénovation énergétique éligible
+              <LabelTooltip content="Travaux permettant de sortir le bien des classes DPE E, F ou G. Ils ouvrent droit à un plafond de déficit foncier imputable sur le revenu global majoré (21 400€/an).">
+                Rénovation énergétique éligible
+              </LabelTooltip>
             </span>
             <span className="text-xs text-gray-500 mt-1">
               Cochez cette case si les travaux permettent de passer d&apos;une classe E/F/G à

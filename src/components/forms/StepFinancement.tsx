@@ -2,7 +2,8 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CurrencyInput, PercentInput, Input, Select } from '@/components/ui';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { CurrencyInput, PercentInput, Input, Select, LabelTooltip } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import {
   financementSchema,
@@ -135,7 +136,11 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
         />
 
         <Select
-          label="Mode d'assurance"
+          label={
+            <LabelTooltip content="Détermine la base de calcul des primes. CRD (Capital Restant Dû) : la prime baisse avec le temps; Capital Initial : la prime reste fixe sur toute la durée du prêt.">
+              Mode d&apos;assurance
+            </LabelTooltip>
+          }
           {...register('mode_assurance')}
           options={[
             { value: 'capital_initial', label: 'Capital initial (fixe)' },
@@ -173,7 +178,11 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
       <div className="border border-sand rounded-xl p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold text-charcoal">Pondération loyers HCSF</p>
+            <p className="text-sm font-semibold text-charcoal flex items-center gap-1">
+              <LabelTooltip content="Règle du Haut Conseil de Stabilité Financière. Les banques ne prennent en compte qu'une fraction (généralement 70%) de vos revenus locatifs bruts pour calculer votre taux d'endettement maximal (35%).">
+                Pondération loyers HCSF
+              </LabelTooltip>
+            </p>
             <p className="text-xs text-pebble mt-0.5">
               La banque peut prendre en compte 70 à 80% des loyers selon les établissements. Avec
               une GLI (Garantie Loyers Impayés), certaines banques appliquent 80%.

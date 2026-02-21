@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input, Select, PercentInput, CurrencyInput } from '@/components/ui';
+import { Input, Select, PercentInput, CurrencyInput, LabelTooltip } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { optionsSchema, type OptionsFormData } from '@/lib/validators';
 import { useCalculateurStore } from '@/stores/calculateur.store';
@@ -130,7 +130,11 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-surface p-4 rounded-xl border border-sand">
           <PercentInput
-            label="Évolution annuelle loyers"
+            label={
+              <LabelTooltip content="Indice de Référence des Loyers. Il plafonne les augmentations annuelles de loyer (autour de 2 à 3% historiquement). Depuis 2023, les passoires thermiques (F et G) ne peuvent plus appliquer cette hausse.">
+                Évolution annuelle loyers
+              </LabelTooltip>
+            }
             hint="Indice IRL (historique 2%)"
             error={errors.taux_evolution_loyer?.message}
             {...register('taux_evolution_loyer', { valueAsNumber: true })}

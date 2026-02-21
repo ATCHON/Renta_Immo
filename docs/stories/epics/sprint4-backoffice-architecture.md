@@ -43,8 +43,7 @@ export interface SessionWithRole {
  * Retourne { session } ou { error: NextResponse } selon le cas.
  */
 export async function requireAdmin(): Promise<
-  { session: SessionWithRole; error: null } |
-  { session: null; error: NextResponse }
+  { session: SessionWithRole; error: null } | { session: null; error: NextResponse }
 > {
   const session = await auth.api.getSession({ headers: await headers() });
 
@@ -70,7 +69,10 @@ export async function requireAdmin(): Promise<
     return {
       session: null,
       error: NextResponse.json(
-        { success: false, error: { code: 'FORBIDDEN', message: 'Accès réservé aux administrateurs' } },
+        {
+          success: false,
+          error: { code: 'FORBIDDEN', message: 'Accès réservé aux administrateurs' },
+        },
         { status: 403 }
       ),
     };
@@ -101,6 +103,7 @@ export async function GET() {
 **Décision** : Option B.
 
 **Justification** :
+
 - L'Option A (SQL manuel) est trop fragile en production — risque d'erreur humaine, pas traçable.
 - L'Option C (auto-promotion via env) est un vecteur de sécurité : si `ADMIN_EMAIL` fuite ou est mal configurée, n'importe qui peut devenir admin au premier login.
 - L'Option B suit le pattern existant (`scripts/test-auth.mjs`), est explicite et auditée.
@@ -110,7 +113,10 @@ export async function GET() {
 import postgres from 'postgres';
 
 const email = process.argv[2];
-if (!email) { console.error('Usage: node scripts/promote-admin.mjs <email>'); process.exit(1); }
+if (!email) {
+  console.error('Usage: node scripts/promote-admin.mjs <email>');
+  process.exit(1);
+}
 
 const sql = postgres(process.env.DATABASE_URL);
 const result = await sql`
@@ -118,7 +124,10 @@ const result = await sql`
   WHERE email = ${email}
   RETURNING id, email, role
 `;
-if (result.length === 0) { console.error(`Utilisateur non trouvé : ${email}`); process.exit(1); }
+if (result.length === 0) {
+  console.error(`Utilisateur non trouvé : ${email}`);
+  process.exit(1);
+}
 console.log(`✅ Promu admin :`, result[0]);
 await sql.end();
 ```
@@ -131,16 +140,16 @@ Commande : `node scripts/promote-admin.mjs admin@example.com`
 
 **Décision** : La proposition est validée. Ajustements :
 
-| Bloc | Constantes migrées | Motif d'exclusion des autres |
-|------|--------------------|------------------------------|
-| A — Fiscalité | `TAUX_PS_FONCIER`, `TAUX_PS_REVENUS_BIC_LMNP`, `MICRO_FONCIER.*`, `MICRO_BIC.*.ABATTEMENT`, `MICRO_BIC.*.PLAFOND`, `IS.*`, `FLAT_TAX` | `BAREME_EMOLUMENTS` : tableau barémique complexe |
-| B — Foncier | `DEFICIT_FONCIER.PLAFOND_IMPUTATION`, `DEFICIT_FONCIER.PLAFOND_ENERGIE`, `DEFICIT_FONCIER.DUREE_REPORT` | — |
-| C — Plus-value | `PLUS_VALUE.TAUX_IR`, `PLUS_VALUE.TAUX_PS`, `PLUS_VALUE.FORFAIT_FRAIS_ACQUISITION`, `PLUS_VALUE.FORFAIT_TRAVAUX_PV`, `PLUS_VALUE.SEUIL_SURTAXE` | `PLUS_VALUE.BAREME_SURTAXE` : tableau ; `DATE_LOI_LE_MEUR` : date législative figée |
-| D — HCSF | `HCSF.TAUX_MAX`, `HCSF.DUREE_MAX_ANNEES`, `HCSF.PONDERATION_LOCATIFS` | `HCSF.REVENUS_ESTIMES` : map TMI→revenu, complexité d'édition UI |
-| E — DPE | `PROJECTION.DECOTE_DPE.F_G`, `PROJECTION.DECOTE_DPE.E` | — |
-| F — Scoring/LMP | `LMP.SEUIL_ALERTE`, `LMP.SEUIL_LMP`, `RESTE_A_VIVRE.SEUIL_MIN`, `RESTE_A_VIVRE.SEUIL_CONFORT` | `SCORING_PROFIL` : objet imbriqué avec sémantique métier complexe |
-| G — Charges | `DEFAULTS.*` (7 valeurs), `CFE.SEUIL_EXONERATION`, `FRAIS_REVENTE.*` | — |
-| H — Projections | `PROJECTION.INFLATION_LOYER`, `PROJECTION.INFLATION_CHARGES`, `PROJECTION.REVALORISATION_BIEN` | `PROJECTION.HORIZONS` : tableau |
+| Bloc            | Constantes migrées                                                                                                                              | Motif d'exclusion des autres                                                        |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| A — Fiscalité   | `TAUX_PS_FONCIER`, `TAUX_PS_REVENUS_BIC_LMNP`, `MICRO_FONCIER.*`, `MICRO_BIC.*.ABATTEMENT`, `MICRO_BIC.*.PLAFOND`, `IS.*`, `FLAT_TAX`           | `BAREME_EMOLUMENTS` : tableau barémique complexe                                    |
+| B — Foncier     | `DEFICIT_FONCIER.PLAFOND_IMPUTATION`, `DEFICIT_FONCIER.PLAFOND_ENERGIE`, `DEFICIT_FONCIER.DUREE_REPORT`                                         | —                                                                                   |
+| C — Plus-value  | `PLUS_VALUE.TAUX_IR`, `PLUS_VALUE.TAUX_PS`, `PLUS_VALUE.FORFAIT_FRAIS_ACQUISITION`, `PLUS_VALUE.FORFAIT_TRAVAUX_PV`, `PLUS_VALUE.SEUIL_SURTAXE` | `PLUS_VALUE.BAREME_SURTAXE` : tableau ; `DATE_LOI_LE_MEUR` : date législative figée |
+| D — HCSF        | `HCSF.TAUX_MAX`, `HCSF.DUREE_MAX_ANNEES`, `HCSF.PONDERATION_LOCATIFS`                                                                           | `HCSF.REVENUS_ESTIMES` : map TMI→revenu, complexité d'édition UI                    |
+| E — DPE         | `PROJECTION.DECOTE_DPE.F_G`, `PROJECTION.DECOTE_DPE.E`                                                                                          | —                                                                                   |
+| F — Scoring/LMP | `LMP.SEUIL_ALERTE`, `LMP.SEUIL_LMP`, `RESTE_A_VIVRE.SEUIL_MIN`, `RESTE_A_VIVRE.SEUIL_CONFORT`                                                   | `SCORING_PROFIL` : objet imbriqué avec sémantique métier complexe                   |
+| G — Charges     | `DEFAULTS.*` (7 valeurs), `CFE.SEUIL_EXONERATION`, `FRAIS_REVENTE.*`                                                                            | —                                                                                   |
+| H — Projections | `PROJECTION.INFLATION_LOYER`, `PROJECTION.INFLATION_CHARGES`, `PROJECTION.REVALORISATION_BIEN`                                                  | `PROJECTION.HORIZONS` : tableau                                                     |
 
 **Total : ~40 constantes scalaires migrées** sur ~50 existantes.
 
@@ -158,11 +167,41 @@ Commande : `node scripts/promote-admin.mjs admin@example.com`
 // src/server/admin/dry-run-fixtures.ts
 // 5 profils représentatifs couvrant les régimes fiscaux principaux
 export const DRY_RUN_FIXTURES = [
-  { id: 'lmnp-classique', label: 'LMNP Classique — Studio Paris', formData: { /* ... */ } },
-  { id: 'nu-micro-foncier', label: 'Nu Micro-Foncier — T2 Lyon', formData: { /* ... */ } },
-  { id: 'lmnp-reel-is', label: 'SCI IS — Immeuble de rapport', formData: { /* ... */ } },
-  { id: 'colocation', label: 'Colocation LMNP meublé', formData: { /* ... */ } },
-  { id: 'tourisme-classe', label: 'Meublé tourisme classé — Gîte', formData: { /* ... */ } },
+  {
+    id: 'lmnp-classique',
+    label: 'LMNP Classique — Studio Paris',
+    formData: {
+      /* ... */
+    },
+  },
+  {
+    id: 'nu-micro-foncier',
+    label: 'Nu Micro-Foncier — T2 Lyon',
+    formData: {
+      /* ... */
+    },
+  },
+  {
+    id: 'lmnp-reel-is',
+    label: 'SCI IS — Immeuble de rapport',
+    formData: {
+      /* ... */
+    },
+  },
+  {
+    id: 'colocation',
+    label: 'Colocation LMNP meublé',
+    formData: {
+      /* ... */
+    },
+  },
+  {
+    id: 'tourisme-classe',
+    label: 'Meublé tourisme classé — Gîte',
+    formData: {
+      /* ... */
+    },
+  },
 ] as const;
 ```
 
@@ -323,9 +362,14 @@ src/server/config/
 // src/server/config/config-types.ts
 
 export type ConfigBloc =
-  | 'fiscalite' | 'foncier' | 'plus_value'
-  | 'hcsf' | 'dpe' | 'lmp_scoring'
-  | 'charges' | 'projections';
+  | 'fiscalite'
+  | 'foncier'
+  | 'plus_value'
+  | 'hcsf'
+  | 'dpe'
+  | 'lmp_scoring'
+  | 'charges'
+  | 'projections';
 
 export interface ConfigParam {
   id: string;
@@ -468,7 +512,7 @@ export class ConfigService {
 
   private mapToResolvedConfig(year: number, params: ConfigParam[]): ResolvedConfig {
     const get = (cle: string): number => {
-      const p = params.find(p => p.cle === cle);
+      const p = params.find((p) => p.cle === cle);
       if (!p) throw new Error(`Paramètre manquant en BDD : ${cle} (année ${year})`);
       return p.valeur;
     };
@@ -714,7 +758,7 @@ export async function getExpirationAlerts(): Promise<ParamAlert[]> {
     .not('date_expiration', 'is', null);
 
   return (data ?? [])
-    .map(p => {
+    .map((p) => {
       const exp = new Date(p.date_expiration!);
       const days = Math.ceil((exp.getTime() - today.getTime()) / 86_400_000);
       return {
@@ -723,7 +767,7 @@ export async function getExpirationAlerts(): Promise<ParamAlert[]> {
         severity: days <= 30 ? 'critical' : days <= 90 ? 'warning' : 'info',
       };
     })
-    .filter(a => a.daysUntilExpiration <= 180) // Afficher si < 6 mois
+    .filter((a) => a.daysUntilExpiration <= 180) // Afficher si < 6 mois
     .sort((a, b) => a.daysUntilExpiration - b.daysUntilExpiration);
 }
 ```
@@ -757,7 +801,7 @@ export async function calculerResultats(
   formData: FormData,
   config?: ResolvedConfig
 ): Promise<CalculResultats> {
-  const cfg = config ?? await configService.getConfig();
+  const cfg = config ?? (await configService.getConfig());
   // Remplacer les CONSTANTS par cfg.xxx dans le moteur
 }
 ```
@@ -828,18 +872,18 @@ V2-S24 (Dry Run)
 
 ## 12. Checklist de robustesse
 
-| Critère | Solution |
-|---------|----------|
-| **Sécurité API** | `requireAdmin()` sur toutes les routes `/api/admin/*` |
-| **Sécurité UI** | `AdminGuard` + middleware cookie check |
-| **Validation** | Zod sur tous les inputs API |
-| **Audit trail** | Table `config_params_audit` — immutable |
-| **Cohérence cache** | `configService.invalidateCache(year)` après chaque PATCH |
-| **Fallback calcul** | `CONSTANTS` hardcodées si DB inaccessible |
-| **Tests** | Tests unitaires ConfigService + tests d'intégration dry run |
-| **Migration SQL** | Idempotentes (`IF NOT EXISTS`, `IF NOT EXISTS`) |
-| **Rate limiting** | `requireAdmin()` peut incorporer un rate limit 60 req/min |
+| Critère             | Solution                                                    |
+| ------------------- | ----------------------------------------------------------- |
+| **Sécurité API**    | `requireAdmin()` sur toutes les routes `/api/admin/*`       |
+| **Sécurité UI**     | `AdminGuard` + middleware cookie check                      |
+| **Validation**      | Zod sur tous les inputs API                                 |
+| **Audit trail**     | Table `config_params_audit` — immutable                     |
+| **Cohérence cache** | `configService.invalidateCache(year)` après chaque PATCH    |
+| **Fallback calcul** | `CONSTANTS` hardcodées si DB inaccessible                   |
+| **Tests**           | Tests unitaires ConfigService + tests d'intégration dry run |
+| **Migration SQL**   | Idempotentes (`IF NOT EXISTS`, `IF NOT EXISTS`)             |
+| **Rate limiting**   | `requireAdmin()` peut incorporer un rate limit 60 req/min   |
 
 ---
 
-*Winston — Architect 🏗️ — 2026-02-16*
+_Winston — Architect 🏗️ — 2026-02-16_

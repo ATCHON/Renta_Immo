@@ -10,3 +10,4 @@ export { ProgressBar } from './ProgressBar';
 export { Alert } from './Alert';
 export { Spinner } from './Spinner';
 export { Collapsible } from './Collapsible';
+export { LabelTooltip } from './Tooltip';
