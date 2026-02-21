@@ -41,10 +41,11 @@ next-env.d.ts
 
 # Agent 
 .bmad-core
-.claude
+.claude/
 _bmad-output
 _bmad
 .agent
+.agents
 .bmad-core
 .gemini/
 gha-creds-*.json
@@ -61,3 +62,7 @@ coverage/
 
 # Supabase Docker
 supabase-docker/
+
+# git
+.gitignore
+.gitattributes
