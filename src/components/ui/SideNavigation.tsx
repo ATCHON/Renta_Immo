@@ -42,7 +42,7 @@ export function SideNavigation({
     : items.find((i) => i.status === 'current') || items[0];
 
   const renderDesktopMenu = () => (
-    <div className="hidden lg:block sticky top-8 w-64 shrink-0">
+    <div className="hidden lg:block w-64 shrink-0 max-h-[calc(100vh-4rem)] overflow-y-auto pb-4 custom-scrollbar">
       <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-4">
         {title}
       </h3>
@@ -53,26 +53,29 @@ export function SideNavigation({
           const isUpcoming = item.status === 'upcoming';
 
           return (
-            <div key={item.id} className="relative z-10 w-full pl-8 py-2">
+            <div key={item.id} className="relative z-10 w-full pl-10 py-3">
               {/* Point indicateur */}
               <div
                 className={cn(
                   'absolute left-[13px] top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full transition-all duration-300',
-                  isActive && 'bg-forest ring-4 ring-forest/20 w-3 h-3 left-3',
+                  isActive && 'bg-forest ring-4 ring-forest/20 w-3.5 h-3.5 left-3',
                   isCompleted && 'bg-forest/60',
                   isUpcoming && 'bg-sand',
                   !item.status &&
                     (activeId === item.id
-                      ? 'bg-forest ring-4 ring-forest/20 w-3 h-3 left-3'
+                      ? 'bg-forest ring-4 ring-forest/20 w-3.5 h-3.5 left-3'
                       : 'bg-sand')
                 )}
               />
+              {isActive && (
+                <div className="absolute inset-y-1 left-2 right-2 bg-forest/5 rounded-lg -z-10" />
+              )}
 
               <button
                 onClick={() => handleItemClick(item.id, item.onClick)}
                 disabled={isUpcoming}
                 className={cn(
-                  'w-full text-left text-sm font-medium transition-colors outline-none',
+                  'w-full text-left text-base font-medium transition-colors outline-none',
                   isActive ? 'text-forest font-bold' : 'text-pebble hover:text-charcoal',
                   isUpcoming && 'opacity-50 cursor-not-allowed hover:text-pebble'
                 )}

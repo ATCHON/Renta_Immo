@@ -204,7 +204,7 @@ export function Dashboard() {
         items={navItemsWithScroll}
         activeId={activeSection}
         title="Analyse de la simulation"
-        className="lg:w-64 shrink-0 w-full z-30"
+        className="lg:w-64 shrink-0 w-full z-30 lg:sticky lg:top-8 self-start"
       />
 
       {/* Contenu principal */}
