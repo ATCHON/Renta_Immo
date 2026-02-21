@@ -11,3 +11,4 @@ export { Alert } from './Alert';
 export { Spinner } from './Spinner';
 export { Collapsible } from './Collapsible';
 export { LabelTooltip } from './Tooltip';
+export { SideNavigation, type SideNavigationItem } from './SideNavigation';
