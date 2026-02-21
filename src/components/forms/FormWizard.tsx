@@ -3,7 +3,7 @@
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Card } from '@/components/ui';
+import { Card, SideNavigation, type SideNavigationItem } from '@/components/ui';
 import { ProgressStepper } from './ProgressStepper';
 import { StepBien } from './StepBien';
 import { StepFinancement } from './StepFinancement';
@@ -82,39 +82,71 @@ export function FormWizard() {
     }
   };
 
+  // Construire les items pour le SideNavigation
+  const sideNavItems: SideNavigationItem[] = visibleSteps.map((label, index) => {
+    let itemStatus: 'current' | 'completed' | 'upcoming' = 'upcoming';
+    if (index === displayStep) itemStatus = 'current';
+    else if (index < displayStep || status === 'success') itemStatus = 'completed';
+
+    // Trouver l'index réel pour le setStep
+    const actualIndex = structure.type === 'nom_propre' && index >= 4 ? index + 1 : index;
+
+    return {
+      id: `step-${index}`,
+      label,
+      status: itemStatus,
+      onClick:
+        itemStatus !== 'upcoming' || status === 'success' ? () => setStep(actualIndex) : undefined,
+    };
+  });
+
   if (!hasHydrated) return null;
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="max-w-4xl mx-auto mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex-1 overflow-x-auto">
           <ScenarioTabs />
         </div>
       </div>
 
-      {/* Stepper de progression */}
-      <ProgressStepper
-        currentStep={displayStep + 1}
-        totalSteps={visibleSteps.length}
-        onStepClick={(step) => {
-          const actualIndex = structure.type === 'nom_propre' && step > 4 ? step : step - 1;
-          setStep(actualIndex);
-        }}
-        isAllEnabled={status === 'success'}
-      />
+      {/* Grid Layout pour navigation latérale et formulaire */}
+      <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-8 items-start">
+        {/* Navigation latérale sur bureau */}
+        <SideNavigation
+          items={sideNavItems}
+          title="Étapes"
+          className="hidden lg:block mt-8 sticky top-8"
+        />
 
-      {/* Carte du formulaire */}
-      <Card className="max-w-2xl mx-auto">
-        {/* Message d'erreur */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-700 text-sm">{error}</p>
+        <div className="w-full">
+          {/* Stepper de progression (visible sur mobile/tablette en haut, gardé pour la progression) */}
+          <div className="mb-8">
+            <ProgressStepper
+              currentStep={displayStep + 1}
+              totalSteps={visibleSteps.length}
+              onStepClick={(step) => {
+                const actualIndex = structure.type === 'nom_propre' && step > 4 ? step : step - 1;
+                setStep(actualIndex);
+              }}
+              isAllEnabled={status === 'success'}
+            />
           </div>
-        )}
 
-        {/* Contenu de l'étape */}
-        {renderStep()}
-      </Card>
+          {/* Carte du formulaire */}
+          <Card className="w-full">
+            {/* Message d'erreur */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+            )}
+
+            {/* Contenu de l'étape */}
+            {renderStep()}
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

@@ -9,7 +9,7 @@ Ce document liste les améliorations à apporter à l'interface de l'application
 - **Problème / Retour utilisateur :** Certains champs techniques du formulaire sont difficiles à comprendre pour les investisseurs débutants.
 - **Solution proposée :** Ajouter une icône ℹ️ à côté du titre des champs complexes. Au survol, une infobulle affichera une explication concise du champ, sa définition détaillée et les règles métiers associées tirées de la page "En savoir plus".
 - **Composants impactés :** Formulaires de saisie du calculateur.
-- **Statut :** En cours de planification
+- **Statut :** **Terminé**
 - **Détails des champs à traiter :**
   - **Part terrain (%) :** Seule la partie bâti est amortissable en LMNP/SCI IS. Le terrain (en général 15 à 20% du prix) ne s'amortit pas.
   - **Rénovation énergétique éligible :** Travaux permettant de sortir le bien des classes DPE E, F ou G. Ils ouvrent droit à un plafond de déficit foncier imputable sur le revenu global majoré (21 400€/an).
@@ -20,3 +20,24 @@ Ce document liste les améliorations à apporter à l'interface de l'application
   - **Mode d'assurance :** Détermine la base de calcul des primes. **CRD** (Capital Restant Dû) : la prime baisse avec le temps; **Capital Initial** : la prime reste fixe sur toute la durée du prêt.
   - **CFE Estimée :** Cotisation Foncière des Entreprises. Due en LMNP/SCI. Exonérée la 1ère année. Si vos recettes annuelles sont inférieures à 5 000 €, vous en êtes exonéré.
   - **Type de location :** En SCI à l'IS, ce choix n'impacte pas la fiscalité (l'amortissement et les règles de l'IS priment).
+
+### 2. Sauvegarde de simulation et redirection post-authentification
+
+- **Problème / Retour utilisateur :** Lorsqu'un utilisateur non connecté tentait de sauvegarder une simulation, il était redirigé vers la page de connexion/inscription mais perdait les données de sa simulation en cours. De plus, après une sauvegarde réussie, il manquait un retour clair pour l'utilisateur.
+- **Solution apportée :**
+  - **Persistance :** Ajout du middleware `persist` (Zustand) sur le store du calculateur pour sauvegarder temporairement les données dans le `localStorage` en attendant la connexion.
+  - **Redirection UX :** Redirection automatique de l'utilisateur vers la page "Mes Simulations" (`/simulations`) après une sauvegarde réussie afin de lui confirmer visuellement l'action.
+  - **Sécurité :** Création d'un utilitaire sécurisé (`getValidatedRedirect`) pour valider les paramètres de redirection (`?redirect=...`) et prévenir les vulnérabilités de type "Open Redirect".
+- **Composants impactés :** `calculateur.store.ts`, `SaveSimulationModal.tsx`, pages d'authentification (`login`, `signup`).
+- **Statut :** **Terminé** (PR #17)
+
+### 3. Menu de Navigation Latéral
+
+- **Problème / Retour utilisateur :** Le formulaire et l'écran des résultats étaient trop linéaires. Sur de grands écrans, beaucoup d'espace est perdu, et les utilisateurs manquent de repères sur leur progression globale ou sur ce que contient la page de résultats.
+- **Solution apportée :**
+  - **Nouveau Composant UI :** Introduction d'`un SideNavigation` générique.
+  - **Côté Formulaire :** Affichage d'un sommaire listant les étapes, avec grisement des étapes non encore atteintes.
+  - **Côté Résultats :** Menu listant les principaux blocs de résultats cliquables faisant office de sommaire de page avec défilement fluide.
+  - **Responsive :** Optimisé pour basculer sur des menus défilants (ou se masquer) sur mobile.
+- **Composants impactés :** `SideNavigation.tsx`, `FormWizard.tsx`, `Dashboard.tsx`.
+- **Statut :** **Terminé**
