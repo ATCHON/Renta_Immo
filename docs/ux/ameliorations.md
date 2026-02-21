@@ -38,6 +38,7 @@ Ce document liste les améliorations à apporter à l'interface de l'application
   - **Nouveau Composant UI :** Introduction d'`un SideNavigation` générique.
   - **Côté Formulaire :** Affichage d'un sommaire listant les étapes, avec grisement des étapes non encore atteintes.
   - **Côté Résultats :** Menu listant les principaux blocs de résultats cliquables faisant office de sommaire de page avec défilement fluide.
-  - **Responsive :** Optimisé pour basculer sur des menus défilants (ou se masquer) sur mobile.
+  - **Responsive & Sticky :** Optimisé pour basculer sur des menus défilants sur mobile. Sur desktop, une position "sticky" robuste a été implémentée avec une gestion intelligente du débordement (scroll interne si le menu est plus haut que l'écran) pour garantir qu'aucune option ne disparaisse, même sur petit écran ou lors d'un défilement rapide.
+- **Raffinements visuels :** Amélioration des contrastes, augmentation de la taille des polices et ajout d'indicateurs visuels premium (effet de surbrillance sur l'étape active) pour une navigation plus lisible.
 - **Composants impactés :** `SideNavigation.tsx`, `FormWizard.tsx`, `Dashboard.tsx`.
-- **Statut :** **Terminé**
+- **Statut :** **Terminé** (Février 2026)
