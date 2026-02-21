@@ -134,7 +134,10 @@
       "Bash(gh run list:*)",
       "Bash(\"C:/Program Files/GitHub CLI/gh.exe\" run list --limit 5)",
       "Bash(winget show:*)",
-      "Bash(npx husky init:*)"
+      "Bash(npx husky init:*)",
+      "Bash(npm run test:coverage:*)",
+      "Bash(true\" pour eviter les erreurs npm ci en CI:*)",
+      "Bash(DEBUG=\"vitest*\" npx vitest run:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

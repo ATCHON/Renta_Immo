@@ -10,8 +10,8 @@ interface SelectOption {
   disabled?: boolean;
 }
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  label?: string;
+interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'label'> {
+  label?: React.ReactNode;
   error?: string;
   hint?: string;
   options: SelectOption[];

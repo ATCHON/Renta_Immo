@@ -336,6 +336,9 @@ export function genererPointsAttention(
 
   // Alertes HCSF supplémentaires
   hcsf.alertes.forEach((alerte) => {
+    // Éviter les doublons avec les alertes globales de taux d'endettement
+    if (alerte.startsWith("Taux d'endettement (")) return;
+
     if (!points.some((p) => p.message === alerte)) {
       points.push({
         type: 'warning',
