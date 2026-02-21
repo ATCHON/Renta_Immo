@@ -19,4 +19,4 @@ Ce document liste les améliorations à apporter à l'interface de l'application
   - **Évolution annuelle loyers :** L'Indice de Référence des Loyers (IRL) fixe le plafond de l'augmentation annuelle légale. _Attention : pour les passoires thermiques (DPE F ou G), le loyer est strictement gelé (inflation forcée à 0%)._
   - **Mode d'assurance :** Détermine la base de calcul des primes. **CRD** (Capital Restant Dû) : la prime baisse avec le temps; **Capital Initial** : la prime reste fixe sur toute la durée du prêt.
   - **CFE Estimée :** Cotisation Foncière des Entreprises. Due en LMNP/SCI. Exonérée la 1ère année. Si vos recettes annuelles sont inférieures à 5 000 €, vous en êtes exonéré.
-  - **Type de location :** Détermine l'abattement fiscal (ex: 50% en LMNP vs 30% en Nu). En SCI à l'IS, ce choix n'impacte pas la fiscalité (l'amortissement et les règles de l'IS priment).
+  - **Type de location :** En SCI à l'IS, ce choix n'impacte pas la fiscalité (l'amortissement et les règles de l'IS priment).
