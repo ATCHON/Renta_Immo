@@ -22,12 +22,13 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const prevIsOpen = React.useRef(isOpen);
   const { createSimulation, updateSimulation } = useSimulationMutations();
   const router = useRouter();
   const activeScenario = useCalculateurStore((state) => state.getActiveScenario());
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !prevIsOpen.current) {
       if (activeScenario.dbId) {
         setName(activeScenario.name);
         setDescription(activeScenario.description || '');
@@ -36,6 +37,7 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
         setDescription('');
       }
     }
+    prevIsOpen.current = isOpen;
   }, [isOpen, activeScenario.dbId, activeScenario.name, activeScenario.description]);
 
   if (!isOpen) return null;
@@ -48,8 +50,8 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
         user_id: '',
         name: name.trim(),
         description: description.trim(),
-        form_data: formData as any,
-        resultats: resultats as any,
+        form_data: formData,
+        resultats: resultats,
       });
       onClose();
       router.push('/simulations');
@@ -67,8 +69,8 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
         data: {
           name: name.trim(),
           description: description.trim(),
-          form_data: formData as any,
-          resultats: resultats as any,
+          form_data: formData,
+          resultats: resultats,
         },
       });
       onClose();

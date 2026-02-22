@@ -140,6 +140,9 @@ describe('gestion des scénarios', () => {
     expect(state.scenarios.length).toBe(2);
     const original = state.scenarios.find((s) => s.id === originalId);
     const duplicate = state.scenarios[state.scenarios.length - 1];
+
+    expect(duplicate?.id).not.toBe(original?.id);
+    expect(duplicate?.name).toBe(`${original?.name} (copie)`);
     expect(duplicate?.bien.prix_achat).toBe(original?.bien.prix_achat);
     expect(duplicate?.dbId).toBeUndefined(); // Vérifie que la copie est bien locale
   });
