@@ -106,10 +106,16 @@ export const AmortizationTable = React.memo(function AmortizationTable({
 
       {/* Modal Détail Mensuel */}
       {showMonthly && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-charcoal/40 backdrop-blur-md animate-in fade-in duration-300">
-          <Card className="w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border-none">
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-charcoal/40 backdrop-blur-md animate-in fade-in duration-300 hover:cursor-pointer"
+          onClick={() => setShowMonthly(false)}
+        >
+          <Card
+            className="w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border-none hover:cursor-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <CardHeader
-              title="Tableau d'amortissement mensuel"
+              title="Détail mensuel du crédit"
               description="Détail mois par mois sur toute la durée du crédit"
               action={
                 <Button

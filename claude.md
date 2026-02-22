@@ -14,7 +14,8 @@ Application web de simulation de rentabilité immobilière (Calcul des rendement
 3. **Tests & TDD** :
    - Tester l'application via TU (Tests Unitaires via Vitest), TI (Intégration) ou E2E (via MCP Chrome / Playwright pour le frontend).
    - **Penser au TDD (Test Driven Development)** : Le code produit doit cibler le passage des tests. Ne jamais commit un code sans que les tests soient verts.
-   - Si une fonctionnalité existante évolue, **relancer systématiquement l'ensemble des suites de tests** pour déceler les effets de bord (régressions).
+   - **Obligation de couverture :** Il est **strictement obligatoire** d'ajouter ou de mettre à jour des Tests Unitaires (TU) lors de **nouveaux développements, corrections de bugs (fix) ou suppressions de code/refactoring**.
+   - Par conséquent, après chaque modification des tests ou du code lié, il faut **systématiquement relancer l'ensemble des suites de tests** pour s'assurer d'aucune régression fonctionnelle.
 4. **Docs par scope** : Ne charger dans le contexte LLM que ce qui est strictement nécessaire pour la tâche en cours afin d'éviter la pollution cognitive de l'agent.
 
 ## Directives Spécifiques par Périmètre

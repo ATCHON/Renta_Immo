@@ -128,6 +128,7 @@ interface CalculateurState {
 }
 
 type PersistedSimulation = Pick<Simulation, 'id' | 'name' | 'resultats'> & {
+  description?: string | null;
   form_data: Pick<Scenario, 'bien' | 'financement' | 'exploitation' | 'structure' | 'options'>;
 };
 
@@ -239,6 +240,7 @@ export const useCalculateurStore = create<CalculateurState>()(
             id: uuidv4(),
             name: `${source.name} (copie)`,
           };
+          delete duplicate.dbId;
 
           set({
             scenarios: [...scenarios, duplicate],
@@ -377,12 +379,14 @@ export const useCalculateurStore = create<CalculateurState>()(
         loadScenario: (simulation: PersistedSimulation) => {
           const loadedScenario: Scenario = {
             id: simulation.id,
+            dbId: simulation.id,
             name: simulation.name,
             bien: simulation.form_data.bien,
             financement: simulation.form_data.financement,
             exploitation: simulation.form_data.exploitation,
             structure: simulation.form_data.structure,
             options: simulation.form_data.options,
+            description: simulation.description,
             resultats: simulation.resultats,
             pdfUrl: null,
             currentStep: TOTAL_STEPS - 1,

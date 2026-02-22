@@ -189,23 +189,41 @@ export function Dashboard() {
 
   navItems.push({ id: 'financement', label: 'Financement & Amortissement' });
 
-  // On attache un onClick qui scroll vers l'élément
+  if (resultats.projections) {
+    navItems.push({ id: 'projections-detaillees', label: 'Projections détaillées' });
+  }
+
+  // On attache un onClick qui scroll vers l'élément et ouvre le collapsible si nécessaire
   const navItemsWithScroll = navItems.map((item) => ({
     ...item,
     onClick: () => {
       document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+      window.dispatchEvent(new CustomEvent('open-collapsible', { detail: { id: item.id } }));
     },
   }));
 
   return (
     <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start pb-20">
-      {/* Navigation latérale sur bureau et haut sur mobile */}
-      <SideNavigation
-        items={navItemsWithScroll}
-        activeId={activeSection}
-        title="Analyse de la simulation"
-        className="lg:w-64 shrink-0 w-full z-30 lg:sticky lg:top-8 self-start"
-      />
+      {/* Navigation latérale sur bureau et haut sur mobile + Description */}
+      <div className="lg:w-64 shrink-0 w-full z-30 lg:sticky lg:top-8 self-start space-y-6">
+        <SideNavigation
+          items={navItemsWithScroll}
+          activeId={activeSection}
+          title="Analyse de la simulation"
+          className="w-full"
+        />
+
+        {scenario.description && (
+          <div className="hidden lg:block bg-surface/50 border border-sand/50 rounded-xl p-4 animate-in fade-in">
+            <h3 className="text-xs font-bold text-charcoal uppercase tracking-widest mb-2 border-l-2 border-forest pl-2">
+              Description
+            </h3>
+            <p className="text-sm text-stone leading-relaxed whitespace-pre-wrap">
+              {scenario.description}
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Contenu principal */}
       <div className="flex-1 space-y-8 animate-in fade-in slide-in-from-bottom-4 w-full">
@@ -492,7 +510,7 @@ export function Dashboard() {
 
         {/* 11. Collapsible: Financement & Amortissement */}
         <div id="financement" className="scroll-mt-24">
-          <Collapsible title="Expertise financement & Amortissement">
+          <Collapsible id="financement" title="Expertise financement & Amortissement">
             <div className="space-y-8 py-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl shadow-sm">
@@ -544,56 +562,59 @@ export function Dashboard() {
 
         {/* 12. Collapsible: Projections détaillées (table + KPIs only) */}
         {resultats.projections && (
-          <Collapsible
-            title={`Projections patrimoniales détaillées (${resultats.projections.horizon} ans)`}
-            defaultOpen={false}
-          >
-            <div className="space-y-8 py-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="text-center p-6 bg-forest/5 border border-forest/10 rounded-2xl">
-                  <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
-                    TRI Projet
-                  </p>
-                  <p className="text-3xl font-black text-forest tabular-nums">
-                    {formatPercent(resultats.projections.totaux.tri)}
-                  </p>
+          <div id="projections-detaillees" className="scroll-mt-24">
+            <Collapsible
+              id="projections-detaillees"
+              title={`Projections patrimoniales détaillées (${resultats.projections.horizon} ans)`}
+              defaultOpen={false}
+            >
+              <div className="space-y-8 py-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                  <div className="text-center p-6 bg-forest/5 border border-forest/10 rounded-2xl">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                      TRI Projet
+                    </p>
+                    <p className="text-3xl font-black text-forest tabular-nums">
+                      {formatPercent(resultats.projections.totaux.tri)}
+                    </p>
+                  </div>
+                  <div className="text-center p-6 bg-sage/5 border border-sage/10 rounded-2xl">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                      Patrimoine net
+                    </p>
+                    <p className="text-3xl font-black text-forest tabular-nums">
+                      {formatCurrency(resultats.projections.totaux.enrichissementTotal)}
+                    </p>
+                  </div>
+                  <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                      Cash-flow cumulé
+                    </p>
+                    <p
+                      className={`text-3xl font-black tabular-nums ${resultats.projections.totaux.cashflowCumule >= 0 ? 'text-forest' : 'text-terracotta'}`}
+                    >
+                      {formatCurrency(resultats.projections.totaux.cashflowCumule)}
+                    </p>
+                  </div>
+                  <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl">
+                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
+                      Dette remboursée
+                    </p>
+                    <p className="text-3xl font-black text-charcoal tabular-nums">
+                      {formatCurrency(resultats.projections.totaux.capitalRembourse)}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-center p-6 bg-sage/5 border border-sage/10 rounded-2xl">
-                  <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
-                    Patrimoine net
-                  </p>
-                  <p className="text-3xl font-black text-forest tabular-nums">
-                    {formatCurrency(resultats.projections.totaux.enrichissementTotal)}
-                  </p>
-                </div>
-                <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl">
-                  <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
-                    Cash-flow cumulé
-                  </p>
-                  <p
-                    className={`text-3xl font-black tabular-nums ${resultats.projections.totaux.cashflowCumule >= 0 ? 'text-forest' : 'text-terracotta'}`}
-                  >
-                    {formatCurrency(resultats.projections.totaux.cashflowCumule)}
-                  </p>
-                </div>
-                <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl">
-                  <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
-                    Dette remboursée
-                  </p>
-                  <p className="text-3xl font-black text-charcoal tabular-nums">
-                    {formatCurrency(resultats.projections.totaux.capitalRembourse)}
-                  </p>
-                </div>
-              </div>
 
-              <div className="pt-4">
-                <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-forest/30 pl-3">
-                  Simulation pluriannuelle détaillée
-                </h3>
-                <ProjectionTable data={resultats.projections} />
+                <div className="pt-4">
+                  <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-forest/30 pl-3">
+                    Simulation pluriannuelle détaillée
+                  </h3>
+                  <ProjectionTable data={resultats.projections} />
+                </div>
               </div>
-            </div>
-          </Collapsible>
+            </Collapsible>
+          </div>
         )}
 
         {/* 13. Lien Méthodologie */}
