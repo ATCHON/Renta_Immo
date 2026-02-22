@@ -218,7 +218,7 @@ export function Dashboard() {
             <h3 className="text-xs font-bold text-charcoal uppercase tracking-widest mb-2 border-l-2 border-forest pl-2">
               Description
             </h3>
-            <p className="text-sm text-stone leading-relaxed whitespace-pre-wrap">
+            <p className="text-sm text-stone leading-relaxed whitespace-pre-wrap break-words">
               {scenario.description}
             </p>
           </div>
