@@ -199,13 +199,26 @@ export function Dashboard() {
 
   return (
     <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start pb-20">
-      {/* Navigation latérale sur bureau et haut sur mobile */}
-      <SideNavigation
-        items={navItemsWithScroll}
-        activeId={activeSection}
-        title="Analyse de la simulation"
-        className="lg:w-64 shrink-0 w-full z-30 lg:sticky lg:top-8 self-start"
-      />
+      {/* Navigation latérale sur bureau et haut sur mobile + Description */}
+      <div className="lg:w-64 shrink-0 w-full z-30 lg:sticky lg:top-8 self-start space-y-6">
+        <SideNavigation
+          items={navItemsWithScroll}
+          activeId={activeSection}
+          title="Analyse de la simulation"
+          className="w-full"
+        />
+
+        {scenario.description && (
+          <div className="hidden lg:block bg-surface/50 border border-sand/50 rounded-xl p-4 animate-in fade-in">
+            <h3 className="text-xs font-bold text-charcoal uppercase tracking-widest mb-2 border-l-2 border-forest pl-2">
+              Description
+            </h3>
+            <p className="text-sm text-stone leading-relaxed whitespace-pre-wrap">
+              {scenario.description}
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Contenu principal */}
       <div className="flex-1 space-y-8 animate-in fade-in slide-in-from-bottom-4 w-full">

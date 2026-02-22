@@ -42,3 +42,10 @@ Ce document liste les améliorations à apporter à l'interface de l'application
 - **Raffinements visuels :** Amélioration des contrastes, augmentation de la taille des polices et ajout d'indicateurs visuels premium (effet de surbrillance sur l'étape active) pour une navigation plus lisible.
 - **Composants impactés :** `SideNavigation.tsx`, `FormWizard.tsx`, `Dashboard.tsx`.
 - **Statut :** **Terminé** (Février 2026)
+
+### 4. Affichage de la description de la simulation sauvegardée
+
+- **Problème / Retour utilisateur :** Lorsqu'un utilisateur accède à une simulation sauvegardée (depuis l'écran "Mes simulations" ou l'écran de résultat), il ne retrouve pas la description détaillée qu'il avait rédigée lors de la sauvegarde.
+- **Solution proposée :** Afficher la description saisie par l'utilisateur sur l'écran de résultat, précisément en bas à gauche, sous la section "Analyse de la simulation".
+- **Composants impactés :** `Dashboard.tsx` (ou composant lié à l'affichage des résultats).
+- **Statut :** **À faire**

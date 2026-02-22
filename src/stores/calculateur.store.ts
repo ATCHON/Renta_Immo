@@ -128,6 +128,7 @@ interface CalculateurState {
 }
 
 type PersistedSimulation = Pick<Simulation, 'id' | 'name' | 'resultats'> & {
+  description?: string | null;
   form_data: Pick<Scenario, 'bien' | 'financement' | 'exploitation' | 'structure' | 'options'>;
 };
 
@@ -383,6 +384,7 @@ export const useCalculateurStore = create<CalculateurState>()(
             exploitation: simulation.form_data.exploitation,
             structure: simulation.form_data.structure,
             options: simulation.form_data.options,
+            description: simulation.description,
             resultats: simulation.resultats,
             pdfUrl: null,
             currentStep: TOTAL_STEPS - 1,

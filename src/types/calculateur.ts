@@ -188,6 +188,7 @@ export interface Scenario {
   structure: Partial<StructureData>;
   options: OptionsData;
   resultats: CalculResultats | null;
+  description?: string | null;
   pdfUrl: string | null;
   currentStep: number;
   status: FormStatus;
