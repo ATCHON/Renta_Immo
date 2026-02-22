@@ -21,10 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link href="/admin/params" className="hover:text-mint transition-colors">
               Paramètres
             </Link>
-            <Link
-              href="/admin/audit"
-              className="hover:text-mint transition-colors opacity-50 cursor-not-allowed"
-            >
+            <Link href="/admin/audit" className="hover:text-mint transition-colors">
               Audit Global
             </Link>
           </nav>
