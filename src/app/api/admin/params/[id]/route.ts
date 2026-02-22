@@ -6,12 +6,38 @@ import { requireAdmin } from '@/lib/auth-helpers';
 import { z } from 'zod';
 import { configService } from '@/server/config/config-service';
 
-const UpdateParamSchema = z.object({
-  valeur: z.number(),
-  motif: z.string().min(5, 'Le motif doit faire au moins 5 caractères'),
-  is_temporary: z.boolean().optional(),
-  date_expiration: z.string().nullable().optional(),
-});
+const UpdateParamSchema = z
+  .object({
+    valeur: z.number(),
+    motif: z.string().min(5, 'Le motif doit faire au moins 5 caractères'),
+    is_temporary: z.boolean().optional(),
+    date_expiration: z.string().nullable().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.is_temporary === true) {
+      const value = data.date_expiration;
+
+      // Required when is_temporary is true
+      if (value === null || value === undefined || value.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['date_expiration'],
+          message: "La date d'expiration est requise lorsque le paramètre est temporaire.",
+        });
+        return;
+      }
+
+      // Must be a valid date
+      const timestamp = Date.parse(value);
+      if (Number.isNaN(timestamp)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['date_expiration'],
+          message: "La date d'expiration doit être une date valide.",
+        });
+      }
+    }
+  });
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const { session, error: adminError } = await requireAdmin();
