@@ -1,18 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CollapsibleProps {
+  id?: string;
   title: string;
   defaultOpen?: boolean;
   className?: string;
   children: React.ReactNode;
 }
 
-export function Collapsible({ title, defaultOpen = false, className, children }: CollapsibleProps) {
+export function Collapsible({ id, title, defaultOpen = false, className, children }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const handleOpen = (event: CustomEvent<{ id: string }>) => {
+      if (event.detail?.id === id) {
+        setIsOpen(true);
+      }
+    };
+
+    window.addEventListener('open-collapsible', handleOpen as EventListener);
+    return () => {
+      window.removeEventListener('open-collapsible', handleOpen as EventListener);
+    };
+  }, [id]);
 
   return (
     <div className={cn('border border-border rounded-lg overflow-hidden', className)}>

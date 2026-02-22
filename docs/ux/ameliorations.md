@@ -47,5 +47,34 @@ Ce document liste les améliorations à apporter à l'interface de l'application
 
 - **Problème / Retour utilisateur :** Lorsqu'un utilisateur accède à une simulation sauvegardée (depuis l'écran "Mes simulations" ou l'écran de résultat), il ne retrouve pas la description détaillée qu'il avait rédigée lors de la sauvegarde.
 - **Solution proposée :** Afficher la description saisie par l'utilisateur sur l'écran de résultat, précisément en bas à gauche, sous la section "Analyse de la simulation".
-- **Composants impactés :** `Dashboard.tsx` (ou composant lié à l'affichage des résultats).
-- **Statut :** **À faire**
+- **Composants impactés :** `Dashboard.tsx`, `calculateur.ts`, `calculateur.store.ts`.
+- **Statut :** **Terminé**
+
+### 5. Modification et pré-remplissage d'une simulation existante
+
+- **Problème / Retour utilisateur :** Lorsqu'un utilisateur modifie une simulation existante et clique sur "Sauvegarder", la modale est vide et une nouvelle copie est inévitablement créée au lieu de la mettre à jour.
+- **Solution apportée :** 
+  - Ajout d'un identifiant `dbId` pour détecter l'origine de la simulation dans le Store.
+  - Pré-remplissage automatique du nom et de la description dans la modale.
+  - Distinction claire entre l'action "Mettre à jour" (UPDATE/PATCH) et "Sauvegarder une copie" (POST).
+- **Composants impactés :** `SaveSimulationModal.tsx`, `calculateur.ts`, `calculateur.store.ts`.
+- **Statut :** **Terminé**
+
+### 6. Ajustement de la modale d'amortissement et harmonisation du titre fiscal
+
+- **Problème / Retour utilisateur :** La modale d'amortissement mensuel avait un titre générique ne précisant pas qu'il s'agissait du crédit, et il n'était pas possible de la fermer en cliquant à l'extérieur (seulement via la croix). De plus, le bloc "Comparatif des Régimes Fiscaux" avait une police très grande rompant avec les autres titres de sections.
+- **Solution apportée :** 
+  - Renommage de la modale en "Détail mensuel du crédit".
+  - Ajout de la fermeture au clic sur l'arrière-plan de la modale.
+  - Ajustement des classes CSS du titre du "Comparatif des Régimes Fiscaux" pour coller aux standards (`text-lg font-black uppercase tracking-widest text-charcoal`).
+- **Composants impactés :** `AmortizationTable.tsx`, `FiscalComparator.tsx`.
+- **Statut :** **Terminé**
+
+### 6. Séparation Expertise / Projections dans la navigation des résultats
+
+- **Problème / Retour utilisateur :** Le dernier élément du menu de navigation gauche "Financement & Amortissement" pointait sur le bloc de financement sans distinguer le bloc des "Projections patrimoniales".
+- **Solution apportée :** 
+  - Ajout du lien "Projections détaillées" dans le menu de navigation indépendant.
+  - Au clic sur l'ancre du menu, le navigateur non seulement scrolle vers le bloc, mais déclenche aussi l'ouverture via l'écoute d'un événement global ("open-collapsible").
+- **Composants impactés :** `Dashboard.tsx`, `Collapsible.tsx`.
+- **Statut :** **Terminé**

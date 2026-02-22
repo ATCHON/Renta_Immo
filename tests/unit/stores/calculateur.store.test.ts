@@ -124,9 +124,14 @@ describe('gestion des scénarios', () => {
     expect(state.activeScenarioId).toBe(lastId);
   });
 
-  it('duplicateScenario crée une copie avec les mêmes données bien', () => {
+  it('duplicateScenario crée une copie avec les mêmes données bien mais sans dbId', () => {
     const store = useCalculateurStore.getState();
     store.updateBien({ prix_achat: 300000, surface: 80 });
+    // Simulons qu'il vient de la BD
+    const scenarios = store.scenarios;
+    scenarios[0].dbId = 'db-123';
+    useCalculateurStore.setState({ scenarios });
+
     const originalId = useCalculateurStore.getState().activeScenarioId;
 
     useCalculateurStore.getState().duplicateScenario(originalId);
@@ -136,6 +141,7 @@ describe('gestion des scénarios', () => {
     const original = state.scenarios.find((s) => s.id === originalId);
     const duplicate = state.scenarios[state.scenarios.length - 1];
     expect(duplicate?.bien.prix_achat).toBe(original?.bien.prix_achat);
+    expect(duplicate?.dbId).toBeUndefined(); // Vérifie que la copie est bien locale
   });
 
   it('removeScenario supprime le scénario ciblé', () => {
@@ -363,6 +369,7 @@ describe('loadScenario', () => {
 
     expect(state.scenarios.length).toBe(1);
     expect(state.scenarios[0].id).toBe('sim-123');
+    expect(state.scenarios[0].dbId).toBe('sim-123'); // Vérifie l'assignation du dbId
     expect(state.scenarios[0].name).toBe('Ma simulation');
     expect(state.scenarios[0].bien.prix_achat).toBe(200000);
     expect(state.activeScenarioId).toBe('sim-123');

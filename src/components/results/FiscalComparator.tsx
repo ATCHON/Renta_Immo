@@ -18,7 +18,7 @@ export const FiscalComparator = React.memo(function FiscalComparator({
     <section className="space-y-6 mt-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black text-charcoal tracking-tight">
+          <h2 className="text-lg font-black uppercase tracking-widest text-charcoal">
             Comparatif des Régimes Fiscaux
           </h2>
           <p className="text-stone font-medium mt-1 max-w-2xl">

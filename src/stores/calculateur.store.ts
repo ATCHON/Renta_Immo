@@ -240,6 +240,7 @@ export const useCalculateurStore = create<CalculateurState>()(
             id: uuidv4(),
             name: `${source.name} (copie)`,
           };
+          delete duplicate.dbId;
 
           set({
             scenarios: [...scenarios, duplicate],
@@ -378,6 +379,7 @@ export const useCalculateurStore = create<CalculateurState>()(
         loadScenario: (simulation: PersistedSimulation) => {
           const loadedScenario: Scenario = {
             id: simulation.id,
+            dbId: simulation.id,
             name: simulation.name,
             bien: simulation.form_data.bien,
             financement: simulation.form_data.financement,

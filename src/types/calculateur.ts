@@ -189,6 +189,7 @@ export interface Scenario {
   options: OptionsData;
   resultats: CalculResultats | null;
   description?: string | null;
+  dbId?: string;
   pdfUrl: string | null;
   currentStep: number;
   status: FormStatus;
