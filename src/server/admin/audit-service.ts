@@ -100,14 +100,37 @@ export async function getGlobalAuditLogs(
     const userIds = Array.from(new Set(auditData.map((log) => log.modifie_par)));
 
     // Fetch config params
-    const { data: configs } = await supabase
+    const { data: configs, error: configsError } = await supabase
       .from('config_params')
       .select('id, label')
       .in('id', configIds);
 
+    if (configsError) {
+      console.error('Failed to fetch config params for audit logs', {
+        error: configsError,
+        configIds,
+      });
+      throw new Error(
+        "Impossible de récupérer les paramètres de configuration pour les logs d'audit"
+      );
+    }
+
     // Fetch users (auth.users is not accessible directly via public. We assume `user` table mapping exists)
     // Based on the SQL schema: modifie_par TEXT NOT NULL REFERENCES "user"(id)
-    const { data: users } = await supabase.from('user').select('id, email').in('id', userIds);
+    const { data: users, error: usersError } = await supabase
+      .from('user')
+      .select('id, email')
+      .in('id', userIds);
+
+    if (usersError) {
+      console.error('Failed to fetch users for audit logs', {
+        error: usersError,
+        userIds,
+      });
+      throw new Error(
+        "Impossible de récupérer les mots de passe utilisateurs pour les logs d'audit"
+      );
+    }
 
     for (const log of auditData) {
       const config = configs?.find((c) => c.id === log.config_id);

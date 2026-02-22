@@ -1,11 +1,11 @@
-# Story V2-S25 : Page d'Audit Global et historique des modifications
+# Story V2-S26 : Page d'Audit Global et historique des modifications
 
 > **Epic** : EPIC-V2-08 | **Sprint** : Sprint 4+ | **Effort** : S
 > **Statut** : Completed
 
 ## Story
 
-**As a** administrateur de la plateforme,
+**En tant qu**'administrateur de la plateforme,
 **I want** accéder à une vue unifiée et globale de toutes les modifications apportées aux paramètres du simulateur,
 **so that** je puisse contrôler et tracer les changements de version, les motifs de modification et leurs auteurs indépendamment du paramètre concerné.
 

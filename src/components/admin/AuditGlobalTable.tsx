@@ -11,11 +11,14 @@ export default function AuditGlobalTable() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const fetchLogs = useCallback(async (p: number) => {
+  const fetchLogs = useCallback(async (p: number, abortSignal?: AbortSignal) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/audit?page=${p}`);
+      const res = await fetch(`/api/admin/audit?page=${p}`, { signal: abortSignal });
+
+      // Si la requête est annulée pendant le fetch, elle passera dans le catch(AbortError)
       const json = await res.json();
+
       if (json.success) {
         setLogs(json.data);
         setTotalPages(json.meta.totalPages);
@@ -23,15 +26,26 @@ export default function AuditGlobalTable() {
       } else {
         toast.error(json.error || 'Erreur lors du chargement des logs');
       }
-    } catch {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        // Ignorer l'erreur silencieusement car c'est une requête obsolète
+        return;
+      }
       toast.error('Erreur réseau lors du chargement des logs');
     } finally {
+      // On s'assure qu'on ne clean le loading State que si le fetch n'a pas été annulé en plein vol ?
+      // L'approche simple :
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchLogs(page);
+    const controller = new AbortController();
+    fetchLogs(page, controller.signal);
+
+    return () => {
+      controller.abort();
+    };
   }, [fetchLogs, page]);
 
   return (
