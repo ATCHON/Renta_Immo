@@ -13,17 +13,30 @@ interface EditParamModalProps {
 
 export default function EditParamModal({ param, onClose, onSuccess }: EditParamModalProps) {
   const [newValue, setNewValue] = useState<number>(param.valeur);
+  const [isTemporary, setIsTemporary] = useState<boolean>(param.isTemporary);
+  const [dateExpiration, setDateExpiration] = useState<string>(param.dateExpiration || '');
   const [motif, setMotif] = useState('');
   const [saving, setSaving] = useState(false);
 
   const handleUpdate = async () => {
     if (motif.length < 5) return;
+    if (isTemporary && !dateExpiration) {
+      toast.error("Veuillez spécifier une date d'expiration");
+      return;
+    }
     setSaving(true);
     try {
+      const payload = {
+        valeur: newValue,
+        motif,
+        is_temporary: isTemporary,
+        date_expiration: isTemporary ? dateExpiration : null,
+      };
+
       const res = await fetch(`/api/admin/params/${param.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ valeur: newValue, motif }),
+        body: JSON.stringify(payload),
       });
       const json = await res.json();
       if (json.success) {
@@ -73,6 +86,37 @@ export default function EditParamModal({ param, onClose, onSuccess }: EditParamM
               Min. 5 caractères. Ce motif sera enregistré dans l&apos;historique d&apos;audit.
             </p>
           </div>
+
+          <div className="flex items-center space-x-2 pt-2">
+            <input
+              type="checkbox"
+              id="isTemporary"
+              checked={isTemporary}
+              onChange={(e) => {
+                setIsTemporary(e.target.checked);
+                if (!e.target.checked) setDateExpiration('');
+              }}
+              className="rounded border-slate-300 text-forest focus:ring-forest"
+            />
+            <label htmlFor="isTemporary" className="text-sm font-medium text-slate-700">
+              Paramètre temporaire (ex: dispositif fiscal avec date de fin)
+            </label>
+          </div>
+
+          {isTemporary && (
+            <div className="animate-in slide-in-from-top-2 duration-200">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Date d&apos;expiration
+              </label>
+              <input
+                type="date"
+                value={dateExpiration}
+                onChange={(e) => setDateExpiration(e.target.value)}
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-forest/20 transition-all"
+                required={isTemporary}
+              />
+            </div>
+          )}
 
           <DryRunPanel param={param} newValue={newValue} />
         </div>

@@ -6,10 +6,38 @@ import { requireAdmin } from '@/lib/auth-helpers';
 import { z } from 'zod';
 import { configService } from '@/server/config/config-service';
 
-const UpdateParamSchema = z.object({
-  valeur: z.number(),
-  motif: z.string().min(5, 'Le motif doit faire au moins 5 caractères'),
-});
+const UpdateParamSchema = z
+  .object({
+    valeur: z.number(),
+    motif: z.string().min(5, 'Le motif doit faire au moins 5 caractères'),
+    is_temporary: z.boolean().optional(),
+    date_expiration: z.string().nullable().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.is_temporary === true) {
+      const value = data.date_expiration;
+
+      // Required when is_temporary is true
+      if (value === null || value === undefined || value.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['date_expiration'],
+          message: "La date d'expiration est requise lorsque le paramètre est temporaire.",
+        });
+        return;
+      }
+
+      // Must be a valid date
+      const timestamp = Date.parse(value);
+      if (Number.isNaN(timestamp)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['date_expiration'],
+          message: "La date d'expiration doit être une date valide.",
+        });
+      }
+    }
+  });
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const { session, error: adminError } = await requireAdmin();
@@ -42,9 +70,19 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     // Note: Dans un environnement de production réel, on utiliserait une fonction RPC
     // pour garantir l'atomicité de l'update + insert audit.
 
+    const updatePayload: {
+      valeur: number;
+      is_temporary?: boolean;
+      date_expiration?: string | null;
+    } = { valeur: validated.valeur };
+    if (validated.is_temporary !== undefined) {
+      updatePayload.is_temporary = validated.is_temporary;
+      updatePayload.date_expiration = validated.date_expiration;
+    }
+
     const { error: updateError } = await supabase
       .from('config_params')
-      .update({ valeur: validated.valeur })
+      .update(updatePayload)
       .eq('id', id);
 
     if (updateError) throw updateError;
