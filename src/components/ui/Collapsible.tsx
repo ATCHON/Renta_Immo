@@ -12,7 +12,13 @@ interface CollapsibleProps {
   children: React.ReactNode;
 }
 
-export function Collapsible({ id, title, defaultOpen = false, className, children }: CollapsibleProps) {
+export function Collapsible({
+  id,
+  title,
+  defaultOpen = false,
+  className,
+  children,
+}: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   useEffect(() => {

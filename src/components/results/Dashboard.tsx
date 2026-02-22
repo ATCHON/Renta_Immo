@@ -198,9 +198,7 @@ export function Dashboard() {
     ...item,
     onClick: () => {
       document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
-      window.dispatchEvent(
-        new CustomEvent('open-collapsible', { detail: { id: item.id } })
-      );
+      window.dispatchEvent(new CustomEvent('open-collapsible', { detail: { id: item.id } }));
     },
   }));
 
@@ -286,16 +284,16 @@ export function Dashboard() {
             synthese={
               resultats.synthese.scores_par_profil
                 ? (() => {
-                  const scoreDetail = resultats.synthese.scores_par_profil[profilInvestisseur];
-                  const { evaluation, couleur } = scoreToEvaluation(scoreDetail.total);
-                  return {
-                    ...resultats.synthese,
-                    score_global: scoreDetail.total,
-                    score_detail: scoreDetail,
-                    evaluation,
-                    couleur,
-                  };
-                })()
+                    const scoreDetail = resultats.synthese.scores_par_profil[profilInvestisseur];
+                    const { evaluation, couleur } = scoreToEvaluation(scoreDetail.total);
+                    return {
+                      ...resultats.synthese,
+                      score_global: scoreDetail.total,
+                      score_detail: scoreDetail,
+                      evaluation,
+                      couleur,
+                    };
+                  })()
                 : resultats.synthese
             }
           />
