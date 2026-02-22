@@ -9,6 +9,8 @@ import { configService } from '@/server/config/config-service';
 const UpdateParamSchema = z.object({
   valeur: z.number(),
   motif: z.string().min(5, 'Le motif doit faire au moins 5 caractères'),
+  is_temporary: z.boolean().optional(),
+  date_expiration: z.string().nullable().optional(),
 });
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
@@ -42,9 +44,19 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     // Note: Dans un environnement de production réel, on utiliserait une fonction RPC
     // pour garantir l'atomicité de l'update + insert audit.
 
+    const updatePayload: {
+      valeur: number;
+      is_temporary?: boolean;
+      date_expiration?: string | null;
+    } = { valeur: validated.valeur };
+    if (validated.is_temporary !== undefined) {
+      updatePayload.is_temporary = validated.is_temporary;
+      updatePayload.date_expiration = validated.date_expiration;
+    }
+
     const { error: updateError } = await supabase
       .from('config_params')
-      .update({ valeur: validated.valeur })
+      .update(updatePayload)
       .eq('id', id);
 
     if (updateError) throw updateError;
