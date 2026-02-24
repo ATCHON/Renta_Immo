@@ -83,7 +83,7 @@ export function normalizeFormData(data: CalculateurFormData): ValidatedFormData 
 
   const structure = {
     ...data.structure,
-    tmi: data.structure.tmi || DEFAULTS.structure.tmi,
+    tmi: data.structure.tmi ?? DEFAULTS.structure.tmi,
     // S'assurer que les associés existent même en nom propre (tableau vide)
     associes: data.structure.type === 'sci_is' ? data.structure.associes : [],
   };
