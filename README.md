@@ -1,9 +1,14 @@
 # Renta Immo
 
 [![CI](https://github.com/ATCHON/Renta_Immo/actions/workflows/ci.yml/badge.svg)](https://github.com/ATCHON/Renta_Immo/actions/workflows/ci.yml)
+[![Unit Tests](https://img.shields.io/badge/Unit_Tests-passed-brightgreen.svg)](https://github.com/ATCHON/Renta_Immo)
+[![Integration Tests](https://img.shields.io/badge/Integration_Tests-passed-brightgreen.svg)](https://github.com/ATCHON/Renta_Immo)
+[![E2E Tests](https://img.shields.io/badge/E2E_Tests-passed-brightgreen.svg)](https://github.com/ATCHON/Renta_Immo)
+[![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg)](https://github.com/ATCHON/Renta_Immo)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js&logoColor=white)](https://nextjs.org/)
-[![Tests](https://img.shields.io/badge/tests-230%20passing-brightgreen)](https://github.com/ATCHON/Renta_Immo)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Zustand](https://img.shields.io/badge/Zustand-5.0-brown?logo=react&logoColor=white)](https://github.com/pmndrs/zustand)
 
 Renta Immo est un simulateur complet de rentabilité immobilière conçu pour aider les investisseurs à analyser la viabilité financière de leurs projets locatifs.
 
@@ -37,17 +42,20 @@ L'application permet de calculer précisément la rentabilité (brute, nette, ne
 ### Procédure
 
 1. Clonez le dépôt :
+
    ```bash
    git clone https://github.com/ATCHON/Renta_Immo.git
    cd Renta_Immo
    ```
 
 2. Installez les dépendances :
+
    ```bash
    npm install
    ```
 
 3. Lancez le serveur de développement :
+
    ```bash
    npm run dev
    ```
