@@ -93,10 +93,41 @@ jobs:
           path: coverage/
           retention-days: 7
 
+  integration-tests:
+    name: Integration Tests (Fiscal Conformity)
+    runs-on: ubuntu-latest
+    needs: [quality-checks, unit-tests]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run integration tests
+        # Pas de DB requise : config statique dans tests/integration/config/
+        run: npm run test:integration
+
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: |
+            coverage/
+          retention-days: 7
+
   build:
     name: Build Next.js
     runs-on: ubuntu-latest
-    needs: [quality-checks, unit-tests]
+    needs: [quality-checks, unit-tests, integration-tests]
 
     steps:
       - name: Checkout code
