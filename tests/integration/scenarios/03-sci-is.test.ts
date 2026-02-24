@@ -56,6 +56,32 @@ describe("SC — SCI à l'Impôt sur les Sociétés", () => {
     expect(fiscalite.impot_estime).toBeGreaterThan(0);
   });
 
+  it('SC-11bis [CGI Art.219] SCI IS capitalisation: IS taux réduit 15% — bénéfice imposable < seuil', async () => {
+    const input = sciBaseInput();
+    input.structure.distribution_dividendes = false;
+
+    // Diminuer les revenus pour que le bénéfice net imposable reste inférieur à 42 500€
+    input.exploitation.loyer_mensuel = 2000;
+    input.exploitation.charges_copro = 200;
+    input.exploitation.taxe_fonciere = 1500;
+    input.exploitation.assurance_pno = 200;
+
+    const result = await performCalculations(input, integrationConfig);
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+
+    const { fiscalite } = result.resultats;
+
+    // Toujours en SCI IS
+    expect(fiscalite.regime).toMatch(/SCI.*IS/i);
+    expect(fiscalite.impot_estime).toBeGreaterThan(0);
+
+    // L'assiette taxable globale devrait être sous les 42 500
+    // On ignore les dotations aux amortissements complexes ici, on valide juste le plafonnement de l'IS net calculé.
+    // L'impôt maximal au taux réduit sur ce plafond serait de 6 375 €.
+    expect(fiscalite.impot_estime).toBeLessThanOrEqual(6375);
+  });
+
   it('SC-12 [CGI Art.200A] SCI IS distribution: Flat Tax 30% — impôt total > capitalisation', async () => {
     const distInput = sciBaseInput();
     distInput.structure.distribution_dividendes = true;

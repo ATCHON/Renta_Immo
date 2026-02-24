@@ -122,6 +122,7 @@ jobs:
           name: integration-test-results
           path: |
             coverage/
+          if-no-files-found: ignore
           retention-days: 7
 
   build:
