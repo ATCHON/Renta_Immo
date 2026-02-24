@@ -14,6 +14,7 @@
     "test:coverage": "vitest run --coverage",
     "test:regression": "vitest run src/server/calculations/__tests__/regression.test.ts",
     "test:regression:watch": "vitest src/server/calculations/__tests__/regression.test.ts",
+    "test:integration": "vitest run --reporter=verbose --coverage=false tests/integration",
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,json}\"",
     "test:watch": "vitest",
