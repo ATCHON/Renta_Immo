@@ -103,7 +103,8 @@ describe('CF — Conformité Fiscale 2026', () => {
       // SCI IS: régime = 'SCI à l'IS' quel que soit le mode de distribution
       expect(result.resultats.fiscalite.regime).toMatch(/SCI.*IS/i);
       // La flat tax (distribution) doit être dans les comparaisons fiscales
-      const distItem = result.resultats.comparaisonFiscalite.items.find((i) =>
+      expect(result.resultats.comparaisonFiscalite).toBeDefined();
+      const distItem = result.resultats.comparaisonFiscalite!.items.find((i) =>
         i.regime.includes('Distribution')
       );
       expect(distItem).toBeDefined();
@@ -140,7 +141,8 @@ describe('CF — Conformité Fiscale 2026', () => {
       expect(result.success).toBe(true);
       if (!result.success) return;
 
-      const capitaItem = result.resultats.comparaisonFiscalite.items.find((i) =>
+      expect(result.resultats.comparaisonFiscalite).toBeDefined();
+      const capitaItem = result.resultats.comparaisonFiscalite!.items.find((i) =>
         i.regime.includes('Capitalisation')
       );
       expect(capitaItem).toBeDefined();
@@ -173,7 +175,8 @@ describe('CF — Conformité Fiscale 2026', () => {
       expect(result.success).toBe(true);
       if (!result.success) return;
 
-      const pv = result.resultats.projections.plusValue;
+      expect(result.resultats.projections).toBeDefined();
+      const pv = result.resultats.projections!.plusValue;
       if (!pv || pv.plus_value_nette_ir <= 200000 || pv.plus_value_nette_ir > 250000) return;
 
       // Pour la tranche 200-250k, le taux doit être 5% (pas 6%)
@@ -214,7 +217,8 @@ describe('CF — Conformité Fiscale 2026', () => {
       expect(result.success).toBe(true);
       if (!result.success) return;
 
-      const pv = result.resultats.projections.plusValue;
+      expect(result.resultats.projections).toBeDefined();
+      const pv = result.resultats.projections!.plusValue;
       expect(pv).toBeDefined();
       if (!pv) return;
 
@@ -248,7 +252,8 @@ describe('CF — Conformité Fiscale 2026', () => {
       expect(result.success).toBe(true);
       if (!result.success) return;
 
-      const pv = result.resultats.projections.plusValue;
+      expect(result.resultats.projections).toBeDefined();
+      const pv = result.resultats.projections!.plusValue;
       expect(pv).toBeDefined();
       if (!pv) return;
 
