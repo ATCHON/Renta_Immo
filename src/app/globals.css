@@ -1,6 +1,44 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  /* Colors — Backgrounds & Surfaces */
+  --color-background: #fafaf8;
+  --color-surface: #f5f3ef;
+  --color-border: #e8e4dd;
+  --color-sand: #e8e4dd;
+
+  /* Colors — Text */
+  --color-charcoal: #1f1f1f;
+  --color-stone: #6b6b6b;
+  --color-pebble: #9ca3a0;
+
+  /* Colors — Accent */
+  --color-forest: #2d5a45;
+  --color-forest-dark: #1e3d2f;
+  --color-forest-light: #2d5a451a;
+  --color-sage: #4a7c59;
+  --color-sage-light: #4a7c591a;
+  --color-amber: #c4841d;
+  --color-amber-light: #c4841d1a;
+  --color-terracotta: #b54a32;
+  --color-terracotta-light: #b54a321a;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  /* Border radius */
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  /* Transition durations */
+  --transition-duration-fast: 150ms;
+  --transition-duration-normal: 250ms;
+  --transition-duration-slow: 400ms;
+}
 
 :root {
   --foreground-rgb: 31, 31, 31;
@@ -17,7 +55,7 @@ body {
 
 /* Focus indicator for accessibility */
 :focus-visible {
-  outline: 2px solid #2D5A45;
+  outline: 2px solid #2d5a45;
   /* Forest */
   outline-offset: 2px;
 }

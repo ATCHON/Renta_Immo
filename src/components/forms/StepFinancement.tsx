@@ -2,7 +2,6 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { CurrencyInput, PercentInput, Input, Select, LabelTooltip } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import {
