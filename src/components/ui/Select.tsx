@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronDown, Check } from 'lucide-react';
 
@@ -16,29 +16,18 @@ interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>
   hint?: string;
   options: SelectOption[];
   placeholder?: string;
-  ref?: React.Ref<HTMLSelectElement>;
 }
 
-export function Select({
-  className,
-  label,
-  error,
-  hint,
-  options,
-  placeholder,
-  id,
-  value,
-  onChange,
-  disabled,
-  ref,
-  ...props
-}: SelectProps) {
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
+  { className, label, error, hint, options, placeholder, id, value, onChange, disabled, ...props },
+  ref
+) {
   const selectId = id || props.name;
   const [isOpen, setIsOpen] = useState(false);
   // Internal state for controlled/uncontrolled compatibility
   const [internalValue, setInternalValue] = useState(value || '');
   const containerRef = useRef<HTMLDivElement>(null);
-  const nativeSelectRef = useRef<HTMLSelectElement>(null);
+  const nativeSelectRef = useRef<HTMLSelectElement | null>(null);
 
   // Sync internal value with prop value
   useEffect(() => {
@@ -88,7 +77,7 @@ export function Select({
         {/* Hidden Native Select for Form Data */}
         <select
           ref={(node) => {
-            // Merge refs
+            // Merge refs: internal ref + forwarded ref
             nativeSelectRef.current = node;
             if (typeof ref === 'function') ref(node);
             else if (ref) (ref as React.MutableRefObject<HTMLSelectElement | null>).current = node;
@@ -180,6 +169,6 @@ export function Select({
       {hint && !error && <p className="text-sm text-pebble mt-1">{hint}</p>}
     </div>
   );
-}
+});
 
 Select.displayName = 'Select';

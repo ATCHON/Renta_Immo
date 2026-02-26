@@ -1,5 +1,6 @@
 'use client';
 
+import { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -12,7 +13,6 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   fullWidth?: boolean;
-  ref?: React.Ref<HTMLButtonElement>;
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -29,19 +29,21 @@ const sizeStyles: Record<ButtonSize, string> = {
   lg: 'h-[52px] px-8 text-lg',
 };
 
-export function Button({
-  className,
-  variant = 'primary',
-  size = 'md',
-  isLoading = false,
-  disabled,
-  leftIcon,
-  rightIcon,
-  fullWidth = false,
-  children,
-  ref,
-  ...props
-}: ButtonProps) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    className,
+    variant = 'primary',
+    size = 'md',
+    isLoading = false,
+    disabled,
+    leftIcon,
+    rightIcon,
+    fullWidth = false,
+    children,
+    ...props
+  },
+  ref
+) {
   return (
     <button
       ref={ref}
@@ -69,7 +71,7 @@ export function Button({
       )}
     </button>
   );
-}
+});
 
 Button.displayName = 'Button';
 
