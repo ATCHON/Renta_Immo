@@ -27,9 +27,15 @@ const config = [
   },
   {
     files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: { project: "./tsconfig.json" },
+    },
     plugins: { "@typescript-eslint": tseslint.plugin },
     rules: {
-      "@typescript-eslint/no-explicit-any": "warn",
+      // Disable base rule to avoid conflicting diagnostics with the TS-aware version
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
     },
   },
