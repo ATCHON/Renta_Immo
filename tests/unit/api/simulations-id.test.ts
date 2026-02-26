@@ -46,7 +46,7 @@ const MOCK_SIMULATION = {
   updated_at: '2026-01-01T00:00:00Z',
 };
 
-const PARAMS = { params: { id: 'sim-123' } };
+const PARAMS = { params: Promise.resolve({ id: 'sim-123' }) };
 
 /**
  * Chaîne Supabase thenable — toutes les méthodes de filtre retournent `this`,
@@ -109,7 +109,7 @@ describe('GET /api/simulations/[id]', () => {
 
     const { GET } = await import('@/app/api/simulations/[id]/route');
     const req = new NextRequest('http://localhost/api/simulations/not-found');
-    const res = await GET(req, { params: { id: 'not-found' } });
+    const res = await GET(req, { params: Promise.resolve({ id: 'not-found' }) });
     expect(res.status).toBe(404);
   });
 

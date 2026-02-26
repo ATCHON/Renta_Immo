@@ -1,12 +1,28 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['@react-pdf/renderer', 'pg'],
-    instrumentationHook: true,
-    outputFileTracingIncludes: {
-      '/**': ['./supabase/migrations/**'],
-    },
+  // Packages externalisés côté serveur (ne sont pas bundlés, chargés à l'exécution)
+  // Remplace experimental.serverComponentsExternalPackages (Next.js 15+)
+  serverExternalPackages: [
+    '@react-pdf/renderer',
+    'pg',
+    'pg-native',
+    'pg-connection-string',
+    'pgpass',
+    'pg-pool',
+    'pg-protocol',
+    'pg-types',
+    'canvas',
+  ],
+
+  // Remplace experimental.outputFileTracingIncludes (Next.js 15+)
+  outputFileTracingIncludes: {
+    '/**': ['./supabase/migrations/**'],
   },
+
+  // Turbopack est le bundler par défaut en Next.js 16
+  // Déclarer une config vide pour éviter le warning webpack/turbopack
+  turbopack: {},
+
   images: {
     remotePatterns: [
       {
@@ -19,6 +35,7 @@ const nextConfig = {
       },
     ],
   },
+
   async headers() {
     return [
       {
@@ -59,35 +76,13 @@ const nextConfig = {
       },
     ];
   },
+
+  // Webpack config (utilisé en mode non-Turbopack : next build --webpack)
   webpack: (config, { isServer }) => {
     // Prevent canvas errors with react-pdf
     config.resolve.alias.canvas = false;
 
-    if (isServer) {
-      // Externalise pg, ses dépendances, et les built-ins Node.js pour le bundle serveur
-      // (y compris instrumentation.ts). serverComponentsExternalPackages ne couvre que
-      // les Server Components, pas instrumentation.ts.
-      const nodeBuiltins = ['fs', 'path', 'stream', 'net', 'tls', 'dns', 'crypto', 'os', 'util', 'events', 'buffer', 'url', 'http', 'https', 'zlib', 'child_process'];
-      const pgModules = [
-        'pg',
-        'pg-native',
-        'pg-connection-string',
-        'pgpass',
-        'pg-pool',
-        'pg-protocol',
-        'pg-types',
-      ];
-      const externalModules = [...nodeBuiltins, ...pgModules];
-      config.externals = [
-        ...(Array.isArray(config.externals) ? config.externals : [config.externals].filter(Boolean)),
-        ({ request }, callback) => {
-          if (externalModules.some((mod) => request === mod || request?.startsWith(mod + '/'))) {
-            return callback(null, 'commonjs ' + request);
-          }
-          callback();
-        },
-      ];
-    } else {
+    if (!isServer) {
       // Côté client : indiquer que ces modules ne sont pas disponibles
       config.resolve.fallback = {
         ...config.resolve.fallback,

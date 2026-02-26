@@ -39,14 +39,14 @@ const UpdateParamSchema = z
     }
   });
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { session, error: adminError } = await requireAdmin();
   if (adminError) return adminError;
 
   try {
     const body = await request.json();
     const validated = UpdateParamSchema.parse(body);
-    const { id } = params;
+    const { id } = await params;
 
     const supabase = await createAdminClient();
 
