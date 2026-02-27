@@ -16,7 +16,7 @@ const UpdateSimulationSchema = z.object({
   resultats: z.record(z.string(), z.unknown()).optional(),
 });
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const ip = getClientIp(request);
   const rl = rateLimit(`simulations:${ip}`, { limit: 30, window: 60_000 });
   if (!rl.success) {
@@ -39,11 +39,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
   const { user } = session;
   const supabase = await createAdminClient();
+  const { id } = await params;
 
   const { data, error } = await supabase
     .from('simulations')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('user_id', user.id)
     .single();
 
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   return NextResponse.json({ success: true, data });
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -68,6 +69,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
   const { user } = session;
   const supabase = await createAdminClient();
+  const { id } = await params;
 
   try {
     const body = await request.json();
@@ -94,7 +96,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const { data, error } = await supabase
       .from('simulations')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('user_id', user.id)
       .select()
       .single();
@@ -113,7 +115,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -124,12 +129,9 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
   const { user } = session;
   const supabase = await createAdminClient();
+  const { id } = await params;
 
-  const { error } = await supabase
-    .from('simulations')
-    .delete()
-    .eq('id', params.id)
-    .eq('user_id', user.id);
+  const { error } = await supabase.from('simulations').delete().eq('id', id).eq('user_id', user.id);
 
   if (error) {
     return NextResponse.json({ success: false, error: { code: 'DB_ERROR' } }, { status: 500 });

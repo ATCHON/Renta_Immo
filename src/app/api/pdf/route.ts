@@ -180,7 +180,9 @@ export async function POST(request: NextRequest) {
     });
 
     // 3. Generate PDF buffer - cast element to satisfy react-pdf types
-    const pdfBuffer = await renderToBuffer(pdfElement as unknown as React.ReactElement);
+    const pdfBuffer = await renderToBuffer(
+      pdfElement as unknown as Parameters<typeof renderToBuffer>[0]
+    );
 
     // 4. Convert Buffer to Uint8Array for NextResponse compatibility
     const uint8Array = new Uint8Array(pdfBuffer);

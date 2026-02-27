@@ -48,7 +48,9 @@ export async function POST(request: NextRequest) {
       formData: formData as CalculateurFormData,
       resultats: resultats as CalculResultats,
     });
-    const pdfBuffer = await renderToBuffer(pdfElement as unknown as React.ReactElement);
+    const pdfBuffer = await renderToBuffer(
+      pdfElement as unknown as Parameters<typeof renderToBuffer>[0]
+    );
 
     // 2. Envoi de l'email via Resend
     const data = await resend.emails.send({

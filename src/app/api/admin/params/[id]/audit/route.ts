@@ -4,11 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireAdmin } from '@/lib/auth-helpers';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { error: adminError } = await requireAdmin();
   if (adminError) return adminError;
 
-  const { id } = params;
+  const { id } = await params;
   const supabase = await createAdminClient();
 
   const { data, error } = await supabase

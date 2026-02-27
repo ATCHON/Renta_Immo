@@ -1,9 +1,9 @@
 # Architecture Fullstack - Renta_Immo
 
-> **Version** : 4.0
-> **Date** : 2026-02-20
-> **Auteur** : Winston (Architecte)
-> **Statut** : Production — Back-Office Config opérationnel
+> **Version** : 5.0
+> **Date** : 2026-02-27
+> **Auteur** : Winston (Architecte) / James (Dev)
+> **Statut** : Production — Upgrade Stack Majeur (ESLint v9, Tailwind v4, React 19, Next.js 16)
 
 ---
 
@@ -32,12 +32,13 @@ Ce document formalise l'architecture fullstack complète pour **Renta_Immo**, un
 
 ### 1.3 Changelog
 
-| Date       | Version | Description                                           |
-| ---------- | ------- | ----------------------------------------------------- |
-| 2026-01-25 | 1.0     | Création initiale (backend)                           |
-| 2026-01-29 | 2.0     | Ajout Projections/TRI                                 |
-| 2026-02-04 | 3.0     | Architecture Fullstack complète                       |
-| 2026-02-20 | 4.0     | Better Auth · Back-Office Config · Email · Routing V2 |
+| Date       | Version | Description                                                 |
+| ---------- | ------- | ----------------------------------------------------------- |
+| 2026-01-25 | 1.0     | Création initiale (backend)                                 |
+| 2026-01-29 | 2.0     | Ajout Projections/TRI                                       |
+| 2026-02-04 | 3.0     | Architecture Fullstack complète                             |
+| 2026-02-20 | 4.0     | Better Auth · Back-Office Config · Email · Routing V2       |
+| 2026-02-27 | 5.0     | ESLint v9 Flat Config · Tailwind v4 · React 19 · Next.js 16 |
 
 ---
 
@@ -45,7 +46,7 @@ Ce document formalise l'architecture fullstack complète pour **Renta_Immo**, un
 
 ### 2.1 Résumé
 
-Renta_Immo est une application **monolithique modulaire** déployée sur Vercel, combinant un frontend Next.js 14 (App Router) avec un backend de calcul intégré via API Routes. La persistance est assurée par Supabase (PostgreSQL), l'authentification par Better Auth (connexion directe `pg`), la génération de rapports par `@react-pdf/renderer` côté serveur, et l'envoi d'emails par Resend.
+Renta_Immo est une application **monolithique modulaire** déployée sur Vercel, combinant un frontend **Next.js 16** (App Router) avec un backend de calcul intégré via API Routes. La persistance est assurée par Supabase (PostgreSQL), l'authentification par Better Auth (connexion directe `pg`), la génération de rapports par `@react-pdf/renderer` côté serveur, et l'envoi d'emails par Resend.
 
 ### 2.2 Infrastructure
 
@@ -120,27 +121,43 @@ Renta_Immo est une application **monolithique modulaire** déployée sur Vercel,
 
 ## 3. Stack Technique
 
-| Catégorie            | Technologie                           | Version    |
-| -------------------- | ------------------------------------- | ---------- |
-| Framework            | Next.js                               | 14.2.23    |
-| Langage              | TypeScript                            | 5.7.3      |
-| CSS                  | Tailwind CSS                          | 3.4.17     |
-| State (client)       | Zustand                               | 5.0.11     |
-| Data fetching        | React Query (@tanstack)               | 5.90.21    |
-| Forms                | React Hook Form + @hookform/resolvers | 7.71.1     |
-| Validation           | Zod                                   | 4.3.6      |
-| **Authentification** | **Better Auth**                       | **1.4.18** |
-| BDD (browser)        | @supabase/ssr + @supabase/supabase-js | 0.8 / 2.94 |
-| BDD (Better Auth)    | pg (node-postgres)                    | 8.18       |
-| PDF                  | @react-pdf/renderer                   | 4.3.2      |
-| **Email**            | **Resend**                            | **6.9.2**  |
-| Icons                | Lucide React                          | 0.574      |
-| Charts               | Recharts                              | 3.7.0      |
-| Toasts               | React Hot Toast                       | 2.6.0      |
-| Tests unitaires      | Vitest                                | 4.0.18     |
-| Tests E2E            | Playwright                            | 1.58.2     |
-| CI/CD                | GitHub Actions + Vercel               | —          |
-| Git hooks            | Husky + lint-staged                   | 9.1.7      |
+| Catégorie            | Technologie                            | Version    |
+| -------------------- | -------------------------------------- | ---------- |
+| Framework            | **Next.js** (App Router)               | **16.1.6** |
+| Runtime UI           | **React** / React DOM                  | **19.2.4** |
+| Langage              | TypeScript                             | 5.7.3      |
+| CSS                  | **Tailwind CSS v4** (Lightning CSS)    | **4.2.1**  |
+| PostCSS              | @tailwindcss/postcss                   | 4.2.1      |
+| Linting              | **ESLint** (Flat Config)               | **9.x**    |
+| ESLint config        | eslint-config-next (Flat Config natif) | 16.1.6     |
+| TS ESLint            | typescript-eslint                      | 8.x        |
+| State (client)       | Zustand                                | 5.0.x      |
+| Data fetching        | React Query (@tanstack)                | 5.x        |
+| Forms                | React Hook Form + @hookform/resolvers  | 7.x        |
+| Validation           | Zod                                    | 4.x        |
+| **Authentification** | **Better Auth**                        | **1.4.18** |
+| BDD (browser)        | @supabase/ssr + @supabase/supabase-js  | 0.8 / 2.97 |
+| BDD (Better Auth)    | pg (node-postgres)                     | 8.18       |
+| PDF                  | @react-pdf/renderer                    | 4.3.2      |
+| **Email**            | **Resend**                             | **6.9.2**  |
+| Icons                | Lucide React                           | 0.574      |
+| Charts               | Recharts                               | 3.7.0      |
+| Toasts               | React Hot Toast                        | 2.6.0      |
+| Tests unitaires      | Vitest                                 | 4.x        |
+| Tests E2E            | Playwright                             | 1.x        |
+| CI/CD                | GitHub Actions + Vercel                | —          |
+| Git hooks            | Husky + lint-staged                    | 9.x        |
+
+> [!NOTE]
+> **Changements majeurs v5.0 (2026-02-27)** :
+>
+> - **ESLint v9 Flat Config** — `eslint.config.mjs` avec `typescript-eslint` (parser natif, règles type-aware).
+>   Script lint : `eslint . --max-warnings 0` (Next.js 14 ne reconnaît pas Flat Config, `next lint` non utilisé).
+> - **Tailwind CSS v4** — Moteur Lightning CSS (Rust). Configuration CSS-first via `@theme {}` dans `globals.css`.
+>   `tailwind.config.ts` supprimé. `autoprefixer` supprimé (géré nativement).
+> - **React 19 + Next.js 16** — `params`/`searchParams` strictement asynchrones dans les API Routes.
+>   Les composants UI (`Button`, `Input`, `Select`, `Tooltip`) utilisent `forwardRef` — maintenu pour compatibilité react-hook-form.
+>   La suppression de `forwardRef` sera possible uniquement si React Compiler est activé (UP-S03 phase 2).
 
 ---
 

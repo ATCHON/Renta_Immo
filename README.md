@@ -6,7 +6,9 @@
 [![E2E Tests](https://img.shields.io/badge/E2E_Tests-passed-brightgreen.svg)](https://github.com/ATCHON/Renta_Immo)
 [![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg)](https://github.com/ATCHON/Renta_Immo)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.1-black?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=white)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.2-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Zustand](https://img.shields.io/badge/Zustand-5.0-brown?logo=react&logoColor=white)](https://github.com/pmndrs/zustand)
 
@@ -25,12 +27,16 @@ L'application permet de calculer précisément la rentabilité (brute, nette, ne
 
 ## Stack Technique
 
-- **Framework** : Next.js 14 (App Router)
-- **Langage** : TypeScript
-- **Styling** : Tailwind CSS
-- **Gestion d'état** : Zustand
-- **Validation** : Zod & React Hook Form
-- **Analyse de données** : TanStack Query
+| Couche         | Technologie                         | Version    |
+| -------------- | ----------------------------------- | ---------- |
+| Framework      | **Next.js** (App Router)            | **16.1.6** |
+| Runtime UI     | **React** / React DOM               | **19.2.4** |
+| Langage        | TypeScript                          | 5.7.3      |
+| Styling        | **Tailwind CSS v4** (Lightning CSS) | **4.2.1**  |
+| Linting        | **ESLint** (Flat Config)            | **9.x**    |
+| Gestion d'état | Zustand                             | 5.0.x      |
+| Validation     | Zod & React Hook Form               | 4.x / 7.x  |
+| Data fetching  | TanStack Query                      | 5.x        |
 
 ## Installation
 
