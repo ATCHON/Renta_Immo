@@ -1,9 +1,9 @@
 # Architecture Fullstack - Renta_Immo
 
-> **Version** : 5.0
+> **Version** : 5.1
 > **Date** : 2026-02-27
 > **Auteur** : Winston (Architecte) / James (Dev)
-> **Statut** : Production — Upgrade Stack Majeur (ESLint v9, Tailwind v4, React 19, Next.js 16)
+> **Statut** : Production — Upgrade Stack Majeur (ESLint v9, Tailwind v4, React 19, Next.js 16) + Tests d'Intégration
 
 ---
 
@@ -13,14 +13,14 @@ Ce document formalise l'architecture fullstack complète pour **Renta_Immo**, un
 
 ### 1.1 Objectifs Architecturaux
 
-| Objectif        | Description                                           |
-| --------------- | ----------------------------------------------------- |
-| **Autonomie**   | Zéro dépendance externe non maîtrisée (n8n supprimé)  |
-| **Performance** | Calculs < 500ms, PDF < 2s                             |
-| **Type-safety** | TypeScript strict, types partagés frontend/backend    |
-| **Conformité**  | Paramètres fiscaux configurables sans redéploiement   |
-| **Sécurité**    | Authentification robuste, RBAC admin, RLS BDD         |
-| **DX**          | Migrations automatiques, dev bypass admin, 136+ tests |
+| Objectif        | Description                                                              |
+| --------------- | ------------------------------------------------------------------------ |
+| **Autonomie**   | Zéro dépendance externe non maîtrisée (n8n supprimé)                     |
+| **Performance** | Calculs < 500ms, PDF < 2s                                                |
+| **Type-safety** | TypeScript strict, types partagés frontend/backend                       |
+| **Conformité**  | Paramètres fiscaux configurables sans redéploiement                      |
+| **Sécurité**    | Authentification robuste, RBAC admin, RLS BDD                            |
+| **DX**          | Migrations automatiques, dev bypass admin, 530+ tests (TU + intégration) |
 
 ### 1.2 Documents de Référence
 
@@ -32,13 +32,14 @@ Ce document formalise l'architecture fullstack complète pour **Renta_Immo**, un
 
 ### 1.3 Changelog
 
-| Date       | Version | Description                                                 |
-| ---------- | ------- | ----------------------------------------------------------- |
-| 2026-01-25 | 1.0     | Création initiale (backend)                                 |
-| 2026-01-29 | 2.0     | Ajout Projections/TRI                                       |
-| 2026-02-04 | 3.0     | Architecture Fullstack complète                             |
-| 2026-02-20 | 4.0     | Better Auth · Back-Office Config · Email · Routing V2       |
-| 2026-02-27 | 5.0     | ESLint v9 Flat Config · Tailwind v4 · React 19 · Next.js 16 |
+| Date       | Version | Description                                                                                 |
+| ---------- | ------- | ------------------------------------------------------------------------------------------- |
+| 2026-01-25 | 1.0     | Création initiale (backend)                                                                 |
+| 2026-01-29 | 2.0     | Ajout Projections/TRI                                                                       |
+| 2026-02-04 | 3.0     | Architecture Fullstack complète                                                             |
+| 2026-02-20 | 4.0     | Better Auth · Back-Office Config · Email · Routing V2                                       |
+| 2026-02-27 | 5.0     | ESLint v9 Flat Config · Tailwind v4 · React 19 · Next.js 16                                 |
+| 2026-02-27 | 5.1     | Tests d'intégration (6 scénarios + conformité fiscale) · uuid · dotenv · hooks additionnels |
 
 ---
 
@@ -121,32 +122,37 @@ Renta_Immo est une application **monolithique modulaire** déployée sur Vercel,
 
 ## 3. Stack Technique
 
-| Catégorie            | Technologie                            | Version    |
-| -------------------- | -------------------------------------- | ---------- |
-| Framework            | **Next.js** (App Router)               | **16.1.6** |
-| Runtime UI           | **React** / React DOM                  | **19.2.4** |
-| Langage              | TypeScript                             | 5.7.3      |
-| CSS                  | **Tailwind CSS v4** (Lightning CSS)    | **4.2.1**  |
-| PostCSS              | @tailwindcss/postcss                   | 4.2.1      |
-| Linting              | **ESLint** (Flat Config)               | **9.x**    |
-| ESLint config        | eslint-config-next (Flat Config natif) | 16.1.6     |
-| TS ESLint            | typescript-eslint                      | 8.x        |
-| State (client)       | Zustand                                | 5.0.x      |
-| Data fetching        | React Query (@tanstack)                | 5.x        |
-| Forms                | React Hook Form + @hookform/resolvers  | 7.x        |
-| Validation           | Zod                                    | 4.x        |
-| **Authentification** | **Better Auth**                        | **1.4.18** |
-| BDD (browser)        | @supabase/ssr + @supabase/supabase-js  | 0.8 / 2.97 |
-| BDD (Better Auth)    | pg (node-postgres)                     | 8.18       |
-| PDF                  | @react-pdf/renderer                    | 4.3.2      |
-| **Email**            | **Resend**                             | **6.9.2**  |
-| Icons                | Lucide React                           | 0.574      |
-| Charts               | Recharts                               | 3.7.0      |
-| Toasts               | React Hot Toast                        | 2.6.0      |
-| Tests unitaires      | Vitest                                 | 4.x        |
-| Tests E2E            | Playwright                             | 1.x        |
-| CI/CD                | GitHub Actions + Vercel                | —          |
-| Git hooks            | Husky + lint-staged                    | 9.x        |
+| Catégorie            | Technologie                            | Version     |
+| -------------------- | -------------------------------------- | ----------- |
+| Framework            | **Next.js** (App Router)               | **16.1.6**  |
+| Runtime UI           | **React** / React DOM                  | **19.2.4**  |
+| Langage              | TypeScript                             | 5.7.3       |
+| CSS                  | **Tailwind CSS v4** (Lightning CSS)    | **4.2.1**   |
+| PostCSS              | @tailwindcss/postcss                   | 4.2.1       |
+| Linting              | **ESLint** (Flat Config)               | **9.39.3**  |
+| ESLint config        | eslint-config-next (Flat Config natif) | 16.1.6      |
+| TS ESLint            | typescript-eslint                      | 8.56.1      |
+| State (client)       | Zustand                                | 5.0.11      |
+| Data fetching        | React Query (@tanstack)                | 5.90.21     |
+| Forms                | React Hook Form + @hookform/resolvers  | 7.71 / 5.x  |
+| Validation           | Zod                                    | 4.3.6       |
+| **Authentification** | **Better Auth**                        | **1.4.18**  |
+| BDD (browser)        | @supabase/ssr + @supabase/supabase-js  | 0.8 / 2.97  |
+| BDD (Better Auth)    | pg (node-postgres)                     | 8.18        |
+| PDF                  | @react-pdf/renderer                    | 4.3.2       |
+| **Email**            | **Resend**                             | **6.9.2**   |
+| UUID                 | uuid                                   | 13.0.0      |
+| Env (scripts)        | dotenv                                 | 17.3.1      |
+| Icons                | Lucide React                           | 0.574       |
+| Charts               | Recharts                               | 3.7.0       |
+| Tooltips             | @radix-ui/react-tooltip                | 1.2.8       |
+| Toasts               | React Hot Toast                        | 2.6.0       |
+| Tests unitaires      | Vitest                                 | 4.0.18      |
+| Tests E2E            | Playwright                             | 1.58.2      |
+| Test UI components   | @testing-library/react + user-event    | 16.3 / 14.6 |
+| Tests env DOM        | jsdom                                  | 28.1.0      |
+| CI/CD                | GitHub Actions + Vercel                | —           |
+| Git hooks            | Husky + lint-staged                    | 9.x / 16.x  |
 
 > [!NOTE]
 > **Changements majeurs v5.0 (2026-02-27)** :
@@ -517,7 +523,7 @@ renta-immo/
 │   │   ├── account/
 │   │   └── en-savoir-plus/
 │   ├── components/ (admin · forms · layout · providers · results · simulations · ui)
-│   ├── hooks/ (useScenarioFormReset · useSimulationMutations · useSimulations · useSupabase)
+│   ├── hooks/ (useCalculateur · useChartData · useDownloadPdf · useHasHydrated · useScenarioFormReset · useSimulationMutations · useSimulations · useSupabase)
 │   ├── lib/
 │   │   ├── auth.ts / auth-client.ts / auth-helpers.ts / auth/redirect.ts
 │   │   ├── email.ts (Resend) · logger.ts · rate-limit.ts
@@ -552,19 +558,26 @@ npm run dev    # → migrations auto + Next.js dev server
 
 ### 12.2 Commandes
 
-| Commande                  | Usage                                 |
-| ------------------------- | ------------------------------------- |
-| `npm run dev`             | Dev server (migrations auto)          |
-| `npm run build`           | Build prod (migrations auto)          |
-| `npm run type-check`      | Vérification TypeScript               |
-| `npm run lint`            | ESLint                                |
-| `npm run test`            | Vitest (136+ tests)                   |
-| `npm run test:coverage`   | Coverage V8                           |
-| `npm run test:regression` | Tests de régression calcul uniquement |
-| `npm run test:e2e`        | Playwright                            |
-| `npm run db:migrate`      | Forcer les migrations                 |
-| `npm run db:status`       | État de la BDD                        |
-| `npm run format`          | Prettier                              |
+| Commande                        | Usage                                        |
+| ------------------------------- | -------------------------------------------- |
+| `npm run dev`                   | Dev server (migrations auto)                 |
+| `npm run build`                 | Build prod (migrations auto)                 |
+| `npm run type-check`            | Vérification TypeScript                      |
+| `npm run lint`                  | ESLint (`--max-warnings 0`)                  |
+| `npm run test`                  | Vitest — tous les TU (530+ tests)            |
+| `npm run test:coverage`         | Coverage V8 (rapport lcov)                   |
+| `npm run test:regression`       | Tests de régression calcul uniquement        |
+| `npm run test:regression:watch` | Régression en mode watch                     |
+| `npm run test:integration`      | Tests d'intégration (scénarios bout-en-bout) |
+| `npm run test:watch`            | Vitest en mode watch                         |
+| `npm run test:ui`               | Vitest avec interface graphique              |
+| `npm run test:e2e`              | Playwright E2E                               |
+| `npm run test:e2e:ui`           | Playwright avec interface graphique          |
+| `npm run db:migrate`            | Forcer les migrations                        |
+| `npm run db:status`             | État de la BDD                               |
+| `npm run format`                | Prettier                                     |
+| `npm run format:check`          | Vérification format (CI)                     |
+| `npm run analyze`               | Bundle analyzer (`ANALYZE=true`)             |
 
 ### 12.3 Variables d'environnement
 
@@ -601,14 +614,14 @@ npm run dev    # → migrations auto + Next.js dev server
 
 ### 13.2 Pipeline CI/CD (`.github/workflows/ci.yml`)
 
-3 jobs séquentiels — déclenchés sur push `master` et PRs (hors `docs/**` et `*.md`) :
+4 jobs — déclenchés sur push `master` et PRs (hors `docs/**` et `*.md`) :
 
 ```
-quality-checks  →  unit-tests  →  build
-(lint, tsc,        (vitest run     (next build,
- format:check)      --coverage,     cache .next)
-                    lcov PR,
-                    seuils 50%)
+quality-checks  →  unit-tests  →  integration-tests  →  build
+(lint, tsc,        (vitest run     (vitest run           (next build,
+ format:check)      --coverage,     tests/integration,    cache .next)
+                    lcov PR,        sans coverage,
+                    seuils 50%)     reporter verbose)
 ```
 
 - **Coverage** : rapport lcov commenté automatiquement sur les PRs via `lcov-reporter-action`
@@ -616,6 +629,7 @@ quality-checks  →  unit-tests  →  build
 - **Cache Next.js** : keyed sur `package-lock.json` + fichiers `.ts/.tsx`
 - **Migrations** : skippées en CI (pas de BDD réelle), exécutées au déploiement Vercel
 - **Dependabot** : mises à jour npm mensuelles (`.github/dependabot.yml`)
+- **Tests d'intégration** : couvrent les scénarios métier bout-en-bout (CF-01→CF-08 + SC-01→SC-25), sans seuil de couverture (coverage=false)
 
 ---
 
@@ -660,12 +674,27 @@ tests/
 ├── setup.ts                        # Setup global Vitest
 ├── helpers/test-config.ts          # ResolvedConfig mock partagée
 ├── unit/
-│   ├── api/                        # Tests routes API (calculate, simulations CRUD, simulations/[id])
-│   ├── calculations/               # 136+ tests unitaires moteur de calcul
-│   │   └── (amortissement, assurance, deficit-foncier, fiscalite, hcsf, plus-value, scoring, ...)
+│   ├── api/                        # calculate · simulations · simulations-id
+│   ├── calculations/               # 20+ fichiers (amortissement, assurance, bug-calc,
+│   │                               # deficit-foncier, dpe-alertes, financement, fiscalite,
+│   │                               # frais-revente, hcsf, hcsf-reste-a-vivre, metier,
+│   │                               # plus-value, projection, rentabilite, scoring, synthese, validation)
+│   ├── server/admin/               # audit-service · dry-run-service
 │   ├── stores/calculateur.store.test.ts
-│   ├── hooks/useDownloadPdf.test.ts
-│   └── lib/                        # format, logger, rate-limit, redirect, pdf/RapportSimulation
+│   ├── hooks/                      # useChartData · useDownloadPdf
+│   └── lib/                        # api · constants · format · logger · rate-limit ·
+│                                   # redirect · utils · validators · pdf/RapportSimulation
+├── integration/                    # Tests bout-en-bout multi-couches
+│   ├── config/integration-config.ts     # Config intégration partagée
+│   ├── helpers.ts
+│   ├── fiscal-conformity.test.ts         # CF-01→CF-08 conformité fiscale 2026
+│   └── scenarios/
+│       ├── 01-revenus-fonciers.test.ts
+│       ├── 02-lmnp.test.ts
+│       ├── 03-sci-is.test.ts
+│       ├── 04-hcsf.test.ts
+│       ├── 05-plus-value-dpe.test.ts
+│       └── 06-scoring-projections.test.ts
 └── e2e/
     ├── helpers/auth.ts             # Helper Playwright authentification
     ├── auth/                       # login, logout, signup, protected-routes
@@ -685,6 +714,7 @@ tests/
 - Coverage V8 : reporters text/json/html/lcov, include `src/server/**`, `src/lib/**`, `src/stores/**`, `src/hooks/**`
 - Seuils de couverture actifs : lines/functions/branches/statements = **50%**
 - Couverture mesurée : 84% stmts, 75% branches, 75% funcs, 85% lines
+- **530 tests passants** (41 fichiers — TU uniquement, intégration exclue de la couverture)
 
 **Playwright** (`playwright.config.ts`) :
 
@@ -734,11 +764,13 @@ tests/
 
 ### Audit Technique — Phases restantes
 
-| Phase                    | Statut               | Contenu                                                                                                                                                                        |
-| ------------------------ | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Phase 4 — Tests & DevOps | ✅ DONE (2026-02-20) | CI/CD 3 jobs optimisé, Husky+lint-staged, tests unitaires API/store/hooks/lib, E2E auth+CRUD+filtres+PDF, multi-browser, config Vitest V8. Couverture 72%+, seuils 50% actifs. |
-| Phase 5 — Scalabilité    | TODO                 | Rate limiting distribué (Redis/KV), monitoring Sentry, cache Edge, pagination curseur                                                                                          |
+| Phase                          | Statut               | Contenu                                                                                                                                                                                |
+| ------------------------------ | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 4 — Tests & DevOps       | ✅ DONE (2026-02-20) | CI/CD 3 jobs optimisé, Husky+lint-staged, tests unitaires API/store/hooks/lib, E2E auth+CRUD+filtres+PDF, multi-browser, config Vitest V8. Couverture 72%+, seuils 50% actifs.         |
+| Phase 4b — Tests d'Intégration | ✅ DONE (2026-02-27) | Suite `tests/integration/` : SC-01→SC-25 (Foncier, LMNP, SCI IS, HCSF, PV+DPE, Scoring/Projections) + CF-01→CF-08 conformité fiscale 2026. Job CI dédié (`integration-tests`). 530 TU. |
+| Phase 4c — Upgrade Stack       | ✅ DONE (2026-02-27) | ESLint v9 Flat Config, Tailwind v4 Lightning CSS, React 19, Next.js 16. `forwardRef` maintenu (compat react-hook-form).                                                                |
+| Phase 5 — Scalabilité          | TODO                 | Rate limiting distribué (Redis/KV), monitoring Sentry, cache Edge, pagination curseur                                                                                                  |
 
 ---
 
-_Document généré par Winston (Architecte) — Version 4.0_
+_Document généré par Winston (Architecte) — Version 5.1_
