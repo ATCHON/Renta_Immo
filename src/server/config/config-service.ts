@@ -1,16 +1,32 @@
-// src/server/config/config-service.ts
+// src/server/config/config-service.ts — Cache distribué Redis (ARCH-S03)
+//
+// Stratégie cascaded fallback :
+//   Redis HIT → retourner
+//   Redis MISS ou DOWN → Supabase DB
+//   Supabase DOWN → getFallbackConfig() (valeurs hardcodées)
 
 import { createAdminClient } from '@/lib/supabase/server';
+import { redis } from '@/lib/redis';
 import type { ResolvedConfig, DbConfigParamRow } from './config-types';
 import { CLE_TO_FIELD } from './config-types';
 
-interface CacheEntry {
-  data: ResolvedConfig;
-  fetchedAt: number;
+const DEFAULT_TTL_SECONDS = 300; // 5 minutes
+
+// Debounce du log warn Redis pour éviter le log flooding
+let lastRedisWarnAt = 0;
+const REDIS_WARN_DEBOUNCE_MS = 60_000;
+
+function logRedisWarn(message: string, context?: Record<string, unknown>) {
+  const now = Date.now();
+  if (now - lastRedisWarnAt >= REDIS_WARN_DEBOUNCE_MS) {
+    lastRedisWarnAt = now;
+    console.warn('[ConfigService]', message, context ?? '');
+  }
 }
 
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-const cache = new Map<number, CacheEntry>();
+function cacheKey(year: number): string {
+  return `config:fiscal:${year}`;
+}
 
 export class ConfigService {
   private static instance: ConfigService;
@@ -22,40 +38,63 @@ export class ConfigService {
 
   async getConfig(anneeFiscale?: number): Promise<ResolvedConfig> {
     const year = anneeFiscale ?? new Date().getFullYear();
-    const cached = cache.get(year);
+    const ttl = Number(process.env.CONFIG_CACHE_TTL_SECONDS ?? DEFAULT_TTL_SECONDS);
 
-    if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) {
-      return cached.data;
+    // 1. Tentative cache Redis
+    try {
+      const cached = await redis.get<string>(cacheKey(year));
+      if (cached) {
+        return JSON.parse(cached) as ResolvedConfig;
+      }
+    } catch (err) {
+      logRedisWarn('Redis indisponible pour lecture — fallback DB', { year, err });
     }
 
-    const supabase = await createAdminClient();
-    const { data, error } = await supabase
-      .from('config_params')
-      .select('*')
-      .eq('annee_fiscale', year);
+    // 2. Requête Supabase DB
+    try {
+      const supabase = await createAdminClient();
+      const { data, error } = await supabase
+        .from('config_params')
+        .select('*')
+        .eq('annee_fiscale', year);
 
-    if (error || !data?.length) {
-      // Fallback sur les constantes hardcodées si la DB est vide ou en cas d'erreur
-      const fallbackConfig = this.getFallbackConfig(year);
-      cache.set(year, { data: fallbackConfig, fetchedAt: Date.now() });
-      return fallbackConfig;
+      if (error || !data?.length) {
+        const fallbackConfig = this.getFallbackConfig(year);
+        await this.trySetCache(cacheKey(year), fallbackConfig, ttl);
+        return fallbackConfig;
+      }
+
+      const resolved = this.mapToResolvedConfig(year, data as DbConfigParamRow[]);
+      await this.trySetCache(cacheKey(year), resolved, ttl);
+      return resolved;
+    } catch {
+      // 3. Supabase aussi indisponible → valeurs hardcodées
+      return this.getFallbackConfig(year);
     }
-
-    const resolved = this.mapToResolvedConfig(year, data as DbConfigParamRow[]);
-    cache.set(year, { data: resolved, fetchedAt: Date.now() });
-    return resolved;
   }
 
-  invalidateCache(year?: number): void {
-    if (year) cache.delete(year);
-    else cache.clear();
+  async invalidateCache(year?: number): Promise<void> {
+    const currentYear = new Date().getFullYear();
+    const years = year ? [year] : [currentYear - 2, currentYear - 1, currentYear, currentYear + 1];
+    try {
+      await Promise.all(years.map((y) => redis.del(cacheKey(y))));
+    } catch (err) {
+      logRedisWarn('Redis indisponible pour invalidation cache', { years, err });
+    }
+  }
+
+  private async trySetCache(key: string, data: ResolvedConfig, ttl: number): Promise<void> {
+    try {
+      await redis.set(key, JSON.stringify(data), { ex: ttl });
+    } catch (err) {
+      logRedisWarn('Redis indisponible pour écriture cache', { key, err });
+    }
   }
 
   private mapToResolvedConfig(year: number, params: DbConfigParamRow[]): ResolvedConfig {
     const get = (cle: string): number => {
       const p = params.find((p) => p.cle === cle);
       if (!p) {
-        // Si un paramètre manque en BDD, on tente de récupérer sa valeur par défaut
         console.warn(
           `Paramètre manquant en BDD : ${cle} (année ${year}). Utilisation du fallback.`
         );
@@ -126,7 +165,7 @@ export class ConfigService {
       projectionInflationLoyer: get('PROJECTION_INFLATION_LOYER'),
       projectionInflationCharges: get('PROJECTION_INFLATION_CHARGES'),
       projectionRevalorisation: get('PROJECTION_REVALORISATION_BIEN'),
-      projectionDecoteDpeFg: get('DECOTE_DPE_FG'), // Réutilise la même clé pour les projections
+      projectionDecoteDpeFg: get('DECOTE_DPE_FG'),
       projectionDecoteDpeE: get('DECOTE_DPE_E'),
     };
   }
@@ -134,7 +173,6 @@ export class ConfigService {
   private getFallbackConfig(year: number): ResolvedConfig {
     return {
       anneeFiscale: year,
-      // Utilisation des valeurs codées en dur pour le fallback global
       tauxPsFoncier: 0.172,
       tauxPsRevenusBicLmnp: 0.186,
       microFoncierAbattement: 0.3,

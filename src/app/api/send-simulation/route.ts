@@ -8,7 +8,7 @@ import { renderToBuffer } from '@react-pdf/renderer';
 import { z, ZodError } from 'zod';
 import { RapportSimulation } from '@/lib/pdf/templates/RapportSimulation';
 import { logger } from '@/lib/logger';
-import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { rateLimit, getClientIp, buildRateLimitHeaders } from '@/lib/rate-limit';
 import { resend, EMAIL_SENDER } from '@/lib/email';
 import type { CalculateurFormData, CalculResultats } from '@/types/calculateur';
 
@@ -21,9 +21,9 @@ const SendSimulationSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  // Rate limiting: 3 envois par minute par IP
+  // Rate limiting: 3 req/60s par IP (anti-spam email Resend)
   const ip = getClientIp(request);
-  const rl = rateLimit(`email:${ip}`, { limit: 3, window: 60_000 });
+  const rl = await rateLimit('send', ip);
 
   if (!rl.success) {
     return NextResponse.json(
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
           message: "Trop d'envois d'emails. Veuillez patienter.",
         },
       },
-      { status: 429 }
+      { status: 429, headers: buildRateLimitHeaders(rl) }
     );
   }
 

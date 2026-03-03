@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { SimulationFilters } from '@/components/simulations/SimulationFilters';
-import { Pagination } from '@/components/ui/Pagination';
 import { useSimulations } from '@/hooks/useSimulations';
 import { useSimulationMutations } from '@/hooks/useSimulationMutations';
 import { logger } from '@/lib/logger';
@@ -22,7 +21,7 @@ export default function SimulationsPage() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Read filters from URL search params
+  // Filtres stables dans l'URL (shareable, back/forward nav)
   const rawStatus = searchParams.get('status') || 'all';
   const status: StatusFilter = (VALID_STATUSES as readonly string[]).includes(rawStatus)
     ? (rawStatus as StatusFilter)
@@ -33,14 +32,9 @@ export default function SimulationsPage() {
     ? (rawSort as SortField)
     : 'created_at';
 
-  const order = searchParams.get('order') === 'asc' ? ('asc' as const) : ('desc' as const);
   const search = searchParams.get('q') || '';
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
 
-  const limit = 9;
-  const offset = (page - 1) * limit;
-
-  // Helper to update URL params (shallow navigation)
+  // Helper pour mettre à jour les URL params (shallow nav)
   const updateParams = React.useCallback(
     (updates: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -57,36 +51,31 @@ export default function SimulationsPage() {
     [searchParams, router, pathname]
   );
 
-  // Local search state for responsive input (debounced sync to URL)
+  // Recherche locale avec debounce vers l'URL
   const [localSearch, setLocalSearch] = React.useState(search);
 
-  // Sync URL → local when URL changes externally (back/forward)
   React.useEffect(() => {
     setLocalSearch(search);
   }, [search]);
 
-  // Debounce local search → URL
   React.useEffect(() => {
     const timer = setTimeout(() => {
       if (localSearch !== search) {
-        updateParams({ q: localSearch || null, page: null });
+        updateParams({ q: localSearch || null });
       }
     }, 500);
     return () => clearTimeout(timer);
   }, [localSearch, search, updateParams]);
 
-  const {
-    data: response,
-    isLoading,
-    error,
-  } = useSimulations({
-    sort,
-    order,
-    status,
-    search,
-    limit,
-    offset,
-  });
+  // Pagination curseur — le cursor N'est PAS dans l'URL (éphémère)
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useSimulations(
+    {
+      sort: sort === 'name' ? 'created_at' : sort,
+      status,
+      search,
+      limit: 9,
+    }
+  );
 
   const { deleteSimulation, toggleFavorite, renameSimulation, toggleArchive } =
     useSimulationMutations();
@@ -108,9 +97,8 @@ export default function SimulationsPage() {
   const handleToggleArchive = (id: string, isArchived: boolean) =>
     safeMutate(() => toggleArchive.mutateAsync({ id, isArchived }), 'toggle archive');
 
-  const simulations = response?.data || [];
-  const total = response?.meta?.total || 0;
-  const totalPages = Math.ceil(total / limit);
+  // Aplatir les pages en liste continue
+  const simulations = data?.pages.flatMap((page) => page.data as Simulation[]) ?? [];
 
   return (
     <main className="container mx-auto px-4 py-12 max-w-6xl">
@@ -133,11 +121,11 @@ export default function SimulationsPage() {
         search={localSearch}
         onSearchChange={setLocalSearch}
         status={status}
-        onStatusChange={(s) => updateParams({ status: s === 'all' ? null : s, page: null })}
+        onStatusChange={(s) => updateParams({ status: s === 'all' ? null : s })}
         sort={sort}
-        onSortChange={(s) => updateParams({ sort: s === 'created_at' ? null : s, page: null })}
-        order={order}
-        onOrderChange={(o) => updateParams({ order: o === 'desc' ? null : o, page: null })}
+        onSortChange={(s) => updateParams({ sort: s === 'created_at' ? null : s })}
+        order="desc"
+        onOrderChange={() => {}}
       />
 
       {isLoading ? (
@@ -197,11 +185,17 @@ export default function SimulationsPage() {
             ))}
           </div>
 
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={(p) => updateParams({ page: p <= 1 ? null : String(p) })}
-          />
+          {hasNextPage && (
+            <div className="flex justify-center mt-10">
+              <button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="px-8 py-3 bg-white border-2 border-slate-200 text-slate-700 font-semibold rounded-xl hover:border-forest hover:text-forest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isFetchingNextPage ? 'Chargement...' : 'Charger plus'}
+              </button>
+            </div>
+          )}
         </>
       )}
     </main>

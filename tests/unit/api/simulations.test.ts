@@ -22,8 +22,14 @@ vi.mock('@/lib/auth', () => ({
 vi.mock('@/lib/rate-limit', () => ({
   rateLimit: vi
     .fn()
-    .mockReturnValue({ success: true, limit: 30, remaining: 29, resetAt: Date.now() + 60000 }),
+    .mockResolvedValue({
+      success: true,
+      limit: 60,
+      remaining: 59,
+      resetAt: Math.ceil(Date.now() / 1000) + 60,
+    }),
   getClientIp: vi.fn().mockReturnValue('1.2.3.4'),
+  buildRateLimitHeaders: vi.fn().mockReturnValue({ 'Retry-After': '60' }),
 }));
 
 vi.mock('@/lib/supabase/server', () => ({
@@ -58,9 +64,10 @@ function makeChain(resolveValue: unknown) {
     update: vi.fn(),
     delete: vi.fn(),
     eq: vi.fn(),
+    or: vi.fn(),
     ilike: vi.fn(),
     order: vi.fn(),
-    range: vi.fn(),
+    limit: vi.fn(),
     single: vi.fn().mockResolvedValue(resolveValue),
     then(resolve: (v: unknown) => unknown, reject?: (e: unknown) => unknown) {
       return Promise.resolve(resolveValue).then(resolve, reject);
@@ -72,32 +79,40 @@ function makeChain(resolveValue: unknown) {
   (chain.update as ReturnType<typeof vi.fn>).mockReturnValue(chain);
   (chain.delete as ReturnType<typeof vi.fn>).mockReturnValue(chain);
   (chain.eq as ReturnType<typeof vi.fn>).mockReturnValue(chain);
+  (chain.or as ReturnType<typeof vi.fn>).mockReturnValue(chain);
   (chain.ilike as ReturnType<typeof vi.fn>).mockReturnValue(chain);
   (chain.order as ReturnType<typeof vi.fn>).mockReturnValue(chain);
-  (chain.range as ReturnType<typeof vi.fn>).mockReturnValue(chain);
+  (chain.limit as ReturnType<typeof vi.fn>).mockReturnValue(chain);
 
   return chain;
 }
 
-// ─── GET /api/simulations ─────────────────────────────────────────────────────
+// ─── GET /api/simulations (pagination curseur) ────────────────────────────────
 
 describe('GET /api/simulations', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     const { createAdminClient } = await import('@/lib/supabase/server');
     vi.mocked(createAdminClient).mockResolvedValue({
-      from: vi.fn().mockReturnValue(makeChain({ data: [MOCK_SIMULATION], error: null, count: 1 })),
+      from: vi.fn().mockReturnValue(makeChain({ data: [MOCK_SIMULATION], error: null })),
     } as never);
   });
 
-  it('retourne 200 avec une liste pour un utilisateur authentifié', async () => {
+  it('retourne 200 avec pagination curseur pour un utilisateur authentifié', async () => {
     const { GET } = await import('@/app/api/simulations/route');
     const req = new NextRequest('http://localhost/api/simulations');
     const res = await GET(req);
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.data).toBeDefined();
     expect(body.success).toBe(true);
+    expect(body.data).toBeDefined();
+    expect(body.meta).toBeDefined();
+    expect(body.meta).toHaveProperty('next_cursor');
+    expect(body.meta).toHaveProperty('has_more');
+    expect(body.meta).toHaveProperty('limit');
+    // Pas de total ni d'offset dans le nouveau format
+    expect(body.meta.total).toBeUndefined();
+    expect(body.meta.offset).toBeUndefined();
   });
 
   it('retourne 401 si la session est absente', async () => {
@@ -111,11 +126,11 @@ describe('GET /api/simulations', () => {
 
   it('retourne 429 si le rate limit est dépassé', async () => {
     const { rateLimit } = await import('@/lib/rate-limit');
-    vi.mocked(rateLimit).mockReturnValueOnce({
+    vi.mocked(rateLimit).mockResolvedValueOnce({
       success: false,
-      limit: 30,
+      limit: 60,
       remaining: 0,
-      resetAt: Date.now() + 60000,
+      resetAt: Math.ceil(Date.now() / 1000) + 60,
     });
     const { GET } = await import('@/app/api/simulations/route');
     const req = new NextRequest('http://localhost/api/simulations');
@@ -125,7 +140,7 @@ describe('GET /api/simulations', () => {
   });
 
   it('filtre par favorite=true', async () => {
-    const chain = makeChain({ data: [MOCK_SIMULATION], error: null, count: 1 });
+    const chain = makeChain({ data: [MOCK_SIMULATION], error: null });
     const { createAdminClient } = await import('@/lib/supabase/server');
     vi.mocked(createAdminClient).mockResolvedValue({
       from: vi.fn().mockReturnValue(chain),
@@ -139,7 +154,7 @@ describe('GET /api/simulations', () => {
   });
 
   it('filtre par archived=true', async () => {
-    const chain = makeChain({ data: [MOCK_SIMULATION], error: null, count: 1 });
+    const chain = makeChain({ data: [MOCK_SIMULATION], error: null });
     const { createAdminClient } = await import('@/lib/supabase/server');
     vi.mocked(createAdminClient).mockResolvedValue({
       from: vi.fn().mockReturnValue(chain),
@@ -152,7 +167,33 @@ describe('GET /api/simulations', () => {
     expect(chain.eq as ReturnType<typeof vi.fn>).toHaveBeenCalledWith('is_archived', true);
   });
 
-  it('rejette ou remplace une colonne sort invalide', async () => {
+  it('retourne 400 si le cursor est invalide', async () => {
+    const { GET } = await import('@/app/api/simulations/route');
+    const req = new NextRequest('http://localhost/api/simulations?cursor=invalid-base64!!!');
+    const res = await GET(req);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error.code).toBe('INVALID_CURSOR');
+  });
+
+  it('retourne next_cursor=null sur la dernière page (has_more=false)', async () => {
+    // Retourner exactement `limit` éléments (pas limit+1) → has_more=false
+    const chain = makeChain({ data: [MOCK_SIMULATION], error: null });
+    const { createAdminClient } = await import('@/lib/supabase/server');
+    vi.mocked(createAdminClient).mockResolvedValue({
+      from: vi.fn().mockReturnValue(chain),
+    } as never);
+
+    const { GET } = await import('@/app/api/simulations/route');
+    const req = new NextRequest('http://localhost/api/simulations?limit=20');
+    const res = await GET(req);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.meta.has_more).toBe(false);
+    expect(body.meta.next_cursor).toBeNull();
+  });
+
+  it('rejette une colonne sort invalide et utilise created_at par défaut', async () => {
     const { GET } = await import('@/app/api/simulations/route');
     const req = new NextRequest(
       'http://localhost/api/simulations?sort=password%3B%20DROP%20TABLE--'
@@ -162,7 +203,7 @@ describe('GET /api/simulations', () => {
   });
 
   it('filtre par search term (ilike)', async () => {
-    const chain = makeChain({ data: [MOCK_SIMULATION], error: null, count: 1 });
+    const chain = makeChain({ data: [MOCK_SIMULATION], error: null });
     const { createAdminClient } = await import('@/lib/supabase/server');
     vi.mocked(createAdminClient).mockResolvedValue({
       from: vi.fn().mockReturnValue(chain),
@@ -176,7 +217,7 @@ describe('GET /api/simulations', () => {
   });
 
   it('échappe les caractères LIKE spéciaux dans search', async () => {
-    const chain = makeChain({ data: [], error: null, count: 0 });
+    const chain = makeChain({ data: [], error: null });
     const { createAdminClient } = await import('@/lib/supabase/server');
     vi.mocked(createAdminClient).mockResolvedValue({
       from: vi.fn().mockReturnValue(chain),
@@ -186,51 +227,7 @@ describe('GET /api/simulations', () => {
     const req = new NextRequest('http://localhost/api/simulations?search=test%25admin');
     const res = await GET(req);
     expect(res.status).toBe(200);
-    // Le % doit être échappé en \%
     expect(chain.ilike as ReturnType<typeof vi.fn>).toHaveBeenCalledWith('name', '%test\\%admin%');
-  });
-
-  it('applique la pagination avec limit et offset valides', async () => {
-    const chain = makeChain({ data: [MOCK_SIMULATION], error: null, count: 1 });
-    const { createAdminClient } = await import('@/lib/supabase/server');
-    vi.mocked(createAdminClient).mockResolvedValue({
-      from: vi.fn().mockReturnValue(chain),
-    } as never);
-
-    const { GET } = await import('@/app/api/simulations/route');
-    const req = new NextRequest('http://localhost/api/simulations?limit=10&offset=20');
-    const res = await GET(req);
-    expect(res.status).toBe(200);
-    expect(chain.range as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(20, 29);
-  });
-
-  it('corrige limit hors bornes (max 100)', async () => {
-    const chain = makeChain({ data: [], error: null, count: 0 });
-    const { createAdminClient } = await import('@/lib/supabase/server');
-    vi.mocked(createAdminClient).mockResolvedValue({
-      from: vi.fn().mockReturnValue(chain),
-    } as never);
-
-    const { GET } = await import('@/app/api/simulations/route');
-    const req = new NextRequest('http://localhost/api/simulations?limit=999');
-    const res = await GET(req);
-    expect(res.status).toBe(200);
-    // range(0, 99) car limit est clampé à 100
-    expect(chain.range as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(0, 99);
-  });
-
-  it('corrige offset négatif à 0', async () => {
-    const chain = makeChain({ data: [], error: null, count: 0 });
-    const { createAdminClient } = await import('@/lib/supabase/server');
-    vi.mocked(createAdminClient).mockResolvedValue({
-      from: vi.fn().mockReturnValue(chain),
-    } as never);
-
-    const { GET } = await import('@/app/api/simulations/route');
-    const req = new NextRequest('http://localhost/api/simulations?offset=-5');
-    const res = await GET(req);
-    expect(res.status).toBe(200);
-    expect(chain.range as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(0, expect.any(Number));
   });
 });
 
@@ -287,7 +284,6 @@ describe('POST /api/simulations', () => {
   });
 
   it('retourne 4xx/5xx si le body JSON est invalide (parse error)', async () => {
-    // La route ne distingue pas SyntaxError de ZodError → retourne 500
     const { POST } = await import('@/app/api/simulations/route');
     const req = new NextRequest('http://localhost/api/simulations', {
       method: 'POST',

@@ -1,12 +1,27 @@
 /**
  * Tests pour la route API /api/calculate
- * 
+ *
  * Story TECH-008 : Route POST /api/calculate
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST, OPTIONS } from '@/app/api/calculate/route';
 import { NextRequest } from 'next/server';
+
+// Mock du rate-limit (désormais async Upstash) et du client Redis
+vi.mock('@/lib/redis', () => ({ redis: {} }));
+vi.mock('@/lib/rate-limit', () => ({
+  rateLimit: vi
+    .fn()
+    .mockResolvedValue({
+      success: true,
+      limit: 10,
+      remaining: 9,
+      resetAt: Math.ceil(Date.now() / 1000) + 60,
+    }),
+  getClientIp: vi.fn().mockReturnValue('1.2.3.4'),
+  buildRateLimitHeaders: vi.fn().mockReturnValue({ 'Retry-After': '60' }),
+}));
 
 // Mock de performCalculations pour isoler le test de la route
 vi.mock('@/server/calculations', () => ({

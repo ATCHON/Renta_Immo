@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { performCalculations } from '@/server/calculations';
 import { logger } from '@/lib/logger';
-import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { rateLimit, getClientIp, buildRateLimitHeaders } from '@/lib/rate-limit';
 import type { CalculationResult, CalculationError } from '@/server/calculations';
 
 // ============================================================================
@@ -127,9 +127,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
   const origin = request.headers.get('origin');
   const corsHeaders = getCorsHeaders(origin);
 
-  // Rate limiting: 10 requests per minute per IP (CPU-intensive endpoint)
+  // Rate limiting: 10 req/60s par IP (endpoint CPU-intensif)
   const ip = getClientIp(request);
-  const rl = rateLimit(`calculate:${ip}`, { limit: 10, window: 60_000 });
+  const rl = await rateLimit('calculate', ip);
   if (!rl.success) {
     return NextResponse.json<ApiErrorResponse>(
       {
@@ -142,10 +142,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       },
       {
         status: 429,
-        headers: {
-          ...corsHeaders,
-          'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
-        },
+        headers: { ...corsHeaders, ...buildRateLimitHeaders(rl) },
       }
     );
   }
