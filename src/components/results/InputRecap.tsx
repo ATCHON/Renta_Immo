@@ -95,12 +95,14 @@ export function InputRecap({ bien, financement, exploitation, structure }: Input
 
   return (
     <Card variant="bordered" className="!py-4 !px-5">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 divide-y sm:divide-y-0 sm:divide-x divide-border">
-        <RecapCol title="Bien" items={bienItems} />
-        <div className="pt-4 sm:pt-0 sm:pl-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border">
+        <div className="sm:pr-4 pb-4 sm:pb-0">
+          <RecapCol title="Bien" items={bienItems} />
+        </div>
+        <div className="pt-4 sm:pt-0 sm:px-4">
           <RecapCol title="Financement" items={financementItems} />
         </div>
-        <div className="pt-4 sm:pt-0 sm:pl-4">
+        <div className="pt-4 sm:pt-0 sm:px-4">
           <RecapCol title="Exploitation" items={exploitationItems} />
         </div>
         <div className="pt-4 sm:pt-0 sm:pl-4">

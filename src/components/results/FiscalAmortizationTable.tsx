@@ -84,52 +84,52 @@ export const FiscalAmortizationTable = React.memo(function FiscalAmortizationTab
 
       {/* KPIs résumé */}
       <div
-        className="grid grid-cols-2 md:grid-cols-4 gap-px bg-sand/30 mx-6 rounded-xl overflow-hidden border border-sand/40"
+        className="grid grid-cols-2 md:grid-cols-4 gap-px bg-sand/30 mx-3 sm:mx-6 rounded-xl overflow-hidden border border-sand/40"
         style={{ marginBottom: activeTooltip ? '0' : undefined }}
       >
-        <div className="bg-white px-5 py-4 text-center">
+        <div className="bg-white px-3 sm:px-5 py-3 sm:py-4 text-center">
           <p className="text-[10px] font-black text-pebble uppercase tracking-widest mb-1">
             Total amorti
           </p>
-          <p className="text-xl font-black text-charcoal tabular-nums">
+          <p className="text-base sm:text-xl font-black text-charcoal tabular-nums">
             {formatCurrency(data.totaux.totalAmortissements)}
           </p>
         </div>
-        <div className="bg-white px-5 py-4 text-center">
+        <div className="bg-white px-3 sm:px-5 py-3 sm:py-4 text-center">
           <p className="text-[10px] font-black text-pebble uppercase tracking-widest mb-1">
             Déductible effectif
           </p>
-          <p className="text-xl font-black text-forest tabular-nums">
+          <p className="text-base sm:text-xl font-black text-forest tabular-nums">
             {formatCurrency(data.totaux.totalDeductible)}
           </p>
         </div>
         <button
           type="button"
           onClick={() => setActiveTooltip(activeTooltip === 'eco' ? null : 'eco')}
-          className="bg-forest/5 px-5 py-4 text-center cursor-pointer hover:bg-forest/10 transition-colors text-left w-full"
+          className="bg-forest/5 px-3 sm:px-5 py-3 sm:py-4 text-center cursor-pointer hover:bg-forest/10 transition-colors text-left w-full"
         >
           <p className="text-[10px] font-black text-pebble uppercase tracking-widest mb-1 flex items-center justify-center gap-1">
-            Économie d&apos;impôt estimée
+            Économie d&apos;impôt est.
             <Info
               className={`h-3 w-3 transition-colors ${activeTooltip === 'eco' ? 'text-forest' : 'text-pebble/40'}`}
             />
           </p>
-          <p className="text-xl font-black text-forest tabular-nums">
+          <p className="text-base sm:text-xl font-black text-forest tabular-nums">
             {formatCurrency(data.totaux.economieImpotEstimee)}
           </p>
         </button>
         <button
           type="button"
           onClick={() => setActiveTooltip(activeTooltip === 'reint' ? null : 'reint')}
-          className="bg-terracotta/5 border-l border-terracotta/10 px-5 py-4 text-center cursor-pointer hover:bg-terracotta/10 transition-colors text-left w-full"
+          className="bg-terracotta/5 border-l border-terracotta/10 px-3 sm:px-5 py-3 sm:py-4 text-center cursor-pointer hover:bg-terracotta/10 transition-colors text-left w-full"
         >
           <p className="text-[10px] font-black text-pebble uppercase tracking-widest mb-1 flex items-center justify-center gap-1">
-            {data.regime === 'LMNP Réel' ? 'Réintégration PV (LF 2025)' : 'Réintégration IS (VNC)'}
+            {data.regime === 'LMNP Réel' ? 'Réintégr. PV (LF 2025)' : 'Réintégr. IS (VNC)'}
             <Info
               className={`h-3 w-3 transition-colors ${activeTooltip === 'reint' ? 'text-terracotta' : 'text-pebble/40'}`}
             />
           </p>
-          <p className="text-xl font-black text-terracotta tabular-nums">
+          <p className="text-base sm:text-xl font-black text-terracotta tabular-nums">
             {formatCurrency(data.totaux.amortissementAReintegrer)}
           </p>
           {data.regime === 'LMNP Réel' && data.totaux.totalMobilierDeduit > 0 && (
