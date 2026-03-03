@@ -36,11 +36,11 @@ export function SideNavigationDesktop({
   };
 
   return (
-    <aside className={cn('hidden lg:block w-52 shrink-0 sticky top-24 self-start', className)}>
+    <aside className={cn('hidden lg:block w-52 shrink-0 sticky self-start', className)} style={{ top: 'var(--header-h-desktop)' }}>
       <p className="text-[10px] font-black text-pebble uppercase tracking-widest mb-3 px-2">
         {title}
       </p>
-      <nav className="space-y-0.5">
+      <nav role="navigation" aria-label={title} className="space-y-0.5">
         {items.map((item) => {
           const isActive = activeId === item.id || item.status === 'current';
           const isCompleted = item.status === 'completed';
@@ -51,6 +51,7 @@ export function SideNavigationDesktop({
               <button
                 onClick={() => !isUpcoming && handleItemClick(item.id, item.onClick)}
                 disabled={isUpcoming}
+                aria-current={isActive ? 'page' : undefined}
                 className={cn(
                   'w-full text-left text-xs px-3 py-2 rounded-lg transition-all duration-150 font-medium flex items-center gap-2',
                   isActive
@@ -75,6 +76,7 @@ export function SideNavigationDesktop({
                       <button
                         key={sub.id}
                         onClick={() => handleItemClick(sub.id, sub.onClick)}
+                        aria-current={isSubActive ? 'page' : undefined}
                         className={cn(
                           'block w-full text-left text-[11px] px-2 py-1 rounded transition-colors',
                           isSubActive
@@ -126,7 +128,7 @@ export function SideNavigationMobile({
     : items.find((i) => i.status === 'current') || items[0];
 
   return (
-    <div className="lg:hidden sticky top-16 z-20 bg-white/95 backdrop-blur border-b border-sand/60 px-4 py-2">
+    <div className="lg:hidden sticky z-20 bg-white/95 backdrop-blur border-b border-sand/60 px-4 py-2" style={{ top: 'var(--header-h-mobile)' }}>
       <button
         onClick={() => setIsOpen((v) => !v)}
         className="flex items-center justify-between w-full"
@@ -140,7 +142,7 @@ export function SideNavigationMobile({
       </button>
 
       {isOpen && (
-        <nav className="mt-2 pb-2 grid grid-cols-2 gap-1">
+        <nav role="navigation" aria-label={title} className="mt-2 pb-2 grid grid-cols-2 gap-1">
           {items.map((item) => {
             const isActive = activeId === item.id || item.status === 'current';
             const isUpcoming = item.status === 'upcoming';
@@ -149,6 +151,7 @@ export function SideNavigationMobile({
                 key={item.id}
                 onClick={() => !isUpcoming && handleItemClick(item.id, item.onClick)}
                 disabled={isUpcoming}
+                aria-current={isActive ? 'page' : undefined}
                 className={cn(
                   'text-left text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5',
                   isActive

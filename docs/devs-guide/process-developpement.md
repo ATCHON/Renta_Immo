@@ -1,4 +1,4 @@
-# Guide de developpement
+# Guide de développement
 
 > **Version** : 2.0
 > **Date** : 2026-03-04
@@ -73,5 +73,5 @@ Valider cette checklist avant chaque merge sur `master`.
 
 | Date       | Version | Description          | Auteur               |
 | ---------- | ------- | -------------------- | -------------------- |
-| 2026-02-04 | 1.0     | Creation initiale    | Winston (Architecte) |
+| 2026-02-04 | 1.0     | Création initiale    | Winston (Architecte) |
 | 2026-03-04 | 2.0     | Mise à jour du guide | Winston (Architecte) |

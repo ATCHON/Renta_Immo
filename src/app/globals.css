@@ -45,6 +45,10 @@
   /* Charcoal */
   --background-rgb: 250, 250, 248;
   /* Warm White */
+
+  /* Header heights — used for sticky offsets (top-16 mobile = 4rem, top-24 desktop = 6rem) */
+  --header-h-mobile: 4rem;
+  --header-h-desktop: 6rem;
 }
 
 body {

@@ -69,24 +69,26 @@ function DesktopSidebar() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
   return (
-    <aside className="hidden lg:block w-52 shrink-0 sticky top-24 self-start">
+    <aside className="hidden lg:block w-52 shrink-0 sticky self-start" style={{ top: 'var(--header-h-desktop)' }}>
       <p className="text-[10px] font-black text-pebble uppercase tracking-widest mb-3 px-2">
         Sur cette page
       </p>
-      <nav className="space-y-0.5">
+      <nav role="navigation" aria-label="Table des matières" className="space-y-0.5">
         {TOC_ITEMS.map(({ id, label }) => (
-          <button
+          <a
             key={id}
-            onClick={() => handleClick(id)}
+            href={`#${id}`}
+            onClick={(e) => { e.preventDefault(); handleClick(id); }}
+            aria-current={activeId === id ? 'true' : undefined}
             className={cn(
-              'w-full text-left text-xs px-3 py-2 rounded-lg transition-all duration-150 font-medium',
+              'block w-full text-left text-xs px-3 py-2 rounded-lg transition-all duration-150 font-medium',
               activeId === id
                 ? 'bg-forest/10 text-forest font-bold border-l-2 border-forest pl-[10px]'
                 : 'text-pebble hover:text-charcoal hover:bg-sand/40'
             )}
           >
             {label}
-          </button>
+          </a>
         ))}
       </nav>
       <button
@@ -108,7 +110,7 @@ function MobileNav() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
   return (
-    <div className="lg:hidden sticky top-16 z-20 bg-white/95 backdrop-blur border-b border-sand/60 px-4 py-2">
+    <div className="lg:hidden sticky z-20 bg-white/95 backdrop-blur border-b border-sand/60 px-4 py-2" style={{ top: 'var(--header-h-mobile)' }}>
       <button
         onClick={() => setIsOpen((v) => !v)}
         className="flex items-center justify-between w-full text-sm font-semibold text-charcoal"
@@ -123,20 +125,22 @@ function MobileNav() {
         />
       </button>
       {isOpen && (
-        <nav className="mt-2 pb-2 grid grid-cols-2 gap-1">
+        <nav role="navigation" aria-label="Navigation mobile" className="mt-2 pb-2 grid grid-cols-2 gap-1">
           {TOC_ITEMS.map(({ id, label }) => (
-            <button
+            <a
               key={id}
-              onClick={() => handleClick(id)}
+              href={`#${id}`}
+              onClick={(e) => { e.preventDefault(); handleClick(id); }}
+              aria-current={activeId === id ? 'true' : undefined}
               className={cn(
-                'text-left text-xs px-3 py-2 rounded-lg transition-colors',
+                'block text-left text-xs px-3 py-2 rounded-lg transition-colors',
                 activeId === id
                   ? 'bg-forest/10 text-forest font-bold'
                   : 'text-pebble hover:bg-sand/30'
               )}
             >
               {label}
-            </button>
+            </a>
           ))}
         </nav>
       )}
