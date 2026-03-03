@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, ChevronRight, Check } from 'lucide-react';
 
 export interface SideNavigationItem {
   id: string;
@@ -18,74 +18,57 @@ interface SideNavigationProps {
   className?: string;
   onItemClick?: (id: string) => void;
   title?: string;
+  footer?: React.ReactNode;
 }
 
-export function SideNavigation({
+// ── Partie Desktop : aside sticky ─────────────────────────────────────────────
+export function SideNavigationDesktop({
   items,
   activeId,
   className,
   onItemClick,
   title = 'Sommaire',
+  footer,
 }: SideNavigationProps) {
-  const [isOpenMobile, setIsOpenMobile] = useState(false);
-
-  // Gérer le clic sur un élément
   const handleItemClick = (id: string, onClick?: () => void) => {
     if (onClick) onClick();
     if (onItemClick) onItemClick(id);
-    setIsOpenMobile(false);
   };
 
-  // Trouver l'élément actif actuel pour le menu mobile
-  const currentItem = activeId
-    ? items.flatMap((i) => (i.subgroups ? [i, ...i.subgroups] : [i])).find((i) => i.id === activeId)
-    : items.find((i) => i.status === 'current') || items[0];
-
-  const renderDesktopMenu = () => (
-    <div className="hidden lg:block w-64 shrink-0 max-h-[calc(100vh-4rem)] overflow-y-auto pb-4 custom-scrollbar">
-      <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-4">
+  return (
+    <aside className={cn('hidden lg:block w-52 shrink-0 sticky top-24 self-start', className)}>
+      <p className="text-[10px] font-black text-pebble uppercase tracking-widest mb-3 px-2">
         {title}
-      </h3>
-      <nav className="space-y-1 relative before:absolute before:inset-y-0 before:left-4 before:w-[2px] before:bg-sand/30">
+      </p>
+      <nav className="space-y-0.5">
         {items.map((item) => {
           const isActive = activeId === item.id || item.status === 'current';
           const isCompleted = item.status === 'completed';
           const isUpcoming = item.status === 'upcoming';
 
           return (
-            <div key={item.id} className="relative z-10 w-full pl-10 py-3">
-              {/* Point indicateur */}
-              <div
-                className={cn(
-                  'absolute left-[13px] top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full transition-all duration-300',
-                  isActive && 'bg-forest ring-4 ring-forest/20 w-3.5 h-3.5 left-3',
-                  isCompleted && 'bg-forest/60',
-                  isUpcoming && 'bg-sand',
-                  !item.status &&
-                    (activeId === item.id
-                      ? 'bg-forest ring-4 ring-forest/20 w-3.5 h-3.5 left-3'
-                      : 'bg-sand')
-                )}
-              />
-              {isActive && (
-                <div className="absolute inset-y-1 left-2 right-2 bg-forest/5 rounded-lg -z-10" />
-              )}
-
+            <div key={item.id}>
               <button
-                onClick={() => handleItemClick(item.id, item.onClick)}
+                onClick={() => !isUpcoming && handleItemClick(item.id, item.onClick)}
                 disabled={isUpcoming}
                 className={cn(
-                  'w-full text-left text-base font-medium transition-colors outline-none',
-                  isActive ? 'text-forest font-bold' : 'text-pebble hover:text-charcoal',
-                  isUpcoming && 'opacity-50 cursor-not-allowed hover:text-pebble'
+                  'w-full text-left text-xs px-3 py-2 rounded-lg transition-all duration-150 font-medium flex items-center gap-2',
+                  isActive
+                    ? 'bg-forest/10 text-forest font-bold border-l-2 border-forest pl-[10px]'
+                    : isCompleted
+                      ? 'text-pebble hover:text-charcoal hover:bg-sand/40'
+                      : isUpcoming
+                        ? 'text-pebble/40 cursor-not-allowed'
+                        : 'text-pebble hover:text-charcoal hover:bg-sand/40'
                 )}
               >
-                {item.label}
+                {isCompleted && !isActive && <Check className="h-3 w-3 text-forest/60 shrink-0" />}
+                <span>{item.label}</span>
               </button>
 
-              {/* Sous-groupes éventuels */}
-              {item.subgroups && item.subgroups.length > 0 && (
-                <div className="mt-2 pl-4 space-y-2 border-l-2 border-sand/30 ml-1">
+              {/* Sous-groupes (panel résultats) */}
+              {item.subgroups && item.subgroups.length > 0 && isActive && (
+                <div className="ml-[13px] pl-3 space-y-0.5 border-l border-forest/20 mt-0.5 mb-1">
                   {item.subgroups.map((sub) => {
                     const isSubActive = activeId === sub.id;
                     return (
@@ -93,7 +76,7 @@ export function SideNavigation({
                         key={sub.id}
                         onClick={() => handleItemClick(sub.id, sub.onClick)}
                         className={cn(
-                          'block w-full text-left text-xs transition-colors outline-none py-1',
+                          'block w-full text-left text-[11px] px-2 py-1 rounded transition-colors',
                           isSubActive
                             ? 'text-forest font-semibold'
                             : 'text-stone hover:text-charcoal'
@@ -109,61 +92,109 @@ export function SideNavigation({
           );
         })}
       </nav>
-    </div>
+
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="mt-6 w-full text-xs text-pebble hover:text-forest transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-sand/40"
+      >
+        <ChevronRight className="h-3 w-3 -rotate-90" />
+        Haut de page
+      </button>
+
+      {footer && <div className="mt-4">{footer}</div>}
+    </aside>
   );
+}
 
-  const renderMobileMenu = () => (
-    <div className="lg:hidden sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-sand/30 px-4 py-3 -mx-4 mb-6 shadow-sm">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-bold text-pebble uppercase tracking-widest">{title}</span>
-        <button
-          onClick={() => setIsOpenMobile(!isOpenMobile)}
-          className="flex items-center gap-2 text-sm font-bold text-forest bg-forest/5 px-3 py-1.5 rounded-full"
-        >
-          <span className="truncate max-w-[200px]">{currentItem?.label || title}</span>
-          <ChevronDown
-            className={cn(
-              'w-4 h-4 transition-transform duration-300',
-              isOpenMobile && 'rotate-180'
-            )}
-          />
-        </button>
-      </div>
+// ── Partie Mobile : barre sticky « En savoir plus » style ─────────────────────
+export function SideNavigationMobile({
+  items,
+  activeId,
+  onItemClick,
+  title = 'Navigation',
+}: SideNavigationProps) {
+  const [isOpen, setIsOpen] = useState(false);
 
-      {isOpenMobile && (
-        <div className="absolute top-full left-0 right-0 bg-white border-b border-sand/30 shadow-lg animate-in slide-in-from-top-2 max-h-[60vh] overflow-y-auto">
-          <nav className="py-2">
-            {items.map((item) => {
-              const isActive = activeId === item.id || item.status === 'current';
-              const isUpcoming = item.status === 'upcoming';
-              return (
-                <div key={item.id}>
-                  <button
-                    onClick={() => handleItemClick(item.id, item.onClick)}
-                    disabled={isUpcoming}
-                    className={cn(
-                      'w-full text-left px-4 py-3 text-sm flex items-center justify-between border-b border-sand/10 last:border-0',
-                      isActive ? 'bg-forest/5 text-forest font-bold' : 'text-charcoal',
-                      isUpcoming && 'opacity-50 cursor-not-allowed'
-                    )}
-                  >
-                    <span>{item.label}</span>
-                    {isActive && <Check className="w-4 h-4 text-forest" />}
-                  </button>
-                  {/* Ne pas afficher les sous-menu en mobile pour simplifier, sauf si nécessaire */}
-                </div>
-              );
-            })}
-          </nav>
-        </div>
+  const handleItemClick = (id: string, onClick?: () => void) => {
+    if (onClick) onClick();
+    if (onItemClick) onItemClick(id);
+    setIsOpen(false);
+  };
+
+  const currentItem = activeId
+    ? items.flatMap((i) => (i.subgroups ? [i, ...i.subgroups] : [i])).find((i) => i.id === activeId)
+    : items.find((i) => i.status === 'current') || items[0];
+
+  return (
+    <div className="lg:hidden sticky top-16 z-20 bg-white/95 backdrop-blur border-b border-sand/60 px-4 py-2">
+      <button
+        onClick={() => setIsOpen((v) => !v)}
+        className="flex items-center justify-between w-full"
+      >
+        <span className="text-xs font-bold text-pebble uppercase tracking-widest">
+          {currentItem?.label ?? title}
+        </span>
+        <ChevronDown
+          className={cn('h-4 w-4 text-pebble transition-transform', isOpen && 'rotate-180')}
+        />
+      </button>
+
+      {isOpen && (
+        <nav className="mt-2 pb-2 grid grid-cols-2 gap-1">
+          {items.map((item) => {
+            const isActive = activeId === item.id || item.status === 'current';
+            const isUpcoming = item.status === 'upcoming';
+            return (
+              <button
+                key={item.id}
+                onClick={() => !isUpcoming && handleItemClick(item.id, item.onClick)}
+                disabled={isUpcoming}
+                className={cn(
+                  'text-left text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5',
+                  isActive
+                    ? 'bg-forest/10 text-forest font-bold'
+                    : isUpcoming
+                      ? 'text-pebble/40 cursor-not-allowed'
+                      : 'text-pebble hover:bg-sand/30'
+                )}
+              >
+                {item.status === 'completed' && !isActive && (
+                  <Check className="h-3 w-3 text-forest/60 shrink-0" />
+                )}
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
       )}
     </div>
   );
+}
 
+// ── Composant combiné (rétrocompatible) ────────────────────────────────────────
+// Utilisé dans FormWizard où la nav mobile est intégrée dans le layout (pas en sticky global)
+export function SideNavigation({
+  items,
+  activeId,
+  className,
+  onItemClick,
+  title = 'Sommaire',
+}: SideNavigationProps) {
   return (
-    <div className={className}>
-      {renderMobileMenu()}
-      {renderDesktopMenu()}
-    </div>
+    <>
+      <SideNavigationMobile
+        items={items}
+        activeId={activeId}
+        onItemClick={onItemClick}
+        title={title}
+      />
+      <SideNavigationDesktop
+        items={items}
+        activeId={activeId}
+        className={className}
+        onItemClick={onItemClick}
+        title={title}
+      />
+    </>
   );
 }
