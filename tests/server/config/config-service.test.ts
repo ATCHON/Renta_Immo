@@ -71,7 +71,7 @@ describe('ConfigService.getConfig — cache Redis', () => {
           }),
         }),
       }),
-    } as ReturnType<typeof createAdminClient> extends Promise<infer T> ? T : never);
+    } as unknown as Awaited<ReturnType<typeof createAdminClient>>);
 
     const service = freshConfigService();
     const result = await service.getConfig(FALLBACK_CONFIG_YEAR);
@@ -100,7 +100,7 @@ describe('ConfigService.getConfig — cache Redis', () => {
           }),
         }),
       }),
-    } as ReturnType<typeof createAdminClient> extends Promise<infer T> ? T : never);
+    } as unknown as Awaited<ReturnType<typeof createAdminClient>>);
 
     const service = freshConfigService();
     const result = await service.getConfig(FALLBACK_CONFIG_YEAR);

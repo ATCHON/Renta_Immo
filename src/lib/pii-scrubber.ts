@@ -38,8 +38,8 @@ export function scrubPii(event: Event): Event {
   }
 
   // 3. Supprimer les breadcrumbs contenant des données financières
-  if (event.breadcrumbs?.values) {
-    event.breadcrumbs.values = event.breadcrumbs.values.map((bc: Breadcrumb): Breadcrumb => {
+  if (event.breadcrumbs && event.breadcrumbs.length > 0) {
+    event.breadcrumbs = event.breadcrumbs.map((bc: Breadcrumb): Breadcrumb => {
       if (bc.data && FINANCIAL_FIELDS.some((f) => f in (bc.data ?? {}))) {
         return { ...bc, data: { redacted: true } };
       }

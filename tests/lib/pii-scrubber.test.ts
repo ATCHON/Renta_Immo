@@ -36,17 +36,15 @@ describe('scrubPii', () => {
 
   it('redacte les breadcrumbs contenant des champs financiers', () => {
     const event: Event = {
-      breadcrumbs: {
-        values: [
-          { message: 'navigation', data: { url: '/simulateur' } },
-          { message: 'api call', data: { revenuAnnuel: 50000, action: 'calculate' } },
-          { message: 'click', data: { element: 'button' } },
-        ],
-      },
+      breadcrumbs: [
+        { message: 'navigation', data: { url: '/simulateur' } },
+        { message: 'api call', data: { revenuAnnuel: 50000, action: 'calculate' } },
+        { message: 'click', data: { element: 'button' } },
+      ],
     };
 
     const result = scrubPii(event);
-    const crumbs = result.breadcrumbs?.values ?? [];
+    const crumbs = result.breadcrumbs ?? [];
 
     // Breadcrumb sans champ financier : inchangé
     expect(crumbs[0]?.data).toEqual({ url: '/simulateur' });

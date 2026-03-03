@@ -13,7 +13,7 @@ import type { Simulation } from '@/types/database';
 const VALID_STATUSES = ['all', 'favorites', 'archived'] as const;
 type StatusFilter = (typeof VALID_STATUSES)[number];
 
-const VALID_SORTS = ['created_at', 'updated_at', 'score_global', 'name'] as const;
+const VALID_SORTS = ['created_at', 'score_global', 'name'] as const;
 type SortField = (typeof VALID_SORTS)[number];
 
 export default function SimulationsPage() {

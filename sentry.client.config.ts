@@ -1,6 +1,7 @@
 // sentry.client.config.ts — Configuration Sentry côté browser (ARCH-S02)
 // Datacenter EU : DSN ingest.de.sentry.io garantit le routage vers Frankfurt/EU (RGPD)
 import * as Sentry from '@sentry/nextjs';
+import type { ErrorEvent } from '@sentry/nextjs';
 import { scrubPii } from '@/lib/pii-scrubber';
 
 Sentry.init({
@@ -10,10 +11,7 @@ Sentry.init({
   // Le DSN doit contenir .de. pour router vers Frankfurt : https://<key>@o<org>.ingest.de.sentry.io/<project>
 
   // Désactivé en dev pour ne pas polluer Sentry avec les erreurs de développement
-  enabled: process.env.NODE_ENV === 'production',
-
-  // Pas de cookies ni de session tracking côté client (provisoire — en attente banner CNIL ARCH-S23)
-  autoSessionTracking: false,
+  enabled: process.env.NODE_ENV === 'production' && process.env.SENTRY_ENABLED !== 'false',
 
   // Taux d'échantillonnage : 10% des transactions (performance)
   tracesSampleRate: 0.1,
@@ -33,6 +31,6 @@ Sentry.init({
 
   // Hook PII scrubbing — obligatoire RGPD
   beforeSend(event) {
-    return scrubPii(event);
+    return scrubPii(event) as ErrorEvent;
   },
 });
