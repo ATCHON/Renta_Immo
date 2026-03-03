@@ -22,8 +22,14 @@ vi.mock('@/lib/auth', () => ({
 vi.mock('@/lib/rate-limit', () => ({
   rateLimit: vi
     .fn()
-    .mockReturnValue({ success: true, limit: 30, remaining: 29, resetAt: Date.now() + 60000 }),
+    .mockResolvedValue({
+      success: true,
+      limit: 30,
+      remaining: 29,
+      resetAt: Math.ceil(Date.now() / 1000) + 60,
+    }),
   getClientIp: vi.fn().mockReturnValue('1.2.3.4'),
+  buildRateLimitHeaders: vi.fn().mockReturnValue({ 'Retry-After': '60' }),
 }));
 
 vi.mock('@/lib/supabase/server', () => ({
@@ -124,11 +130,11 @@ describe('GET /api/simulations/[id]', () => {
 
   it('retourne 429 si le rate limit est dépassé', async () => {
     const { rateLimit } = await import('@/lib/rate-limit');
-    vi.mocked(rateLimit).mockReturnValueOnce({
+    vi.mocked(rateLimit).mockResolvedValueOnce({
       success: false,
       limit: 30,
       remaining: 0,
-      resetAt: Date.now() + 60000,
+      resetAt: Math.ceil(Date.now() / 1000) + 60,
     });
     const { GET } = await import('@/app/api/simulations/[id]/route');
     const req = new NextRequest('http://localhost/api/simulations/sim-123');

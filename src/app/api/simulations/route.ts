@@ -6,7 +6,13 @@ import type { Json } from '@/types/database.types';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { logger } from '@/lib/logger';
-import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { rateLimit, getClientIp, buildRateLimitHeaders } from '@/lib/rate-limit';
+import {
+  encodeCursor,
+  decodeCursor,
+  type SimulationSort,
+  type CursorPaginationMeta,
+} from '@/types/simulations';
 
 const CreateSimulationSchema = z.object({
   name: z.string().max(255).optional(),
@@ -15,27 +21,19 @@ const CreateSimulationSchema = z.object({
   resultats: z.record(z.string(), z.unknown()),
 });
 
+// Whitelist colonnes de tri autorisées (Audit 1.2)
+const ALLOWED_SORTS: SimulationSort[] = ['created_at', 'updated_at', 'score_global'];
+
 // Safe integer parsing with bounds (Audit 1.8)
 function safeInt(val: string | null, def: number, min: number, max: number): number {
   const num = parseInt(val || '', 10);
   return isNaN(num) || num < min ? def : Math.min(num, max);
 }
 
-// Whitelist sort columns (Audit 1.2)
-const ALLOWED_SORTS = [
-  'created_at',
-  'updated_at',
-  'name',
-  'is_favorite',
-  'rentabilite_nette',
-  'score_global',
-] as const;
-type AllowedSort = (typeof ALLOWED_SORTS)[number];
-
 export async function GET(request: NextRequest) {
-  // Rate limiting: 30 requests per minute per IP
+  // Rate limiting: 60 req/60s par IP (CRUD léger)
   const ip = getClientIp(request);
-  const rl = rateLimit(`simulations:${ip}`, { limit: 30, window: 60_000 });
+  const rl = await rateLimit('simulations:get', ip);
   if (!rl.success) {
     return NextResponse.json(
       {
@@ -45,10 +43,7 @@ export async function GET(request: NextRequest) {
           message: 'Trop de requêtes. Réessayez dans quelques instants.',
         },
       },
-      {
-        status: 429,
-        headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) },
-      }
+      { status: 429, headers: buildRateLimitHeaders(rl) }
     );
   }
 
@@ -69,14 +64,13 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
   const limit = safeInt(searchParams.get('limit'), 20, 1, 100);
-  const offset = safeInt(searchParams.get('offset'), 0, 0, 100000);
+  const cursorParam = searchParams.get('cursor');
 
   const rawSort = searchParams.get('sort') || '';
-  const sortBy: AllowedSort = (ALLOWED_SORTS as readonly string[]).includes(rawSort)
-    ? (rawSort as AllowedSort)
+  const sort: SimulationSort = (ALLOWED_SORTS as string[]).includes(rawSort)
+    ? (rawSort as SimulationSort)
     : 'created_at';
 
-  const order = searchParams.get('order') === 'asc';
   const favoriteOnly = searchParams.get('favorite') === 'true';
   const showArchived = searchParams.get('archived') === 'true';
 
@@ -87,23 +81,12 @@ export async function GET(request: NextRequest) {
   const listColumns =
     'id, name, description, created_at, updated_at, rentabilite_brute, rentabilite_nette, cashflow_mensuel, score_global, is_favorite, is_archived';
 
-  let query = supabase
-    .from('simulations')
-    .select(listColumns, { count: 'exact' })
-    .eq('user_id', user.id)
-    .order(sortBy, { ascending: order })
-    .range(offset, offset + limit - 1);
+  let query = supabase.from('simulations').select(listColumns).eq('user_id', user.id);
 
-  if (search) {
-    query = query.ilike('name', `%${search}%`);
-  }
-
-  // Status Filters
+  // Filtres stables (restent dans l'URL)
   if (showArchived) {
-    // Tab "Archived": show only archived
     query = query.eq('is_archived', true);
   } else {
-    // Tab "All" or "Favorites": show only non-archived
     query = query.eq('is_archived', false);
   }
 
@@ -111,7 +94,43 @@ export async function GET(request: NextRequest) {
     query = query.eq('is_favorite', true);
   }
 
-  const { data, error, count } = await query;
+  if (search) {
+    query = query.ilike('name', `%${search}%`);
+  }
+
+  // Keyset condition si cursor fourni
+  if (cursorParam) {
+    const cursor = decodeCursor(cursorParam);
+    if (!cursor) {
+      return NextResponse.json(
+        { success: false, error: { code: 'INVALID_CURSOR', message: 'Curseur invalide' } },
+        { status: 400 }
+      );
+    }
+
+    // Appliquer la keyset condition selon le champ de tri
+    if (sort === 'score_global') {
+      // score_global peut être NULL → NULLS LAST : les NULLs passent après les valeurs numériques
+      // On filtre sur (score_global < cursor.value) OR (score_global = cursor.value AND id < cursor.id)
+      // OR (score_global IS NULL) pour placer les nulls en fin
+      query = query.or(
+        `score_global.lt.${cursor.value},and(score_global.eq.${cursor.value},id.lt.${cursor.id})`
+      );
+    } else {
+      // Colonnes timestamp (created_at, updated_at)
+      query = query.or(
+        `${sort}.lt.${cursor.value},and(${sort}.eq.${cursor.value},id.lt.${cursor.id})`
+      );
+    }
+  }
+
+  // Tri + limit+1 pour détecter has_more
+  query = query
+    .order(sort, { ascending: false, nullsFirst: false })
+    .order('id', { ascending: false })
+    .limit(limit + 1);
+
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json(
@@ -120,17 +139,38 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const rows = data ?? [];
+  const has_more = rows.length > limit;
+  const pageRows = has_more ? rows.slice(0, limit) : rows;
+
+  // Construire le cursor de la page suivante à partir du dernier élément
+  let next_cursor: string | null = null;
+  if (has_more && pageRows.length > 0) {
+    const last = pageRows[pageRows.length - 1];
+    const value =
+      sort === 'score_global' ? last.score_global : last[sort as 'created_at' | 'updated_at'];
+    if (value != null) {
+      next_cursor = encodeCursor({ value: String(value), id: last.id, sort });
+    }
+  }
+
+  const meta: CursorPaginationMeta = {
+    next_cursor,
+    limit,
+    has_more,
+  };
+
   return NextResponse.json({
     success: true,
-    data,
-    meta: { total: count, limit, offset },
+    data: pageRows,
+    meta,
   });
 }
 
 export async function POST(request: NextRequest) {
-  // Rate limiting: shared bucket with GET
+  // Rate limiting: 20 req/60s par IP (écriture DB)
   const ip = getClientIp(request);
-  const rl = rateLimit(`simulations:${ip}`, { limit: 30, window: 60_000 });
+  const rl = await rateLimit('simulations:post', ip);
   if (!rl.success) {
     return NextResponse.json(
       {
@@ -140,10 +180,7 @@ export async function POST(request: NextRequest) {
           message: 'Trop de requêtes. Réessayez dans quelques instants.',
         },
       },
-      {
-        status: 429,
-        headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) },
-      }
+      { status: 429, headers: buildRateLimitHeaders(rl) }
     );
   }
 

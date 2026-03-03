@@ -1,94 +1,95 @@
-/**
- * In-memory rate limiter for API routes.
- *
- * Note: Each Vercel serverless instance has its own memory, so this is
- * approximate. For strict rate limiting, use an external store (e.g. Upstash Redis).
- * This provides a practical first line of defense against abuse.
- */
+// src/lib/rate-limit.ts — Rate limiting distribué via Upstash Redis (ARCH-S01)
+//
+// Utilise slidingWindow pour éviter le burst 2×limit du fixedWindow en renouvellement de fenêtre.
+// Fail-open : si Redis est indisponible, la requête est laissée passer (logging warn).
 
-interface RateLimitEntry {
-  count: number;
-  resetAt: number;
-}
+import { Ratelimit } from '@upstash/ratelimit';
+import { redis } from '@/lib/redis';
 
-const store = new Map<string, RateLimitEntry>();
+// Limites par endpoint (§ directives architecte ARCH-S01)
+const LIMITERS = {
+  calculate: new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(10, '60 s'),
+    prefix: 'rl:calculate',
+  }),
+  'simulations:get': new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(60, '60 s'),
+    prefix: 'rl:simulations:get',
+  }),
+  'simulations:post': new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(20, '60 s'),
+    prefix: 'rl:simulations:post',
+  }),
+  pdf: new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '60 s'),
+    prefix: 'rl:pdf',
+  }),
+  send: new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(3, '60 s'),
+    prefix: 'rl:send',
+  }),
+  'simulations:write': new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(30, '60 s'),
+    prefix: 'rl:simulations:write',
+  }),
+} as const;
 
-// Periodic cleanup of expired entries (every 60s)
-if (typeof globalThis !== 'undefined') {
-  const CLEANUP_INTERVAL = 60_000;
-  const cleanup = () => {
-    const now = Date.now();
-    store.forEach((entry, key) => {
-      if (entry.resetAt <= now) {
-        store.delete(key);
-      }
-    });
-  };
-  // Use global to prevent duplicate intervals across hot reloads
-  const globalWithCleanup = globalThis as typeof globalThis & {
-    __rateLimitCleanup?: NodeJS.Timeout;
-  };
-  if (!globalWithCleanup.__rateLimitCleanup) {
-    globalWithCleanup.__rateLimitCleanup = setInterval(cleanup, CLEANUP_INTERVAL);
-  }
-}
+export type RateLimitEndpoint = keyof typeof LIMITERS;
 
-interface RateLimitConfig {
-  /** Max requests per window */
-  limit: number;
-  /** Window duration in milliseconds */
-  window: number;
-}
-
-interface RateLimitResult {
+export interface RateLimitResult {
   success: boolean;
   limit: number;
   remaining: number;
-  resetAt: number;
+  resetAt: number; // timestamp UNIX en secondes
 }
 
 /**
- * Check and consume a rate limit token.
- *
- * @param key - Unique identifier (e.g. `calculate:<ip>`)
- * @param config - Rate limit configuration
- * @returns Result with success flag and metadata
+ * Vérifie et consomme un token de rate limit pour l'endpoint et la clé donnés.
+ * Fail-open : si Redis est indisponible, retourne success=true avec un log warn.
  */
-export function rateLimit(key: string, config: RateLimitConfig): RateLimitResult {
-  const now = Date.now();
-  const entry = store.get(key);
+export async function rateLimit(endpoint: RateLimitEndpoint, ip: string): Promise<RateLimitResult> {
+  const limiter = LIMITERS[endpoint];
 
-  if (!entry || entry.resetAt <= now) {
-    store.set(key, { count: 1, resetAt: now + config.window });
+  try {
+    const result = await limiter.limit(ip);
+    return {
+      success: result.success,
+      limit: result.limit,
+      remaining: result.remaining,
+      resetAt: Math.ceil(result.reset / 1000), // Upstash reset est en ms
+    };
+  } catch (err) {
+    console.warn('[RateLimit] Redis indisponible — fail-open', { endpoint, err });
     return {
       success: true,
-      limit: config.limit,
-      remaining: config.limit - 1,
-      resetAt: now + config.window,
-    };
-  }
-
-  entry.count++;
-
-  if (entry.count > config.limit) {
-    return {
-      success: false,
-      limit: config.limit,
+      limit: 0,
       remaining: 0,
-      resetAt: entry.resetAt,
+      resetAt: Math.ceil(Date.now() / 1000) + 60,
     };
   }
+}
 
+/**
+ * Construit les headers de réponse 429 standard (Retry-After + X-RateLimit-*).
+ */
+export function buildRateLimitHeaders(result: RateLimitResult): Record<string, string> {
+  const retryAfter = Math.max(0, result.resetAt - Math.ceil(Date.now() / 1000));
   return {
-    success: true,
-    limit: config.limit,
-    remaining: config.limit - entry.count,
-    resetAt: entry.resetAt,
+    'Retry-After': String(retryAfter),
+    'X-RateLimit-Limit': String(result.limit),
+    'X-RateLimit-Remaining': String(result.remaining),
+    'X-RateLimit-Reset': String(result.resetAt),
   };
 }
 
 /**
- * Extract client IP from request headers (Vercel / proxied environments).
+ * Extrait l'IP client depuis les headers de la requête (environnements Vercel/proxy).
  */
 export function getClientIp(request: Request): string {
   return (

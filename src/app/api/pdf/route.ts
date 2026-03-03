@@ -8,7 +8,7 @@ import { renderToBuffer } from '@react-pdf/renderer';
 import { z, ZodError } from 'zod';
 import { RapportSimulation } from '@/lib/pdf/templates/RapportSimulation';
 import { logger } from '@/lib/logger';
-import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { rateLimit, getClientIp, buildRateLimitHeaders } from '@/lib/rate-limit';
 import type { CalculateurFormData, CalculResultats } from '@/types/calculateur';
 
 // Validation schemas
@@ -149,9 +149,9 @@ const PdfRequestSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  // Rate limiting: 5 requests per minute per IP (heavy PDF generation)
+  // Rate limiting: 5 req/60s par IP (génération PDF coûteuse)
   const ip = getClientIp(request);
-  const rl = rateLimit(`pdf:${ip}`, { limit: 5, window: 60_000 });
+  const rl = await rateLimit('pdf', ip);
   if (!rl.success) {
     return NextResponse.json(
       {
@@ -161,10 +161,7 @@ export async function POST(request: NextRequest) {
           message: 'Trop de requêtes PDF. Réessayez dans quelques instants.',
         },
       },
-      {
-        status: 429,
-        headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) },
-      }
+      { status: 429, headers: buildRateLimitHeaders(rl) }
     );
   }
 

@@ -1,5 +1,12 @@
+// @ts-check
+import { withSentryConfig } from '@sentry/nextjs';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Mode standalone : produit .next/standalone/ avec uniquement les dépendances utilisées.
+  // Réduit la taille de l'image Docker de 60-80%. Transparent pour Vercel (ignoré).
+  output: 'standalone',
+
   // Packages externalisés côté serveur (ne sont pas bundlés, chargés à l'exécution)
   // Remplace experimental.serverComponentsExternalPackages (Next.js 15+)
   serverExternalPackages: [
@@ -65,7 +72,8 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'; " +
               "img-src 'self' https: data:; " +
               "font-src 'self' data:; " +
-              "connect-src 'self' https://*.supabase.co https://accounts.google.com; " +
+              // Sentry EU ingest ajouté (ARCH-S02)
+              "connect-src 'self' https://*.supabase.co https://accounts.google.com https://*.sentry.io https://o*.ingest.de.sentry.io; " +
               "frame-ancestors 'self';",
           },
           {
@@ -100,4 +108,23 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// withSentryConfig : wrap Next.js config pour upload source maps en CI (ARCH-S02)
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+
+  // Upload source maps uniquement en CI pour les erreurs prod debuggables
+  silent: !process.env.CI,
+
+  // Désactiver le widget de feedback Sentry (non nécessaire)
+  disableClientWebpackPlugin: false,
+
+  // Tunnel désactivé pour Sprint 0 — CSP suffit (activer si bloqueurs de pubs mesurés)
+  // tunnelRoute: '/api/sentry-tunnel',
+
+  // Supprimer les source maps du bundle public (sécurité)
+  hideSourceMaps: true,
+
+  // Désactiver les logs Sentry en dev
+  disableLogger: true,
+});
