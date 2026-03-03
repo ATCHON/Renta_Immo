@@ -45,7 +45,7 @@ Suite au déploiement des stories du Sprint 1 (V2-S01 à V2-S08), plusieurs inco
 **Solution :**
 
 - **Tooltips interactifs** ajoutés sur les légendes des graphes (au survol).
-- **Page "En savoir plus"** mise à jour avec :
+- **Page "Comment ça marche"** mise à jour avec :
   - La nouvelle formule du patrimoine net.
   - Une section "Lecture des graphiques" expliquant chaque série de données.
 

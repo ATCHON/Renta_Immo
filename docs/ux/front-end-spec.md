@@ -32,6 +32,7 @@ Ce document définit les objectifs d'expérience utilisateur, l'architecture de 
 ### Target User Personas
 
 **Persona 1 : L'Investisseur Débutant** 🌱
+
 - **Profil :** 30-45 ans, premier investissement locatif envisagé
 - **Contexte :** A économisé un apport, cherche à comprendre si un bien est rentable
 - **Besoins :** Guidance claire, termes expliqués, résultats compréhensibles
@@ -39,6 +40,7 @@ Ce document définit les objectifs d'expérience utilisateur, l'architecture de 
 - **Objectif :** Prendre une décision éclairée sans être expert
 
 **Persona 2 : L'Investisseur Expérimenté** 📊
+
 - **Profil :** 40-60 ans, possède déjà 1-5 biens locatifs
 - **Contexte :** Compare plusieurs opportunités rapidement
 - **Besoins :** Efficacité, données détaillées, projections multi-années, export PDF
@@ -46,6 +48,7 @@ Ce document définit les objectifs d'expérience utilisateur, l'architecture de 
 - **Objectif :** Analyser rapidement pour arbitrer entre plusieurs biens
 
 **Persona 3 : Le Conseiller Immobilier** 🏠
+
 - **Profil :** Agent immobilier ou CGP (Conseiller en Gestion de Patrimoine)
 - **Contexte :** Accompagne des clients dans leurs décisions d'investissement
 - **Besoins :** Outil professionnel, PDF présentable, résultats crédibles
@@ -56,13 +59,13 @@ Ce document définit les objectifs d'expérience utilisateur, l'architecture de 
 
 ### Usability Goals
 
-| Objectif | Métrique | Cible |
-|----------|----------|-------|
+| Objectif                     | Métrique                               | Cible       |
+| ---------------------------- | -------------------------------------- | ----------- |
 | **Facilité d'apprentissage** | Temps pour compléter un premier calcul | < 3 minutes |
-| **Efficacité d'utilisation** | Nombre de clics pour un calcul complet | < 25 clics |
-| **Prévention d'erreurs** | Taux d'abandon du formulaire | < 20% |
-| **Mémorabilité** | Utilisateurs revenant sans aide | > 80% |
-| **Satisfaction** | Score de recommandation (NPS) | > 50 |
+| **Efficacité d'utilisation** | Nombre de clics pour un calcul complet | < 25 clics  |
+| **Prévention d'erreurs**     | Taux d'abandon du formulaire           | < 20%       |
+| **Mémorabilité**             | Utilisateurs revenant sans aide        | > 80%       |
+| **Satisfaction**             | Score de recommandation (NPS)          | > 50        |
 
 ---
 
@@ -87,7 +90,7 @@ Ce document définit les objectifs d'expérience utilisateur, l'architecture de 
 ```mermaid
 graph TD
     A[🏠 Landing Page<br/>/] --> B[📝 Calculateur<br/>/calculateur]
-    A --> C[📚 En Savoir Plus<br/>/en-savoir-plus]
+    A --> C[💡 Comment ça marche<br/>/en-savoir-plus]
 
     B --> B1[Step 1: Bien<br/>Informations propriété]
     B --> B2[Step 2: Financement<br/>Prêt et apport]
@@ -114,19 +117,20 @@ graph TD
 
 ### Screen Inventory
 
-| Écran | Route | Type | Priorité |
-|-------|-------|------|----------|
-| Landing Page | `/` | Marketing | P1 |
-| Calculateur (Wizard) | `/calculateur` | Application | P1 |
-| Résultats Dashboard | `/calculateur/resultats` | Application | P1 |
-| En Savoir Plus | `/en-savoir-plus` | Contenu | P2 |
-| 404 / Erreur | `/404` | Système | P3 |
+| Écran                | Route                    | Type        | Priorité |
+| -------------------- | ------------------------ | ----------- | -------- |
+| Landing Page         | `/`                      | Marketing   | P1       |
+| Calculateur (Wizard) | `/calculateur`           | Application | P1       |
+| Résultats Dashboard  | `/calculateur/resultats` | Application | P1       |
+| Comment ça marche    | `/en-savoir-plus`        | Contenu     | P2       |
+| 404 / Erreur         | `/404`                   | Système     | P3       |
 
 ---
 
 ### Navigation Structure
 
 **Primary Navigation (Header)**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  renta immo          Calculateur   En savoir plus       │
@@ -135,18 +139,20 @@ graph TD
 
 - **Logo** : Retour à l'accueil (/)
 - **Calculateur** : Lien vers /calculateur
-- **En savoir plus** : Lien vers /en-savoir-plus
+- **Comment ça marche** : Lien vers /en-savoir-plus
 - Navigation minimaliste — pas de dropdown, pas de sous-menus
 
 **Secondary Navigation (Contextuelle)**
 
-*Dans le Wizard :*
+_Dans le Wizard :_
+
 ```
 ← Retour                    Étape 2 sur 6
 ○───●───○───○───○───○
 ```
 
-*Dans les Résultats :*
+_Dans les Résultats :_
+
 ```
 ← Modifier les données                      ⬇ Télécharger PDF
 ```
@@ -162,11 +168,13 @@ graph TD
 **User Goal :** Obtenir une analyse complète de la rentabilité d'un bien immobilier
 
 **Entry Points :**
+
 - CTA "Commencer" sur la landing page
 - Lien "Calculateur" dans le header
 - URL directe `/calculateur`
 
 **Success Criteria :**
+
 - L'utilisateur voit son score global et ses métriques clés
 - Les données sont cohérentes et compréhensibles
 - L'utilisateur peut exporter ou modifier
@@ -207,6 +215,7 @@ graph TD
 ```
 
 **Edge Cases & Error Handling :**
+
 - **Validation échouée** → Message d'erreur inline sous le champ concerné, scroll automatique vers l'erreur
 - **Perte de connexion pendant le calcul** → Message "Vérifiez votre connexion" + bouton Réessayer
 - **Session expirée / refresh** → Données préservées via localStorage (Zustand persist)
@@ -220,6 +229,7 @@ graph TD
 **User Goal :** Ajuster les paramètres et voir l'impact sur les résultats
 
 **Entry Points :**
+
 - Bouton "Modifier les données" sur la page résultats
 - Navigation directe vers `/calculateur` avec données existantes
 
@@ -266,13 +276,13 @@ graph TD
 
 ---
 
-### Flow 4 : Apprentissage (En Savoir Plus)
+### Flow 4 : Apprentissage (Comment ça marche)
 
 **User Goal :** Comprendre les concepts et formules utilisés
 
 ```mermaid
 graph TD
-    A[N'importe où] -->|Lien| B[Page En Savoir Plus]
+    A[N'importe où] -->|Lien| B[Page Comment ça marche]
 
     B --> C[Section Rentabilités]
     B --> D[Section HCSF]
@@ -330,6 +340,7 @@ graph TD
 ```
 
 **Key Elements :**
+
 - Header minimal avec logo texte et navigation
 - Hero section avec titre, sous-titre et CTA unique
 - 3 cartes de features
@@ -378,6 +389,7 @@ graph TD
 ```
 
 **Key Elements :**
+
 - Indicateur de progression (dots cliquables pour steps complétés)
 - Titre de l'étape
 - Formulaire dans une carte centrée
@@ -437,6 +449,7 @@ graph TD
 ```
 
 **Key Elements :**
+
 - Header d'actions (Modifier / PDF)
 - Adresse du bien comme titre contextuel
 - Score global proéminent avec barre de progression
@@ -456,24 +469,25 @@ graph TD
 
 **Variants :**
 
-| Variant | Usage | Apparence |
-|---------|-------|-----------|
-| `primary` | Actions principales (CTA, Submit) | Fond Forest, texte blanc |
-| `secondary` | Actions secondaires | Fond transparent, bordure Sand, texte Charcoal |
-| `ghost` | Actions tertiaires, navigation | Fond transparent, texte Stone, hover: fond Cream |
-| `danger` | Actions destructives | Fond Terracotta, texte blanc |
+| Variant     | Usage                             | Apparence                                        |
+| ----------- | --------------------------------- | ------------------------------------------------ |
+| `primary`   | Actions principales (CTA, Submit) | Fond Forest, texte blanc                         |
+| `secondary` | Actions secondaires               | Fond transparent, bordure Sand, texte Charcoal   |
+| `ghost`     | Actions tertiaires, navigation    | Fond transparent, texte Stone, hover: fond Cream |
+| `danger`    | Actions destructives              | Fond Terracotta, texte blanc                     |
 
 **Sizes :**
 
-| Size | Height | Padding | Font |
-|------|--------|---------|------|
-| `sm` | 36px | 12px 16px | 14px |
-| `md` | 44px | 12px 24px | 16px |
-| `lg` | 52px | 16px 32px | 18px |
+| Size | Height | Padding   | Font |
+| ---- | ------ | --------- | ---- |
+| `sm` | 36px   | 12px 16px | 14px |
+| `md` | 44px   | 12px 24px | 16px |
+| `lg` | 52px   | 16px 32px | 18px |
 
 **States :** Default, Hover (darker), Focus (ring), Disabled (Sand bg), Loading (spinner)
 
 **Props :**
+
 ```typescript
 interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -493,6 +507,7 @@ interface ButtonProps {
 **Variants :** `default`, `currency` (€), `percent` (%), `number`
 
 **Anatomy :**
+
 ```
    Label (14px, Stone)                    Hint (optionnel)
    ┌──────────────────────────────────────────────────┐
@@ -504,6 +519,7 @@ interface ButtonProps {
 **States :** Default (Sand border), Focus (Forest border + ring), Error (Terracotta), Disabled (Cream bg)
 
 **Props :**
+
 ```typescript
 interface InputProps {
   label: string;
@@ -522,6 +538,7 @@ interface InputProps {
 ### Select
 
 **Anatomy :**
+
 ```
    Label (14px, Stone)
    ┌──────────────────────────────────────────────────┐
@@ -530,6 +547,7 @@ interface InputProps {
 ```
 
 **Props :**
+
 ```typescript
 interface SelectProps {
   label: string;
@@ -546,11 +564,11 @@ interface SelectProps {
 
 **Variants :**
 
-| Variant | Style |
-|---------|-------|
-| `default` | bg: Cream, border: none, radius: 12px |
+| Variant    | Style                                   |
+| ---------- | --------------------------------------- |
+| `default`  | bg: Cream, border: none, radius: 12px   |
 | `elevated` | bg: white, shadow: subtle, radius: 12px |
-| `bordered` | bg: white, border: Sand, radius: 12px |
+| `bordered` | bg: white, border: Sand, radius: 12px   |
 
 **Sub-components :** `CardHeader`, `CardContent`, `CardFooter`
 
@@ -559,6 +577,7 @@ interface SelectProps {
 ### MetricCard
 
 **Anatomy :**
+
 ```
 ┌─────────────────────┐
 │       8.2%          │  value (36px, semibold)
@@ -569,6 +588,7 @@ interface SelectProps {
 **Status variants :** `success` (Sage), `warning` (Amber), `danger` (Terracotta), `neutral` (Cream)
 
 **Props :**
+
 ```typescript
 interface MetricCardProps {
   value: string | number;
@@ -583,6 +603,7 @@ interface MetricCardProps {
 ### ProgressStepper
 
 **Anatomy :**
+
 ```
          Étape 2 sur 6
     ●────●────○────○────○────○
@@ -590,6 +611,7 @@ interface MetricCardProps {
 ```
 
 **Dot states :**
+
 - `●` Completed: bg Forest
 - `●` Current: bg Forest + ring
 - `○` Upcoming: bg white, border Sand
@@ -599,6 +621,7 @@ interface MetricCardProps {
 ### Collapsible
 
 **Props :**
+
 ```typescript
 interface CollapsibleProps {
   title: string;
@@ -613,18 +636,19 @@ interface CollapsibleProps {
 
 **Variants :**
 
-| Type | Couleurs |
-|------|----------|
-| `info` | bg: Forest/10%, text: Forest |
-| `success` | bg: Sage/10%, text: Sage |
-| `warning` | bg: Amber/10%, text: Amber |
-| `error` | bg: Terracotta/10%, text: Terracotta |
+| Type      | Couleurs                             |
+| --------- | ------------------------------------ |
+| `info`    | bg: Forest/10%, text: Forest         |
+| `success` | bg: Sage/10%, text: Sage             |
+| `warning` | bg: Amber/10%, text: Amber           |
+| `error`   | bg: Terracotta/10%, text: Terracotta |
 
 ---
 
 ### Table
 
 **Props :**
+
 ```typescript
 interface TableProps {
   columns: { key: string; label: string; align?: 'left' | 'right' }[];
@@ -647,15 +671,18 @@ interface TableProps {
 ### Visual Identity
 
 **Personnalité de marque :**
+
 - **Fiable** — Inspire confiance pour les décisions financières
 - **Accessible** — Pas intimidant, même pour les débutants
 - **Professionnel** — Crédible auprès des experts et conseillers
 - **Serein** — Réduit le stress lié aux calculs complexes
 
 **Logo :**
+
 ```
    renta immo
 ```
+
 - Typographie : Inter Medium, lowercase
 - Couleur : Charcoal (#1F1F1F)
 
@@ -663,21 +690,22 @@ interface TableProps {
 
 ### Color Palette
 
-| Rôle | Nom | Hex | Usage |
-|------|-----|-----|-------|
-| **Background** | Warm White | `#FAFAF8` | Fond de page principal |
-| **Surface** | Cream | `#F5F3EF` | Cartes, sections, inputs bg |
-| **Border** | Sand | `#E8E4DD` | Bordures, séparateurs |
-| **Text Primary** | Charcoal | `#1F1F1F` | Titres, valeurs importantes |
-| **Text Secondary** | Stone | `#6B6B6B` | Labels, descriptions |
-| **Text Muted** | Pebble | `#9CA3A0` | Placeholders, hints |
-| **Accent Primary** | Forest | `#2D5A45` | CTA, liens, éléments actifs |
-| **Accent Hover** | Deep Forest | `#1E3D2F` | États hover des accents |
-| **Success** | Sage | `#4A7C59` | Métriques positives |
-| **Warning** | Amber | `#C4841D` | Alertes, attention |
-| **Danger** | Terracotta | `#B54A32` | Erreurs, négatif |
+| Rôle               | Nom         | Hex       | Usage                       |
+| ------------------ | ----------- | --------- | --------------------------- |
+| **Background**     | Warm White  | `#FAFAF8` | Fond de page principal      |
+| **Surface**        | Cream       | `#F5F3EF` | Cartes, sections, inputs bg |
+| **Border**         | Sand        | `#E8E4DD` | Bordures, séparateurs       |
+| **Text Primary**   | Charcoal    | `#1F1F1F` | Titres, valeurs importantes |
+| **Text Secondary** | Stone       | `#6B6B6B` | Labels, descriptions        |
+| **Text Muted**     | Pebble      | `#9CA3A0` | Placeholders, hints         |
+| **Accent Primary** | Forest      | `#2D5A45` | CTA, liens, éléments actifs |
+| **Accent Hover**   | Deep Forest | `#1E3D2F` | États hover des accents     |
+| **Success**        | Sage        | `#4A7C59` | Métriques positives         |
+| **Warning**        | Amber       | `#C4841D` | Alertes, attention          |
+| **Danger**         | Terracotta  | `#B54A32` | Erreurs, négatif            |
 
 **Tailwind Config :**
+
 ```javascript
 // tailwind.config.js
 module.exports = {
@@ -710,7 +738,7 @@ module.exports = {
       },
     },
   },
-}
+};
 ```
 
 ---
@@ -718,27 +746,29 @@ module.exports = {
 ### Typography
 
 **Font Families :**
+
 - **Primary :** Inter (weights: 400, 500, 600)
 - **Monospace :** JetBrains Mono
 
 **Type Scale :**
 
-| Element | Size | Weight | Line Height | Color |
-|---------|------|--------|-------------|-------|
-| **H1** | 32px | 500 | 1.2 | Charcoal |
-| **H2** | 24px | 500 | 1.3 | Charcoal |
-| **H3** | 18px | 500 | 1.4 | Charcoal |
-| **Body** | 16px | 400 | 1.6 | Stone |
-| **Body Small** | 14px | 400 | 1.5 | Stone |
-| **Caption** | 12px | 500 | 1.4 | Pebble |
-| **Metric Value** | 36px | 600 | 1.1 | Charcoal |
-| **Metric Label** | 12px | 500 | 1.4 | Pebble |
+| Element          | Size | Weight | Line Height | Color    |
+| ---------------- | ---- | ------ | ----------- | -------- |
+| **H1**           | 32px | 500    | 1.2         | Charcoal |
+| **H2**           | 24px | 500    | 1.3         | Charcoal |
+| **H3**           | 18px | 500    | 1.4         | Charcoal |
+| **Body**         | 16px | 400    | 1.6         | Stone    |
+| **Body Small**   | 14px | 400    | 1.5         | Stone    |
+| **Caption**      | 12px | 500    | 1.4         | Pebble   |
+| **Metric Value** | 36px | 600    | 1.1         | Charcoal |
+| **Metric Label** | 12px | 500    | 1.4         | Pebble   |
 
 ---
 
 ### Iconography
 
 **Library :** Lucide Icons
+
 - Style : Stroke, 1.5px
 - Taille par défaut : 20px
 - Couleur : `currentColor`
@@ -753,20 +783,22 @@ npm install lucide-react
 
 **Spacing Scale (Base 4px) :**
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `space-2` | 8px | Entre éléments inline |
-| `space-4` | 16px | Padding inputs, gap grids |
-| `space-6` | 24px | Padding cartes sm |
-| `space-8` | 32px | Padding cartes md |
-| `space-12` | 48px | Padding page desktop |
-| `space-16` | 64px | Gap entre sections majeures |
+| Token      | Value | Usage                       |
+| ---------- | ----- | --------------------------- |
+| `space-2`  | 8px   | Entre éléments inline       |
+| `space-4`  | 16px  | Padding inputs, gap grids   |
+| `space-6`  | 24px  | Padding cartes sm           |
+| `space-8`  | 32px  | Padding cartes md           |
+| `space-12` | 48px  | Padding page desktop        |
+| `space-16` | 64px  | Gap entre sections majeures |
 
 **Border Radius :**
+
 - `radius-md` : 8px (inputs, boutons)
 - `radius-lg` : 12px (cartes)
 
 **Shadows :**
+
 - `shadow-sm` : `0 1px 2px rgba(0,0,0,0.04)`
 - `shadow-md` : `0 4px 12px rgba(0,0,0,0.06)`
 
@@ -783,35 +815,38 @@ npm install lucide-react
 ### Key Requirements
 
 **Visual :**
+
 - Contraste texte normal : minimum **4.5:1**
 - Contraste texte large : minimum **3:1**
 - Focus visible sur tous les éléments interactifs
 - Zoom 200% sans perte de fonctionnalité
 
 **Focus Indicator :**
+
 ```css
 :focus-visible {
-  outline: 2px solid #2D5A45;
+  outline: 2px solid #2d5a45;
   outline-offset: 2px;
 }
 ```
 
 **Interaction :**
+
 - Navigation clavier complète (Tab, Enter, Space, Arrows, Escape)
 - Ordre de focus logique (haut → bas, gauche → droite)
 - Touch targets minimum : **44px × 44px**
 
 **Content :**
+
 - Labels associés à tous les inputs (`htmlFor`)
 - Messages d'erreur via `aria-describedby` et `role="alert"`
 - Structure de headings sans saut de niveau
 - Alt text pour toutes les images informatives
 
 **Skip Link :**
+
 ```html
-<a href="#main-content" class="skip-link">
-  Aller au contenu principal
-</a>
+<a href="#main-content" class="skip-link"> Aller au contenu principal </a>
 ```
 
 ---
@@ -819,16 +854,19 @@ npm install lucide-react
 ### Testing Strategy
 
 **Outils automatisés :**
+
 - axe DevTools
 - Lighthouse Accessibility
 - eslint-plugin-jsx-a11y
 
 **Tests manuels :**
+
 - Navigation clavier complète
 - Zoom 200%
 - Lecteur d'écran (VoiceOver/NVDA)
 
 **Checklist :**
+
 - [ ] Score Lighthouse Accessibility ≥ 90
 - [ ] Aucune erreur axe (critical/serious)
 - [ ] Formulaire completable au clavier
@@ -840,13 +878,13 @@ npm install lucide-react
 
 ### Breakpoints
 
-| Breakpoint | Min Width | Target Devices |
-|------------|-----------|----------------|
-| **Mobile** | 0 | iPhone SE, Android |
-| **sm** | 375px | iPhone, Android standard |
-| **md** | 768px | iPad, tablettes |
-| **lg** | 1024px | Laptops |
-| **xl** | 1440px | Grands écrans |
+| Breakpoint | Min Width | Target Devices           |
+| ---------- | --------- | ------------------------ |
+| **Mobile** | 0         | iPhone SE, Android       |
+| **sm**     | 375px     | iPhone, Android standard |
+| **md**     | 768px     | iPad, tablettes          |
+| **lg**     | 1024px    | Laptops                  |
+| **xl**     | 1440px    | Grands écrans            |
 
 **Approche : Mobile-First**
 
@@ -856,21 +894,24 @@ npm install lucide-react
 
 **Layout :**
 
-| Élément | Mobile | Tablet | Desktop |
-|---------|--------|--------|---------|
-| Container | 100% - 32px | 100% - 64px | max 1200px |
-| Grid métriques | 2 col | 3 col | 6 col |
-| Form fields | 1 col | 2 col | 2 col |
+| Élément        | Mobile      | Tablet      | Desktop    |
+| -------------- | ----------- | ----------- | ---------- |
+| Container      | 100% - 32px | 100% - 64px | max 1200px |
+| Grid métriques | 2 col       | 3 col       | 6 col      |
+| Form fields    | 1 col       | 2 col       | 2 col      |
 
 **Navigation :**
+
 - Desktop : Header horizontal avec liens
 - Mobile : Hamburger menu
 
 **Progress Stepper :**
+
 - Desktop : Labels sous tous les dots
 - Mobile : Label uniquement sur étape active
 
 **Interactions :**
+
 - Hover states : Desktop uniquement
 - Tooltips : Desktop (hover) → Mobile (inline ou tap)
 
@@ -880,7 +921,7 @@ npm install lucide-react
 
 ### Motion Principles
 
-> *Les animations doivent être ressenties, pas remarquées.*
+> _Les animations doivent être ressenties, pas remarquées._
 
 1. **Subtilité** — Mouvements discrets
 2. **Rapidité** — Durées courtes
@@ -891,11 +932,11 @@ npm install lucide-react
 
 ### Timing Tokens
 
-| Token | Durée | Usage |
-|-------|-------|-------|
-| `duration-fast` | 150ms | Hover, focus |
+| Token             | Durée | Usage                     |
+| ----------------- | ----- | ------------------------- |
+| `duration-fast`   | 150ms | Hover, focus              |
 | `duration-normal` | 250ms | Transitions, collapsibles |
-| `duration-slow` | 400ms | Entrées de page |
+| `duration-slow`   | 400ms | Entrées de page           |
 
 **Easing :** `ease-out` pour entrées, `ease-in` pour sorties
 
@@ -903,15 +944,15 @@ npm install lucide-react
 
 ### Key Animations
 
-| Animation | Durée | Easing |
-|-----------|-------|--------|
-| Button hover/press | 150ms | ease-out |
-| Input focus | 150ms | ease-out |
-| Collapsible expand | 250ms | ease-out |
-| Step transition | 250ms | ease-in/out |
-| Metric cards stagger | 300ms + 50ms delay | ease-out |
-| Score counter | 800ms | ease-out cubic |
-| Spinner | 1s loop | linear |
+| Animation            | Durée              | Easing         |
+| -------------------- | ------------------ | -------------- |
+| Button hover/press   | 150ms              | ease-out       |
+| Input focus          | 150ms              | ease-out       |
+| Collapsible expand   | 250ms              | ease-out       |
+| Step transition      | 250ms              | ease-in/out    |
+| Metric cards stagger | 300ms + 50ms delay | ease-out       |
+| Score counter        | 800ms              | ease-out cubic |
+| Spinner              | 1s loop            | linear         |
 
 ---
 
@@ -932,13 +973,13 @@ npm install lucide-react
 
 ### Performance Goals
 
-| Métrique | Cible |
-|----------|-------|
-| **LCP** | < 2.5s |
-| **CLS** | < 0.1 |
-| **INP** | < 200ms |
-| **Bundle JS** | < 200KB gzip |
-| **Lighthouse Score** | ≥ 90 |
+| Métrique             | Cible        |
+| -------------------- | ------------ |
+| **LCP**              | < 2.5s       |
+| **CLS**              | < 0.1        |
+| **INP**              | < 200ms      |
+| **Bundle JS**        | < 200KB gzip |
+| **Lighthouse Score** | ≥ 90         |
 
 ---
 
@@ -951,6 +992,7 @@ npm install lucide-react
 5. **Animations :** GPU-accelerated (transform/opacity only)
 
 **Skeleton Loading :**
+
 ```jsx
 const MetricCardSkeleton = () => (
   <div className="bg-surface rounded-lg p-6 animate-pulse">
@@ -966,18 +1008,18 @@ const MetricCardSkeleton = () => (
 
 ### Implementation Priority
 
-| Composant/Page | Impact | Effort | Priorité |
-|----------------|--------|--------|----------|
-| Tailwind Config | Haut | Faible | 🔴 P1 |
-| Button, Input, Card | Haut | Faible-Moyen | 🔴 P1 |
-| Landing Page | Haut | Moyen | 🔴 P1 |
-| Progress Stepper | Haut | Moyen | 🟠 P2 |
-| Form Wizard styling | Haut | Moyen | 🟠 P2 |
-| MetricCard | Haut | Faible | 🟠 P2 |
-| Results Dashboard | Haut | Élevé | 🟠 P2 |
-| Collapsible, Table | Moyen | Faible-Moyen | 🟡 P3 |
-| Animations | Moyen | Moyen | 🟡 P3 |
-| En Savoir Plus | Faible | Faible | 🟢 P4 |
+| Composant/Page      | Impact | Effort       | Priorité |
+| ------------------- | ------ | ------------ | -------- |
+| Tailwind Config     | Haut   | Faible       | 🔴 P1    |
+| Button, Input, Card | Haut   | Faible-Moyen | 🔴 P1    |
+| Landing Page        | Haut   | Moyen        | 🔴 P1    |
+| Progress Stepper    | Haut   | Moyen        | 🟠 P2    |
+| Form Wizard styling | Haut   | Moyen        | 🟠 P2    |
+| MetricCard          | Haut   | Faible       | 🟠 P2    |
+| Results Dashboard   | Haut   | Élevé        | 🟠 P2    |
+| Collapsible, Table  | Moyen  | Faible-Moyen | 🟡 P3    |
+| Animations          | Moyen  | Moyen        | 🟡 P3    |
+| Comment ça marche   | Faible | Faible       | 🟢 P4    |
 
 ---
 
@@ -1011,4 +1053,4 @@ const MetricCardSkeleton = () => (
 
 ---
 
-*Document généré le 2026-01-28 — Direction Nordic Minimal*
+_Document généré le 2026-01-28 — Direction Nordic Minimal_

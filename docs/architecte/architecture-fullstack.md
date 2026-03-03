@@ -414,7 +414,7 @@ Le store `src/stores/calculateur.store.ts` gère les scénarios multiples avec p
 
 ```
 /                         → Landing publique
-/en-savoir-plus           → Page d'information
+/en-savoir-plus           → Page "Comment ça marche"
 /calculateur              → Formulaire wizard (6 étapes)
 /calculateur/resultats    → Dashboard résultats
 /simulations              → Liste (filtres URL search params)

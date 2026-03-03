@@ -7,7 +7,7 @@ Ce document liste les améliorations à apporter à l'interface de l'application
 ### 1. Ajout d'infobulles (tooltips) d'aide sur les champs du formulaire
 
 - **Problème / Retour utilisateur :** Certains champs techniques du formulaire sont difficiles à comprendre pour les investisseurs débutants.
-- **Solution proposée :** Ajouter une icône ℹ️ à côté du titre des champs complexes. Au survol, une infobulle affichera une explication concise du champ, sa définition détaillée et les règles métiers associées tirées de la page "En savoir plus".
+- **Solution proposée :** Ajouter une icône ℹ️ à côté du titre des champs complexes. Au survol, une infobulle affichera une explication concise du champ, sa définition détaillée et les règles métiers associées tirées de la page "Comment ça marche".
 - **Composants impactés :** Formulaires de saisie du calculateur.
 - **Statut :** **Terminé**
 - **Détails des champs à traiter :**
@@ -53,7 +53,7 @@ Ce document liste les améliorations à apporter à l'interface de l'application
 ### 5. Modification et pré-remplissage d'une simulation existante
 
 - **Problème / Retour utilisateur :** Lorsqu'un utilisateur modifie une simulation existante et clique sur "Sauvegarder", la modale est vide et une nouvelle copie est inévitablement créée au lieu de la mettre à jour.
-- **Solution apportée :** 
+- **Solution apportée :**
   - Ajout d'un identifiant `dbId` pour détecter l'origine de la simulation dans le Store.
   - Pré-remplissage automatique du nom et de la description dans la modale.
   - Distinction claire entre l'action "Mettre à jour" (UPDATE/PATCH) et "Sauvegarder une copie" (POST).
@@ -63,7 +63,7 @@ Ce document liste les améliorations à apporter à l'interface de l'application
 ### 6. Ajustement de la modale d'amortissement et harmonisation du titre fiscal
 
 - **Problème / Retour utilisateur :** La modale d'amortissement mensuel avait un titre générique ne précisant pas qu'il s'agissait du crédit, et il n'était pas possible de la fermer en cliquant à l'extérieur (seulement via la croix). De plus, le bloc "Comparatif des Régimes Fiscaux" avait une police très grande rompant avec les autres titres de sections.
-- **Solution apportée :** 
+- **Solution apportée :**
   - Renommage de la modale en "Détail mensuel du crédit".
   - Ajout de la fermeture au clic sur l'arrière-plan de la modale.
   - Ajustement des classes CSS du titre du "Comparatif des Régimes Fiscaux" pour coller aux standards (`text-lg font-black uppercase tracking-widest text-charcoal`).
@@ -73,7 +73,7 @@ Ce document liste les améliorations à apporter à l'interface de l'application
 ### 6. Séparation Expertise / Projections dans la navigation des résultats
 
 - **Problème / Retour utilisateur :** Le dernier élément du menu de navigation gauche "Financement & Amortissement" pointait sur le bloc de financement sans distinguer le bloc des "Projections patrimoniales".
-- **Solution apportée :** 
+- **Solution apportée :**
   - Ajout du lien "Projections détaillées" dans le menu de navigation indépendant.
   - Au clic sur l'ancre du menu, le navigateur non seulement scrolle vers le bloc, mais déclenche aussi l'ouverture via l'écoute d'un événement global ("open-collapsible").
 - **Composants impactés :** `Dashboard.tsx`, `Collapsible.tsx`.
