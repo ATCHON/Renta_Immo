@@ -18,7 +18,7 @@ const navItems = [
     icon: Calculator,
   },
   {
-    name: 'En savoir plus',
+    name: 'Comment ça marche',
     href: '/en-savoir-plus',
     icon: Info,
   },
