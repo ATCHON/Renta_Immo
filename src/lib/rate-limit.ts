@@ -47,6 +47,7 @@ export interface RateLimitResult {
   limit: number;
   remaining: number;
   resetAt: number; // timestamp UNIX en secondes
+  failOpen?: boolean; // true si Redis était indisponible (résultat de fallback, non une vraie limite)
 }
 
 /**
@@ -71,6 +72,7 @@ export async function rateLimit(endpoint: RateLimitEndpoint, ip: string): Promis
       limit: 0,
       remaining: 0,
       resetAt: Math.ceil(Date.now() / 1000) + 60,
+      failOpen: true,
     };
   }
 }

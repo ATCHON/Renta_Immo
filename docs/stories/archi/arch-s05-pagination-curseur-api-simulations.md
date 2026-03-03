@@ -244,7 +244,7 @@ meta: {
 
 ---
 
-> **Version** : 1.0 | **Architecte** : Winston | **Date** : 2026-03-03
+> **Version** : 1.1 | **Architecte** : Winston | **Date** : 2026-03-03
 
 ---
 

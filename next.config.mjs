@@ -116,7 +116,7 @@ export default withSentryConfig(nextConfig, {
   // Upload source maps uniquement en CI pour les erreurs prod debuggables
   silent: !process.env.CI,
 
-  // Désactiver le widget de feedback Sentry (non nécessaire)
+  // false = plugin webpack client activé (source maps client uploadées en CI)
   disableClientWebpackPlugin: false,
 
   // Tunnel désactivé pour Sprint 0 — CSP suffit (activer si bloqueurs de pubs mesurés)

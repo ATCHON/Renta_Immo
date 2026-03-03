@@ -145,7 +145,7 @@ const FINANCIAL_FIELDS = [
   'montantCredit',
   'capaciteEmprunt',
   'chargesAnnuelles',
-  'donnees_entree', // JSONB simulationscolumn — contient TOUT le formulaire
+  'donnees_entree', // JSONB simulations column — contient TOUT le formulaire
   'form_data', // alias frontend
   'resultats', // JSONB — peut contenir des données inférées sensibles
 ] as const;

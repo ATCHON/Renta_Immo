@@ -21,7 +21,7 @@ Ce document est le référentiel de préparation avant l'ajout de toute nouvelle
 7. [Scalabilité & Performance](#7-scalabilité--performance)
 8. [Actions Immédiates — Avant Prochaine Feature](#8-actions-immédiates--avant-prochaine-feature)
 9. [Infrastructure & Migration Vercel → Self-Hosted](#9-infrastructure--migration-vercel--self-hosted)
-10. [Préparation IA — Anticiper sans Sur-Ingénieur](#10-préparation-ia--anticiper-sans-sur-ingénieur)
+10. [Préparation IA — Anticiper sans sur-ingénierie](#10-préparation-ia--anticiper-sans-sur-ingénieur)
 11. [Developer Experience](#11-developer-experience)
 12. [Multi-Tenancy — Anticipations sans Over-Engineering](#12-multi-tenancy--anticipations-sans-over-engineering)
 13. [Roadmap Technique Priorisée](#13-roadmap-technique-priorisée)
@@ -1325,7 +1325,7 @@ docs/
 
 ---
 
-## 10. Préparation IA — Anticiper sans Sur-Ingénieur
+## 10. Préparation IA — Anticiper sans sur-ingénierie
 
 ### 10.1 Pourquoi Préparer Maintenant
 

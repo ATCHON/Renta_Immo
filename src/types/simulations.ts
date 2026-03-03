@@ -5,8 +5,8 @@ export type SimulationSort = 'created_at' | 'updated_at' | 'score_global';
 
 /** Payload encodé dans le curseur (base64url JSON) */
 export interface CursorPayload {
-  /** Valeur de la colonne de tri (ISO string pour dates, number pour score_global) */
-  value: string | number;
+  /** Valeur de la colonne de tri (ISO string pour dates, score en string, null si score_global NULL) */
+  value: string | null;
   /** UUID de la simulation — départage les égalités */
   id: string;
   /** Champ de tri actif — nécessaire pour reconstruire la keyset condition SQL */
@@ -51,7 +51,7 @@ function isCursorPayload(val: unknown): val is CursorPayload {
   if (!val || typeof val !== 'object') return false;
   const obj = val as Record<string, unknown>;
   return (
-    (typeof obj.value === 'string' || typeof obj.value === 'number') &&
+    (typeof obj.value === 'string' || obj.value === null) &&
     typeof obj.id === 'string' &&
     ['created_at', 'updated_at', 'score_global'].includes(obj.sort as string)
   );

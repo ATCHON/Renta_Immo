@@ -74,7 +74,8 @@ export class ConfigService {
   }
 
   async invalidateCache(year?: number): Promise<void> {
-    const years = year ? [year] : [2024, 2025, 2026, 2027];
+    const currentYear = new Date().getFullYear();
+    const years = year ? [year] : [currentYear - 2, currentYear - 1, currentYear, currentYear + 1];
     try {
       await Promise.all(years.map((y) => redis.del(cacheKey(y))));
     } catch (err) {

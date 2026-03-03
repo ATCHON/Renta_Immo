@@ -54,22 +54,22 @@ Index composites ciblant les requêtes fréquentes :
 
 ```sql
 -- Index principal : liste utilisateur triée par date (cas le plus fréquent)
-CREATE INDEX CONCURRENTLY idx_simulations_user_created
+CREATE INDEX idx_simulations_user_created
   ON simulations (user_id, created_at DESC)
   WHERE is_archived = false;
 
 -- Index secondaire : liste avec tri par score
-CREATE INDEX CONCURRENTLY idx_simulations_user_score
+CREATE INDEX idx_simulations_user_score
   ON simulations (user_id, score_global DESC)
   WHERE is_archived = false;
 
 -- Index tertiaire : favoris
-CREATE INDEX CONCURRENTLY idx_simulations_user_favorite
+CREATE INDEX idx_simulations_user_favorite
   ON simulations (user_id, updated_at DESC)
   WHERE is_favorite = true AND is_archived = false;
 ```
 
-> **Note** : `CONCURRENTLY` permet la création sans verrouiller la table en production.
+> **Note** : `CONCURRENTLY` est omis car les migrations Supabase s'exécutent dans une transaction — `CONCURRENTLY` est incompatible avec les blocs transactionnels. Les index sont créés lors du déploiement sans impact prod (table vide au moment de la migration initiale).
 
 ---
 

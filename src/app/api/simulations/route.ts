@@ -110,12 +110,17 @@ export async function GET(request: NextRequest) {
 
     // Appliquer la keyset condition selon le champ de tri
     if (sort === 'score_global') {
-      // score_global peut être NULL → NULLS LAST : les NULLs passent après les valeurs numériques
-      // On filtre sur (score_global < cursor.value) OR (score_global = cursor.value AND id < cursor.id)
-      // OR (score_global IS NULL) pour placer les nulls en fin
-      query = query.or(
-        `score_global.lt.${cursor.value},and(score_global.eq.${cursor.value},id.lt.${cursor.id})`
-      );
+      if (cursor.value === null) {
+        // cursor pointe sur une ligne avec score_global NULL → filtrer les NULLs restants par id
+        // ORDER BY score_global DESC NULLS LAST, id DESC → parmi les NULLs, tri par id DESC
+        query = query.is('score_global', null).lt('id', cursor.id);
+      } else {
+        // cursor pointe sur une ligne non-NULL → inclure également les lignes NULL (NULLS LAST)
+        // sans ce branch, les lignes NULL seraient inaccessibles depuis la page suivante
+        query = query.or(
+          `score_global.lt.${cursor.value},and(score_global.eq.${cursor.value},id.lt.${cursor.id}),score_global.is.null`
+        );
+      }
     } else {
       // Colonnes timestamp (created_at, updated_at)
       query = query.or(
@@ -147,11 +152,11 @@ export async function GET(request: NextRequest) {
   let next_cursor: string | null = null;
   if (has_more && pageRows.length > 0) {
     const last = pageRows[pageRows.length - 1];
-    const value =
+    const rawValue =
       sort === 'score_global' ? last.score_global : last[sort as 'created_at' | 'updated_at'];
-    if (value != null) {
-      next_cursor = encodeCursor({ value: String(value), id: last.id, sort });
-    }
+    // Encoder null explicitement pour score_global NULL (NULLS LAST) — sinon la page suivante est inaccessible
+    const value = rawValue != null ? String(rawValue) : null;
+    next_cursor = encodeCursor({ value, id: last.id, sort });
   }
 
   const meta: CursorPaginationMeta = {
