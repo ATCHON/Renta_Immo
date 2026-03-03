@@ -137,7 +137,19 @@
       "Bash(npx husky init:*)",
       "Bash(npm run test:coverage:*)",
       "Bash(true\" pour eviter les erreurs npm ci en CI:*)",
-      "Bash(DEBUG=\"vitest*\" npx vitest run:*)"
+      "Bash(DEBUG=\"vitest*\" npx vitest run:*)",
+      "mcp__notion__API-post-search",
+      "mcp__claude_ai_Notion__notion-create-pages",
+      "mcp__claude_ai_Notion__notion-create-database",
+      "mcp__claude_ai_Notion__notion-update-data-source",
+      "mcp__notion__API-query-data-source",
+      "mcp__claude_ai_Notion__notion-fetch",
+      "mcp__claude_ai_Notion__notion-search",
+      "mcp__notion__API-retrieve-a-page",
+      "mcp__notion__API-get-block-children",
+      "mcp__notion__API-patch-page",
+      "mcp__github__create_pull_request",
+      "mcp__claude_ai_Notion__notion-update-page"
     ]
   },
   "enableAllProjectMcpServers": true,
