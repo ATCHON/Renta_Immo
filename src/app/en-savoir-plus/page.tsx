@@ -69,7 +69,10 @@ function DesktopSidebar() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
   return (
-    <aside className="hidden lg:block w-52 shrink-0 sticky self-start" style={{ top: 'var(--header-h-desktop)' }}>
+    <aside
+      className="hidden lg:block w-52 shrink-0 sticky self-start"
+      style={{ top: 'var(--header-h-desktop)' }}
+    >
       <p className="text-[10px] font-black text-pebble uppercase tracking-widest mb-3 px-2">
         Sur cette page
       </p>
@@ -78,7 +81,10 @@ function DesktopSidebar() {
           <a
             key={id}
             href={`#${id}`}
-            onClick={(e) => { e.preventDefault(); handleClick(id); }}
+            onClick={(e) => {
+              e.preventDefault();
+              handleClick(id);
+            }}
             aria-current={activeId === id ? 'true' : undefined}
             className={cn(
               'block w-full text-left text-xs px-3 py-2 rounded-lg transition-all duration-150 font-medium',
@@ -110,7 +116,10 @@ function MobileNav() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
   return (
-    <div className="lg:hidden sticky z-20 bg-white/95 backdrop-blur border-b border-sand/60 px-4 py-2" style={{ top: 'var(--header-h-mobile)' }}>
+    <div
+      className="lg:hidden sticky z-20 bg-white/95 backdrop-blur border-b border-sand/60 px-4 py-2"
+      style={{ top: 'var(--header-h-mobile)' }}
+    >
       <button
         onClick={() => setIsOpen((v) => !v)}
         className="flex items-center justify-between w-full text-sm font-semibold text-charcoal"
@@ -125,12 +134,19 @@ function MobileNav() {
         />
       </button>
       {isOpen && (
-        <nav role="navigation" aria-label="Navigation mobile" className="mt-2 pb-2 grid grid-cols-2 gap-1">
+        <nav
+          role="navigation"
+          aria-label="Navigation mobile"
+          className="mt-2 pb-2 grid grid-cols-2 gap-1"
+        >
           {TOC_ITEMS.map(({ id, label }) => (
             <a
               key={id}
               href={`#${id}`}
-              onClick={(e) => { e.preventDefault(); handleClick(id); }}
+              onClick={(e) => {
+                e.preventDefault();
+                handleClick(id);
+              }}
               aria-current={activeId === id ? 'true' : undefined}
               className={cn(
                 'block text-left text-xs px-3 py-2 rounded-lg transition-colors',

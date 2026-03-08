@@ -36,7 +36,10 @@ export function SideNavigationDesktop({
   };
 
   return (
-    <aside className={cn('hidden lg:block w-52 shrink-0 sticky self-start', className)} style={{ top: 'var(--header-h-desktop)' }}>
+    <aside
+      className={cn('hidden lg:block w-52 shrink-0 sticky self-start', className)}
+      style={{ top: 'var(--header-h-desktop)' }}
+    >
       <p className="text-[10px] font-black text-pebble uppercase tracking-widest mb-3 px-2">
         {title}
       </p>
@@ -128,7 +131,10 @@ export function SideNavigationMobile({
     : items.find((i) => i.status === 'current') || items[0];
 
   return (
-    <div className="lg:hidden sticky z-20 bg-white/95 backdrop-blur border-b border-sand/60 px-4 py-2" style={{ top: 'var(--header-h-mobile)' }}>
+    <div
+      className="lg:hidden sticky z-20 bg-white/95 backdrop-blur border-b border-sand/60 px-4 py-2"
+      style={{ top: 'var(--header-h-mobile)' }}
+    >
       <button
         onClick={() => setIsOpen((v) => !v)}
         className="flex items-center justify-between w-full"
