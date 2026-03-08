@@ -51,6 +51,7 @@ _bmad
 gha-creds-*.json
 claude*.md
 claude.md
+gemini.md
 
 # Playwright
 coverage/

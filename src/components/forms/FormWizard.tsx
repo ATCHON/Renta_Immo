@@ -3,7 +3,12 @@
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Card, SideNavigation, type SideNavigationItem } from '@/components/ui';
+import {
+  Card,
+  SideNavigationDesktop,
+  SideNavigationMobile,
+  type SideNavigationItem,
+} from '@/components/ui';
 import { ProgressStepper } from './ProgressStepper';
 import { StepBien } from './StepBien';
 import { StepFinancement } from './StepFinancement';
@@ -104,6 +109,9 @@ export function FormWizard() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Navigation mobile : sticky, affichée dans le flux */}
+      <SideNavigationMobile items={sideNavItems} title="Étapes" />
+
       <div className="max-w-4xl mx-auto mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex-1 overflow-x-auto">
           <ScenarioTabs />
@@ -111,16 +119,12 @@ export function FormWizard() {
       </div>
 
       {/* Grid Layout pour navigation latérale et formulaire */}
-      <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-8 items-start">
+      <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-[208px_1fr] gap-8 items-start">
         {/* Navigation latérale sur bureau */}
-        <SideNavigation
-          items={sideNavItems}
-          title="Étapes"
-          className="hidden lg:block mt-8 sticky top-8"
-        />
+        <SideNavigationDesktop items={sideNavItems} title="Étapes" className="mt-8" />
 
         <div className="w-full">
-          {/* Stepper de progression (visible sur mobile/tablette en haut, gardé pour la progression) */}
+          {/* Stepper de progression (barre de progression visuelle) */}
           <div className="mb-8">
             <ProgressStepper
               currentStep={displayStep + 1}

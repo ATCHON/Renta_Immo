@@ -19,6 +19,7 @@ Ce document regroupe les evolutions identifiees lors de l'audit du 7 fevrier 202
 Les banques utilisent systematiquement le reste a vivre en complement du taux d'endettement.
 
 **Calcul** :
+
 ```
 reste_a_vivre = revenus_totaux - charges_totales
 seuil = 700 EUR (celibataire) / 1 000 EUR (couple) + 300 EUR par enfant
@@ -37,6 +38,7 @@ seuil = 700 EUR (celibataire) / 1 000 EUR (couple) + 300 EUR par enfant
 Le TRI actuel ne deduit pas les frais de cession du dernier flux.
 
 **A deduire** :
+
 - Frais d'agence de revente : ~5% du prix de vente
 - Impot de plus-value (couvert par AUDIT-105 si fait)
 - Diagnostics obligatoires : ~500 EUR
@@ -54,6 +56,7 @@ Le TRI actuel ne deduit pas les frais de cession du dernier flux.
 Le code calcule l'assurance sur capital initial (mode le plus courant). Le mode "capital restant du" genere des economies de 30-40% sur le cout total de l'assurance.
 
 **A implementer** :
+
 - Option de choix du mode d'assurance dans le formulaire
 - Calcul mois par mois : `assurance(m) = capital_restant(m) * taux_assurance / 12`
 - Integration dans le tableau d'amortissement et les projections
@@ -69,6 +72,7 @@ Le code calcule l'assurance sur capital initial (mode le plus courant). Le mode 
 Le DPE n'est pas pris en compte dans le simulateur.
 
 **A implementer** :
+
 - Champ DPE (A a G) dans le formulaire (step Bien)
 - Alertes pour les passoires energetiques (F-G) : interdiction progressive de location
   - 2025 : G interdit
@@ -92,6 +96,7 @@ Depuis fevrier 2025, les amortissements deduits en LMNP reel doivent etre reinte
 **Impact** : Reduit significativement l'avantage reel du LMNP reel sur le long terme.
 
 **A implementer** :
+
 - Cumul des amortissements deduits sur la duree de detention
 - Reintegration dans la plus-value : PV = prix_vente - (prix_achat - amortissements_cumules)
 - Alertes informatives sur l'impact de la reintegration
@@ -109,6 +114,7 @@ Depuis fevrier 2025, les amortissements deduits en LMNP reel doivent etre reinte
 Le code utilise systematiquement le DMTO majore a 5%. Tous les departements n'ont pas adopte cette hausse (certains sont a 4.5%).
 
 **Options** :
+
 - Ajouter un booleen `dmto_majore` (simple)
 - Ajouter un selecteur de departement avec les taux corrects (complet)
 - Garder 5% par defaut (conservateur, pas de changement)
@@ -124,6 +130,7 @@ Le code utilise systematiquement le DMTO majore a 5%. Tous les departements n'on
 **Effort** : 0.5 jour | **Source** : Audit section 9 (tableau ecarts)
 
 La specification prevoit des indicateurs non implementes :
+
 - **VAN** (Valeur Actuelle Nette) : `VAN = Somme(Flux_Net(n) / (1+r)^n) + Valeur_Sortie / (1+r)^H - Apport`
 - **Multiple sur capital investi** : `Multiple = (Valeur_Sortie + Somme(Flux_Net)) / Apport`
 - **Rendement sur fonds propres** : `RSF = Cashflow_Net / Apport * 100`
@@ -139,6 +146,7 @@ La specification prevoit des indicateurs non implementes :
 La comparaison des regimes est faite sur l'annee 1 uniquement. Or certains regimes sont plus avantageux au debut (LMNP reel grace a l'amortissement) et moins sur le long terme.
 
 **A implementer** :
+
 - Comparaison sur l'horizon choisi (5, 10, 15, 20, 25 ans)
 - Impot cumule par regime
 - Graphique d'evolution comparative
@@ -154,6 +162,7 @@ La comparaison des regimes est faite sur l'annee 1 uniquement. Or certains regim
 La specification prevoit un champ `frais_agence` dans le cout total d'acquisition. Les frais d'agence sont souvent inclus dans le prix affiche (FAI - Frais d'Agence Inclus) mais pas toujours.
 
 **A implementer** :
+
 - Champ optionnel `frais_agence` dans le formulaire
 - Integration dans `cout_total_acquisition`
 
@@ -171,15 +180,15 @@ L'hypothese de calcul de la capacite d'emprunt residuelle est fixee a 20 ans / 3
 
 ## Matrice de priorisation
 
-| Item | Impact | Effort | Priorite suggeree |
-|------|--------|--------|-------------------|
-| E1 - Reste a vivre | Moyen | 0.5j | Sprint prochain |
-| E2 - Frais revente TRI | Moyen | 0.5j | Sprint prochain |
-| E3 - Assurance CRD | Faible | 1j | Backlog |
-| E4 - DPE alertes | Moyen | 1j | Sprint prochain |
-| E5 - Reintegration LMNP | Eleve | 1j | Avec AUDIT-105 |
-| E6 - DMTO departement | Faible | 0.5j | Backlog |
-| E7 - VAN/Multiple/RSF | Faible | 0.5j | Backlog |
-| E8 - Comparaison pluriannuelle | Moyen | 1j | Avec AUDIT-100 |
-| E9 - Frais agence | Faible | 0.5j | Backlog |
-| E10 - Capacite emprunt | Faible | 0.5j | Backlog |
+| Item                           | Impact | Effort | Priorite suggeree |
+| ------------------------------ | ------ | ------ | ----------------- |
+| E1 - Reste a vivre             | Moyen  | 0.5j   | Sprint prochain   |
+| E2 - Frais revente TRI         | Moyen  | 0.5j   | Sprint prochain   |
+| E3 - Assurance CRD             | Faible | 1j     | Backlog           |
+| E4 - DPE alertes               | Moyen  | 1j     | Sprint prochain   |
+| E5 - Reintegration LMNP        | Eleve  | 1j     | Avec AUDIT-105    |
+| E6 - DMTO departement          | Faible | 0.5j   | Backlog           |
+| E7 - VAN/Multiple/RSF          | Faible | 0.5j   | Backlog           |
+| E8 - Comparaison pluriannuelle | Moyen  | 1j     | Avec AUDIT-100    |
+| E9 - Frais agence              | Faible | 0.5j   | Backlog           |
+| E10 - Capacite emprunt         | Faible | 0.5j   | Backlog           |
