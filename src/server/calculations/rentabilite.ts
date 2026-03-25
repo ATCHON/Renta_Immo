@@ -117,13 +117,15 @@ export function calculerFraisNotairePrecis(
  * @param fraisBanque - Frais de dossier + Frais de garantie
  * @param mensualiteTotale - Mensualité cible (crédit + assurance)
  * @param nombreMois - Durée totale en mois
+ * @param tauxNominal - Taux nominal du crédit (en pourcentage, ex: 1.5) optionnel pour accélérer la convergence
  * @returns TAEG annuel (ex: 4.15 pour 4.15%) ou null si impossible.
  */
 export function calculerTAEG(
   montantEmprunte: number,
   fraisBanque: number,
   mensualiteTotale: number,
-  nombreMois: number
+  nombreMois: number,
+  tauxNominal?: number
 ): number | null {
   const capitalNet = montantEmprunte - fraisBanque;
 
@@ -139,9 +141,10 @@ export function calculerTAEG(
   // F'(t) = M * ( (-1 + (1+t)^-N + N*t*(1+t)^(-N-1)) / t^2 )
   // (Formule dérivée classique de la valeur présente d'une annuité)
 
-  // Point de départ (taux mensuel estimé : e.g., 0.5% / mois)
-  let t = 0.005;
+  // Point de départ (taux mensuel estimé : e.g., 0.5% / mois, ou basé sur le taux nominal si fourni)
+  let t = tauxNominal && tauxNominal > 0 ? Math.pow(1 + tauxNominal / 100, 1 / 12) - 1 : 0.005;
   const TOLERANCE = 1e-7;
+  const MIN_DERIVATIVE = 1e-10;
   const MAX_ITER = 100;
 
   for (let i = 0; i < MAX_ITER; i++) {
@@ -152,6 +155,11 @@ export function calculerTAEG(
     // Dérivée V'(t)
     const termDerivative = nombreMois * Math.pow(1 + t, -nombreMois - 1);
     const fDerivative = mensualiteTotale * ((-1 + term + t * termDerivative) / (t * t));
+
+    // Protection contre division par zéro ou dérivée quasi-nulle
+    if (!Number.isFinite(fDerivative) || Math.abs(fDerivative) < MIN_DERIVATIVE) {
+      return null;
+    }
 
     const dt = fValue / fDerivative;
     t = t - dt;
@@ -209,11 +217,13 @@ export function calculerFinancement(
   const cout_total_interets =
     cout_total_credit - montant_emprunt - detailMensualite.mensualite_assurance * nombreMois;
 
+  const tauxGlobalNominal = financement.taux_interet + (financement.assurance_pret || 0);
   const taeg = calculerTAEG(
     montant_emprunt,
     fraisBanque,
     detailMensualite.mensualite_totale,
-    nombreMois
+    nombreMois,
+    tauxGlobalNominal
   );
 
   return {
