@@ -20,6 +20,7 @@ import type { BienData, FinancementData, ExploitationData, PreviewKPIs } from '@
  * @returns Mensualité en euros
  */
 function pmt(tauxMensuel: number, nMois: number, montant: number): number {
+  if (nMois <= 0) return 0;
   if (tauxMensuel === 0) return montant / nMois;
   const facteur = Math.pow(1 + tauxMensuel, nMois);
   return (montant * tauxMensuel * facteur) / (facteur - 1);

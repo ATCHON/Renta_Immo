@@ -32,13 +32,10 @@ import type { PreviewKPIs } from '@/types/calculateur';
  * ```
  */
 export function usePreviewKPIs(): PreviewKPIs {
-  const bien = useCalculateurStore((s) => s.getActiveScenario().bien);
-  const financement = useCalculateurStore((s) => s.getActiveScenario().financement);
-  const exploitation = useCalculateurStore((s) => s.getActiveScenario().exploitation);
+  const scenario = useCalculateurStore((s) => s.getActiveScenario());
 
   return useMemo(
-    () => computePreviewKPIs(bien, financement, exploitation),
-
-    [bien, financement, exploitation]
+    () => computePreviewKPIs(scenario.bien, scenario.financement, scenario.exploitation),
+    [scenario] // Zustand assure l'immutabilité du state, donc `scenario` change de ref si altéré.
   );
 }

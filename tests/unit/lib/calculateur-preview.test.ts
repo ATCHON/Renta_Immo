@@ -202,6 +202,58 @@ describe('computePreviewKPIs', () => {
     });
   });
 
+  describe('cas limite : taux_interet défini mais formule principale inapplicable', () => {
+    it('utilise le fallback (tauxAnnuel * 1.05) quand duree_emprunt <= 0', () => {
+      const financementDureeNulle = {
+        ...FINANCEMENT_COMPLET,
+        duree_emprunt: 0,
+      };
+
+      const kpis = computePreviewKPIs(BIEN_COMPLET, financementDureeNulle, {});
+
+      expect(kpis.taegApprox).not.toBeNull();
+      // Fallback attendu : tauxAnnuel * 1.05
+      expect(kpis.taegApprox!).toBeCloseTo(FINANCEMENT_COMPLET.taux_interet * 1.05, 5);
+    });
+
+    it('utilise aussi le fallback quand le montant emprunté est nul ou négatif (apport >= investissementTotal)', () => {
+      const financementApportTropEleve = {
+        ...FINANCEMENT_COMPLET,
+        apport: 1_000_000,
+      };
+
+      const kpis = computePreviewKPIs(BIEN_COMPLET, financementApportTropEleve, {});
+
+      expect(kpis.taegApprox).not.toBeNull();
+      expect(kpis.taegApprox!).toBeCloseTo(FINANCEMENT_COMPLET.taux_interet * 1.05, 5);
+    });
+  });
+
+  describe('cas limite : taux_interet nul / non défini', () => {
+    it('retourne taegApprox = null quand taux_interet est null avec des inputs valides', () => {
+      const financementSansTaux = {
+        ...FINANCEMENT_COMPLET,
+        taux_interet: null,
+      } as unknown as Partial<typeof FINANCEMENT_COMPLET>;
+
+      const kpis = computePreviewKPIs(BIEN_COMPLET, financementSansTaux, {});
+
+      expect(kpis.taegApprox).toBeNull();
+    });
+
+    it('retourne taegApprox = null quand taux_interet est undefined avec des inputs valides', () => {
+      const { taux_interet, ...financementSansTauxInteret } = FINANCEMENT_COMPLET;
+
+      const kpis = computePreviewKPIs(
+        BIEN_COMPLET,
+        financementSansTauxInteret as typeof FINANCEMENT_COMPLET,
+        {}
+      );
+
+      expect(kpis.taegApprox).toBeNull();
+    });
+  });
+
   describe('cas limite : durée = 0', () => {
     it('mensualiteEstimee = null si duree_emprunt = 0', () => {
       const kpis = computePreviewKPIs(
