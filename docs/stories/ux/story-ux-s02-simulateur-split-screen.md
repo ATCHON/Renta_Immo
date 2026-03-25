@@ -2,7 +2,7 @@
 
 > **Priorité** : P1 — La refonte la plus complexe
 > **Effort** : L (4–5 jours)
-> **Statut** : Ready for Dev
+> **Statut** : In Progress — Sprint 2a ✅ (3.1+3.2), Sprint 3 (3.3–3.6)
 > **Type** : Feature / UI + Layout
 > **Epic** : UX Migration — Phase 2 : Simulateur
 > **Branche** : `feature/verdant-simulator`
@@ -66,12 +66,12 @@ La refonte la plus importante de cette migration : le formulaire multi-step pass
 
 ## 3. Critères d'acceptation
 
-### 3.1 Layout `SimulatorLayout`
+### 3.1 Layout `SimulatorLayout` ✅ Sprint 2a
 
-- [ ] Fichier `src/components/layout/SimulatorLayout.tsx` créé
-- [ ] Le layout est une grille CSS : `grid-cols-[340px_1fr]` sur desktop
-- [ ] La sidebar est en `sticky top-0 h-screen overflow-hidden`
-- [ ] La zone de contenu droit est scrollable : `overflow-y-auto`
+- [x] Fichier `src/components/layout/SimulatorLayout.tsx` créé
+- [x] Le layout est une grille CSS : `grid-cols-[340px_1fr]` sur desktop
+- [x] La sidebar est en `sticky top-0 h-screen overflow-hidden` (implémenté via `h-[calc(100vh-4rem)]` pour tenir compte du header global 4rem)
+- [x] La zone de contenu droit est scrollable : `overflow-y-auto`
 
 **Architecture du composant** :
 
@@ -105,15 +105,15 @@ export function SimulatorLayout({ children, currentStep }: SimulatorLayoutProps)
 > }
 > ```
 
-### 3.2 Composant `ResultsAnchor`
+### 3.2 Composant `ResultsAnchor` ✅ Sprint 2a
 
-- [ ] Fichier `src/components/layout/ResultsAnchor.tsx` créé
-- [ ] Accepte une prop `currentStep: 1 | 2 | 3 | 4 | 5`
-- [ ] Utilise le hook `usePreviewKPIs()` (UX-BE02) pour obtenir les KPIs dynamiques
-- [ ] Affiche les KPIs correspondant au step actif (cf. tableau section 2.3)
-- [ ] Les valeurs `null` sont affichées comme `—` (tiret em)
-- [ ] Les valeurs approximatives affichent un tilde `~` préfixe (ex: `~5,2 %`)
-- [ ] Le bouton « Télécharger PDF » (`DownloadPdfButton`) est présent en bas de la sidebar
+- [x] Fichier `src/components/layout/ResultsAnchor.tsx` créé
+- [x] Accepte une prop `currentStep: 1 | 2 | 3 | 4 | 5`
+- [x] Utilise le hook `usePreviewKPIs()` (UX-BE02) pour obtenir les KPIs dynamiques
+- [x] Affiche les KPIs correspondant au step actif (cf. tableau section 2.3)
+- [x] Les valeurs `null` sont affichées comme `—` (tiret em)
+- [x] Les valeurs approximatives affichent un tilde `~` préfixe (ex: `~5,2 %`)
+- [x] Le bouton « Télécharger PDF » (`DownloadPdfButton`) est présent en bas de la sidebar
 
 **Variants par step** (composants séparés pour lisibilité) :
 
@@ -236,21 +236,71 @@ npm run dev
 
 ## 6. Definition of Done
 
-- [ ] `SimulatorLayout` et `ResultsAnchor` fonctionnels avec KPIs en temps réel
-- [ ] 6 régimes fiscaux tous présents dans `StepStructure`
-- [ ] Responsive : sidebar → panneau bottom sur mobile
-- [ ] `npm run test` : 530+ TU verts
-- [ ] `npm run test:regression` : régression calcul = 0
-- [ ] `npm run test:e2e` : parcours formulaire complet fonctionnel
-- [ ] Aucun champ de formulaire supprimé
-- [ ] Aucun `any` TypeScript
-- [ ] TU créés pour les nouveaux composants
-- [ ] PR mergée depuis `feature/verdant-simulator`
+- [x] `SimulatorLayout` et `ResultsAnchor` fonctionnels avec KPIs en temps réel
+- [ ] 6 régimes fiscaux tous présents dans `StepStructure` _(Sprint 3 — 3.5)_
+- [x] Responsive : sidebar → panneau bottom sur mobile
+- [x] `npm run test` : 596 TU verts (530+ ✅)
+- [ ] `npm run test:regression` : régression calcul = 0 _(Sprint 3)_
+- [ ] `npm run test:e2e` : parcours formulaire complet fonctionnel _(Sprint 3)_
+- [x] Aucun champ de formulaire supprimé _(aucune modification des steps pour l'instant)_
+- [x] Aucun `any` TypeScript
+- [x] TU créés pour les nouveaux composants (`SimulatorLayout.test.tsx`, `ResultsAnchor.test.tsx`)
+- [ ] PR mergée depuis `feature/verdant-simulator` _(en cours)_
+
+---
+
+## Dev Agent Record
+
+### Sprint 2a (2026-03-25) — Sections 3.1 + 3.2
+
+**Agent** : James (dev) — claude-sonnet-4-6
+**Branche** : `feature/verdant-simulator`
+**Commit** : `9e438bf`
+
+#### Fichiers créés/modifiés
+
+| Fichier                                                 | Action                                        |
+| ------------------------------------------------------- | --------------------------------------------- |
+| `src/components/layout/SimulatorLayout.tsx`             | NEW                                           |
+| `src/components/layout/ResultsAnchor.tsx`               | NEW                                           |
+| `src/components/layout/ResultsAnchorStep1.tsx`          | NEW                                           |
+| `src/components/layout/ResultsAnchorStep2.tsx`          | NEW                                           |
+| `src/components/layout/ResultsAnchorStep3.tsx`          | NEW                                           |
+| `src/components/layout/ResultsAnchorStep4.tsx`          | NEW                                           |
+| `src/components/layout/ResultsAnchorStep5.tsx`          | NEW                                           |
+| `src/app/calculateur/page.tsx`                          | MODIFY — wrap FormWizard dans SimulatorLayout |
+| `tests/unit/components/layout/SimulatorLayout.test.tsx` | NEW — 4 TU jsdom                              |
+| `tests/unit/components/layout/ResultsAnchor.test.tsx`   | NEW — 9 TU jsdom                              |
+
+#### Notes
+
+- `h-[calc(100vh-4rem)]` utilisé à la place de `h-screen` pour tenir compte du header global 4rem
+- Panneau mobile glassmorphism fixé en bas (`fixed bottom-0`), compact mode = grille 2×2
+- PDF button : affiché seulement si `scenario.resultats !== null`, sinon bouton désactivé
+- Step mapping : store `currentStep` 0-indexed → sidebar `sidebarStep = clamp(storeStep+1, 1, 5)`
+- Tests jsdom : docblock `// @vitest-environment jsdom` obligatoire (env global = node)
+
+### Code Review Sourcery (2026-03-25) — PR #65
+
+**Commit** : `5e8534a`
+
+#### Corrections apportées
+
+| Point                     | Fichier(s)                           | Correction                                                                    |
+| ------------------------- | ------------------------------------ | ----------------------------------------------------------------------------- |
+| Duplication helpers fmt   | `ResultsAnchorStep1–5.tsx`           | Extraction vers `src/utils/kpiFormat.ts` (`fmtEuro`, `fmtPercent`)            |
+| `height` répété × 3       | `SimulatorLayout.tsx`                | `height` conservé sur parent uniquement, `h-full` sur `aside` + `div` enfants |
+| Guard null store          | `ResultsAnchor.tsx`                  | `scenario.resultats` → `scenario?.resultats`                                  |
+| Cashflow null color       | `ResultsAnchor.tsx`                  | `text-primary` → `text-primary/40` quand valeur null                          |
+| Tests null indirects      | `ResultsAnchor.test.tsx`             | `document.body.textContent` → `screen.getAllByText` + `within()`              |
+| Tests formatage manquants | `tests/unit/utils/kpiFormat.test.ts` | NOUVEAU — 10 TU sur seuils k€/M€ et précision %                               |
 
 ---
 
 ## Changelog
 
-| Date       | Version | Description                                       | Auteur    |
-| ---------- | ------- | ------------------------------------------------- | --------- |
-| 2026-03-25 | 1.0     | Création — Plan UX Sally + Plan technique Winston | John (PM) |
+| Date       | Version | Description                                         | Auteur      |
+| ---------- | ------- | --------------------------------------------------- | ----------- |
+| 2026-03-25 | 1.0     | Création — Plan UX Sally + Plan technique Winston   | John (PM)   |
+| 2026-03-25 | 1.1     | Sprint 2a — SimulatorLayout + ResultsAnchor         | James (dev) |
+| 2026-03-25 | 1.2     | Code review Sourcery — utilitaires KPI + robustesse | James (dev) |

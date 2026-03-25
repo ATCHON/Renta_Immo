@@ -197,6 +197,20 @@ Après la phase 1, lancer un audit Lighthouse SEO + Accessibility sur la landing
 - CTA redirige vers `/calculateur?reset=true` pour forcer un reset du store
 - Aucun test E2E automatisé ajouté (composants purement statiques, risque de régression nul)
 
+### Code Review Sourcery (2026-03-25) — PR #64
+
+**Commit** : `17574e3`
+
+#### Corrections apportées
+
+| Point                      | Fichier(s)                             | Correction                                                                                               |
+| -------------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Reset flow incohérent      | `VerdantNavbar.tsx`                    | `handleNewSimulation()` remplacé par `Link href="/calculateur?reset=true"` — unifié avec les autres CTAs |
+| `type` manquant sur bouton | `VerdantNavbar.tsx`                    | `type="button"` ajouté sur burger mobile ; imports `useRouter`/`useCalculateurStore` supprimés           |
+| ARIA label StarRating      | `TestimonialsSection.tsx`              | Prop `max = 5` ajoutée — aria-label `${count} étoiles sur ${max}`                                        |
+| Routes incohérentes        | `HeroSection.tsx`, `VerdantFooter.tsx` | `/en-savoir-plus` → `/comment-ca-marche` (aligné avec la navbar)                                         |
+| Typo story                 | `story-ux-s01-landing-page.md`         | `refontue` → `Refonte de`                                                                                |
+
 ---
 
 ## Changelog
@@ -205,3 +219,4 @@ Après la phase 1, lancer un audit Lighthouse SEO + Accessibility sur la landing
 | ---------- | ------- | ------------------------------------------------- | ----------- |
 | 2026-03-25 | 1.0     | Création — Plan UX Sally + Plan technique Winston | John (PM)   |
 | 2026-03-25 | 1.1     | Sprint 2 — Landing page Petra Nova complète       | James (dev) |
+| 2026-03-25 | 1.2     | Code review Sourcery — reset flow + a11y + routes | James (dev) |
