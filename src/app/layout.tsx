@@ -1,10 +1,30 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Manrope } from 'next/font/google';
 import { QueryProvider } from '@/components/providers';
 import { Header } from '@/components/layout/Header';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600'] });
+/**
+ * Verdant Simulator — Typography Setup (UX-S00)
+ * Inter   → --font-body     (texte courant)
+ * Manrope → --font-headline  (titres, labels, navigation)
+ *
+ * Material Symbols Outlined : chargé via @import CSS dans globals.css
+ * (ne peut pas être importé via next/font — non dans le registre Google Fonts de Next.js)
+ */
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-body',
+  display: 'swap',
+  weight: ['400', '500', '600'],
+});
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  variable: '--font-headline',
+  display: 'swap',
+  weight: ['400', '500', '600', '700', '800'],
+});
 
 export const metadata: Metadata = {
   title: 'Renta Immo - Calculateur de Rentabilité Immobilière',
@@ -14,7 +34,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.variable} ${manrope.variable} ${inter.className}`}>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-white focus:border-2 focus:border-forest focus:rounded-lg"
