@@ -226,6 +226,8 @@ export interface FinancementResultat {
   mensualite: number;
   cout_total_credit: number;
   frais_notaire: number;
+  taeg: number | null;
+  capacite_endettement: number | null;
 }
 
 /**

@@ -72,6 +72,8 @@ const mockResultats: CalculResultats = {
     mensualite: 1195,
     cout_total_credit: 80300,
     frais_notaire: 15300,
+    taeg: null,
+    capacite_endettement: null,
   },
   fiscalite: {
     regime: 'reel',

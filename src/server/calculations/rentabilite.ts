@@ -110,6 +110,73 @@ export function calculerFraisNotairePrecis(
 }
 
 /**
+ * Calcule le TAEG (Taux Annuel Effectif Global) via la méthode de Newton-Raphson.
+ * @ref docs/core/specification-calculs.md#27-taeg-méthode-de-newton-raphson
+ *
+ * @param montantEmprunte - Le capital demandé par l'emprunteur
+ * @param fraisBanque - Frais de dossier + Frais de garantie
+ * @param mensualiteTotale - Mensualité cible (crédit + assurance)
+ * @param nombreMois - Durée totale en mois
+ * @returns TAEG annuel (ex: 4.15 pour 4.15%) ou null si impossible.
+ */
+export function calculerTAEG(
+  montantEmprunte: number,
+  fraisBanque: number,
+  mensualiteTotale: number,
+  nombreMois: number
+): number | null {
+  const capitalNet = montantEmprunte - fraisBanque;
+
+  // Si pas de crédit ou paramètres invalides
+  if (capitalNet <= 0 || mensualiteTotale <= 0 || nombreMois <= 0) return null;
+
+  // Si le total payé est inférieur au capital net (taux négatif), peu probable mais mathématiquement possible
+  if (mensualiteTotale * nombreMois <= capitalNet) return 0;
+
+  // Objectif : trouver t (taux mensuel) tel que F(t) = 0
+  // F(t) = ( M * (1 - (1+t)^-N) / t ) - C_net = 0
+  //
+  // F'(t) = M * ( (-1 + (1+t)^-N + N*t*(1+t)^(-N-1)) / t^2 )
+  // (Formule dérivée classique de la valeur présente d'une annuité)
+
+  // Point de départ (taux mensuel estimé : e.g., 0.5% / mois)
+  let t = 0.005;
+  const TOLERANCE = 1e-7;
+  const MAX_ITER = 100;
+
+  for (let i = 0; i < MAX_ITER; i++) {
+    const term = Math.pow(1 + t, -nombreMois);
+    // V(t) = M * (1 - term) / t
+    const fValue = mensualiteTotale * ((1 - term) / t) - capitalNet;
+
+    // Dérivée V'(t)
+    const termDerivative = nombreMois * Math.pow(1 + t, -nombreMois - 1);
+    const fDerivative = mensualiteTotale * ((-1 + term + t * termDerivative) / (t * t));
+
+    const dt = fValue / fDerivative;
+    t = t - dt;
+
+    if (Math.abs(dt) < TOLERANCE) {
+      break;
+    }
+
+    // Sécurité contre une divergence
+    if (t <= -1 || isNaN(t)) {
+      return null;
+    }
+  }
+
+  // Si l'algo a convergé hors des bornes logiques
+  if (t < 0 || t > 1) return null;
+
+  // Le TAEG légal (Crédit Immo France & MCD Européenne) est le taux annuel actuariel :
+  // TAEG = (1 + t)^12 - 1
+  const taegActuariel = Math.pow(1 + t, 12) - 1;
+
+  return round(taegActuariel * 100, 2);
+}
+
+/**
  * Calcule les détails du financement
  */
 export function calculerFinancement(
@@ -142,6 +209,13 @@ export function calculerFinancement(
   const cout_total_interets =
     cout_total_credit - montant_emprunt - detailMensualite.mensualite_assurance * nombreMois;
 
+  const taeg = calculerTAEG(
+    montant_emprunt,
+    fraisBanque,
+    detailMensualite.mensualite_totale,
+    nombreMois
+  );
+
   return {
     montant_emprunt: round(montant_emprunt),
     mensualite_credit: detailMensualite.mensualite_credit,
@@ -153,6 +227,7 @@ export function calculerFinancement(
     cout_total_acquisition: round(coutTotalAcquisition),
     taux_interet: financement.taux_interet,
     frais_notaire: round(fraisNotaire),
+    taeg,
   };
 }
 
