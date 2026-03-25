@@ -8,20 +8,17 @@
  */
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Menu, X, FolderOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
-import { useCalculateurStore } from '@/stores/calculateur.store';
 
 export function VerdantNavbar() {
   const pathname = usePathname();
-  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { data: session } = authClient.useSession();
-  const resetStore = useCalculateurStore((state) => state.reset);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -32,11 +29,6 @@ export function VerdantNavbar() {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
-
-  const handleNewSimulation = () => {
-    resetStore();
-    router.push('/calculateur');
-  };
 
   return (
     <nav
@@ -105,13 +97,14 @@ export function VerdantNavbar() {
               Connexion
             </Link>
           )}
-          <button onClick={handleNewSimulation} className="btn-verdant text-sm px-5 py-2.5">
+          <Link href="/calculateur?reset=true" className="btn-verdant text-sm px-5 py-2.5">
             Nouvelle simulation
-          </button>
+          </Link>
         </div>
 
         {/* Mobile burger */}
         <button
+          type="button"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="flex md:hidden items-center justify-center p-2 rounded-lg text-on-surface/60 hover:text-primary transition-colors"
           aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
@@ -146,9 +139,12 @@ export function VerdantNavbar() {
             </Link>
           )}
           <div className="pt-2 space-y-3">
-            <button onClick={handleNewSimulation} className="btn-verdant w-full py-3 text-base">
+            <Link
+              href="/calculateur?reset=true"
+              className="btn-verdant w-full py-3 text-base text-center"
+            >
               Nouvelle simulation
-            </button>
+            </Link>
             {!session && (
               <Link
                 href="/auth/login"
