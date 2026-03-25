@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Manrope } from 'next/font/google';
 import { QueryProvider } from '@/components/providers';
-import { Header } from '@/components/layout/Header';
+import { ConditionalHeader } from '@/components/layout/ConditionalHeader';
 import './globals.css';
 
 /**
@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Passer au contenu principal
         </a>
         <QueryProvider>
-          <Header />
+          <ConditionalHeader />
           <main id="main-content" className="min-h-[calc(100vh-4rem)] bg-background">
             {children}
           </main>
