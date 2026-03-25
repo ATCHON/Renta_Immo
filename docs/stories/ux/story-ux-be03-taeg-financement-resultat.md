@@ -64,7 +64,7 @@ Si oui, il suffit de l'exposer dans le type et la réponse. Si non, utiliser BE-
 
 ### 3.1 Modification du type `FinancementResultat`
 
-- [ ] L'interface `FinancementResultat` dans `src/types/calculateur.ts` contient les nouveaux champs :
+- [x] L'interface `FinancementResultat` dans `src/types/calculateur.ts` contient les nouveaux champs :
 
 ```typescript
 export interface FinancementResultat {
@@ -77,19 +77,19 @@ export interface FinancementResultat {
 }
 ```
 
-- [ ] Les champs sont **optionnels** (`?`) pour rétro-compatibilité avec les tests existants utilisant des mocks partiels
-- [ ] Aucune modification des champs existants (non-breaking sur les types)
+- [x] Les champs sont **optionnels** (`?`) pour rétro-compatibilité avec les tests existants utilisant des mocks partiels
+- [x] Aucune modification des champs existants (non-breaking sur les types)
 
 ### 3.2 Mocks de tests mis à jour
 
-- [ ] `tests/helpers/test-config.ts` : le mock de `FinancementResultat` est mis à jour (ajout de `taeg: 4.32, capacite_endettement: 33.0` dans les données de test)
-- [ ] Tous les TU dans `tests/unit/calculations/` toujours verts après modification
-- [ ] `npm run test` passe avec 530+ TU verts
+- [x] `tests/helpers/test-config.ts` : le mock de `FinancementResultat` est mis à jour (ajout de `taeg: 4.32, capacite_endettement: 33.0` dans les données de test)
+- [x] Tous les TU dans `tests/unit/calculations/` toujours verts après modification
+- [x] `npm run test` passe avec 530+ TU verts
 
 ### 3.3 Validation visuelle
 
-- [ ] Le TAEG est affiché dans la Step 2 (Financement) de la sidebar Results Anchor (après Phase 2)
-- [ ] La valeur affichée est en format `4,32 %` (format français, 2 décimales)
+- [x] Le TAEG est affiché dans la Step 2 (Financement) de la sidebar Results Anchor (après Phase 2)
+- [x] La valeur affichée est en format `4,32 %` (format français, 2 décimales)
 
 ---
 
@@ -137,11 +137,11 @@ npx vitest run tests/unit/calculations/financement.test.ts
 
 ## 6. Definition of Done
 
-- [ ] Interface `FinancementResultat` modifiée avec `taeg?` et `capacite_endettement?`
-- [ ] Mocks de tests mis à jour
-- [ ] `npm run test` : 530+ TU verts
-- [ ] `npm run type-check` : 0 erreur
-- [ ] PR mergée depuis `feature/verdant-taeg-financement`
+- [x] Interface `FinancementResultat` modifiée avec `taeg?` et `capacite_endettement?`
+- [x] Mocks de tests mis à jour
+- [x] `npm run test` : 530+ TU verts
+- [x] `npm run type-check` : 0 erreur
+- [x] PR mergée depuis `feature/verdant-taeg-financement`
 
 ---
 

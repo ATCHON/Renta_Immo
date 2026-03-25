@@ -45,7 +45,7 @@ Les anciens tokens (`--color-forest`, `--color-sage`, `--color-sand`) doivent **
 
 ### 3.1 Tokens CSS dans `globals.css`
 
-- [ ] Le bloc `@theme {}` contient les tokens Verdant suivants (transposés depuis les `code.html`) :
+- [x] Le bloc `@theme {}` contient les tokens Verdant suivants (transposés depuis les `code.html`) :
 
 ```css
 @theme {
@@ -73,20 +73,20 @@ Les anciens tokens (`--color-forest`, `--color-sage`, `--color-sand`) doivent **
 }
 ```
 
-- [ ] Les anciens tokens (`--color-forest`, etc.) sont conservés avec le commentaire `/* DEPRECATED */`
-- [ ] Les classes utilitaires `.btn-verdant`, `.input-verdant`, `.glass-card` sont définies dans `globals.css`
+- [x] Les anciens tokens (`--color-forest`, etc.) sont conservés avec le commentaire `/* DEPRECATED */`
+- [x] Les classes utilitaires `.btn-verdant`, `.input-verdant`, `.glass-card` sont définies dans `globals.css`
 
 ### 3.2 Classes utilitaires
 
-- [ ] `.btn-verdant` : bouton pill-shaped, gradient emerald, `border-radius: var(--radius-full)`
-- [ ] `.input-verdant` : bloc large, `border-radius: 16px`, fond `--color-surface`, bordure `--color-outline-variant 1px`
-- [ ] `.glass-card` : `backdrop-filter: blur(12px)`, `background: rgba(249, 249, 248, 0.85)`, bordure subtle `--color-outline-variant`
+- [x] `.btn-verdant` : bouton pill-shaped, gradient emerald, `border-radius: var(--radius-full)`
+- [x] `.input-verdant` : bloc large, `border-radius: 16px`, fond `--color-surface`, bordure `--color-outline-variant 1px`
+- [x] `.glass-card` : `backdrop-filter: blur(12px)`, `background: rgba(249, 249, 248, 0.85)`, bordure subtle `--color-outline-variant`
 
 ### 3.3 Polices via `next/font`
 
-- [ ] Manrope configurée dans `src/app/layout.tsx` via `next/font/google` avec `variable: '--font-headline'`, `display: 'swap'`, `weight: ['400','500','600','700','800']`
-- [ ] Inter configurée avec `variable: '--font-body'`, `display: 'swap'`
-- [ ] Les variables CSS sont appliquées sur le `<body>` via `className`
+- [x] Manrope configurée dans `src/app/layout.tsx` via `next/font/google` avec `variable: '--font-headline'`, `display: 'swap'`, `weight: ['400','500','600','700','800']`
+- [x] Inter configurée avec `variable: '--font-body'`, `display: 'swap'`
+- [x] Les variables CSS sont appliquées sur le `<body>` via `className`
 
 ```typescript
 // src/app/layout.tsx — implémentation attendue
@@ -106,16 +106,16 @@ const manrope = Manrope({
 > [!CAUTION]
 > **Material Symbols ne peut pas être importé via `next/font`** (pas dans le registre Google Fonts de Next.js). Il doit être ajouté comme stylesheet dans le `<head>` via le Metadata API de Next.js App Router.
 
-- [ ] La stylesheet Google Fonts Material Symbols Outlined est chargée dans `<head>` avec `display=swap`
-- [ ] Le poids ~30 KB supplémentaire est documenté dans la PR
+- [x] La stylesheet Google Fonts Material Symbols Outlined est chargée dans `<head>` avec `display=swap`
+- [x] Le poids ~30 KB supplémentaire est documenté dans la PR
 
 ### 3.5 Export TypeScript des tokens
 
 > [!NOTE]
 > Recharts (bibliothèque de graphiques) ne lit pas les CSS custom properties nativement. Les couleurs Verdant doivent être exportées sous forme de constantes TypeScript pour usage dans `CashflowChart.tsx`, `PatrimoineChart.tsx`, etc.
 
-- [ ] Fichier `src/styles/verdant-tokens.ts` créé avec les couleurs sous forme de constantes TypeScript
-- [ ] Aucun `any` TypeScript dans ce fichier (règle stricte du projet)
+- [x] Fichier `src/styles/verdant-tokens.ts` créé avec les couleurs sous forme de constantes TypeScript
+- [x] Aucun `any` TypeScript dans ce fichier (règle stricte du projet)
 
 ```typescript
 // src/styles/verdant-tokens.ts
@@ -189,13 +189,13 @@ npm run dev
 
 ## 6. Definition of Done
 
-- [ ] `npm run type-check` : 0 erreur TypeScript
-- [ ] `npm run lint` : 0 erreur, 0 warning
-- [ ] `npm run test` : 530 TU verts (zéro régression)
-- [ ] Les tokens Verdant sont visibles dans DevTools
-- [ ] La police Manrope se charge (Network tab)
-- [ ] Les anciens composants ne régressent pas visuellement
-- [ ] PR mergée vers `master` depuis `feature/verdant-design-tokens`
+- [x] `npm run type-check` : 0 erreur TypeScript
+- [x] `npm run lint` : 0 erreur, 0 warning
+- [x] `npm run test` : 530 TU verts (zéro régression)
+- [x] Les tokens Verdant sont visibles dans DevTools
+- [x] La police Manrope se charge (Network tab)
+- [x] Les anciens composants ne régressent pas visuellement
+- [x] PR mergée vers `master` depuis `feature/verdant-design-tokens`
 
 ---
 

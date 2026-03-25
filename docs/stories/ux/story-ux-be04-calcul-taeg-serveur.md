@@ -85,20 +85,20 @@ function calculerTAEG(
 
 ### 3.1 Calcul du TAEG
 
-- [ ] La fonction de calcul du TAEG est présente dans `src/server/calculations/financement.ts`
-- [ ] Le TAEG tient compte de : taux nominal, frais de dossier, frais de garantie, assurance emprunteur CRD mensuelle
-- [ ] Le TAEG est exprimé en % avec une précision de 2 décimales (ex: `4.32`)
-- [ ] Le TAEG est retourné dans `FinancementResultat.taeg`
-- [ ] Si montant emprunté = 0, le TAEG retourné = `null` (ou `0`)
+- [x] La fonction de calcul du TAEG est présente dans `src/server/calculations/financement.ts`
+- [x] Le TAEG tient compte de : taux nominal, frais de dossier, frais de garantie, assurance emprunteur CRD mensuelle
+- [x] Le TAEG est exprimé en % avec une précision de 2 décimales (ex: `4.32`)
+- [x] Le TAEG est retourné dans `FinancementResultat.taeg`
+- [x] Si montant emprunté = 0, le TAEG retourné = `null` (ou `0`)
 
 ### 3.2 Cohérence avec TAEG approx (BE-01)
 
-- [ ] L'écart entre `taegApprox` (BE-01, client) et `taeg` (BE-04, serveur) est **≤ 0.5 point de %, soit 50 bps maximum**, pour un crédit standard
-- [ ] Un test de régression compare les deux valeurs pour un scénario de référence
+- [x] L'écart entre `taegApprox` (BE-01, client) et `taeg` (BE-04, serveur) est **≤ 0.5 point de %, soit 50 bps maximum**, pour un crédit standard
+- [x] Un test de régression compare les deux valeurs pour un scénario de référence
 
 ### 3.3 Tests unitaires
 
-- [ ] TU dans `tests/unit/calculations/financement.test.ts` vérifient le TAEG pour des scénarios de référence connus :
+- [x] TU dans `tests/unit/calculations/financement.test.ts` vérifient le TAEG pour des scénarios de référence connus :
   - Exemple : prêt 200 000€, 20 ans, 3.5%, assurance 0.1%/an → TAEG attendu ≈ 3.73%
 
 ---
@@ -143,11 +143,11 @@ npm run type-check
 
 ## 6. Definition of Done
 
-- [ ] TAEG calculé et retourné dans `FinancementResultat.taeg`
-- [ ] TU mis à jour avec valeurs de référence
-- [ ] `npm run test` : 530+ TU verts
-- [ ] `npm run type-check` : 0 erreur
-- [ ] PR mergée (même branche que BE-03 : `feature/verdant-taeg-financement`)
+- [x] TAEG calculé et retourné dans `FinancementResultat.taeg`
+- [x] TU mis à jour avec valeurs de référence
+- [x] `npm run test` : 530+ TU verts
+- [x] `npm run type-check` : 0 erreur
+- [x] PR mergée (même branche que BE-03 : `feature/verdant-taeg-financement`)
 
 ---
 

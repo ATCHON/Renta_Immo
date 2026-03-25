@@ -61,24 +61,24 @@ grep -n "getActiveScenario\|updateBien\|updateFinancement" src/store/calculateur
 
 ### 3.1 Hook `usePreviewKPIs`
 
-- [ ] Fichier `src/hooks/usePreviewKPIs.ts` créé
-- [ ] Le hook importé depuis `@/hooks/usePreviewKPIs` est immédiatement utilisable dans n'importe quel composant React (compatibilité App Router Next.js)
-- [ ] Le hook retourne le type `PreviewKPIs` défini dans `src/types/calculateur.ts`
-- [ ] `useMemo` est utilisé avec les bonnes dépendances pour éviter les recalculs inutiles
-- [ ] Le hook est marqué `'use client'` si nécessaire (composant client Zustand)
+- [x] Fichier `src/hooks/usePreviewKPIs.ts` créé
+- [x] Le hook importé depuis `@/hooks/usePreviewKPIs` est immédiatement utilisable dans n'importe quel composant React (compatibilité App Router Next.js)
+- [x] Le hook retourne le type `PreviewKPIs` défini dans `src/types/calculateur.ts`
+- [x] `useMemo` est utilisé avec les bonnes dépendances pour éviter les recalculs inutiles
+- [x] Le hook est marqué `'use client'` si nécessaire (composant client Zustand)
 
 ### 3.2 Réactivité
 
-- [ ] Si `bien.prix_achat` change → `rendementBrut` est recalculé
-- [ ] Si `financement.taux_interet` change → `mensualiteEstimee` est recalculée
-- [ ] Si `exploitation.loyer_mensuel` change → `cashflowMensuelEstime` est recalculé
-- [ ] Les champs partiels (undefined) ne causent pas d'erreur → KPI correspondant = `null`
+- [x] Si `bien.prix_achat` change → `rendementBrut` est recalculé
+- [x] Si `financement.taux_interet` change → `mensualiteEstimee` est recalculée
+- [x] Si `exploitation.loyer_mensuel` change → `cashflowMensuelEstime` est recalculé
+- [x] Les champs partiels (undefined) ne causent pas d'erreur → KPI correspondant = `null`
 
 ### 3.3 Typage strict
 
-- [ ] Aucun `any` TypeScript
-- [ ] Le hook est typé explicitement : `function usePreviewKPIs(): PreviewKPIs`
-- [ ] Les selectors Zustand utilisés sont typés (pas de cast forcé)
+- [x] Aucun `any` TypeScript
+- [x] Le hook est typé explicitement : `function usePreviewKPIs(): PreviewKPIs`
+- [x] Les selectors Zustand utilisés sont typés (pas de cast forcé)
 
 ---
 
@@ -159,12 +159,12 @@ npm run type-check
 
 ## 6. Definition of Done
 
-- [ ] `src/hooks/usePreviewKPIs.ts` créé et fonctionnel
-- [ ] TU créés avec couverture de la réactivité et des cas limites
-- [ ] `npm run test` : 530+ TU verts
-- [ ] `npm run type-check` : 0 erreur
-- [ ] Aucun `any` TypeScript
-- [ ] PR mergée (même branche que BE-01 : `feature/verdant-calculateur-preview`)
+- [x] `src/hooks/usePreviewKPIs.ts` créé et fonctionnel
+- [x] TU créés avec couverture de la réactivité et des cas limites
+- [x] `npm run test` : 530+ TU verts
+- [x] `npm run type-check` : 0 erreur
+- [x] Aucun `any` TypeScript
+- [x] PR mergée (même branche que BE-01 : `feature/verdant-calculateur-preview`)
 
 ---
 

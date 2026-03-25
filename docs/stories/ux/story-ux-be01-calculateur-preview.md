@@ -52,7 +52,7 @@ Cette story est **bloquante** pour UX-S02 (SimulatorLayout + ResultsAnchor). Ell
 
 ### 3.1 Interface TypeScript `PreviewKPIs`
 
-- [ ] L'interface `PreviewKPIs` est définie dans `src/types/calculateur.ts` (fichier de types partagés) :
+- [x] L'interface `PreviewKPIs` est définie dans `src/types/calculateur.ts` (fichier de types partagés) :
 
 ```typescript
 /** KPIs de preview pour la sidebar Results Anchor (calcul client partiel) */
@@ -67,11 +67,11 @@ export interface PreviewKPIs {
 }
 ```
 
-- [ ] Aucun type `any` utilisé (règle stricte du projet)
+- [x] Aucun type `any` utilisé (règle stricte du projet)
 
 ### 3.2 Module `calculateur-preview.ts`
 
-- [ ] Fichier `src/lib/calculateur-preview.ts` créé avec la fonction principale :
+- [x] Fichier `src/lib/calculateur-preview.ts` créé avec la fonction principale :
 
 ```typescript
 export function computePreviewKPIs(
@@ -82,23 +82,23 @@ export function computePreviewKPIs(
 ): PreviewKPIs;
 ```
 
-- [ ] La fonction gère les champs partiels (valeurs `undefined` ou `null`) — retourner `null` pour les KPIs non calculables plutôt que crasher
-- [ ] La fonction n'importe **rien** depuis `src/server/` (module pur client)
-- [ ] La PMT est calculée avec la formule standard :
+- [x] La fonction gère les champs partiels (valeurs `undefined` ou `null`) — retourner `null` pour les KPIs non calculables plutôt que crasher
+- [x] La fonction n'importe **rien** depuis `src/server/` (module pur client)
+- [x] La PMT est calculée avec la formule standard :
   ```typescript
   // PMT(r, n, PV) — r = taux mensuel, n = nb mensualités, PV = montant emprunté
   const pmt = (r: number, n: number, pv: number): number =>
     (pv * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
   ```
-- [ ] Les frais de notaire estimés sont calculés à **8% du prix d'achat** pour l'approximation (valeur par défaut en l'absence d'une valeur exacte)
-- [ ] Le TAEG approximatif est calculé comme `taux_nominal + (frais_dossier + garantie) / duree_ans / montant * 100`
+- [x] Les frais de notaire estimés sont calculés à **8% du prix d'achat** pour l'approximation (valeur par défaut en l'absence d'une valeur exacte)
+- [x] Le TAEG approximatif est calculé comme `taux_nominal + (frais_dossier + garantie) / duree_ans / montant * 100`
 
 ### 3.3 Cas limites gérés
 
-- [ ] `prix_achat = 0` ou `undefined` → `rendementBrut = null`
-- [ ] `taux_interet = 0` → `mensualiteEstimee = montant / duree_mois`
-- [ ] `loyer_mensuel = 0` ou `undefined` → `cashflowMensuelEstime = null`
-- [ ] `duree_credit_mois = 0` → `mensualiteEstimee = null`
+- [x] `prix_achat = 0` ou `undefined` → `rendementBrut = null`
+- [x] `taux_interet = 0` → `mensualiteEstimee = montant / duree_mois`
+- [x] `loyer_mensuel = 0` ou `undefined` → `cashflowMensuelEstime = null`
+- [x] `duree_credit_mois = 0` → `mensualiteEstimee = null`
 
 ---
 
@@ -234,13 +234,13 @@ npm run type-check
 
 ## 6. Definition of Done
 
-- [ ] `src/lib/calculateur-preview.ts` créé et fonctionnel
-- [ ] Interface `PreviewKPIs` ajoutée dans `src/types/calculateur.ts`
-- [ ] TU `calculateur-preview.test.ts` créés avec couverture des cas limites
-- [ ] `npm run test` : 530+ TU verts (zéro régression)
-- [ ] `npm run type-check` : 0 erreur TypeScript
-- [ ] Aucun `any`, aucun import `src/server/`
-- [ ] PR mergée vers `master`
+- [x] `src/lib/calculateur-preview.ts` créé et fonctionnel
+- [x] Interface `PreviewKPIs` ajoutée dans `src/types/calculateur.ts`
+- [x] TU `calculateur-preview.test.ts` créés avec couverture des cas limites
+- [x] `npm run test` : 530+ TU verts (zéro régression)
+- [x] `npm run type-check` : 0 erreur TypeScript
+- [x] Aucun `any`, aucun import `src/server/`
+- [x] PR mergée vers `master`
 
 ---
 
