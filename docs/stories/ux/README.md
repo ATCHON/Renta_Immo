@@ -49,25 +49,32 @@ graph TD
 
 ---
 
-### Sprint 2 — Landing Page & Layout Simulateur (Phase 1 + Phase 2 layout)
+### Sprint 2 — Landing Page & Layout Simulateur (Phase 1 + Phase 2 layout) ✅ MERGÉ
 
-| Story                                  | Titre                                            | Effort | Priorité | Branche                        |
-| -------------------------------------- | ------------------------------------------------ | ------ | -------- | ------------------------------ |
-| [UX-S01](story-ux-s01-landing-page.md) | Landing Page « Petra Nova »                      | M      | P1       | `feature/verdant-landing-page` |
-| UX-S02a                                | Simulateur — `SimulatorLayout` + `ResultsAnchor` | L      | P1       | `feature/verdant-simulator`    |
+| Story                                                 | Titre                                            | Effort | Priorité | Branche                        |
+| ----------------------------------------------------- | ------------------------------------------------ | ------ | -------- | ------------------------------ |
+| ✅ [UX-S01](story-ux-s01-landing-page.md)             | Landing Page « Petra Nova »                      | M      | P1       | `feature/verdant-landing-page` |
+| ✅ [UX-S02a](story-ux-s02-simulateur-split-screen.md) | Simulateur — `SimulatorLayout` + `ResultsAnchor` | L      | P1       | `feature/verdant-simulator`    |
 
-**Estimation Sprint 2** : ~10 points
+**Estimation Sprint 2** : ~10 points | **Résultat** : 596 TU verts — PR #64 (UX-S01) + PR #65 (UX-S02a) mergées
 
 ---
 
-### Sprint 3 — Steps Formulaire & Dashboard (Phase 2 steps + Phase 3)
+### Sprint 3 — Steps Formulaire & Dashboard (Phase 2 steps + Phase 3) 🚧 EN COURS
 
-| Story                                             | Titre                                       | Effort | Priorité | Branche                     |
-| ------------------------------------------------- | ------------------------------------------- | ------ | -------- | --------------------------- |
-| [UX-S02](story-ux-s02-simulateur-split-screen.md) | Simulateur — Steps 1–5 & Stepper horizontal | L      | P1       | `feature/verdant-simulator` |
-| [UX-S03](story-ux-s03-dashboard-resultats.md)     | Dashboard Résultats & Projections 20 ans    | L      | P1       | `feature/verdant-results`   |
+| Story                                                | Titre                                       | Effort | Priorité | Branche                     |
+| ---------------------------------------------------- | ------------------------------------------- | ------ | -------- | --------------------------- |
+| 🚧 [UX-S02](story-ux-s02-simulateur-split-screen.md) | Simulateur — Steps 1–5 & Stepper horizontal | L      | P1       | `feature/verdant-simulator` |
+| 🔲 [UX-S03](story-ux-s03-dashboard-resultats.md)     | Dashboard Résultats & Projections 20 ans    | L      | P1       | `feature/verdant-results`   |
 
 **Estimation Sprint 3** : ~10 points
+
+**Scope UX-S02 restant (sections 3.3–3.6)** :
+
+- 3.3 `ProgressStepper` redesigné en horizontal (cercles numérotés ① ——— ② ——— …)
+- 3.4 Préservation stricte des champs formulaire (accordéons « Options avancées »)
+- 3.5 `StepStructure` : 3 cartes expansibles pour les 6 régimes fiscaux
+- 3.6 `VerdantSlider` (Step 2 — durée prêt)
 
 ---
 
