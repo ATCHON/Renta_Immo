@@ -56,7 +56,7 @@ export function ResultsAnchor({ currentStep, compact = false }: ResultsAnchorPro
   const kpis = usePreviewKPIs();
   const scenario = useCalculateurStore((s) => s.getActiveScenario());
   const getFormData = useCalculateurStore((s) => s.getFormData);
-  const hasResults = scenario.resultats !== null;
+  const hasResults = scenario?.resultats != null;
 
   if (compact) {
     // Mobile : résumé compact en 2 colonnes
@@ -78,7 +78,13 @@ export function ResultsAnchor({ currentStep, compact = false }: ResultsAnchorPro
               Cash-flow
             </div>
             <div
-              className={`text-lg font-headline font-extrabold ${kpis.cashflowMensuelEstime !== null && kpis.cashflowMensuelEstime < 0 ? 'text-error' : 'text-primary'}`}
+              className={`text-lg font-headline font-extrabold ${
+                kpis.cashflowMensuelEstime === null
+                  ? 'text-primary/40'
+                  : kpis.cashflowMensuelEstime < 0
+                    ? 'text-error'
+                    : 'text-primary'
+              }`}
             >
               {kpis.cashflowMensuelEstime !== null
                 ? `~${kpis.cashflowMensuelEstime.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €`

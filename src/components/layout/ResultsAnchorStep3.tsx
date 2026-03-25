@@ -7,22 +7,10 @@
 
 import { TrendingUp, Banknote } from 'lucide-react';
 import type { PreviewKPIs } from '@/types/calculateur';
+import { fmtEuro, fmtPercent } from '@/utils/kpiFormat';
 
 interface Props {
   kpis: PreviewKPIs;
-}
-
-function fmtEuro(value: number | null): string {
-  if (value === null) return '—';
-  if (value >= 1_000) {
-    return `~${(value / 1_000).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} k€`;
-  }
-  return `~${value.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €`;
-}
-
-function fmtPercent(value: number | null): string {
-  if (value === null) return '—';
-  return `~${value.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
 }
 
 export function ResultsAnchorStep3({ kpis }: Props) {

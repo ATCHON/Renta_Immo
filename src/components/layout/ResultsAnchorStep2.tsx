@@ -7,23 +7,10 @@
 
 import { CreditCard, PiggyBank, Percent } from 'lucide-react';
 import type { PreviewKPIs } from '@/types/calculateur';
+import { fmtEuro, fmtPercent } from '@/utils/kpiFormat';
 
 interface Props {
   kpis: PreviewKPIs;
-}
-
-function fmt(value: number | null, type: 'percent' | 'euro'): string {
-  if (value === null) return '—';
-  if (type === 'percent') {
-    return `~${value.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} %`;
-  }
-  if (value >= 1_000_000) {
-    return `~${(value / 1_000_000).toLocaleString('fr-FR', { maximumFractionDigits: 2 })} M€`;
-  }
-  if (value >= 1_000) {
-    return `~${(value / 1_000).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} k€`;
-  }
-  return `~${value.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €`;
 }
 
 export function ResultsAnchorStep2({ kpis }: Props) {
@@ -38,7 +25,7 @@ export function ResultsAnchorStep2({ kpis }: Props) {
           </span>
         </div>
         <div className="text-3xl font-headline font-extrabold tracking-tighter text-primary">
-          {fmt(kpis.mensualiteEstimee, 'euro')}
+          {fmtEuro(kpis.mensualiteEstimee)}
         </div>
       </div>
 
@@ -51,7 +38,7 @@ export function ResultsAnchorStep2({ kpis }: Props) {
           </span>
         </div>
         <div className="text-3xl font-headline font-extrabold tracking-tighter text-primary">
-          {fmt(kpis.coutTotalCreditEstime, 'euro')}
+          {fmtEuro(kpis.coutTotalCreditEstime)}
         </div>
       </div>
 
@@ -62,7 +49,7 @@ export function ResultsAnchorStep2({ kpis }: Props) {
           <span className="text-[10px] font-headline font-bold uppercase tracking-wider">TAEG</span>
         </div>
         <div className="text-3xl font-headline font-extrabold tracking-tighter text-primary">
-          {fmt(kpis.taegApprox, 'percent')}
+          {fmtPercent(kpis.taegApprox, 2)}
         </div>
         {kpis.taegApprox !== null && (
           <p className="text-[10px] text-primary/50 font-label mt-1">

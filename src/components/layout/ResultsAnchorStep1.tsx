@@ -7,23 +7,10 @@
 
 import { TrendingUp, CreditCard, Wallet, BarChart2 } from 'lucide-react';
 import type { PreviewKPIs } from '@/types/calculateur';
+import { fmtEuro, fmtPercent } from '@/utils/kpiFormat';
 
 interface Props {
   kpis: PreviewKPIs;
-}
-
-function fmt(value: number | null, type: 'percent' | 'euro'): string {
-  if (value === null) return '—';
-  if (type === 'percent') {
-    return `~${value.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
-  }
-  if (value >= 1_000_000) {
-    return `~${(value / 1_000_000).toLocaleString('fr-FR', { maximumFractionDigits: 2 })} M€`;
-  }
-  if (value >= 1_000) {
-    return `~${(value / 1_000).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} k€`;
-  }
-  return `~${value.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €`;
 }
 
 /** Hauteurs relatives des barres du mini chart (8 colonnes = 8 années fictives) */
@@ -41,7 +28,7 @@ export function ResultsAnchorStep1({ kpis }: Props) {
           </span>
         </div>
         <div className="text-3xl font-headline font-extrabold tracking-tighter text-primary">
-          {fmt(kpis.rendementBrut, 'percent')}
+          {fmtPercent(kpis.rendementBrut)}
         </div>
       </div>
 
@@ -54,7 +41,7 @@ export function ResultsAnchorStep1({ kpis }: Props) {
           </span>
         </div>
         <div className="text-3xl font-headline font-extrabold tracking-tighter text-primary">
-          {fmt(kpis.mensualiteEstimee, 'euro')}
+          {fmtEuro(kpis.mensualiteEstimee)}
         </div>
       </div>
 
@@ -67,7 +54,7 @@ export function ResultsAnchorStep1({ kpis }: Props) {
           </span>
         </div>
         <div className="text-3xl font-headline font-extrabold tracking-tighter text-primary">
-          {fmt(kpis.investissementTotal, 'euro')}
+          {fmtEuro(kpis.investissementTotal)}
         </div>
       </div>
 
@@ -97,7 +84,7 @@ export function ResultsAnchorStep1({ kpis }: Props) {
           </span>
         </div>
         <div className="mt-2 text-center text-sm font-headline font-extrabold tracking-tighter text-primary">
-          {fmt(kpis.cashflowMensuelEstime, 'euro')}
+          {fmtEuro(kpis.cashflowMensuelEstime)}
           <span className="text-xs font-label font-medium opacity-60 ml-1">/mois</span>
         </div>
       </div>

@@ -32,17 +32,14 @@ export function SimulatorLayout({ children, currentStep }: SimulatorLayoutProps)
       >
         {/* Sidebar gauche — Results Anchor */}
         <aside
-          className="bg-secondary-fixed border-r border-outline-variant/30 overflow-hidden"
+          className="bg-secondary-fixed border-r border-outline-variant/30 overflow-hidden h-full"
           aria-label="Résultats en temps réel"
-          style={{ height: 'calc(100vh - 4rem)' }}
         >
           <ResultsAnchor currentStep={currentStep} />
         </aside>
 
         {/* Contenu droit — Formulaire scrollable */}
-        <div className="overflow-y-auto bg-surface" style={{ height: 'calc(100vh - 4rem)' }}>
-          {children}
-        </div>
+        <div className="overflow-y-auto bg-surface h-full">{children}</div>
       </div>
 
       {/* Mobile : pleine largeur + panneau bas */}

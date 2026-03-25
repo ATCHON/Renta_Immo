@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import type { PreviewKPIs } from '@/types/calculateur';
 // Mocks des dépendances
 vi.mock('@/hooks/usePreviewKPIs', () => ({
@@ -68,15 +68,18 @@ describe('ResultsAnchor — valeurs null', () => {
     mockStore(false);
   });
 
-  it('affiche le tiret em pour rendementBrut null (step 1)', () => {
+  it('affiche au moins un tiret em pour rendementBrut null (step 1)', () => {
     render(<ResultsAnchor currentStep={1} />);
-    // Should find "—" somewhere in the KPI area
-    expect(document.body.textContent).toContain('—');
+    const dashes = screen.getAllByText('—');
+    expect(dashes.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('affiche le tiret em pour taegApprox null (step 2)', () => {
+  it('affiche le tiret em dans la zone TAEG pour taegApprox null (step 2)', () => {
     render(<ResultsAnchor currentStep={2} />);
-    expect(document.body.textContent).toContain('—');
+    const taegLabel = screen.getByText(/taeg/i);
+    // Le tiret em doit être présent dans le voisinage du label TAEG
+    const container = taegLabel.closest('div[class*="rounded"]') ?? taegLabel.parentElement;
+    expect(within(container as HTMLElement).getByText('—')).toBeDefined();
   });
 });
 
