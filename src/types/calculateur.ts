@@ -229,6 +229,24 @@ export interface FinancementResultat {
 }
 
 /**
+ * KPIs de preview pour la sidebar Results Anchor (calcul client partiel).
+ * Produit par `computePreviewKPIs` dans `src/lib/calculateur-preview.ts`.
+ * Le discriminant littéral `isPartiel` différencie ces résultats approximatifs
+ * des résultats serveur complets (`CalculResultats`).
+ */
+export interface PreviewKPIs {
+  rendementBrut: number | null;
+  mensualiteEstimee: number | null;
+  investissementTotal: number | null;
+  cashflowMensuelEstime: number | null;
+  /** TAEG approximatif — afficher avec tilde `~4,2 %` pour signaler l'approximation */
+  taegApprox: number | null;
+  coutTotalCreditEstime: number | null;
+  /** Discriminant littéral — différencie des résultats complets serveur */
+  readonly isPartiel: true;
+}
+
+/**
  * Ligne d'un tableau d'amortissement
  */
 export interface LigneAmortissement {
