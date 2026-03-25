@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Verdant Simulator | Real Estate Investment Analysis</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error": "#ffffff",
+              "on-primary-fixed-variant": "#274e3d",
+              "on-primary-container": "#86af99",
+              "inverse-surface": "#2e3131",
+              "on-tertiary-fixed-variant": "#673a39",
+              "surface-container-highest": "#e1e3e2",
+              "secondary": "#53625a",
+              "outline-variant": "#c1c8c2",
+              "tertiary": "#401b1b",
+              "secondary-fixed-dim": "#bacac1",
+              "error": "#ba1a1a",
+              "secondary-fixed": "#d6e6dd",
+              "error-container": "#ffdad6",
+              "surface-container-high": "#e7e8e7",
+              "surface-tint": "#3f6653",
+              "surface": "#f9f9f8",
+              "surface-container": "#edeeed",
+              "background": "#f9f9f8",
+              "on-tertiary-container": "#d29895",
+              "tertiary-container": "#5a302f",
+              "on-secondary": "#ffffff",
+              "primary-fixed": "#c1ecd4",
+              "surface-container-lowest": "#ffffff",
+              "inverse-primary": "#a5d0b9",
+              "on-secondary-container": "#53625b",
+              "secondary-container": "#ceded4",
+              "primary": "#012d1d",
+              "on-primary": "#ffffff",
+              "tertiary-fixed": "#ffdad8",
+              "outline": "#717973",
+              "on-tertiary-fixed": "#331111",
+              "surface-variant": "#e1e3e2",
+              "on-surface-variant": "#414844",
+              "on-primary-fixed": "#002114",
+              "on-background": "#191c1c",
+              "on-secondary-fixed": "#111e19",
+              "primary-container": "#1b4332",
+              "surface-container-low": "#f3f4f3",
+              "surface-bright": "#f9f9f8",
+              "tertiary-fixed-dim": "#f5b7b4",
+              "surface-dim": "#d9dad9",
+              "inverse-on-surface": "#f0f1f0",
+              "on-surface": "#191c1c",
+              "on-tertiary": "#ffffff",
+              "on-error-container": "#93000a",
+              "primary-fixed-dim": "#a5d0b9",
+              "on-secondary-fixed-variant": "#3b4a43"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9f9f8;
+            color: #191c1c;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-surface selection:bg-primary-container selection:text-white">
+<!-- Top Navigation Bar (Shared Component) -->
+<nav class="bg-white dark:bg-[#191C1C] docked full-width top-0 z-50 no-border bg-surface-container-lowest shadow-[0_20px_40px_rgba(27,67,50,0.06)] fixed w-full">
+<div class="flex justify-between items-center w-full px-8 py-4">
+<div class="flex items-center gap-8">
+<span class="text-xl font-extrabold text-[#012D1D] dark:text-white tracking-tighter font-['Manrope']">Verdant Simulator</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-[#404944] dark:text-[#C1C8C2] pb-1 font-['Manrope'] font-bold tracking-tight hover:text-[#1B4332] transition-colors duration-200" href="#">Calculator</a>
+<a class="text-[#404944] dark:text-[#C1C8C2] pb-1 font-['Manrope'] font-bold tracking-tight hover:text-[#1B4332] transition-colors duration-200" href="#">How it works</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-5 py-2 text-sm font-bold text-[#1B4332] hover:bg-surface-container-low rounded-full transition-all">Login</button>
+<button class="px-5 py-2 text-sm font-bold bg-primary-container text-white rounded-full shadow-lg hover:shadow-primary-container/20 active:scale-95 transition-all">New Calc</button>
+</div>
+</div>
+</nav>
+<!-- Main Layout: Split Screen -->
+<main class="flex h-screen pt-20 overflow-hidden">
+<!-- Left Side: Results Anchor (Shared Component Mapping) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-6 pt-24 bg-[#D6E6DD] dark:bg-[#012D1D] text-[#012D1D] dark:text-[#D6E6DD] w-80 lg:w-[400px] z-40 hide-scrollbar overflow-y-auto">
+<div class="mb-10">
+<p class="text-[#012D1D] font-bold uppercase tracking-widest text-xs mb-1">Results Anchor</p>
+<h2 class="font-headline font-extrabold text-2xl tracking-tight">Live Calculations</h2>
+</div>
+<!-- Dynamic Stats Bento -->
+<div class="space-y-6 flex-grow">
+<div class="p-6 bg-white/40 dark:bg-white/10 rounded-2xl">
+<div class="flex items-center gap-3 mb-2 opacity-70">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span class="text-xs font-bold uppercase tracking-wider">Real-time Yield</span>
+</div>
+<div class="text-4xl font-headline font-extrabold tracking-tighter">5.2%</div>
+</div>
+<div class="p-6 bg-white/40 dark:bg-white/10 rounded-2xl">
+<div class="flex items-center gap-3 mb-2 opacity-70">
+<span class="material-symbols-outlined text-sm">payments</span>
+<span class="text-xs font-bold uppercase tracking-wider">Monthly Payment</span>
+</div>
+<div class="text-4xl font-headline font-extrabold tracking-tighter">€1,250</div>
+</div>
+<div class="p-6 bg-white/40 dark:bg-white/10 rounded-2xl">
+<div class="flex items-center gap-3 mb-2 opacity-70">
+<span class="material-symbols-outlined text-sm">account_balance</span>
+<span class="text-xs font-bold uppercase tracking-wider">Total Investment</span>
+</div>
+<div class="text-4xl font-headline font-extrabold tracking-tighter">€200k</div>
+</div>
+<!-- Cash Flow Mini Chart -->
+<div class="p-6 bg-white/40 dark:bg-white/10 rounded-2xl">
+<div class="flex items-center gap-3 mb-4 opacity-70">
+<span class="material-symbols-outlined text-sm">equalizer</span>
+<span class="text-xs font-bold uppercase tracking-wider">Cash Flow Growth</span>
+</div>
+<div class="relative h-24 w-full flex items-end gap-1">
+<div class="bg-primary/20 w-full h-[30%] rounded-t-sm"></div>
+<div class="bg-primary/30 w-full h-[45%] rounded-t-sm"></div>
+<div class="bg-primary/40 w-full h-[40%] rounded-t-sm"></div>
+<div class="bg-primary/50 w-full h-[60%] rounded-t-sm"></div>
+<div class="bg-primary/60 w-full h-[75%] rounded-t-sm"></div>
+<div class="bg-primary/70 w-full h-[70%] rounded-t-sm"></div>
+<div class="bg-primary/80 w-full h-[90%] rounded-t-sm"></div>
+<div class="bg-primary w-full h-full rounded-t-sm"></div>
+</div>
+<div class="flex justify-between mt-2 text-[10px] font-bold opacity-40">
+<span>YEAR 1</span>
+<span>YEAR 10</span>
+</div>
+</div>
+</div>
+<button class="mt-8 w-full py-4 bg-primary text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all active:translate-x-1">
+<span class="material-symbols-outlined">download</span>
+                Download Report
+            </button>
+</aside>
+<!-- Right Side: Action Scroll (The Simulator Form) -->
+<section class="ml-80 lg:ml-[400px] flex-1 overflow-y-auto bg-surface p-8 lg:p-16 hide-scrollbar">
+<div class="max-w-3xl mx-auto space-y-8">
+<!-- Section 1: Property Info (Expanded) -->
+<div class="bg-surface-container-lowest p-8 rounded-[1.5rem] shadow-[0_20px_40px_rgba(27,67,50,0.06)] border border-outline-variant/10">
+<div class="flex justify-between items-center mb-8">
+<div>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-widest rounded-full">Step 01</span>
+<h3 class="text-2xl font-headline font-extrabold mt-2">Property Info</h3>
+</div>
+<span class="material-symbols-outlined text-primary-container">home_work</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-secondary mb-2">Property Address</label>
+<input class="w-full bg-surface-container-high border-none rounded-xl p-4 text-on-surface font-semibold focus:ring-2 focus:ring-primary-container transition-all" type="text" value="124 Rue du Faubourg Saint-Honoré, Paris"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-secondary mb-2">Purchase Price (€)</label>
+<input class="w-full bg-surface-container-high border-none rounded-xl p-4 text-on-surface font-semibold focus:ring-2 focus:ring-primary-container transition-all" type="number" value="185000"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-secondary mb-2">Surface (m²)</label>
+<input class="w-full bg-surface-container-high border-none rounded-xl p-4 text-on-surface font-semibold focus:ring-2 focus:ring-primary-container transition-all" type="number" value="45"/>
+</div>
+</div>
+<div class="mt-8">
+<label class="block text-sm font-medium text-secondary mb-4">Property Type</label>
+<div class="grid grid-cols-3 gap-4">
+<button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-primary-container text-white border-2 border-primary-container">
+<span class="material-symbols-outlined">apartment</span>
+<span class="text-xs font-bold">Apartment</span>
+</button>
+<button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container-low text-secondary hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">house</span>
+<span class="text-xs font-bold">House</span>
+</button>
+<button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container-low text-secondary hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">holiday_village</span>
+<span class="text-xs font-bold">Building</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Section 2: Acquisition Costs (Collapsed/Success) -->
+<div class="bg-surface-container-low p-6 rounded-[1.5rem] flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-all">
+<div class="flex items-center gap-5">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Acquisition Costs</h4>
+<p class="text-xs text-secondary font-medium">Notary fees &amp; renovations estimated at €15,000</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+<!-- Section 3: Financing (Collapsed) -->
+<div class="bg-surface-container-low p-6 rounded-[1.5rem] flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-all">
+<div class="flex items-center gap-5">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Financing</h4>
+<p class="text-xs text-secondary font-medium">20 year loan @ 3.8% interest</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+<!-- Section 4: Rental Income (Active/Collapsed Style) -->
+<div class="bg-surface-container-low p-6 rounded-[1.5rem] flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-all">
+<div class="flex items-center gap-5">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Rental Income</h4>
+<p class="text-xs text-secondary font-medium">Define expected monthly rent and vacancy rates</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary group-hover:translate-x-1 transition-transform">expand_more</span>
+</div>
+<!-- Section 5: Annual Charges -->
+<div class="bg-surface-container-low p-6 rounded-[1.5rem] flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-all">
+<div class="flex items-center gap-5">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Annual Charges</h4>
+<p class="text-xs text-secondary font-medium">Taxes, insurance, and maintenance</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary group-hover:translate-x-1 transition-transform">expand_more</span>
+</div>
+<!-- Section 6: Fiscal Strategy -->
+<div class="bg-surface-container-low p-6 rounded-[1.5rem] flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-all">
+<div class="flex items-center gap-5">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">balance</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Fiscal Strategy</h4>
+<p class="text-xs text-secondary font-medium">LMNP, SCI, or Individual Tax Regime</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary group-hover:translate-x-1 transition-transform">expand_more</span>
+</div>
+<!-- Visual Break / Image Card -->
+<div class="relative overflow-hidden rounded-[2rem] aspect-video group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Modern minimalist living room with floor-to-ceiling windows overlooking a green forest at sunset, soft architectural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlx6hDWy_tPIuvnqfNG0T5MiO3Yn1dEr7e_rciOglb4tWoYgXzvXWgUs-DlWMA2fPRToDgemh3u0nQ9qjaj8B3ReeTSn5yriGqih0mCgoYAp3hd1I27cSApkUFnRuL5t0ShGksVP-7k76g8lvtF1JCXSnJoxD3urhR4fVUibk1B9gYWbgwZXnScd31QVg2K7HEtpA5kpBp7YWYv9gCV7wqLxyWNSdTLWyogz5hj5GYLqHT7vWo7Yu2oIQVriUGSPAunZ1VhAmBrkI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent flex items-end p-8">
+<div>
+<p class="text-white/80 text-sm font-medium mb-1">Market Insight</p>
+<h5 class="text-white text-xl font-headline font-bold">Paris Real Estate yields are stabilizing.</h5>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Spacer -->
+<div class="h-24"></div>
+</section>
+</main>
+<!-- Contextual Floating Action Button (Only for specific primary intent) -->
+<div class="fixed bottom-8 right-8 z-50">
+<button class="bg-primary text-white p-5 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all group">
+<span class="material-symbols-outlined text-2xl">save</span>
+<span class="max-w-0 overflow-hidden group-hover:max-w-xs group-hover:ml-3 transition-all duration-300 font-bold whitespace-nowrap">Save Simulation</span>
+</button>
+</div>
+</body></html>

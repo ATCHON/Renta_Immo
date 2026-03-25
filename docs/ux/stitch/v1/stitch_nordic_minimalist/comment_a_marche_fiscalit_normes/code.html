@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Fiscalité &amp; Normes - Verdant Simulator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-lowest": "#ffffff",
+              "surface-dim": "#d9dad9",
+              "secondary-fixed": "#d6e6dd",
+              "surface-variant": "#e1e3e2",
+              "inverse-primary": "#a5d0b9",
+              "tertiary-fixed-dim": "#f5b7b4",
+              "error-container": "#ffdad6",
+              "on-background": "#191c1c",
+              "on-surface-variant": "#414844",
+              "on-primary-container": "#86af99",
+              "inverse-surface": "#2e3131",
+              "tertiary": "#401b1b",
+              "on-primary-fixed-variant": "#274e3d",
+              "surface-container": "#edeeed",
+              "background": "#f9f9f8",
+              "tertiary-container": "#5a302f",
+              "secondary": "#53625a",
+              "outline-variant": "#c1c8c2",
+              "on-tertiary-fixed": "#331111",
+              "on-secondary-fixed": "#111e19",
+              "surface-container-high": "#e7e8e7",
+              "inverse-on-surface": "#f0f1f0",
+              "on-secondary-container": "#53625b",
+              "secondary-fixed-dim": "#bacac1",
+              "primary-fixed-dim": "#a5d0b9",
+              "outline": "#717973",
+              "on-surface": "#191c1c",
+              "on-primary": "#ffffff",
+              "on-error-container": "#93000a",
+              "primary": "#012d1d",
+              "on-error": "#ffffff",
+              "surface-container-low": "#f3f4f3",
+              "on-tertiary-fixed-variant": "#673a39",
+              "on-tertiary": "#ffffff",
+              "on-primary-fixed": "#002114",
+              "primary-container": "#1b4332",
+              "secondary-container": "#ceded4",
+              "surface": "#f9f9f8",
+              "primary-fixed": "#c1ecd4",
+              "surface-tint": "#3f6653",
+              "surface-container-highest": "#e1e3e2",
+              "surface-bright": "#f9f9f8",
+              "on-tertiary-container": "#d29895",
+              "error": "#ba1a1a",
+              "on-secondary-fixed-variant": "#3b4a43",
+              "on-secondary": "#ffffff",
+              "tertiary-fixed": "#ffdad8"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+      }
+      .asymmetric-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 2rem;
+      }
+      @media (max-width: 1024px) {
+        .asymmetric-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-secondary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20 bg-background/80 backdrop-blur-md border-b border-outline-variant/10">
+<div class="text-xl font-bold tracking-tighter text-primary font-headline">Verdant Simulator</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors duration-200">account_balance_wallet</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors duration-200">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors duration-200">account_circle</span>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="hidden md:flex h-screen w-64 fixed left-0 top-0 flex flex-col py-8 justify-between bg-secondary-fixed text-primary font-body text-sm font-medium z-40">
+<div>
+<div class="px-8 mb-12">
+<h2 class="font-headline font-extrabold text-primary text-2xl tracking-tighter">Portfolio</h2>
+<p class="text-[10px] opacity-60 uppercase tracking-widest mt-1">The Architectural Ledger</p>
+</div>
+<nav class="space-y-1">
+<a class="text-on-surface-variant px-8 py-3 flex items-center gap-3 hover:bg-surface-container-lowest/50 transition-all cursor-pointer" href="#">
+<span class="material-symbols-outlined">home_work</span> Property
+                </a>
+<a class="text-on-surface-variant px-8 py-3 flex items-center gap-3 hover:bg-surface-container-lowest/50 transition-all cursor-pointer" href="#">
+<span class="material-symbols-outlined">payments</span> Finance
+                </a>
+<a class="bg-surface-container-lowest text-primary rounded-l-full ml-4 pl-4 py-3 shadow-sm flex items-center gap-3 cursor-pointer" href="#">
+<span class="material-symbols-outlined">receipt_long</span> Tax
+                </a>
+<a class="text-on-surface-variant px-8 py-3 flex items-center gap-3 hover:bg-surface-container-lowest/50 transition-all cursor-pointer" href="#">
+<span class="material-symbols-outlined">insights</span> Projection
+                </a>
+</nav>
+</div>
+<div class="px-8 space-y-4">
+<button class="w-full bg-primary-container text-on-primary py-3 rounded-xl font-bold hover:bg-primary transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span> New Simulation
+            </button>
+<nav class="space-y-1">
+<a class="text-on-surface-variant px-0 py-2 flex items-center gap-3 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+                </a>
+<a class="text-on-surface-variant px-0 py-2 flex items-center gap-3 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">contact_support</span> Support
+                </a>
+</nav>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="md:ml-64 pt-24 pb-24 md:pb-8 px-4 md:px-12 min-h-screen">
+<div class="max-w-7xl mx-auto py-8">
+<!-- Page Header -->
+<header class="mb-12">
+<h1 class="font-headline text-5xl font-extrabold text-primary tracking-tight mb-2 italic">L'Ingénierie Fiscale</h1>
+<p class="font-body text-lg text-secondary max-w-2xl">Stratégies d'optimisation et conformité bancaire 2025-2026. Anticipez les évolutions législatives pour pérenniser votre patrimoine.</p>
+</header>
+<div class="asymmetric-grid">
+<div class="space-y-8">
+<!-- HCSF Section (Based on Image 7/8) -->
+<section class="bg-surface-container-lowest p-8 rounded-[2rem] border border-outline-variant/10 shadow-sm">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary text-3xl">verified_user</span>
+<h2 class="font-headline text-3xl font-bold text-primary">Normes HCSF 2026</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+<div class="text-center">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Endettement Max</p>
+<p class="text-4xl font-extrabold text-error">35%</p>
+<p class="text-[10px] text-on-surface-variant/60 mt-1 italic">Assurance comprise</p>
+</div>
+<div class="text-center">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Durée Crédit Max</p>
+<p class="text-4xl font-extrabold text-primary">25 ans</p>
+<p class="text-[10px] text-on-surface-variant/60 mt-1 italic">27 ans pour VEFA</p>
+</div>
+<div class="text-center">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Pondération Loyers</p>
+<p class="text-4xl font-extrabold text-primary">70%</p>
+<p class="text-[10px] text-on-surface-variant/60 mt-1 italic">Des revenus locatifs bruts</p>
+</div>
+</div>
+<div class="p-6 bg-surface-container-low rounded-2xl space-y-4">
+<div class="flex items-center gap-2 text-primary font-bold border-b border-outline-variant/20 pb-2">
+<span class="material-symbols-outlined text-sm">calculate</span>
+<h3>Reste à Vivre (Scoring Bancaire)</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="p-4 bg-error-container/20 rounded-xl border border-error/10">
+<p class="text-xs font-bold text-error uppercase mb-1">Insuffisant</p>
+<p class="text-lg font-bold">&lt; 800€</p>
+<p class="text-[10px] opacity-60">Refus de prêt probable</p>
+</div>
+<div class="p-4 bg-secondary-container/30 rounded-xl border border-primary-container/10">
+<p class="text-xs font-bold text-primary uppercase mb-1">Correct</p>
+<p class="text-lg font-bold">800 - 1500€</p>
+<p class="text-[10px] opacity-60">Acceptable, marge limitée</p>
+</div>
+<div class="p-4 bg-primary-container/10 rounded-xl border border-primary/20">
+<p class="text-xs font-bold text-primary uppercase mb-1">Confortable</p>
+<p class="text-lg font-bold">&gt; 1500€</p>
+<p class="text-[10px] opacity-60">Profil premium bancaire</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Tax Regimes Bento -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Location Meublée (LMNP) -->
+<div class="bg-surface-container-lowest p-8 rounded-[2rem] border border-outline-variant/10">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-primary-container/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary">bed</span>
+</div>
+<h3 class="font-headline text-2xl font-bold">LMNP (BIC)</h3>
+</div>
+<div class="space-y-4 text-sm">
+<div class="p-4 bg-surface-container-low rounded-xl">
+<p class="font-bold text-primary mb-1">Micro-BIC : Évolutions LF 2025</p>
+<p class="text-on-surface-variant leading-relaxed">Abattement de 50% (classique) ou 30% (court séjour). <span class="text-error font-semibold">Note :</span> Le PLF 2025 aligne la fiscalité du meublé sur le nu pour certains types de location.</p>
+</div>
+<div class="p-4 bg-primary-container/5 border border-primary-container/10 rounded-xl">
+<p class="font-bold text-primary mb-1">Réel (Amortissement)</p>
+<p class="text-on-surface-variant leading-relaxed">Déduction des frais d'acquisition et amortissement comptable. <span class="font-semibold italic">Alerte LF 2025/2026 :</span> Réintégration possible de l'amortissement dans le calcul de la plus-value de cession.</p>
+</div>
+</div>
+</div>
+<!-- Location Nue (Foncier) -->
+<div class="bg-surface-container-lowest p-8 rounded-[2rem] border border-outline-variant/10">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-primary-container/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary">house</span>
+</div>
+<h3 class="font-headline text-2xl font-bold">Nu (Foncier)</h3>
+</div>
+<div class="space-y-4 text-sm">
+<div class="p-4 bg-surface-container-low rounded-xl">
+<p class="font-bold text-primary mb-1">Micro-Foncier</p>
+<p class="text-on-surface-variant leading-relaxed">Abattement forfaitaire de 30%. Applicable si vos revenus fonciers sont &lt; 15 000€/an. Simplicité absolue mais souvent moins rentable.</p>
+</div>
+<div class="p-4 bg-primary-container/5 border border-primary-container/10 rounded-xl">
+<p class="font-bold text-primary mb-1">Foncier Réel</p>
+<p class="text-on-surface-variant leading-relaxed">Déduction des charges réelles (travaux, intérêts, taxes). Permet de créer du déficit foncier (imputable à hauteur de 10 700€/an).</p>
+</div>
+</div>
+</div>
+<!-- SCI Section -->
+<div class="md:col-span-2 bg-primary text-on-primary p-8 rounded-[3rem] relative overflow-hidden">
+<div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+<div>
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-secondary-fixed">groups</span>
+<h3 class="font-headline text-2xl font-bold">SCI à l'IS (Impôt Sociétés)</h3>
+</div>
+<p class="text-secondary-fixed/70 text-sm mb-6 leading-relaxed">La SCI à l'IS est l'outil ultime de capitalisation. Elle permet de dissocier les revenus de la société de vos revenus personnels imposables à la TMI.</p>
+<div class="flex flex-wrap gap-4">
+<div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold border border-white/20">Taux Réduit 15% (&lt; 42 500€)</div>
+<div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold border border-white/20">Taux Normal 25%</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="bg-white/5 p-4 rounded-2xl border border-white/10">
+<p class="text-xs font-bold mb-1 opacity-60">AVANTAGE CLÉ</p>
+<p class="text-sm">Amortissement comptable de l'immeuble, permettant d'effacer le bénéfice imposable pendant plus de 20 ans.</p>
+</div>
+<div class="bg-white/5 p-4 rounded-2xl border border-white/10">
+<p class="text-xs font-bold mb-1 opacity-60">CONTRAINTE</p>
+<p class="text-sm">Plus-value de cession professionnelle : les amortissements sont réintégrés, augmentant l'impôt à la revente.</p>
+</div>
+</div>
+</div>
+<div class="absolute right-0 bottom-0 opacity-10 translate-x-1/4 translate-y-1/4">
+<span class="material-symbols-outlined text-[15rem]">account_balance</span>
+</div>
+</div>
+</div>
+<!-- Comparison Table -->
+<section class="bg-surface-container-lowest p-8 rounded-[2rem] border border-outline-variant/10 shadow-sm overflow-hidden">
+<h3 class="font-headline text-3xl font-bold mb-8 text-primary">Comparatif Fiscalité Réelle</h3>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[600px]">
+<thead>
+<tr class="text-on-surface-variant text-[10px] uppercase tracking-widest border-b border-outline-variant/20">
+<th class="py-4 font-bold">Scénario / Indicateur</th>
+<th class="py-4 font-bold">Micro-Foncier</th>
+<th class="py-4 font-bold">LMNP Réel</th>
+<th class="py-4 font-bold">SCI IS (15%)</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="border-b border-outline-variant/10">
+<td class="py-5 font-medium">Assiette imposable</td>
+<td class="py-5">70% des loyers</td>
+<td class="py-5">Bénéfice - Amortissements</td>
+<td class="py-5">Bénéfice net comptable</td>
+</tr>
+<tr class="border-b border-outline-variant/10">
+<td class="py-5 font-medium">Imposition directe</td>
+<td class="py-5 text-error">TMI + 17.2% PS</td>
+<td class="py-5 text-primary">0€ (si amort. &gt; ben.)</td>
+<td class="py-5">15% IS (Forfaitaire)</td>
+</tr>
+<tr class="bg-secondary-container/10">
+<td class="py-5 px-4 font-extrabold text-primary">Efficience Cash-flow</td>
+<td class="py-5 px-4 font-bold text-error">Faible</td>
+<td class="py-5 px-4 font-bold text-primary">Optimale (Imm.)</td>
+<td class="py-5 px-4 font-bold text-primary">Optimale (Capit.)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Sticky Sidebar -->
+<aside class="space-y-6 lg:sticky lg:top-28 h-fit">
+<div class="bg-secondary-fixed p-8 rounded-[2rem] text-primary shadow-sm space-y-8">
+<div>
+<p class="text-[10px] uppercase tracking-[0.2em] font-bold mb-2 opacity-60">Optimisation Totale</p>
+<h4 class="font-headline text-5xl font-extrabold tracking-tighter">84.2%</h4>
+<p class="text-sm mt-2 font-medium">Efficience fiscale projetée</p>
+</div>
+<div class="h-1.5 bg-primary/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[84.2%] transition-all duration-1000"></div>
+</div>
+<div class="space-y-4 pt-4">
+<div class="flex justify-between items-center text-sm border-b border-primary/10 pb-2">
+<span class="opacity-70">Impact LF 2025</span>
+<span class="font-bold text-error">- 840 €</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="opacity-70">Rendement Net-Net</span>
+<span class="font-bold text-lg">5.8 %</span>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-4 rounded-full font-bold shadow-lg flex items-center justify-center gap-2 hover:opacity-90 transition-all">
+                            Simuler ma stratégie <span class="material-symbols-outlined text-sm">trending_up</span>
+</button>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] border border-outline-variant/10">
+<h5 class="font-bold text-primary mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">warning</span>
+                            Point de Vigilance
+                        </h5>
+<p class="text-xs leading-relaxed text-on-surface-variant">Les banques imposent désormais un <strong>Scoring Investisseur</strong> strict. Si votre reste à vivre est &lt; 800€, une SCI à l'IS peut aider à isoler l'endettement, bien que le HCSF reste le garde-fou principal.</p>
+</div>
+<div class="relative h-48 overflow-hidden rounded-[2rem]">
+<img alt="Financial desk" class="w-full h-full object-cover grayscale-[20%]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhKgwu8lu3IwSA04XfrpS94imNN3g5lPJtqdHJ6HON5Mxb2SHJHiiwHi4kkPJe1STI6FfPiAXO_yEYn-mdaeFhBzlDkNonHI6R-_rGX42Ya2VuKUYF2abZb9v8pCjuUQ56y3H2WEpngYjZeAE-9zifJTVFx0ycHn3qxxR0TcgG9WeEkqOXVqps2-rC0zfanGi-S-DxYFQKKhOWSEGOMJPj0kebDplPW9IUgAOlLOdyls5SK2-k8h183-LmMmpkHZbqaNbksLc9cFo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent flex items-end p-6">
+<p class="text-white text-xs font-bold italic tracking-wide">L'architecture de votre patrimoine commence par une fondation fiscale saine.</p>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end px-4 pb-6 h-24 md:hidden bg-surface-container-lowest/90 backdrop-blur-xl border-t border-outline-variant/15">
+<div class="flex flex-col items-center justify-center text-on-surface-variant/50 p-2">
+<span class="material-symbols-outlined">home_work</span>
+<span class="text-[8px] uppercase tracking-widest font-bold mt-1">Property</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant/50 p-2">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-[8px] uppercase tracking-widest font-bold mt-1">Finance</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-full p-3 mb-2 transform -translate-y-2 shadow-lg">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="text-[8px] uppercase tracking-widest font-bold">Tax</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant/50 p-2">
+<span class="material-symbols-outlined">insights</span>
+<span class="text-[8px] uppercase tracking-widest font-bold mt-1">Projection</span>
+</div>
+</nav>
+</body></html>

@@ -1,43 +1,116 @@
 @import 'tailwindcss';
+/* Material Symbols Outlined — icônes Verdant Simulator (UX-S00)
+ * Chargé ici via @import CSS car next/font ne supporte pas les icon fonts.
+ * ~30KB supplémentaires avec display=swap (FOUT minimisé).
+ */
+/* stylelint-disable-next-line import/no-extraneous-declarations */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
 
 @theme {
-  /* Colors — Backgrounds & Surfaces */
-  --color-background: #fafaf8;
-  --color-surface: #f5f3ef;
-  --color-border: #e8e4dd;
-  --color-sand: #e8e4dd;
+  /* ============================================================
+   * === VERDANT SIMULATOR — Material Design 3 Design Tokens ===
+   * === Source: stitch_nordic_minimalist/simulateur_immobilier_unifi/code.html ===
+   * ============================================================ */
 
-  /* Colors — Text */
-  --color-charcoal: #1f1f1f;
-  --color-stone: #6b6b6b;
-  --color-pebble: #9ca3a0;
+  /* === Palette principale === */
+  --color-primary: #012d1d;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1b4332;
+  --color-on-primary-container: #86af99;
+  --color-primary-fixed: #c1ecd4;
+  --color-primary-fixed-dim: #a5d0b9;
+  --color-on-primary-fixed: #002114;
+  --color-on-primary-fixed-variant: #274e3d;
+  --color-inverse-primary: #a5d0b9;
 
-  /* Colors — Accent */
-  --color-forest: #2d5a45;
-  --color-forest-dark: #1e3d2f;
-  --color-forest-light: #2d5a451a;
-  --color-sage: #4a7c59;
-  --color-sage-light: #4a7c591a;
-  --color-amber: #c4841d;
-  --color-amber-light: #c4841d1a;
-  --color-terracotta: #b54a32;
-  --color-terracotta-light: #b54a321a;
+  /* === Palette secondaire === */
+  --color-secondary: #53625a;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #ceded4;
+  --color-on-secondary-container: #53625b;
+  --color-secondary-fixed: #d6e6dd;
+  --color-secondary-fixed-dim: #bacac1;
+  --color-on-secondary-fixed: #111e19;
+  --color-on-secondary-fixed-variant: #3b4a43;
 
-  /* Typography */
-  --font-sans: 'Inter', system-ui, sans-serif;
+  /* === Palette tertiaire === */
+  --color-tertiary: #401b1b;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #5a302f;
+  --color-on-tertiary-container: #d29895;
+  --color-tertiary-fixed: #ffdad8;
+  --color-tertiary-fixed-dim: #f5b7b4;
+  --color-on-tertiary-fixed: #331111;
+  --color-on-tertiary-fixed-variant: #673a39;
 
-  /* Border radius */
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  /* === Surfaces === */
+  --color-surface: #f9f9f8;
+  --color-surface-dim: #d9dad9;
+  --color-surface-bright: #f9f9f8;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f4f3;
+  --color-surface-container: #edeeed;
+  --color-surface-container-high: #e7e8e7;
+  --color-surface-container-highest: #e1e3e2;
+  --color-surface-variant: #e1e3e2;
+  --color-surface-tint: #3f6653;
+  --color-background: #f9f9f8;
+  --color-inverse-surface: #2e3131;
+  --color-inverse-on-surface: #f0f1f0;
 
-  /* Shadows */
+  /* === On-colors === */
+  --color-on-surface: #191c1c;
+  --color-on-surface-variant: #414844;
+  --color-on-background: #191c1c;
+  --color-outline: #717973;
+  --color-outline-variant: #c1c8c2;
+
+  /* === Erreurs === */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  /* === Typographie === */
+  --font-headline: 'Manrope', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-label: 'Inter', sans-serif;
+
+  /* === Radii === */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* === Shadows === */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-ambient: 0 20px 40px rgba(27, 67, 50, 0.06);
 
-  /* Transition durations */
+  /* === Transitions === */
   --transition-duration-fast: 150ms;
   --transition-duration-normal: 250ms;
   --transition-duration-slow: 400ms;
+
+  /* ============================================================
+   * === TOKENS LEGACY — DEPRECATED (suppression en Phase 5) ===
+   * ============================================================ */
+  --color-border: #e8e4dd; /* DEPRECATED — utiliser --color-outline-variant */
+  --color-sand: #e8e4dd; /* DEPRECATED */
+  --color-charcoal: #1f1f1f; /* DEPRECATED — utiliser --color-on-surface */
+  --color-stone: #6b6b6b; /* DEPRECATED — utiliser --color-on-surface-variant */
+  --color-pebble: #9ca3a0; /* DEPRECATED */
+  --color-forest: #2d5a45; /* DEPRECATED — utiliser --color-primary */
+  --color-forest-dark: #1e3d2f; /* DEPRECATED — utiliser --color-primary-container */
+  --color-forest-light: #2d5a451a; /* DEPRECATED */
+  --color-sage: #4a7c59; /* DEPRECATED — utiliser --color-secondary */
+  --color-sage-light: #4a7c591a; /* DEPRECATED */
+  --color-amber: #c4841d; /* DEPRECATED */
+  --color-amber-light: #c4841d1a; /* DEPRECATED */
+  --color-terracotta: #b54a32; /* DEPRECATED — utiliser --color-error */
+  --color-terracotta-light: #b54a321a; /* DEPRECATED */
+  --font-sans: 'Inter', system-ui, sans-serif; /* DEPRECATED — utiliser --font-body */
 }
 
 :root {
@@ -113,7 +186,7 @@ body {
     @apply bg-white rounded-lg border border-border p-6;
   }
 
-  /* --- Nordic Design System --- */
+  /* --- Nordic Design System (legacy) --- */
 
   .nordic-label-xs {
     @apply text-[10px] font-black uppercase tracking-[0.3em] text-stone;
@@ -145,5 +218,87 @@ body {
 
   .nordic-glass {
     @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+
+  /* ============================================================
+   * === VERDANT SIMULATOR — Classes utilitaires (Phase 0) ===
+   * ============================================================ */
+
+  /* Bouton pill-shaped Verdant */
+  .btn-verdant {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: 0.875rem;
+    letter-spacing: 0.025em;
+    color: #ffffff;
+    background: linear-gradient(
+      135deg,
+      var(--color-primary-container) 0%,
+      var(--color-primary) 100%
+    );
+    border-radius: var(--radius-full);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-duration-fast) ease;
+    box-shadow: 0 4px 14px rgba(1, 45, 29, 0.25);
+  }
+
+  .btn-verdant:hover {
+    background: linear-gradient(
+      135deg,
+      var(--color-primary) 0%,
+      var(--color-on-primary-fixed) 100%
+    );
+    box-shadow: 0 6px 20px rgba(1, 45, 29, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .btn-verdant:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .btn-verdant:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Input Verdant — bloc large, 16px radius */
+  .input-verdant {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-on-surface);
+    background: var(--color-surface);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: 16px;
+    transition: all var(--transition-duration-fast) ease;
+    outline: none;
+  }
+
+  .input-verdant:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(1, 45, 29, 0.15);
+    background: var(--color-surface-container-lowest);
+  }
+
+  .input-verdant::placeholder {
+    color: var(--color-outline);
+  }
+
+  /* Glass card — glassmorphism Verdant */
+  .glass-card {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(249, 249, 248, 0.85);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-ambient);
   }
 }
