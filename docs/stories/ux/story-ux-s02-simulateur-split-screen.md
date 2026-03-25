@@ -280,11 +280,27 @@ npm run dev
 - Step mapping : store `currentStep` 0-indexed → sidebar `sidebarStep = clamp(storeStep+1, 1, 5)`
 - Tests jsdom : docblock `// @vitest-environment jsdom` obligatoire (env global = node)
 
+### Code Review Sourcery (2026-03-25) — PR #65
+
+**Commit** : `5e8534a`
+
+#### Corrections apportées
+
+| Point                     | Fichier(s)                           | Correction                                                                    |
+| ------------------------- | ------------------------------------ | ----------------------------------------------------------------------------- |
+| Duplication helpers fmt   | `ResultsAnchorStep1–5.tsx`           | Extraction vers `src/utils/kpiFormat.ts` (`fmtEuro`, `fmtPercent`)            |
+| `height` répété × 3       | `SimulatorLayout.tsx`                | `height` conservé sur parent uniquement, `h-full` sur `aside` + `div` enfants |
+| Guard null store          | `ResultsAnchor.tsx`                  | `scenario.resultats` → `scenario?.resultats`                                  |
+| Cashflow null color       | `ResultsAnchor.tsx`                  | `text-primary` → `text-primary/40` quand valeur null                          |
+| Tests null indirects      | `ResultsAnchor.test.tsx`             | `document.body.textContent` → `screen.getAllByText` + `within()`              |
+| Tests formatage manquants | `tests/unit/utils/kpiFormat.test.ts` | NOUVEAU — 10 TU sur seuils k€/M€ et précision %                               |
+
 ---
 
 ## Changelog
 
-| Date       | Version | Description                                       | Auteur      |
-| ---------- | ------- | ------------------------------------------------- | ----------- |
-| 2026-03-25 | 1.0     | Création — Plan UX Sally + Plan technique Winston | John (PM)   |
-| 2026-03-25 | 1.1     | Sprint 2a — SimulatorLayout + ResultsAnchor       | James (dev) |
+| Date       | Version | Description                                         | Auteur      |
+| ---------- | ------- | --------------------------------------------------- | ----------- |
+| 2026-03-25 | 1.0     | Création — Plan UX Sally + Plan technique Winston   | John (PM)   |
+| 2026-03-25 | 1.1     | Sprint 2a — SimulatorLayout + ResultsAnchor         | James (dev) |
+| 2026-03-25 | 1.2     | Code review Sourcery — utilitaires KPI + robustesse | James (dev) |
