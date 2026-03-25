@@ -2,7 +2,7 @@
 
 > **Priorité** : P1 — 🟠 Requis pour la Phase 3 (Dashboard résultats)
 > **Effort** : M (1–2 jours)
-> **Statut** : Ready for Dev
+> **Statut** : Done ✅
 > **Type** : Feature / Calcul Moteur
 > **Epic** : UX Migration — Prérequis Backend
 > **Branche** : `feature/verdant-taeg-financement`

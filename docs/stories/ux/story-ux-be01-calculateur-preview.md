@@ -2,7 +2,7 @@
 
 > **Priorité** : P0 — 🔴 Bloquant (prérequis de la Phase 2)
 > **Effort** : M (2–3 jours)
-> **Statut** : Ready for Dev
+> **Statut** : Done ✅
 > **Type** : Feature / Backend
 > **Epic** : UX Migration — Prérequis Backend
 > **Branche** : `feature/verdant-calculateur-preview`

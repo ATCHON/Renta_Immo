@@ -37,13 +37,13 @@ graph TD
 
 ### Sprint 1 — Fondations (Phase 0 + Backend)
 
-| Story                                                 | Titre                                          | Effort | Priorité | Branche                               |
-| ----------------------------------------------------- | ---------------------------------------------- | ------ | -------- | ------------------------------------- |
-| [UX-S00](story-ux-s00-design-tokens.md)               | Design Tokens « Verdant Simulator »            | M      | P0       | `feature/verdant-design-tokens`       |
-| [UX-BE01](story-ux-be01-calculateur-preview.md)       | Moteur calcul partiel `calculateur-preview.ts` | M      | P0 🔴    | `feature/verdant-calculateur-preview` |
-| [UX-BE02](story-ux-be02-use-preview-kpis.md)          | Hook Zustand `usePreviewKPIs`                  | S      | P0 🔴    | `feature/verdant-calculateur-preview` |
-| [UX-BE03](story-ux-be03-taeg-financement-resultat.md) | Exposer TAEG dans `FinancementResultat`        | M      | P1 🟠    | `feature/verdant-taeg-financement`    |
-| [UX-BE04](story-ux-be04-calcul-taeg-serveur.md)       | Calcul TAEG exact côté serveur                 | M      | P1 🟠    | `feature/verdant-taeg-financement`    |
+| Story                                                    | Titre                                          | Effort | Priorité | Branche                               |
+| -------------------------------------------------------- | ---------------------------------------------- | ------ | -------- | ------------------------------------- |
+| ✅ [UX-S00](story-ux-s00-design-tokens.md)               | Design Tokens « Verdant Simulator »            | M      | P0       | `feature/verdant-design-tokens`       |
+| ✅ [UX-BE01](story-ux-be01-calculateur-preview.md)       | Moteur calcul partiel `calculateur-preview.ts` | M      | P0 🔴    | `feature/verdant-calculateur-preview` |
+| ✅ [UX-BE02](story-ux-be02-use-preview-kpis.md)          | Hook Zustand `usePreviewKPIs`                  | S      | P0 🔴    | `feature/verdant-calculateur-preview` |
+| ✅ [UX-BE03](story-ux-be03-taeg-financement-resultat.md) | Exposer TAEG dans `FinancementResultat`        | M      | P1 🟠    | `feature/verdant-taeg-financement`    |
+| ✅ [UX-BE04](story-ux-be04-calcul-taeg-serveur.md)       | Calcul TAEG exact côté serveur                 | M      | P1 🟠    | `feature/verdant-taeg-financement`    |
 
 **Estimation Sprint 1** : ~8 points
 

@@ -2,7 +2,7 @@
 
 > **Priorité** : P0 (prérequis de toutes les autres phases)
 > **Effort** : M (2–3 jours)
-> **Statut** : Ready for Dev
+> **Statut** : Done ✅
 > **Type** : Chore / Design System
 > **Epic** : UX Migration — Phase 0
 > **Branche** : `feature/verdant-design-tokens`
