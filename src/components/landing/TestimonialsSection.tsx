@@ -27,9 +27,9 @@ const testimonials: Testimonial[] = [
   },
 ];
 
-function StarRating({ count = 5 }: { count?: number }) {
+function StarRating({ count = 5, max = 5 }: { count?: number; max?: number }) {
   return (
-    <div className="flex gap-1" aria-label={`${count} étoiles sur 5`}>
+    <div className="flex gap-1" aria-label={`${count} étoiles sur ${max}`}>
       {Array.from({ length: count }).map((_, i) => (
         <span
           key={i}

@@ -158,7 +158,7 @@ Après la phase 1, lancer un audit Lighthouse SEO + Accessibility sur la landing
 ## 6. Definition of Done
 
 - [x] Tous les composants listés en 3.1 et 3.2 créés
-- [x] `src/app/page.tsx` refontue
+- [x] Refonte de `src/app/page.tsx`
 - [x] `npm run test` : 596 TU verts (530+ ✅)
 - [ ] `npm run test:e2e` : navigation CTA fonctionnelle _(non automatisé — vérification manuelle)_
 - [ ] Vérification visuelle sur les 3 viewports _(vérification manuelle recommandée)_

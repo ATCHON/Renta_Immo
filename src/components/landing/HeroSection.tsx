@@ -58,7 +58,7 @@ export function HeroSection() {
               />
             </Link>
             <Link
-              href="/en-savoir-plus"
+              href="/comment-ca-marche"
               className="flex items-center justify-center px-8 py-4 rounded-xl border-2 border-outline-variant/40 text-on-surface font-headline font-bold text-base hover:bg-surface-container-high transition-all"
             >
               Voir un exemple
