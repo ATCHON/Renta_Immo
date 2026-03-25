@@ -149,6 +149,8 @@ export async function performCalculations(
         mensualite: rentabilite.financement.mensualite_totale,
         cout_total_credit: rentabilite.financement.cout_total_credit,
         frais_notaire: rentabilite.financement.frais_notaire,
+        taeg: rentabilite.financement.taeg,
+        capacite_endettement: hcsf.capacite_emprunt_residuelle,
       },
       fiscalite: {
         regime: fiscalite.regime,
