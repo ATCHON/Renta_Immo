@@ -39,6 +39,7 @@ export function Collapsible({
   return (
     <div className={cn('border border-border rounded-lg overflow-hidden', className)}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="w-full px-6 py-4 flex items-center justify-between bg-surface hover:bg-border/50 transition-colors duration-fast text-left"
         aria-expanded={isOpen}

@@ -159,7 +159,7 @@ body {
   }
 
   .input-field {
-    @apply w-full px-4 py-3 border border-border rounded-lg bg-surface focus:outline-none focus:ring-2 focus:ring-forest focus:ring-offset-1 focus:border-forest transition-all duration-fast placeholder:text-pebble;
+    @apply w-full px-4 py-3 border border-outline-variant rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:border-primary transition-all duration-fast placeholder:text-outline;
   }
 
   .input-error {
@@ -290,6 +290,33 @@ body {
 
   .input-verdant::placeholder {
     color: var(--color-outline);
+  }
+
+  /* Slider Verdant — thumb stylisé */
+  .verdant-slider-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    border: 2px solid var(--color-on-primary);
+    box-shadow: 0 1px 4px rgba(1, 45, 29, 0.3);
+    cursor: pointer;
+    transition: transform 150ms ease;
+  }
+
+  .verdant-slider-input::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+
+  .verdant-slider-input::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    border: 2px solid var(--color-on-primary);
+    box-shadow: 0 1px 4px rgba(1, 45, 29, 0.3);
+    cursor: pointer;
   }
 
   /* Glass card — glassmorphism Verdant */
