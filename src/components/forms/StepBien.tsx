@@ -122,7 +122,10 @@ export function StepBien({ onNext }: StepBienProps) {
                 key={value}
                 type="button"
                 onClick={() =>
-                  setValue('type_bien', value as 'appartement' | 'maison' | 'immeuble')
+                  setValue('type_bien', value as 'appartement' | 'maison' | 'immeuble', {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
                 }
                 className={cn(
                   'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all',

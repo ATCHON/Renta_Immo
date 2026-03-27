@@ -60,21 +60,30 @@ graph TD
 
 ---
 
-### Sprint 3 — Steps Formulaire & Dashboard (Phase 2 steps + Phase 3) 🚧 EN COURS
+### Sprint 3 — Steps Formulaire & Dashboard (Phase 2 steps + Phase 3) ✅ DONE
 
 | Story                                                | Titre                                       | Effort | Priorité | Branche                     |
 | ---------------------------------------------------- | ------------------------------------------- | ------ | -------- | --------------------------- |
-| 🚧 [UX-S02](story-ux-s02-simulateur-split-screen.md) | Simulateur — Steps 1–5 & Stepper horizontal | L      | P1       | `feature/verdant-simulator` |
-| 🔲 [UX-S03](story-ux-s03-dashboard-resultats.md)     | Dashboard Résultats & Projections 20 ans    | L      | P1       | `feature/verdant-results`   |
+| ✅ [UX-S02](story-ux-s02-simulateur-split-screen.md) | Simulateur — Steps 1–5 & Stepper horizontal | L      | P1       | `feature/verdant-simulator` |
+| ✅ [UX-S03](story-ux-s03-dashboard-resultats.md)     | Dashboard Résultats & Projections à 20 ans  | L      | P1       | `feature/verdant-simulator` |
 
-**Estimation Sprint 3** : ~10 points
+**Estimation Sprint 3** : ~10 points | **Résultat** : 640 TU verts (596 → +44)
 
-**Scope UX-S02 restant (sections 3.3–3.6)** :
+**Scope UX-S02 livré (sections 3.3–3.6)** :
 
-- 3.3 `ProgressStepper` redesigné en horizontal (cercles numérotés ① ——— ② ——— …)
-- 3.4 Préservation stricte des champs formulaire (accordéons « Options avancées »)
-- 3.5 `StepStructure` : 3 cartes expansibles pour les 6 régimes fiscaux
-- 3.6 `VerdantSlider` (Step 2 — durée prêt)
+- ✅ 3.3 `ProgressStepper` redesigné en horizontal (cercles numérotés ① ——— ② ——— …) + labels
+- ✅ 3.4 Préservation stricte des champs formulaire (accordéons `<Collapsible>` « Options avancées »)
+- ✅ 3.5 `StepStructure` : 3 cartes expansibles LMNP/RF/SCI IS → double data model préservé
+- ✅ 3.6 `VerdantSlider` (Steps 2 & 3 — taux occupation + pondération HCSF)
+
+**Scope UX-S03 livré** :
+
+- ✅ `Dashboard.tsx` — refonte 4 onglets (Analyse, Projections, + 2 stubs), suppression scroll-spy/IntersectionObserver et SideNavigation
+- ✅ `MetricCard.tsx` — tonal card sans bordures, hover lift, tokens Verdant
+- ✅ `FiscalComparator.tsx` — liste verticale de cartes avec badges RECOMMANDÉ/VOTRE CHOIX
+- ✅ `AmortizationTable.tsx` — accordéon inline (5 lignes preview) en remplacement du modal
+- ✅ `CashflowChart.tsx` + `PatrimoineChart.tsx` — couleurs migrées sur `VerdantChartPalette`
+- ✅ `DownloadPdfButton.tsx` — pill style + tokens Verdant + Lucide icons
 
 ---
 

@@ -76,6 +76,10 @@ function StepAccordion({
         )}
       </button>
       <div
+        aria-hidden={!isOpen}
+        ref={(el) => {
+          if (el) el.inert = !isOpen;
+        }}
         className={cn(
           'transition-all duration-normal ease-out overflow-hidden',
           isOpen ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'
@@ -113,10 +117,6 @@ export function FormWizard() {
   }, [getFormData, calculate]);
 
   if (!hasHydrated) return null;
-
-  const getActiveStepNumber = (step: number) => {
-    return structure.type === 'nom_propre' && step > 4 ? step : step + 1;
-  };
 
   return (
     <div className="px-4 py-8">

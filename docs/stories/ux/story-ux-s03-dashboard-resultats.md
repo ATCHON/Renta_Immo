@@ -2,10 +2,10 @@
 
 > **Priorité** : P1
 > **Effort** : L (3–4 jours)
-> **Statut** : Ready for Dev
+> **Statut** : ✅ DONE — Sprint 3
 > **Type** : Feature / UI
 > **Epic** : UX Migration — Phase 3 : Dashboard Résultats
-> **Branche** : `feature/verdant-results`
+> **Branche** : `feature/verdant-simulator`
 > **Dépendances** : UX-S00 ✅, UX-BE04 ✅ (TAEG exact disponible)
 
 ---

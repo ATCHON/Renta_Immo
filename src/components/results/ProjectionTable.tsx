@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useMemo } from 'react';
 import { ProjectionData } from '@/types/calculateur';
 import { formatCurrency, cn } from '@/lib/utils';
 import { Card, CardHeader, CardContent } from '@/components/ui';
@@ -8,6 +10,54 @@ interface ProjectionTableProps {
 }
 
 export const ProjectionTable = React.memo(function ProjectionTable({ data }: ProjectionTableProps) {
+  const [mode, setMode] = useState<'annuel' | 'trimestriel'>('annuel');
+
+  const rows = useMemo(() => {
+    if (!data?.projections) return [];
+
+    const currentYear = new Date().getFullYear();
+
+    if (mode === 'annuel') {
+      return data.projections.map((r) => ({
+        ...r,
+        periodLabel: `${currentYear + r.annee - 1}`,
+      }));
+    }
+
+    // Trimestriel interpolation
+    const result = [];
+    for (let i = 0; i < data.projections.length; i++) {
+      const curr = data.projections[i];
+
+      // Approximate the starting values for interpolation
+      const prevCap =
+        i > 0
+          ? data.projections[i - 1].capitalRestant
+          : curr.capitalRestant + curr.capitalRembourse;
+
+      const prevPat =
+        i > 0
+          ? data.projections[i - 1].patrimoineNet
+          : curr.patrimoineNet - (curr.cashflowNetImpot + curr.capitalRembourse);
+
+      for (let q = 1; q <= 4; q++) {
+        result.push({
+          periodLabel: `T${q} ${currentYear + curr.annee - 1}`,
+          loyer: curr.loyer / 4,
+          charges: curr.charges / 4,
+          mensualite: curr.mensualite / 4,
+          cashflow: curr.cashflow / 4,
+          impot: curr.impot / 4,
+          cashflowNetImpot: curr.cashflowNetImpot / 4,
+          capitalRestant: prevCap + (curr.capitalRestant - prevCap) * (q / 4),
+          patrimoineNet: prevPat + (curr.patrimoineNet - prevPat) * (q / 4),
+          key: `${curr.annee}-T${q}`,
+        });
+      }
+    }
+    return result;
+  }, [data, mode]);
+
   if (!data || !data.projections) return null;
 
   const h = data.hypotheses;
@@ -21,17 +71,44 @@ export const ProjectionTable = React.memo(function ProjectionTable({ data }: Pro
         title={`Projection sur ${data.horizon} ans`}
         description="Évolution du patrimoine et des flux financiers"
       />
-      {hypothesesLine && <p className="text-xs text-gray-500 px-6 pb-2 -mt-2">{hypothesesLine}</p>}
+      {hypothesesLine && <p className="text-xs text-stone px-6 pb-2 -mt-2">{hypothesesLine}</p>}
       <CardContent className="p-0">
+        <div className="flex items-center justify-end px-6 pb-4 pt-2">
+          <div className="bg-surface-container rounded-full p-1 flex">
+            <button
+              onClick={() => setMode('annuel')}
+              className={cn(
+                'px-4 py-1.5 rounded-full text-xs font-bold transition-colors',
+                mode === 'annuel'
+                  ? 'bg-surface shadow-sm text-charcoal'
+                  : 'text-stone hover:text-charcoal'
+              )}
+            >
+              Annuel
+            </button>
+            <button
+              onClick={() => setMode('trimestriel')}
+              className={cn(
+                'px-4 py-1.5 rounded-full text-xs font-bold transition-colors',
+                mode === 'trimestriel'
+                  ? 'bg-surface shadow-sm text-charcoal'
+                  : 'text-stone hover:text-charcoal'
+              )}
+            >
+              Trimestriel
+            </button>
+          </div>
+        </div>
+
         <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-sand scrollbar-track-transparent">
           <table className="w-full text-sm text-left border-collapse">
             <thead>
-              <tr className="bg-surface border-b border-sand/50">
+              <tr className="bg-surface border-b border-sand/50 border-t">
                 <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest">
-                  Année
+                  Période
                 </th>
                 <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest text-right">
-                  Loyer annuel
+                  Loyer
                 </th>
                 <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest text-right">
                   Charges expl.
@@ -57,43 +134,46 @@ export const ProjectionTable = React.memo(function ProjectionTable({ data }: Pro
               </tr>
             </thead>
             <tbody className="divide-y divide-sand/30">
-              {data.projections.map((row) => (
-                <tr key={row.annee} className="hover:bg-sand/10 transition-colors">
-                  <td className="px-6 py-4 font-bold text-charcoal tabular-nums">
-                    {new Date().getFullYear() + row.annee - 1}
+              {rows.map((row) => (
+                <tr
+                  key={'key' in row ? row.key : row.periodLabel}
+                  className="hover:bg-sand/10 transition-colors"
+                >
+                  <td className="px-6 py-4 font-bold text-charcoal tabular-nums whitespace-nowrap">
+                    {row.periodLabel}
                   </td>
                   <td className="px-6 py-4 text-right tabular-nums text-pebble">
                     {formatCurrency(row.loyer)}
                   </td>
-                  <td className="px-6 py-4 text-right tabular-nums text-terracotta/70 font-medium">
+                  <td className="px-6 py-4 text-right tabular-nums text-terracotta/70 font-medium whitespace-nowrap">
                     -{formatCurrency(row.charges)}
                   </td>
-                  <td className="px-6 py-4 text-right tabular-nums text-amber-700/70 font-medium">
+                  <td className="px-6 py-4 text-right tabular-nums text-amber-700/70 font-medium whitespace-nowrap">
                     -{formatCurrency(row.mensualite)}
                   </td>
                   <td
                     className={cn(
-                      'px-6 py-4 text-right tabular-nums font-medium',
+                      'px-6 py-4 text-right tabular-nums font-medium whitespace-nowrap',
                       row.cashflow >= 0 ? 'text-forest/70' : 'text-terracotta/70'
                     )}
                   >
                     {formatCurrency(row.cashflow)}
                   </td>
-                  <td className="px-6 py-4 text-right tabular-nums text-terracotta/70 font-medium">
+                  <td className="px-6 py-4 text-right tabular-nums text-terracotta/70 font-medium whitespace-nowrap">
                     {row.impot > 0 ? `-${formatCurrency(row.impot)}` : formatCurrency(row.impot)}
                   </td>
                   <td
                     className={cn(
-                      'px-6 py-4 text-right tabular-nums font-black',
+                      'px-6 py-4 text-right tabular-nums font-black whitespace-nowrap',
                       row.cashflowNetImpot >= 0 ? 'text-forest' : 'text-terracotta'
                     )}
                   >
                     {formatCurrency(row.cashflowNetImpot)}
                   </td>
-                  <td className="px-6 py-4 text-right tabular-nums text-pebble">
+                  <td className="px-6 py-4 text-right tabular-nums text-pebble whitespace-nowrap">
                     {formatCurrency(row.capitalRestant)}
                   </td>
-                  <td className="px-6 py-4 text-right tabular-nums font-black text-charcoal">
+                  <td className="px-6 py-4 text-right tabular-nums font-black text-charcoal whitespace-nowrap">
                     {formatCurrency(row.patrimoineNet)}
                   </td>
                 </tr>
@@ -118,7 +198,7 @@ export const ProjectionTable = React.memo(function ProjectionTable({ data }: Pro
                   {formatCurrency(data.totaux.cashflowCumule)}
                 </td>
                 <td className="px-6 py-4 text-right">-</td>
-                <td className="px-6 py-4 text-right tabular-nums text-forest-dark">
+                <td className="px-6 py-4 text-right tabular-nums text-forest-dark whitespace-nowrap">
                   {formatCurrency(data.totaux.enrichissementTotal)}
                   <span className="ml-1 text-[10px] font-bold text-pebble uppercase tracking-tighter">
                     Enrich.

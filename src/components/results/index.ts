@@ -21,3 +21,4 @@ export { InputRecap } from './InputRecap';
 export { PointsAttention } from './PointsAttention';
 export { RecommandationsPanel } from './RecommandationsPanel';
 export { ProfilInvestisseurToggle } from './ProfilInvestisseurToggle';
+export * from './DashboardFloatingFooter';

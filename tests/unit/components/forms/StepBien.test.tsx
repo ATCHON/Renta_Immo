@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { StepBien } from '@/components/forms/StepBien';
 import { useCalculateurStore } from '@/stores/calculateur.store';
@@ -13,6 +14,12 @@ vi.mock('@/hooks/useScenarioFormReset', () => ({
   useScenarioFormReset: vi.fn(),
 }));
 
+// Mock zodResolver pour isoler la logique de soumission du formulaire
+// de la validation Zod (qui ne fonctionne pas fiablement en jsdom)
+vi.mock('@hookform/resolvers/zod', () => ({
+  zodResolver: () => async (data: unknown) => ({ values: data, errors: {} }),
+}));
+
 const mockUpdateBien = vi.fn();
 const mockOnNext = vi.fn();
 
@@ -23,11 +30,11 @@ describe('StepBien — UX Migration (S4, S5, S6)', () => {
       getActiveScenario: () => ({
         bien: {
           type_bien: 'appartement',
-          prix: 100000,
+          prix_achat: 100000,
           surface: 50,
           dpe: 'C',
           adresse: '10 rue test',
-          nom_projet: 'Test',
+          etat_bien: 'ancien',
         },
       }),
       updateBien: mockUpdateBien,
@@ -49,5 +56,62 @@ describe('StepBien — UX Migration (S4, S5, S6)', () => {
     expect(apptCard).toBeDefined();
     expect(maisonCard).toBeDefined();
     expect(immeubleCard).toBeDefined();
+  });
+
+  it('permet de sélectionner le type_bien via les cards (S6)', async () => {
+    const user = userEvent.setup();
+    render(<StepBien onNext={mockOnNext} />);
+
+    const maisonButton = screen.getByRole('button', { name: /Maison/i });
+    const appartButton = screen.getByRole('button', { name: /Appartement/i });
+
+    // Appartement est actif par défaut (defaultValues)
+    expect(Array.from(appartButton.classList)).toContain('bg-primary');
+    expect(Array.from(maisonButton.classList)).not.toContain('bg-primary');
+
+    // Clic sur Maison
+    await user.click(maisonButton);
+    expect(Array.from(maisonButton.classList)).toContain('bg-primary');
+    expect(Array.from(appartButton.classList)).not.toContain('bg-primary');
+
+    // Clic sur Immeuble
+    const immeubleButton = screen.getByRole('button', { name: /Immeuble/i });
+    await user.click(immeubleButton);
+    expect(Array.from(immeubleButton.classList)).toContain('bg-primary');
+    expect(Array.from(maisonButton.classList)).not.toContain('bg-primary');
+  });
+
+  it("permet de sélectionner l'etat_bien via les boutons", async () => {
+    const user = userEvent.setup();
+    render(<StepBien onNext={mockOnNext} />);
+
+    const ancienButton = screen.getByRole('button', { name: /Ancien/i });
+    const neufButton = screen.getByRole('button', { name: /Neuf \(VEFA\)/i });
+
+    // Ancien est actif par défaut
+    expect(Array.from(ancienButton.classList)).toContain('bg-primary');
+    expect(Array.from(neufButton.classList)).not.toContain('bg-primary');
+
+    // Clic sur Neuf (VEFA)
+    await user.click(neufButton);
+    expect(Array.from(neufButton.classList)).toContain('bg-primary');
+    expect(Array.from(ancienButton.classList)).not.toContain('bg-primary');
+  });
+
+  it('soumet le formulaire et appelle updateBien puis onNext', async () => {
+    const user = userEvent.setup();
+    render(<StepBien onNext={mockOnNext} />);
+
+    await user.click(screen.getByRole('button', { name: /Continuer/i }));
+
+    await waitFor(() => {
+      expect(mockUpdateBien).toHaveBeenCalledTimes(1);
+    });
+    expect(mockUpdateBien).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type_bien: 'appartement',
+      })
+    );
+    expect(mockOnNext).toHaveBeenCalledTimes(1);
   });
 });

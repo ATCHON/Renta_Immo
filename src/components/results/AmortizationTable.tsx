@@ -1,188 +1,126 @@
 'use client';
 
 import React, { useState } from 'react';
-import { TableauAmortissement } from '@/types/calculateur';
+import type { TableauAmortissement } from '@/types/calculateur';
 import { formatCurrency } from '@/lib/utils';
-import { Card, CardHeader, CardContent, Button } from '@/components/ui';
-import { X } from 'lucide-react';
+import { Card, CardHeader, CardContent } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 interface AmortizationTableProps {
   data: TableauAmortissement;
 }
 
+const TH = ({ children, right }: { children: React.ReactNode; right?: boolean }) => (
+  <th
+    className={cn(
+      'px-4 py-3 text-[10px] font-black text-on-surface-variant uppercase tracking-widest',
+      right && 'text-right'
+    )}
+  >
+    {children}
+  </th>
+);
+
+const TD = ({
+  children,
+  right,
+  className,
+}: {
+  children: React.ReactNode;
+  right?: boolean;
+  className?: string;
+}) => (
+  <td className={cn('px-4 py-3 text-sm', right && 'text-right tabular-nums', className)}>
+    {children}
+  </td>
+);
+
 export const AmortizationTable = React.memo(function AmortizationTable({
   data,
 }: AmortizationTableProps) {
-  const [showMonthly, setShowMonthly] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
-  if (!data || !data.annuel) return null;
+  if (!data?.annuel) return null;
+
+  const PREVIEW_ROWS = 5;
+  const rows = data.annuel;
+  const visibleRows = showAll ? rows : rows.slice(0, PREVIEW_ROWS);
+  const hasMore = rows.length > PREVIEW_ROWS;
+  const currentYear = new Date().getFullYear();
 
   return (
-    <Card className="col-span-full border-sand/50 shadow-sm overflow-hidden">
+    <Card className="overflow-hidden border-outline-variant/50 shadow-sm">
       <CardHeader
-        title="Détail du crédit"
+        title="Tableau d'amortissement"
         description="Répartition capital / intérêts par an"
-        action={
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowMonthly(true)}
-            className="text-xs uppercase tracking-widest font-bold"
-          >
-            Détail mensuel
-          </Button>
-        }
       />
       <CardContent className="p-0">
-        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-sand scrollbar-track-transparent">
-          <table className="w-full text-sm text-left border-collapse">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-surface border-b border-sand/50">
-                <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest">
-                  Année
-                </th>
-                <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest text-right">
-                  Échéance
-                </th>
-                <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest text-right">
-                  Capital
-                </th>
-                <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest text-right">
-                  Intérêts
-                </th>
-                <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest text-right">
-                  Assurance
-                </th>
-                <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest text-right">
-                  Reste dû
-                </th>
+              <tr className="bg-surface-container border-b border-outline-variant/50">
+                <TH>Année</TH>
+                <TH right>Échéance</TH>
+                <TH right>Capital</TH>
+                <TH right>Intérêts</TH>
+                <TH right>Assurance</TH>
+                <TH right>Reste dû</TH>
               </tr>
             </thead>
-            <tbody className="divide-y divide-sand/30">
-              {data.annuel.map((row) => (
-                <tr key={row.periode} className="hover:bg-sand/10 transition-colors group">
-                  <td className="px-6 py-4 font-bold text-charcoal">
-                    {new Date().getFullYear() + row.periode - 1}
-                  </td>
-                  <td className="px-6 py-4 text-right tabular-nums text-pebble">
+            <tbody className="divide-y divide-outline-variant/30">
+              {visibleRows.map((row) => (
+                <tr key={row.periode} className="hover:bg-surface-container/50 transition-colors">
+                  <TD className="font-bold text-on-surface">{currentYear + row.periode - 1}</TD>
+                  <TD right className="text-on-surface-variant">
                     {formatCurrency(row.echeance)}
-                  </td>
-                  <td className="px-6 py-4 text-right tabular-nums text-forest font-medium">
+                  </TD>
+                  <TD right className="text-primary font-medium">
                     {formatCurrency(row.capital)}
-                  </td>
-                  <td className="px-6 py-4 text-right tabular-nums text-amber-700">
+                  </TD>
+                  <TD right className="text-tertiary">
                     {formatCurrency(row.interets)}
-                  </td>
-                  <td className="px-6 py-4 text-right tabular-nums text-charcoal/60">
+                  </TD>
+                  <TD right className="text-on-surface-variant/60">
                     {formatCurrency(row.assurance)}
-                  </td>
-                  <td className="px-6 py-4 text-right tabular-nums font-bold text-charcoal">
+                  </TD>
+                  <TD right className="font-bold text-on-surface">
                     {formatCurrency(row.capitalRestant)}
-                  </td>
+                  </TD>
                 </tr>
               ))}
             </tbody>
-            <tfoot className="bg-surface/50 border-t-2 border-sand/30">
-              <tr className="font-black text-charcoal">
-                <td className="px-6 py-4 text-[10px] uppercase tracking-widest text-pebble">
+            <tfoot className="bg-surface-container border-t-2 border-outline-variant/50">
+              <tr className="font-black text-on-surface">
+                <TD className="text-[10px] uppercase tracking-widest text-on-surface-variant">
                   TOTAL
-                </td>
-                <td className="px-6 py-4 text-right tabular-nums">
-                  {formatCurrency(data.totaux.totalPaye)}
-                </td>
-                <td className="px-6 py-4 text-right">-</td>
-                <td className="px-6 py-4 text-right tabular-nums text-amber-900">
+                </TD>
+                <TD right>{formatCurrency(data.totaux.totalPaye)}</TD>
+                <TD right>—</TD>
+                <TD right className="text-tertiary">
                   {formatCurrency(data.totaux.totalInterets)}
-                </td>
-                <td className="px-6 py-4 text-right tabular-nums">
-                  {formatCurrency(data.totaux.totalAssurance)}
-                </td>
-                <td className="px-6 py-4 text-right">-</td>
+                </TD>
+                <TD right>{formatCurrency(data.totaux.totalAssurance)}</TD>
+                <TD right>—</TD>
               </tr>
             </tfoot>
           </table>
         </div>
-      </CardContent>
 
-      {/* Modal Détail Mensuel */}
-      {showMonthly && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-charcoal/40 backdrop-blur-md animate-in fade-in duration-300 hover:cursor-pointer"
-          onClick={() => setShowMonthly(false)}
-        >
-          <Card
-            className="w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border-none hover:cursor-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <CardHeader
-              title="Détail mensuel du crédit"
-              description="Détail mois par mois sur toute la durée du crédit"
-              action={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowMonthly(false)}
-                  className="rounded-full hover:bg-sand/30 h-8 w-8 p-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              }
-            />
-            <CardContent className="flex-1 overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-sand">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left border-collapse">
-                  <thead className="sticky top-0 bg-white shadow-sm z-10">
-                    <tr className="bg-surface border-b border-sand/50">
-                      <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest">
-                        Mois
-                      </th>
-                      <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest text-right">
-                        Échéance
-                      </th>
-                      <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest text-right">
-                        Capital
-                      </th>
-                      <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest text-right">
-                        Intérêts
-                      </th>
-                      <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest text-right">
-                        Assurance
-                      </th>
-                      <th className="px-6 py-4 text-[10px] font-black text-pebble uppercase tracking-widest text-right">
-                        Reste dû
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-sand/20">
-                    {data.mensuel?.map((row) => (
-                      <tr key={row.periode} className="hover:bg-sand/5 transition-colors">
-                        <td className="px-6 py-3 font-bold text-charcoal tabular-nums">
-                          Mois {row.periode}
-                        </td>
-                        <td className="px-6 py-3 text-right tabular-nums text-pebble">
-                          {formatCurrency(row.echeance)}
-                        </td>
-                        <td className="px-6 py-3 text-right tabular-nums text-forest font-medium">
-                          {formatCurrency(row.capital)}
-                        </td>
-                        <td className="px-6 py-3 text-right tabular-nums text-amber-700">
-                          {formatCurrency(row.interets)}
-                        </td>
-                        <td className="px-6 py-3 text-right tabular-nums text-charcoal/40">
-                          {formatCurrency(row.assurance)}
-                        </td>
-                        <td className="px-6 py-3 text-right tabular-nums font-bold text-charcoal">
-                          {formatCurrency(row.capitalRestant)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+        {/* Accordéon "Voir le tableau complet" */}
+        {hasMore && (
+          <div className="border-t border-outline-variant/30 px-4 py-3">
+            <button
+              type="button"
+              onClick={() => setShowAll(!showAll)}
+              className="text-sm text-primary font-medium hover:text-primary/80 transition-colors underline-offset-2 hover:underline"
+            >
+              {showAll
+                ? 'Masquer le tableau complet'
+                : `Voir le tableau complet (${rows.length} ans)`}
+            </button>
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 });

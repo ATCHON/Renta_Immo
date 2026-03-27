@@ -4,6 +4,7 @@
  * Référence : landing_page_accueil_premium/code.html
  */
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, TrendingUp } from 'lucide-react';
 
@@ -79,29 +80,16 @@ export function HeroSection() {
         {/* Colonne droite — Visuel immobilier + overlay KPI */}
         <div className="lg:col-span-6 relative">
           {/* Carte visuelle principale */}
-          <div className="relative w-full aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_rgba(1,45,29,0.12)] bg-gradient-to-br from-primary-container via-primary to-on-primary-fixed">
-            {/* Overlay architectural */}
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent" />
-
-            {/* Grille architecturale décorative */}
-            <div
-              className="absolute inset-0 opacity-10"
-              style={{
-                backgroundImage:
-                  'linear-gradient(var(--color-primary-fixed) 1px, transparent 1px), linear-gradient(90deg, var(--color-primary-fixed) 1px, transparent 1px)',
-                backgroundSize: '40px 40px',
-              }}
-              aria-hidden="true"
+          <div className="relative w-full aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_rgba(1,45,29,0.12)] bg-surface-container">
+            <Image
+              src="/images/hero-property.png"
+              alt="Maison moderne avec terrasse et jardin sous le soleil"
+              fill
+              className="object-cover"
+              priority
             />
-
-            {/* Silhouette immeuble CSS */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-end gap-3 pb-8 opacity-30">
-              <div className="w-12 h-32 bg-primary-fixed rounded-t-lg" />
-              <div className="w-16 h-48 bg-primary-fixed-dim rounded-t-lg" />
-              <div className="w-20 h-40 bg-primary-fixed rounded-t-lg" />
-              <div className="w-14 h-56 bg-primary-fixed-dim rounded-t-lg" />
-              <div className="w-12 h-36 bg-primary-fixed rounded-t-lg" />
-            </div>
+            {/* Overlay pour la lisibilité des KPIs locaux */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10 mix-blend-multiply" />
           </div>
 
           {/* Overlay KPI — Rendement */}
