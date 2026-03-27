@@ -38,13 +38,13 @@ global.DOMRect = class {
 const mockOnSubmit = vi.fn();
 const mockOnPrev = vi.fn();
 
-describe('StepStructure — UX Migration (S15, S16, S17)', () => {
+describe('StepStructure', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useCalculateurStore).mockReturnValue({
       getActiveScenario: () => ({
         structure: {
-          regime_fiscal: 'LMNP_MICRO',
+          regime_fiscal: 'lmnp_micro',
         },
       }),
       updateStructure: vi.fn(),
@@ -52,15 +52,23 @@ describe('StepStructure — UX Migration (S15, S16, S17)', () => {
     } as any);
   });
 
-  it('affiche les badges familles (S16) et grid (S15)', () => {
+  it('affiche le titre et les options de structure', () => {
     render(<StepStructure onNext={mockOnSubmit} onPrev={mockOnPrev} />);
-    expect(screen.getByText('BEST FOR CASHFLOW')).toBeDefined();
-    expect(screen.getByText('STANDARD APPROACH')).toBeDefined();
-    expect(screen.getByText('LEGACY BUILDING')).toBeDefined();
-
-    // Check main families
-    expect(screen.getByText('LMNP')).toBeDefined();
-    expect(screen.getByText('Revenus Fonciers')).toBeDefined();
+    expect(screen.getByText('Structure juridique')).toBeDefined();
+    expect(screen.getByText('Nom propre')).toBeDefined();
     expect(screen.getByText("SCI à l'IS")).toBeDefined();
+  });
+
+  it('affiche les boutons de navigation', () => {
+    render(<StepStructure onNext={mockOnSubmit} onPrev={mockOnPrev} />);
+    expect(screen.getByRole('button', { name: /Retour/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Continuer/i })).toBeDefined();
+  });
+
+  it('affiche les options de type exploitation pour nom propre', () => {
+    render(<StepStructure onNext={mockOnSubmit} onPrev={mockOnPrev} />);
+    // nom_propre is selected by default
+    expect(screen.getByText('Location Nue')).toBeDefined();
+    expect(screen.getByText('Location Meublée (LMNP)')).toBeDefined();
   });
 });

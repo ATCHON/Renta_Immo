@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { AlertTriangle, Home, Building2, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { bienSchema, type BienFormDataInput, type BienFormData } from '@/lib/validators';
+import { TYPE_BIEN_OPTIONS } from '@/lib/constants';
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useScenarioFormReset } from '@/hooks/useScenarioFormReset';
 import type { BienData } from '@/types';
@@ -113,31 +114,33 @@ export function StepBien({ onNext }: StepBienProps) {
             Type de bien
           </label>
           <div className="grid grid-cols-3 gap-3">
-            {[
-              { value: 'appartement', label: 'Appartement', icon: Building2 },
-              { value: 'maison', label: 'Maison', icon: Home },
-              { value: 'immeuble', label: 'Immeuble', icon: Building },
-            ].map(({ value, label, icon: Icon }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() =>
-                  setValue('type_bien', value as 'appartement' | 'maison' | 'immeuble', {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  })
-                }
-                className={cn(
-                  'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all',
-                  watch('type_bien') === value
-                    ? 'bg-primary text-on-primary border-primary'
-                    : 'bg-surface border-outline-variant hover:border-primary/50 text-on-surface'
-                )}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="text-xs font-medium">{label}</span>
-              </button>
-            ))}
+            {(() => {
+              const iconMap = { Building2, Home, Building } as const;
+              return TYPE_BIEN_OPTIONS.map(({ value, label, icon: iconName }) => {
+                const Icon = iconMap[iconName as keyof typeof iconMap];
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() =>
+                      setValue('type_bien', value as 'appartement' | 'maison' | 'immeuble', {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      })
+                    }
+                    className={cn(
+                      'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all',
+                      watch('type_bien') === value
+                        ? 'bg-primary text-on-primary border-primary'
+                        : 'bg-surface border-outline-variant hover:border-primary/50 text-on-surface'
+                    )}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="text-xs font-medium">{label}</span>
+                  </button>
+                );
+              });
+            })()}
           </div>
           {errors.type_bien && (
             <p className="text-error text-xs mt-1">{errors.type_bien.message}</p>

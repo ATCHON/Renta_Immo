@@ -100,6 +100,13 @@ export const ProjectionTable = React.memo(function ProjectionTable({ data }: Pro
           </div>
         </div>
 
+        {mode === 'trimestriel' && (
+          <p className="text-xs text-stone px-6 pb-2 -mt-2">
+            Les valeurs trimestrielles sont interpolées depuis les données annuelles
+            (approximation).
+          </p>
+        )}
+
         <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-sand scrollbar-track-transparent">
           <table className="w-full text-sm text-left border-collapse">
             <thead>

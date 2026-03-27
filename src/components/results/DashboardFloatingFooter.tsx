@@ -1,6 +1,7 @@
 'use client';
 
 import { Share2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/Button';
 import { DownloadPdfButton } from './DownloadPdfButton';
 import { SaveSimulationButton } from '../simulations/SaveSimulationButton';
@@ -22,8 +23,10 @@ export function DashboardFloatingFooter({ formData, resultats }: DashboardFloati
         })
         .catch(console.error);
     } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.href);
-      alert('Lien de la simulation copié dans le presse-papiers');
+      navigator.clipboard
+        .writeText(window.location.href)
+        .then(() => toast.success('Lien copié dans le presse-papiers'))
+        .catch(() => toast.error('Impossible de copier le lien'));
     }
   };
 

@@ -22,7 +22,7 @@ export function DownloadPdfButton({
   const { downloadPdf, status, error, reset } = useDownloadPdf();
 
   const handleClick = async () => {
-    if (status === 'loading' || status === 'success') return;
+    if (status === 'loading') return;
     if (status === 'error') reset();
     await downloadPdf(formData, resultats);
   };

@@ -45,8 +45,8 @@ describe('StepFinancement — UX Migration (S4, S7, S8, S9, S11, S12)', () => {
 
   it('affiche le badge section 2 (S9)', () => {
     render(<StepFinancement onNext={mockOnNext} onPrev={mockOnPrev} />);
-    // Le badge est rendu sous forme de div contenant "2" près de "Détails du financement"
-    expect(screen.getByText('2')).toBeDefined();
+    // Le badge est rendu sous forme de span circulaire contenant "2"
+    expect(screen.getByText('2', { selector: 'span' })).toBeDefined();
     expect(screen.getByText(/Détails du financement/i)).toBeDefined();
   });
 
