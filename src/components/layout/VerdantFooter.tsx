@@ -28,7 +28,7 @@ export function VerdantFooter() {
             Politique de confidentialité
           </Link>
           <Link
-            href="/en-savoir-plus"
+            href="/comment-ca-marche"
             className="font-body text-sm text-primary/50 hover:text-primary transition-colors"
           >
             Comment ça marche

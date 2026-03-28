@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter, Manrope } from 'next/font/google';
 import { QueryProvider } from '@/components/providers';
-import { ConditionalHeader } from '@/components/layout/ConditionalHeader';
+import { VerdantNavbar } from '@/components/layout/VerdantNavbar';
+import { VerdantFooter } from '@/components/layout/VerdantFooter';
 import { APP_NAME, APP_DESCRIPTION } from '@/config/app';
 import './globals.css';
 
@@ -43,10 +44,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Passer au contenu principal
         </a>
         <QueryProvider>
-          <ConditionalHeader />
-          <main id="main-content" className="min-h-[calc(100vh-4rem)] bg-background">
+          <VerdantNavbar />
+          <main id="main-content" className="pt-16 min-h-[calc(100vh-4rem)] bg-background">
             {children}
           </main>
+          <VerdantFooter />
         </QueryProvider>
       </body>
     </html>

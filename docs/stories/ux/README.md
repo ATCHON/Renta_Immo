@@ -89,12 +89,12 @@ graph TD
 
 ### Sprint 4 — Contenu & Navigation (Phase 4 + Phase 5)
 
-| Story                                        | Titre                                              | Effort | Priorité | Branche                        |
-| -------------------------------------------- | -------------------------------------------------- | ------ | -------- | ------------------------------ |
-| [UX-S04](story-ux-s04-comment-ca-marche.md)  | « Comment ça marche » — Restructuration sous-pages | L      | P1       | `feature/verdant-how-it-works` |
-| [UX-S05](story-ux-s05-navigation-globale.md) | Navigation Globale — Intégration Navbar & Footer   | S      | P2       | `feature/verdant-navigation`   |
+| Story                                           | Titre                                              | Effort | Priorité | Branche                        |
+| ----------------------------------------------- | -------------------------------------------------- | ------ | -------- | ------------------------------ |
+| ✅ [UX-S04](story-ux-s04-comment-ca-marche.md)  | « Comment ça marche » — Restructuration sous-pages | L      | P1       | `feature/verdant-how-it-works` |
+| ✅ [UX-S05](story-ux-s05-navigation-globale.md) | Navigation Globale — Intégration Navbar & Footer   | S      | P2       | `feature/verdant-navigation`   |
 
-**Estimation Sprint 4** : ~8 points
+**Estimation Sprint 4** : ~8 points | **Résultat** : 711 TU verts — UX-S04 + UX-S05 DONE
 
 ---
 

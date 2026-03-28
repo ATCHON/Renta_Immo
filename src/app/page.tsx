@@ -1,13 +1,10 @@
 /**
  * UX-S01 — Landing Page « Petra Nova »
  * Refonte complète de la page d'accueil.
- * VerdantNavbar et VerdantFooter sont utilisés ici uniquement (pas encore dans layout.tsx).
- * L'intégration globale se fera en Phase 5 (UX-S05).
+ * UX-S05 : VerdantNavbar et VerdantFooter sont désormais dans layout.tsx (global).
  */
 
 import type { Metadata } from 'next';
-import { VerdantNavbar } from '@/components/layout/VerdantNavbar';
-import { VerdantFooter } from '@/components/layout/VerdantFooter';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { BentoFeatures } from '@/components/landing/BentoFeatures';
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
@@ -22,12 +19,10 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      <VerdantNavbar />
       <HeroSection />
       <BentoFeatures />
       <TestimonialsSection />
       <LandingCTA />
-      <VerdantFooter />
     </>
   );
 }

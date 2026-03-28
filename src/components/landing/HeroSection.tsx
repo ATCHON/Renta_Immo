@@ -10,7 +10,7 @@ import { ArrowRight, TrendingUp } from 'lucide-react';
 
 export function HeroSection() {
   return (
-    <section className="relative pt-28 md:pt-36 pb-20 md:pb-28 overflow-hidden bg-background">
+    <section className="relative pt-12 md:pt-20 pb-20 md:pb-28 overflow-hidden bg-background">
       {/* Décoration fond subtile */}
       <div
         className="absolute inset-0 z-0 pointer-events-none opacity-[0.025]"
