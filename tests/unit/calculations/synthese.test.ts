@@ -5,7 +5,7 @@ import {
   calculerScoreGlobal,
 } from '@/server/calculations/synthese';
 import type { RentabiliteCalculations, HCSFCalculations } from '@/server/calculations/types';
-import { mockConfig } from '@/server/calculations/__tests__/mock-config';
+import { mockConfig } from '../server/calculations/mock-config';
 
 describe('Calculations Synthese', () => {
   const mockRentabilite = (

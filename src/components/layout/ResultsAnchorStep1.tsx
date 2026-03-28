@@ -20,7 +20,7 @@ export function ResultsAnchorStep1({ kpis }: Props) {
   return (
     <div className="space-y-4">
       {/* Rendement brut */}
-      <div className="p-5 bg-white/40 rounded-2xl">
+      <div className="p-5 bg-white/50 rounded-2xl shadow-[0_4px_12px_rgba(27,67,50,0.06)]">
         <div className="flex items-center gap-2 mb-2 opacity-70">
           <TrendingUp className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
           <span className="text-[10px] font-headline font-bold uppercase tracking-wider">
@@ -33,7 +33,7 @@ export function ResultsAnchorStep1({ kpis }: Props) {
       </div>
 
       {/* Mensualité estimée */}
-      <div className="p-5 bg-white/40 rounded-2xl">
+      <div className="p-5 bg-white/50 rounded-2xl shadow-[0_4px_12px_rgba(27,67,50,0.06)]">
         <div className="flex items-center gap-2 mb-2 opacity-70">
           <CreditCard className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
           <span className="text-[10px] font-headline font-bold uppercase tracking-wider">
@@ -46,7 +46,7 @@ export function ResultsAnchorStep1({ kpis }: Props) {
       </div>
 
       {/* Investissement total */}
-      <div className="p-5 bg-white/40 rounded-2xl">
+      <div className="p-5 bg-white/50 rounded-2xl shadow-[0_4px_12px_rgba(27,67,50,0.06)]">
         <div className="flex items-center gap-2 mb-2 opacity-70">
           <Wallet className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
           <span className="text-[10px] font-headline font-bold uppercase tracking-wider">
@@ -59,7 +59,7 @@ export function ResultsAnchorStep1({ kpis }: Props) {
       </div>
 
       {/* Mini bar chart cash-flow */}
-      <div className="p-5 bg-white/40 rounded-2xl">
+      <div className="p-5 bg-white/50 rounded-2xl shadow-[0_4px_12px_rgba(27,67,50,0.06)]">
         <div className="flex items-center gap-2 mb-4 opacity-70">
           <BarChart2 className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
           <span className="text-[10px] font-headline font-bold uppercase tracking-wider">

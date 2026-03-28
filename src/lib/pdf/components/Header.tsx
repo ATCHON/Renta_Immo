@@ -5,6 +5,7 @@
 import React from 'react';
 import { View, Text } from '@react-pdf/renderer';
 import { styles, colors } from '../styles';
+import { APP_NAME } from '@/config/app';
 
 interface HeaderProps {
   sectionTitle: string;
@@ -32,7 +33,7 @@ export function Header({ sectionTitle, adresse, date = new Date() }: HeaderProps
             marginBottom: adresse ? 4 : 0,
           }}
         >
-          Renta Immo / {sectionTitle}
+          {APP_NAME} / {sectionTitle}
         </Text>
         {adresse && (
           <Text

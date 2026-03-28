@@ -32,9 +32,9 @@ interface ResultsAnchorProps {
 const STEP_LABELS: Record<SidebarStep, string> = {
   1: 'Bien',
   2: 'Financement',
-  3: 'Revenus',
-  4: 'Charges',
-  5: 'Fiscalité',
+  3: 'Exploitation',
+  4: 'Structure',
+  5: 'Options',
 };
 
 function StepKPIs({ step, kpis }: { step: SidebarStep; kpis: ReturnType<typeof usePreviewKPIs> }) {
@@ -125,27 +125,28 @@ export function ResultsAnchor({ currentStep, compact = false }: ResultsAnchorPro
     <div className="flex flex-col h-full p-6 overflow-y-auto">
       {/* En-tête */}
       <div className="mb-8 flex-shrink-0">
-        <p className="text-primary font-headline font-bold uppercase tracking-widest text-xs mb-1 opacity-60">
-          Results Anchor
-        </p>
         <h2 className="font-headline font-extrabold text-2xl tracking-tight text-primary">
           Calculs en direct
         </h2>
         <div className="flex gap-1 mt-3">
           {([1, 2, 3, 4, 5] as SidebarStep[]).map((step) => (
-            <div
-              key={step}
-              className={`flex-1 h-1 rounded-full transition-all duration-300 ${
-                step <= currentStep ? 'bg-primary' : 'bg-primary/20'
-              }`}
-              title={STEP_LABELS[step]}
-              aria-label={`Étape ${step} : ${STEP_LABELS[step]}${step <= currentStep ? ' (actif)' : ''}`}
-            />
+            <div key={step} className="flex-1 flex flex-col items-center gap-1">
+              <div
+                className={`w-full h-1 rounded-full transition-all duration-300 ${
+                  step <= currentStep ? 'bg-primary' : 'bg-primary/20'
+                }`}
+                aria-label={`Étape ${step} : ${STEP_LABELS[step]}${step <= currentStep ? ' (actif)' : ''}`}
+              />
+              <span
+                className={`text-[8px] font-headline uppercase tracking-wider truncate w-full text-center transition-colors ${
+                  step === currentStep ? 'text-primary font-bold' : 'text-primary/30'
+                }`}
+              >
+                {STEP_LABELS[step]}
+              </span>
+            </div>
           ))}
         </div>
-        <p className="text-xs font-label text-primary/50 mt-2">
-          Étape {currentStep} — {STEP_LABELS[currentStep]}
-        </p>
       </div>
 
       {/* KPIs dynamiques selon le step */}

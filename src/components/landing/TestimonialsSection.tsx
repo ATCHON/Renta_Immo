@@ -22,7 +22,7 @@ const testimonials: Testimonial[] = [
   },
   {
     quote:
-      '« Le scoring dual Rentier / Patrimonial m&apos;a permis de choisir la bonne stratégie fiscale. L&apos;interface est d&apos;une clarté remarquable. »',
+      "« Le scoring dual Rentier / Patrimonial m'a permis de choisir la bonne stratégie fiscale. L'interface est d'une clarté remarquable. »",
     author: 'Éléna Rousseau',
     role: 'Conseillère en gestion de patrimoine',
     image: '/images/testimonial-er.png',

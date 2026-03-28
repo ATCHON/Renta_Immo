@@ -105,22 +105,22 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           className={cn(
-            'input-field flex items-center justify-between w-full text-left bg-white',
+            'input-field flex items-center justify-between w-full text-left',
             error && 'input-error',
             disabled && 'opacity-50 cursor-not-allowed',
-            isOpen && 'ring-2 ring-forest/20 border-forest',
+            isOpen && '!border-primary !bg-surface-container-lowest',
             className
           )}
           aria-expanded={isOpen}
           aria-haspopup="listbox"
           disabled={disabled}
         >
-          <span className={cn('block truncate', !selectedOption && 'text-pebble')}>
+          <span className={cn('block truncate', !selectedOption && 'text-outline')}>
             {selectedOption ? selectedOption.label : placeholder || 'Sélectionner...'}
           </span>
           <ChevronDown
             className={cn(
-              'h-4 w-4 text-pebble transition-transform duration-200',
+              'h-4 w-4 text-on-surface-variant transition-transform duration-200',
               isOpen && 'transform rotate-180'
             )}
           />
@@ -128,11 +128,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
 
         {/* Custom Dropdown */}
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-sand/50 max-h-60 overflow-auto animate-in fade-in zoom-in-95 duration-100">
+          <div className="absolute z-50 w-full mt-1 bg-surface-container-lowest rounded-2xl shadow-ambient border border-outline-variant/20 max-h-60 overflow-auto animate-in fade-in zoom-in-95 duration-100">
             <ul role="listbox" className="py-1">
               {placeholder && (
                 <li
-                  className="px-4 py-2 text-sm text-pebble hover:bg-sand/10 cursor-pointer"
+                  className="px-4 py-2 text-sm text-outline hover:bg-surface-container cursor-pointer"
                   onClick={() => handleSelect('')}
                 >
                   {placeholder}
@@ -147,13 +147,15 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
                     aria-selected={isSelected}
                     className={cn(
                       'px-4 py-2.5 text-sm cursor-pointer flex items-center justify-between transition-colors',
-                      option.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-sand/10',
-                      isSelected && 'bg-forest/5 text-forest font-medium'
+                      option.disabled
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'hover:bg-surface-container',
+                      isSelected && 'bg-primary/5 text-primary font-medium'
                     )}
                     onClick={() => !option.disabled && handleSelect(option.value)}
                   >
                     <span className="truncate">{option.label}</span>
-                    {isSelected && <Check className="h-4 w-4 text-forest" />}
+                    {isSelected && <Check className="h-4 w-4 text-primary" />}
                   </li>
                 );
               })}
@@ -166,7 +168,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
           {error}
         </p>
       )}
-      {hint && !error && <p className="text-sm text-pebble mt-1">{hint}</p>}
+      {hint && !error && <p className="text-sm text-on-surface-variant/70 mt-1">{hint}</p>}
     </div>
   );
 });

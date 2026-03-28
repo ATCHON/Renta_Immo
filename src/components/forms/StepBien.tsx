@@ -2,7 +2,16 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input, CurrencyInput, Select, Alert, LabelTooltip, Collapsible } from '@/components/ui';
+import {
+  Input,
+  CurrencyInput,
+  NumberInput,
+  PercentInput,
+  Select,
+  Alert,
+  LabelTooltip,
+  Collapsible,
+} from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { AlertTriangle, Home, Building2, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -22,6 +31,7 @@ export function StepBien({ onNext }: StepBienProps) {
 
   const {
     register,
+    control,
     handleSubmit,
     watch,
     setValue,
@@ -76,10 +86,12 @@ export function StepBien({ onNext }: StepBienProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="mb-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-charcoal">Informations du bien</h2>
+          <h2 className="text-2xl font-bold text-on-surface">Informations du bien</h2>
           <Home className="h-6 w-6 text-primary/60" />
         </div>
-        <p className="text-pebble mt-1">Renseignez les caractéristiques du bien immobilier</p>
+        <p className="text-on-surface-variant mt-1">
+          Renseignez les caractéristiques du bien immobilier
+        </p>
       </div>
 
       <Input
@@ -91,28 +103,27 @@ export function StepBien({ onNext }: StepBienProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CurrencyInput
+          name="prix_achat"
+          control={control}
           label="Prix d'achat"
-          placeholder="200000"
+          placeholder="ex: 200 000"
           error={errors.prix_achat?.message}
-          {...register('prix_achat', { valueAsNumber: true })}
         />
 
-        <Input
+        <NumberInput
+          name="surface"
+          control={control}
           label="Surface (m²)"
-          type="number"
-          placeholder="50"
+          placeholder="ex: 50"
           rightAddon="m²"
           error={errors.surface?.message}
-          {...register('surface', { valueAsNumber: true })}
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* S6 — Cards radio type de bien */}
         <div className="md:col-span-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-2 block">
-            Type de bien
-          </label>
+          <label className="label">Type de bien</label>
           <div className="grid grid-cols-3 gap-3">
             {(() => {
               const iconMap = { Building2, Home, Building } as const;
@@ -148,9 +159,7 @@ export function StepBien({ onNext }: StepBienProps) {
         </div>
 
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-2 block">
-            État du bien
-          </label>
+          <label className="label">État du bien</label>
           <div className="grid grid-cols-2 gap-3">
             {[
               { value: 'ancien', label: 'Ancien' },
@@ -178,28 +187,31 @@ export function StepBien({ onNext }: StepBienProps) {
           )}
         </div>
 
-        <Input
+        <NumberInput
+          name="annee_construction"
+          control={control}
           label="Année de construction"
-          type="number"
           placeholder="1990"
           error={errors.annee_construction?.message}
-          {...register('annee_construction', { valueAsNumber: true })}
+          thousandSeparator={false}
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CurrencyInput
+          name="montant_travaux"
+          control={control}
           label="Montant des travaux"
           placeholder="0"
           error={errors.montant_travaux?.message}
-          {...register('montant_travaux', { valueAsNumber: true })}
         />
 
         <CurrencyInput
+          name="valeur_mobilier"
+          control={control}
           label="Valeur du mobilier"
           placeholder="0"
           error={errors.valeur_mobilier?.message}
-          {...register('valeur_mobilier', { valueAsNumber: true })}
         />
       </div>
 
@@ -222,18 +234,17 @@ export function StepBien({ onNext }: StepBienProps) {
       {/* Options avancées */}
       <Collapsible title="Options avancées">
         <div className="space-y-4">
-          <Input
+          <PercentInput
+            name="part_terrain"
+            control={control}
             label={
               <LabelTooltip content="Seule la partie bâti est amortissable en LMNP/SCI IS. Le terrain (en général 15 à 20% du prix) ne s'amortit pas.">
                 Part terrain (%, pour amortissement)
               </LabelTooltip>
             }
-            type="number"
             placeholder="10"
-            rightAddon="%"
             hint="Appart: 10%, Maison: 20%, Immeuble: 10%. Laissez vide pour la valeur par défaut."
             error={errors.part_terrain?.message}
-            {...register('part_terrain', { valueAsNumber: true })}
           />
 
           {/* Rénovation énergétique (V2-S15) */}
@@ -263,13 +274,14 @@ export function StepBien({ onNext }: StepBienProps) {
             {watch('renovation_energetique') && (
               <div className="mt-4 pl-7 space-y-3">
                 <div className="max-w-xs">
-                  <Input
+                  <NumberInput
+                    name="annee_travaux"
+                    control={control}
                     label="Année de paiement des travaux"
-                    type="number"
                     placeholder={new Date().getFullYear().toString()}
                     error={errors.annee_travaux?.message}
-                    {...register('annee_travaux', { valueAsNumber: true })}
                     hint="Année de réalisation et de paiement définitif des travaux."
+                    thousandSeparator={false}
                   />
                 </div>
 

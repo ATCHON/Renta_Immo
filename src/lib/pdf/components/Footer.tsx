@@ -4,6 +4,7 @@
 import React from 'react';
 import { View, Text } from '@react-pdf/renderer';
 import { styles } from '../styles';
+import { APP_NAME } from '@/config/app';
 
 interface FooterProps {
   pageNumber: number;
@@ -14,7 +15,7 @@ interface FooterProps {
 export function Footer({ pageNumber, totalPages, adresse }: FooterProps) {
   const leftText = adresse
     ? `Rapport de simulation — ${adresse}`
-    : 'Rapport de simulation - Renta Immo';
+    : `Rapport de simulation - ${APP_NAME}`;
 
   return (
     <View style={styles.footer}>

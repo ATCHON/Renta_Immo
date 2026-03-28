@@ -61,10 +61,10 @@ export function VerdantNavbar() {
             Simulateur
           </Link>
           <Link
-            href="/comment-ca-marche"
+            href="/en-savoir-plus"
             className={cn(
               'font-headline font-semibold tracking-tight text-sm transition-colors duration-200',
-              pathname === '/comment-ca-marche'
+              pathname === '/en-savoir-plus'
                 ? 'text-primary border-b-2 border-primary pb-0.5'
                 : 'text-on-surface/60 hover:text-primary'
             )}
@@ -124,7 +124,7 @@ export function VerdantNavbar() {
             Simulateur
           </Link>
           <Link
-            href="/comment-ca-marche"
+            href="/en-savoir-plus"
             className="block font-headline font-semibold text-base text-on-surface hover:text-primary transition-colors py-2"
           >
             Comment ça marche

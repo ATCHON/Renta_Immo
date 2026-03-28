@@ -190,7 +190,7 @@ export const useCalculateurStore = create<CalculateurState>()(
 
         // Actions de navigation
         setStep: (step) => {
-          if (step >= 0 && step < TOTAL_STEPS) {
+          if (step >= -1 && step < TOTAL_STEPS) {
             set({ currentStep: step });
             updateActive({ currentStep: step });
           }

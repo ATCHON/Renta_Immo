@@ -149,7 +149,15 @@
       "mcp__notion__API-get-block-children",
       "mcp__notion__API-patch-page",
       "mcp__github__create_pull_request",
-      "mcp__claude_ai_Notion__notion-update-page"
+      "mcp__claude_ai_Notion__notion-update-page",
+      "Bash(git commit:*)",
+      "Bash(node -e \"console.log\\(require\\(''./node_modules/@hookform/resolvers/package.json''\\).version\\)\")",
+      "Bash(gh pr:*)",
+      "Read(//c/Users/alban/.config/gh/**)",
+      "Bash(git fetch:*)",
+      "Bash(npm run:*)",
+      "mcp__github__add_reply_to_pull_request_comment",
+      "Bash(tasklist)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
 
     // 5. Generate filename with date
     const today = new Date().toISOString().split('T')[0];
-    const filename = `simulation-renta-immo-${today}.pdf`;
+    const filename = `simulation-petra-nova-${today}.pdf`;
 
     // 6. Return PDF with proper headers
     return new NextResponse(uint8Array, {

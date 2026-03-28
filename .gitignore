@@ -42,6 +42,8 @@ next-env.d.ts
 # Agent 
 .bmad-core
 .claude/
+.claude/settings.json
+.claude/settings.local.json
 _bmad-output
 _bmad
 .agent

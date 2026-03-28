@@ -37,18 +37,18 @@ export function Collapsible({
   }, [id]);
 
   return (
-    <div className={cn('border border-border rounded-lg overflow-hidden', className)}>
+    <div className={cn('rounded-2xl overflow-hidden bg-surface-container-low', className)}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-6 py-4 flex items-center justify-between bg-surface hover:bg-border/50 transition-colors duration-fast text-left"
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-surface-container transition-colors duration-fast text-left"
         aria-expanded={isOpen}
       >
-        <span className="font-medium text-charcoal">{title}</span>
+        <span className="font-medium text-on-surface">{title}</span>
         {isOpen ? (
-          <ChevronUp className="h-5 w-5 text-stone" />
+          <ChevronUp className="h-5 w-5 text-on-surface-variant" />
         ) : (
-          <ChevronDown className="h-5 w-5 text-stone" />
+          <ChevronDown className="h-5 w-5 text-on-surface-variant" />
         )}
       </button>
       <div
@@ -57,7 +57,7 @@ export function Collapsible({
           isOpen ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'
         )}
       >
-        <div className="p-6 bg-white">{children}</div>
+        <div className="p-6 bg-surface-container-lowest">{children}</div>
       </div>
     </div>
   );
