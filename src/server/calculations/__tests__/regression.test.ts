@@ -8,7 +8,6 @@ import { mockConfig } from './mock-config';
  * Basé sur docs/audit/fonctionnel/revue-audit.md
  */
 describe('Calculations Regression Tests (Audit 2026)', () => {
-  
   const defaultExploitation = {
     gestion_locative: 0,
     provision_travaux: 0,
@@ -21,7 +20,7 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
     assurance_pno: 0,
     charges_copro: 0,
     loyer_mensuel: 0,
-    type_location: 'nue' as const
+    type_location: 'nue' as const,
   };
 
   const defaultFinancement = {
@@ -31,7 +30,7 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
     assurance_pret: 0.1,
     frais_dossier: 0,
     frais_garantie: 0,
-    mode_assurance: 'capital_initial' as const
+    mode_assurance: 'capital_initial' as const,
   };
 
   it('CAS 1: LMNP Réel - Amortissement et Fiscalité BIC', async () => {
@@ -42,7 +41,7 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         type_bien: 'appartement' as const,
         montant_travaux: 0,
         valeur_mobilier: 5000,
-        etat_bien: 'ancien' as const
+        etat_bien: 'ancien' as const,
       },
       financement: { ...defaultFinancement, apport: 40000 },
       exploitation: {
@@ -52,7 +51,7 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         charges_copro: 100,
         taxe_fonciere: 1200,
         assurance_pno: 150,
-        comptable_annuel: 800
+        comptable_annuel: 800,
       },
       structure: {
         type: 'nom_propre' as const,
@@ -62,15 +61,15 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         credits_immobiliers: 0,
         loyers_actuels: 0,
         revenus_activite: 0,
-        autres_charges: 0
+        autres_charges: 0,
       },
       options: {
         horizon_projection: 1,
         generer_pdf: false,
         envoyer_email: false,
         email: '',
-        profil_investisseur: 'rentier' as const
-      }
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
@@ -92,7 +91,7 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         type_bien: 'immeuble' as const,
         montant_travaux: 0,
         valeur_mobilier: 0,
-        etat_bien: 'ancien' as const
+        etat_bien: 'ancien' as const,
       },
       financement: { ...defaultFinancement, apport: 100000 },
       exploitation: {
@@ -101,27 +100,25 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         type_location: 'meublee_longue_duree' as const,
         charges_copro: 200,
         taxe_fonciere: 1500,
-        assurance_pno: 150
+        assurance_pno: 150,
       },
       structure: {
         type: 'sci_is' as const,
         tmi: 30,
         distribution_dividendes: true,
-        associes: [
-          { nom: 'Associé A', parts: 100, revenus: 3000, mensualites: 0, charges: 0 }
-        ],
+        associes: [{ nom: 'Associé A', parts: 100, revenus: 3000, mensualites: 0, charges: 0 }],
         credits_immobiliers: 0,
         loyers_actuels: 0,
         revenus_activite: 0,
-        autres_charges: 0
+        autres_charges: 0,
       },
       options: {
         horizon_projection: 1,
         generer_pdf: false,
         envoyer_email: false,
         email: '',
-        profil_investisseur: 'rentier' as const
-      }
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
@@ -130,7 +127,7 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
       throw new Error(`CAS 2 failed: ${result.error}`);
     }
 
-    const { fiscalite, comparaisonFiscalite } = result.resultats;
+    const { fiscalite } = result.resultats;
 
     // SCI IS distribution — calcul théorique précis :
     // loyer_annuel = 4 000 * 12 = 48 000€
@@ -162,14 +159,14 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         type_bien: 'appartement' as const,
         montant_travaux: 50000,
         valeur_mobilier: 0,
-        etat_bien: 'ancien' as const
+        etat_bien: 'ancien' as const,
       },
       financement: { ...defaultFinancement, apport: 30000, taux_interet: 4.5 },
       exploitation: {
         ...defaultExploitation,
         loyer_mensuel: 700,
         type_location: 'nue' as const,
-        charges_copro: 166.67
+        charges_copro: 166.67,
       },
       structure: {
         type: 'nom_propre' as const,
@@ -179,15 +176,15 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         credits_immobiliers: 0,
         loyers_actuels: 0,
         revenus_activite: 0,
-        autres_charges: 0
+        autres_charges: 0,
       },
       options: {
         horizon_projection: 1,
         generer_pdf: false,
         envoyer_email: false,
         email: '',
-        profil_investisseur: 'rentier' as const
-      }
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
@@ -200,7 +197,7 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
     expect(fiscalite.impot_estime).toBe(0);
   });
 
-  it('CAS 4: HCSF - Taux d\'endettement', async () => {
+  it("CAS 4: HCSF - Taux d'endettement", async () => {
     const input = {
       bien: {
         adresse: '10 Rue de la Gare, 33000 Bordeaux',
@@ -208,13 +205,13 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         type_bien: 'appartement' as const,
         montant_travaux: 0,
         valeur_mobilier: 5000,
-        etat_bien: 'ancien' as const
+        etat_bien: 'ancien' as const,
       },
       financement: { ...defaultFinancement, apport: 40000, assurance_pret: 0 },
       exploitation: {
         ...defaultExploitation,
         loyer_mensuel: 900,
-        type_location: 'meublee_longue_duree' as const
+        type_location: 'meublee_longue_duree' as const,
       },
       structure: {
         type: 'nom_propre' as const,
@@ -223,15 +220,15 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         credits_immobiliers: 800,
         revenus_activite: 3500,
         loyers_actuels: 0,
-        autres_charges: 0
+        autres_charges: 0,
       },
       options: {
         horizon_projection: 1,
         generer_pdf: false,
         envoyer_email: false,
         email: '',
-        profil_investisseur: 'rentier' as const
-      }
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
@@ -254,13 +251,13 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         montant_travaux: 0,
         valeur_mobilier: 0,
         etat_bien: 'ancien' as const,
-        dpe: 'F' as DPE
+        dpe: 'F' as DPE,
       },
       financement: { ...defaultFinancement, apport: 150000, taux_interet: 0 },
       exploitation: {
         ...defaultExploitation,
         loyer_mensuel: 600,
-        type_location: 'nue' as const
+        type_location: 'nue' as const,
       },
       structure: {
         type: 'nom_propre' as const,
@@ -270,7 +267,7 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         credits_immobiliers: 0,
         loyers_actuels: 0,
         revenus_activite: 0,
-        autres_charges: 0
+        autres_charges: 0,
       },
       options: {
         horizon_projection: 10,
@@ -282,8 +279,8 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         taux_evolution_loyer: 2,
         taux_evolution_charges: 2.5,
         taux_agence_revente: 5,
-        ponderation_loyers: 70
-      }
+        ponderation_loyers: 70,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
@@ -308,27 +305,33 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         type_bien: 'appartement' as const,
         montant_travaux: 0,
         valeur_mobilier: 2000,
-        etat_bien: 'ancien' as const
+        etat_bien: 'ancien' as const,
       },
       financement: { ...defaultFinancement, apport: 100000, taux_interet: 0 },
       exploitation: {
         ...defaultExploitation,
         loyer_mensuel: 1000,
-        type_location: 'meublee_longue_duree' as const
+        type_location: 'meublee_longue_duree' as const,
       },
       structure: {
         type: 'nom_propre' as const,
         regime_fiscal: 'lmnp_micro' as const,
         tmi: 30,
-        associes: []
+        associes: [],
       },
-      options: { horizon_projection: 1, generer_pdf: false, envoyer_email: false, email: '', profil_investisseur: 'rentier' as const }
+      options: {
+        horizon_projection: 1,
+        generer_pdf: false,
+        envoyer_email: false,
+        email: '',
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const resLongue = await performCalculations(inputLongueDuree, mockConfig);
     if (resLongue.success === false) return;
     expect(resLongue.success).toBe(true);
-    
+
     // Abattement 50% sur 12000 = 6000 base imposable.
     expect(resLongue.resultats.fiscalite.base_imposable).toBe(6000);
     // PS LMNP = 18.6% (LFSS 2026) -> 6000 * 0.186 = 1116
@@ -336,7 +339,10 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
 
     const inputTourisme = {
       ...inputLongueDuree,
-      exploitation: { ...inputLongueDuree.exploitation, type_location: 'meublee_tourisme_classe' as const }
+      exploitation: {
+        ...inputLongueDuree.exploitation,
+        type_location: 'meublee_tourisme_classe' as const,
+      },
     };
     const resTourisme = await performCalculations(inputTourisme, mockConfig);
     if (resTourisme.success === false) return;
@@ -355,22 +361,28 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         montant_travaux: 0,
         valeur_mobilier: 10000,
         etat_bien: 'ancien' as const,
-        part_terrain: 0.2 // 80% bâti = 240000 amortissable
+        part_terrain: 0.2, // 80% bâti = 240000 amortissable
       },
       financement: { ...defaultFinancement, apport: 100000, taux_interet: 0 },
       exploitation: {
         ...defaultExploitation,
         loyer_mensuel: 1500,
-        type_location: 'meublee_longue_duree' as const
+        type_location: 'meublee_longue_duree' as const,
       },
       structure: {
         type: 'nom_propre' as const,
         regime_fiscal: 'lmnp_reel' as const,
         tmi: 30,
         mode_amortissement: 'composants' as const,
-        associes: []
+        associes: [],
       },
-      options: { horizon_projection: 1, generer_pdf: false, envoyer_email: false, email: '', profil_investisseur: 'rentier' as const }
+      options: {
+        horizon_projection: 1,
+        generer_pdf: false,
+        envoyer_email: false,
+        email: '',
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
@@ -402,7 +414,7 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         type_bien: 'appartement' as const,
         montant_travaux: 0,
         valeur_mobilier: 0,
-        etat_bien: 'ancien' as const
+        etat_bien: 'ancien' as const,
       },
       financement: { ...defaultFinancement, apport: 200000, taux_interet: 0 },
       exploitation: {
@@ -410,21 +422,27 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         loyer_mensuel: 1200,
         type_location: 'nue' as const,
         charges_copro: 100,
-        taxe_fonciere: 1200
+        taxe_fonciere: 1200,
       },
       structure: {
         type: 'sci_is' as const,
         distribution_dividendes: false, // Pas de distribution
         tmi: 30,
-        associes: []
+        associes: [],
       },
-      options: { horizon_projection: 1, generer_pdf: false, envoyer_email: false, email: '', profil_investisseur: 'rentier' as const }
+      options: {
+        horizon_projection: 1,
+        generer_pdf: false,
+        envoyer_email: false,
+        email: '',
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
     if (result.success === false) return;
     const { fiscalite } = result.resultats;
-    
+
     // Pas de dividendes, pas de flat tax
     expect(fiscalite.dividendes_bruts).toBe(0);
     expect(fiscalite.flat_tax).toBe(0);
@@ -440,13 +458,13 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         type_bien: 'appartement' as const,
         montant_travaux: 50000,
         valeur_mobilier: 0,
-        etat_bien: 'ancien' as const
+        etat_bien: 'ancien' as const,
       },
       financement: {
         ...defaultFinancement,
         taux_interet: 4.0,
         duree_emprunt: 25,
-        apport: 100000
+        apport: 100000,
       },
       exploitation: { ...defaultExploitation, loyer_mensuel: 2500 },
       structure: {
@@ -456,14 +474,20 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         // Champs réels de l'associé : parts (%), revenus (mensuel €), mensualites (€/mois), charges (€/mois)
         associes: [
           { nom: 'Asso 1', parts: 50, revenus: 4167, mensualites: 1000, charges: 0 },
-          { nom: 'Asso 2', parts: 50, revenus: 2500, mensualites: 417, charges: 0 }
+          { nom: 'Asso 2', parts: 50, revenus: 2500, mensualites: 417, charges: 0 },
         ],
         credits_immobiliers: 0,
         loyers_actuels: 0,
         revenus_activite: 0,
-        autres_charges: 0
+        autres_charges: 0,
       },
-      options: { horizon_projection: 1, generer_pdf: false, envoyer_email: false, email: '', profil_investisseur: 'rentier' as const }
+      options: {
+        horizon_projection: 1,
+        generer_pdf: false,
+        envoyer_email: false,
+        email: '',
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
@@ -491,17 +515,28 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         montant_travaux: 0,
         valeur_mobilier: 0,
         etat_bien: 'ancien' as const,
-        dpe: 'G' as const
+        dpe: 'G' as const,
       },
       financement: { ...defaultFinancement, apport: 150000, taux_interet: 0 },
       exploitation: { ...defaultExploitation, loyer_mensuel: 800 },
-      structure: { type: 'nom_propre' as const, regime_fiscal: 'micro_foncier' as const, tmi: 30, associes: [] },
-      options: { horizon_projection: 10, generer_pdf: false, envoyer_email: false, email: '', profil_investisseur: 'rentier' as const }
+      structure: {
+        type: 'nom_propre' as const,
+        regime_fiscal: 'micro_foncier' as const,
+        tmi: 30,
+        associes: [],
+      },
+      options: {
+        horizon_projection: 10,
+        generer_pdf: false,
+        envoyer_email: false,
+        email: '',
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
     if (result.success === false) return;
-    
+
     const projectionData = result.resultats.projections;
     if (!projectionData) return;
 
@@ -521,18 +556,29 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         montant_travaux: 0,
         valeur_mobilier: 0,
         etat_bien: 'neuf' as const,
-        is_vefa: true
+        is_vefa: true,
       },
-      financement: { 
-        ...defaultFinancement, 
+      financement: {
+        ...defaultFinancement,
         taux_interet: 3.5,
         duree_emprunt: 25,
         differe_amortissement: 24, // 2 ans de VEFA
-        apport: 30000
+        apport: 30000,
       },
       exploitation: { ...defaultExploitation, loyer_mensuel: 1200 },
-      structure: { type: 'nom_propre' as const, regime_fiscal: 'micro_foncier' as const, tmi: 30, associes: [] },
-      options: { horizon_projection: 1, generer_pdf: false, envoyer_email: false, email: '', profil_investisseur: 'rentier' as const }
+      structure: {
+        type: 'nom_propre' as const,
+        regime_fiscal: 'micro_foncier' as const,
+        tmi: 30,
+        associes: [],
+      },
+      options: {
+        horizon_projection: 1,
+        generer_pdf: false,
+        envoyer_email: false,
+        email: '',
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
@@ -554,16 +600,28 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         type_bien: 'appartement' as const,
         montant_travaux: 0,
         valeur_mobilier: 10000,
-        etat_bien: 'ancien' as const
+        etat_bien: 'ancien' as const,
       },
       financement: { ...defaultFinancement, apport: 200000, taux_interet: 0 },
-      exploitation: { ...defaultExploitation, loyer_mensuel: 1000, type_location: 'meublee_longue_duree' as const },
-      structure: { type: 'nom_propre' as const, regime_fiscal: 'lmnp_reel' as const, tmi: 30, associes: [] },
-      options: { 
-        horizon_projection: 10, 
+      exploitation: {
+        ...defaultExploitation,
+        loyer_mensuel: 1000,
+        type_location: 'meublee_longue_duree' as const,
+      },
+      structure: {
+        type: 'nom_propre' as const,
+        regime_fiscal: 'lmnp_reel' as const,
+        tmi: 30,
+        associes: [],
+      },
+      options: {
+        horizon_projection: 10,
         prix_revente: 250000,
-        generer_pdf: false, envoyer_email: false, email: '', profil_investisseur: 'rentier' as const 
-      }
+        generer_pdf: false,
+        envoyer_email: false,
+        email: '',
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
@@ -586,13 +644,13 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         type_bien: 'appartement' as const,
         montant_travaux: 0,
         valeur_mobilier: 0,
-        etat_bien: 'ancien' as const
+        etat_bien: 'ancien' as const,
       },
       financement: { ...defaultFinancement, apport: 150000, taux_interet: 0 },
       exploitation: {
         ...defaultExploitation,
         loyer_mensuel: 1000,
-        type_location: 'nue' as const
+        type_location: 'nue' as const,
       },
       structure: {
         type: 'nom_propre' as const,
@@ -602,9 +660,15 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         credits_immobiliers: 0,
         loyers_actuels: 0,
         revenus_activite: 0,
-        autres_charges: 0
+        autres_charges: 0,
       },
-      options: { horizon_projection: 1, generer_pdf: false, envoyer_email: false, email: '', profil_investisseur: 'rentier' as const }
+      options: {
+        horizon_projection: 1,
+        generer_pdf: false,
+        envoyer_email: false,
+        email: '',
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
@@ -639,13 +703,13 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         montant_travaux: 0,
         valeur_mobilier: 5000,
         etat_bien: 'ancien' as const,
-        dpe: 'C' as DPE
+        dpe: 'C' as DPE,
       },
       financement: { ...defaultFinancement, apport: 30000, taux_interet: 3.5, duree_emprunt: 20 },
       exploitation: {
         ...defaultExploitation,
         loyer_mensuel: 1100,
-        type_location: 'meublee_longue_duree' as const
+        type_location: 'meublee_longue_duree' as const,
       },
       structure: {
         type: 'nom_propre' as const,
@@ -655,9 +719,15 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         credits_immobiliers: 0,
         loyers_actuels: 0,
         revenus_activite: 5000,
-        autres_charges: 0
+        autres_charges: 0,
       },
-      options: { horizon_projection: 1, generer_pdf: false, envoyer_email: false, email: '', profil_investisseur: 'rentier' as const }
+      options: {
+        horizon_projection: 1,
+        generer_pdf: false,
+        envoyer_email: false,
+        email: '',
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
@@ -692,13 +762,13 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         type_bien: 'appartement' as const,
         montant_travaux: 0,
         valeur_mobilier: 20000,
-        etat_bien: 'ancien' as const
+        etat_bien: 'ancien' as const,
       },
       financement: { ...defaultFinancement, apport: 800000, taux_interet: 0 },
       exploitation: {
         ...defaultExploitation,
         loyer_mensuel: 7000,
-        type_location: 'meublee_longue_duree' as const
+        type_location: 'meublee_longue_duree' as const,
       },
       structure: {
         type: 'nom_propre' as const,
@@ -708,9 +778,15 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         credits_immobiliers: 0,
         loyers_actuels: 0,
         revenus_activite: 0,
-        autres_charges: 0
+        autres_charges: 0,
       },
-      options: { horizon_projection: 1, generer_pdf: false, envoyer_email: false, email: '', profil_investisseur: 'rentier' as const }
+      options: {
+        horizon_projection: 1,
+        generer_pdf: false,
+        envoyer_email: false,
+        email: '',
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);
@@ -734,7 +810,7 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         type_bien: 'appartement' as const,
         montant_travaux: 0,
         valeur_mobilier: 8000,
-        etat_bien: 'ancien' as const
+        etat_bien: 'ancien' as const,
       },
       financement: { ...defaultFinancement, apport: 50000 },
       exploitation: {
@@ -742,7 +818,7 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         loyer_mensuel: 1200,
         type_location: 'meublee_longue_duree' as const,
         taxe_fonciere: 1200,
-        assurance_pno: 200
+        assurance_pno: 200,
       },
       structure: {
         type: 'nom_propre' as const,
@@ -752,9 +828,15 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
         credits_immobiliers: 0,
         loyers_actuels: 0,
         revenus_activite: 0,
-        autres_charges: 0
+        autres_charges: 0,
       },
-      options: { horizon_projection: 1, generer_pdf: false, envoyer_email: false, email: '', profil_investisseur: 'rentier' as const }
+      options: {
+        horizon_projection: 1,
+        generer_pdf: false,
+        envoyer_email: false,
+        email: '',
+        profil_investisseur: 'rentier' as const,
+      },
     };
 
     const result = await performCalculations(input, mockConfig);

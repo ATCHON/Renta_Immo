@@ -72,6 +72,9 @@ const baseMockResultats: CalculResultats = {
   fiscalite: {
     regime: 'reel',
     impot_estime: 2556,
+    base_imposable: 10200,
+    prelevements_sociaux: 0,
+    abattement: 0,
     revenu_net_apres_impot: 7644,
   },
   hcsf: {

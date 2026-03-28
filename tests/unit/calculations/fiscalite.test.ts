@@ -277,7 +277,7 @@ describe('calculerFiscaliteSciIs — distribution dividendes', () => {
     // net_en_poche = revenuNetApresIs - flat_tax ≥ 0
     expect(result.net_en_poche).toBeGreaterThanOrEqual(0);
     // Les dividendes bruts sont plafonnés sur la trésorerie disponible
-    const revenuNetApresIs = result.revenu_net_apres_impot + result.flat_tax;
+    const revenuNetApresIs = result.revenu_net_apres_impot + (result.flat_tax ?? 0);
     expect(result.dividendes_bruts).toBeLessThanOrEqual(revenuNetApresIs + 0.01);
   });
 

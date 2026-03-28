@@ -74,7 +74,7 @@ graph TD
 - ✅ 3.3 `ProgressStepper` redesigné en horizontal (cercles numérotés ① ——— ② ——— …) + labels
 - ✅ 3.4 Préservation stricte des champs formulaire (accordéons `<Collapsible>` « Options avancées »)
 - ✅ 3.5 `StepStructure` : 3 cartes expansibles LMNP/RF/SCI IS → double data model préservé
-- ✅ 3.6 `VerdantSlider` (Steps 2 & 3 — taux occupation + pondération HCSF)
+- ✅ 3.6 `VerdantSlider` (Steps 2 & 3 — taux d'occupation + pondération HCSF)
 
 **Scope UX-S03 livré** :
 

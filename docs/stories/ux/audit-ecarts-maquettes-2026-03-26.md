@@ -792,7 +792,7 @@ const [granularite, setGranularite] = useState<'annuel' | 'trimestriel'>('annuel
 | ---------------------------------------------------- | -------------------------- |
 | `src/components/forms/StepBien.tsx`                  | S4, S5, S6                 |
 | `src/components/forms/StepFinancement.tsx`           | S7, S8, S9, S10, S11, S12  |
-| `src/components/forms/StepStructure.tsx`             | S15, S16, S17, S18, S19    |
+| `src/components/forms/StepStructure.tsx`             | S15, S16, S17, S19         |
 | `src/components/results/ScorePanel.tsx`              | D4, D5                     |
 | `src/components/results/MetricCard.tsx`              | D7, D8                     |
 | `src/components/results/Dashboard.tsx`               | D3, D14, D15, D16          |
@@ -808,7 +808,7 @@ const [granularite, setGranularite] = useState<'annuel' | 'trimestriel'>('annuel
 ## Règles de développement applicables
 
 1. **Zéro `any` TypeScript** — toutes les props doivent être typées
-2. **Zéro régression calcul** — ne pas toucher aux stores Zustand ni aux fichiers `src/server/calculations/`
+2. **Zéro régression de calcul** — ne pas toucher aux stores Zustand ni aux fichiers `src/server/calculations/`
 3. **Tests obligatoires** — tout nouveau comportement interactif (toggle, cards radio) doit avoir un TU
 4. **Commande de vérification** :
 

@@ -168,12 +168,15 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
           </div>
           <VerdantSlider
             value={watchedValues.duree_emprunt ?? 20}
-            onChange={(v) => setValue('duree_emprunt', v)}
+            onChange={(v) => setValue('duree_emprunt', v, { shouldValidate: true })}
             min={5}
             max={30}
             step={1}
             unit="ans"
           />
+          {errors.duree_emprunt?.message && (
+            <p className="text-xs text-error mt-1">{errors.duree_emprunt.message}</p>
+          )}
         </div>
       </div>
 

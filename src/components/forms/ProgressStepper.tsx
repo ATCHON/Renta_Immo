@@ -29,7 +29,7 @@ export function ProgressStepper({
         {/* Ligne active */}
         <div
           className="absolute top-5 left-0 h-px bg-primary z-0 transition-all duration-500 ease-in-out"
-          style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
+          style={{ width: `${totalSteps > 1 ? ((currentStep - 1) / (totalSteps - 1)) * 100 : 0}%` }}
         />
 
         {steps.map((step) => {
