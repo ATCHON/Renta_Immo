@@ -42,7 +42,7 @@ export function CommentCaMarcheNav() {
   const pathname = usePathname();
 
   const isActive = (href: string, exact: boolean) =>
-    exact ? pathname === href : pathname === href;
+    exact ? pathname === href : pathname.startsWith(href);
 
   return (
     <>
