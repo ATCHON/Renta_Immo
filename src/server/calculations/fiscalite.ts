@@ -399,15 +399,16 @@ export function calculerFiscaliteSciIs(
   // FIX E-01 : Les dividendes sont limités au bénéfice comptable distribuable
   // Bénéfice distribuable = Base imposable - IS
   const beneficeDistribuable = Math.max(0, baseImposable - impotIs);
-  
+
   let dividendesBruts = 0;
   let flatTax = 0;
   let netEnPoche = revenuNetApresIs;
 
   if (distribuerDividendes && beneficeDistribuable > 0) {
-    dividendesBruts = beneficeDistribuable;
+    // Plafonner sur la trésorerie réelle pour éviter un netEnPoche négatif
+    dividendesBruts = Math.min(beneficeDistribuable, Math.max(0, revenuNetApresIs));
     flatTax = dividendesBruts * config.flatTax; // Flat tax dynamique
-    netEnPoche = (revenuNetApresIs - dividendesBruts) + (dividendesBruts - flatTax);
+    netEnPoche = revenuNetApresIs - dividendesBruts + (dividendesBruts - flatTax);
     alertes.push(
       `Distribution des dividendes activée (Flat Tax ${Math.round(config.flatTax * 100)}% : ${round(flatTax)}€)`
     );
