@@ -13,7 +13,7 @@ export function BentoFeatures() {
             Conçu pour la Performance
           </h2>
           <p className="text-on-surface-variant max-w-xl text-lg font-body">
-            Chaque calcul est optimisé pour l&apos;investisseur immobilier exigeant.
+            Chaque calcul est optimisé pour l'investisseur immobilier exigeant.
           </p>
         </div>
 
@@ -33,20 +33,25 @@ export function BentoFeatures() {
                 Cartographie des rendements en temps réel
               </h3>
               <p className="text-on-surface-variant text-base md:text-lg leading-relaxed max-w-md font-body">
-                Visualisez instantanément l&apos;impact des taux, des charges et du taux de vacance
+                Visualisez instantanément l'impact des taux, des charges et du taux de vacance
                 sur votre rentabilité nette. Précision à la milliseconde.
               </p>
             </div>
 
             {/* Mini dashboard décoratif */}
             <div className="mt-10 bg-surface p-5 rounded-2xl border border-outline-variant/10">
-              <div className="flex items-end gap-2 h-24">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-headline font-bold uppercase tracking-widest text-on-surface/40">
+                  Rendement net
+                </span>
+                <span className="text-sm font-headline font-extrabold text-primary">+8,42 %</span>
+              </div>
+              <div className="flex items-end gap-2 h-24" aria-hidden="true">
                 {[35, 50, 42, 65, 58, 78, 85, 100].map((h, i) => (
                   <div
                     key={i}
                     className="flex-1 rounded-t-sm bg-primary/20 transition-all hover:bg-primary/40"
                     style={{ height: `${h}%` }}
-                    aria-hidden="true"
                   />
                 ))}
               </div>
@@ -95,7 +100,7 @@ export function BentoFeatures() {
                 Projections patrimoniales
               </h3>
               <p className="text-on-secondary-container leading-relaxed font-body text-sm md:text-base">
-                Projection sur 20 ans : TRI, plus-value, effort d&apos;épargne et scoring profil
+                Projection sur 20 ans : TRI, plus-value, effort d'épargne et scoring profil
                 Rentier / Patrimonial.
               </p>
             </div>

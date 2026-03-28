@@ -1,6 +1,7 @@
 'use client';
 
 import { Share2 } from 'lucide-react';
+import { APP_NAME } from '@/config/app';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/Button';
 import { DownloadPdfButton } from './DownloadPdfButton';
@@ -18,7 +19,7 @@ export function DashboardFloatingFooter({ formData, resultats }: DashboardFloati
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator
         .share({
-          title: 'Ma simulation Renta Immo',
+          title: `Ma simulation ${APP_NAME}`,
           url: window.location.href,
         })
         .catch(console.error);

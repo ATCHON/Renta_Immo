@@ -4,13 +4,14 @@
  */
 
 import Link from 'next/link';
+import { APP_NAME } from '@/config/app';
 
 export function VerdantFooter() {
   return (
     <footer className="w-full pt-14 pb-10 bg-secondary-fixed">
       <div className="max-w-7xl mx-auto px-6 md:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <span className="font-headline font-bold text-xl text-primary tracking-tighter">
-          Petra Nova
+          {APP_NAME}
         </span>
 
         <div className="flex items-center gap-8">
@@ -27,7 +28,7 @@ export function VerdantFooter() {
             Politique de confidentialité
           </Link>
           <Link
-            href="/comment-ca-marche"
+            href="/en-savoir-plus"
             className="font-body text-sm text-primary/50 hover:text-primary transition-colors"
           >
             Comment ça marche

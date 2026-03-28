@@ -1,5 +1,5 @@
 /**
- * Constantes de configuration pour l'application Renta Immo.
+ * Constantes de configuration pour l'application Petra Nova.
  * Centralise les taux fiscaux, seuils, et constantes de calcul.
  * Valeurs à jour pour 2025.
  */

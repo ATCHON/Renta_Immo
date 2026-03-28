@@ -1,9 +1,31 @@
 /* Material Symbols Outlined — icônes Verdant Simulator (UX-S00)
- * Chargé ici via @import CSS car next/font ne supporte pas les icon fonts.
- * ~30KB supplémentaires avec display=swap (FOUT minimisé).
+ * Auto-hébergé dans public/fonts/ (Google Fonts bloqué dans certains envs).
+ * Police variable (opsz, wght, FILL, GRAD) — version complète.
  */
-/* stylelint-disable-next-line import/no-extraneous-declarations */
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  src: url('/fonts/MaterialSymbolsOutlined.woff2') format('woff2');
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
 
 @import 'tailwindcss';
 @theme {

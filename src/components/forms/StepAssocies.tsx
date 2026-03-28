@@ -116,8 +116,8 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-charcoal">Associés de la SCI</h2>
-        <p className="text-pebble mt-1">
+        <h2 className="text-2xl font-bold text-on-surface">Associés de la SCI</h2>
+        <p className="text-on-surface-variant mt-1">
           Renseignez les informations de chaque associé pour le calcul HCSF
         </p>
       </div>
@@ -127,16 +127,16 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
         className={cn(
           'rounded-xl p-4 border transition-colors',
           Math.abs(totalParts - 100) < 0.01
-            ? 'bg-sage/10 border-sage/20'
-            : 'bg-amber/10 border-amber/20'
+            ? 'bg-secondary-container/60 border-secondary-container'
+            : 'bg-error-container/30 border-error/20'
         )}
       >
-        <p className="text-sm font-medium text-charcoal">
+        <p className="text-sm font-medium text-on-surface">
           Total des parts :{' '}
           <span
             className={cn(
               'text-lg font-bold',
-              Math.abs(totalParts - 100) < 0.01 ? 'text-forest' : 'text-amber-700'
+              Math.abs(totalParts - 100) < 0.01 ? 'text-primary' : 'text-amber-700'
             )}
           >
             {totalParts.toFixed(1)}%
@@ -150,9 +150,9 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
       {/* Liste des associés */}
       <div className="space-y-6">
         {fields.map((field, index) => (
-          <div key={field.id} className="bg-surface border border-sand rounded-xl p-5">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-sand/50">
-              <h3 className="font-bold text-charcoal">Associé {index + 1}</h3>
+          <div key={field.id} className="bg-surface border border-outline-variant/30 rounded-xl p-5">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-outline-variant/20">
+              <h3 className="text-base font-bold text-on-surface">Associé {index + 1}</h3>
               {fields.length > 1 && (
                 <Button type="button" variant="ghost" size="sm" onClick={() => remove(index)}>
                   Supprimer
@@ -176,27 +176,30 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
               />
 
               <CurrencyInput
+                name={`associes.${index}.revenus`}
+                control={control}
                 label="Revenus mensuels nets"
-                placeholder="3000"
+                placeholder="3 000"
                 hint="Revenus nets imposables"
                 error={errors.associes?.[index]?.revenus?.message}
-                {...register(`associes.${index}.revenus`, { valueAsNumber: true })}
               />
 
               <CurrencyInput
+                name={`associes.${index}.mensualites`}
+                control={control}
                 label="Mensualités de crédit"
                 placeholder="500"
                 hint="Total des mensualités existantes"
                 error={errors.associes?.[index]?.mensualites?.message}
-                {...register(`associes.${index}.mensualites`, { valueAsNumber: true })}
               />
 
               <CurrencyInput
+                name={`associes.${index}.charges`}
+                control={control}
                 label="Charges mensuelles"
                 placeholder="800"
                 hint="Loyer, pensions, etc."
                 error={errors.associes?.[index]?.charges?.message}
-                {...register(`associes.${index}.charges`, { valueAsNumber: true })}
               />
             </div>
           </div>

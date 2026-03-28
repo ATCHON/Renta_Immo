@@ -22,6 +22,7 @@ export function StepBien({ onNext }: StepBienProps) {
 
   const {
     register,
+    control,
     handleSubmit,
     watch,
     setValue,
@@ -93,16 +94,17 @@ export function StepBien({ onNext }: StepBienProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CurrencyInput
+          name="prix_achat"
+          control={control}
           label="Prix d'achat"
-          placeholder="200000"
+          placeholder="ex: 200 000"
           error={errors.prix_achat?.message}
-          {...register('prix_achat', { valueAsNumber: true })}
         />
 
         <Input
           label="Surface (m²)"
           type="number"
-          placeholder="50"
+          placeholder="ex: 50"
           rightAddon="m²"
           error={errors.surface?.message}
           {...register('surface', { valueAsNumber: true })}
@@ -112,7 +114,7 @@ export function StepBien({ onNext }: StepBienProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* S6 — Cards radio type de bien */}
         <div className="md:col-span-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-2 block">
+          <label className="label">
             Type de bien
           </label>
           <div className="grid grid-cols-3 gap-3">
@@ -150,7 +152,7 @@ export function StepBien({ onNext }: StepBienProps) {
         </div>
 
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-2 block">
+          <label className="label">
             État du bien
           </label>
           <div className="grid grid-cols-2 gap-3">
@@ -191,17 +193,19 @@ export function StepBien({ onNext }: StepBienProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CurrencyInput
+          name="montant_travaux"
+          control={control}
           label="Montant des travaux"
           placeholder="0"
           error={errors.montant_travaux?.message}
-          {...register('montant_travaux', { valueAsNumber: true })}
         />
 
         <CurrencyInput
+          name="valeur_mobilier"
+          control={control}
           label="Valeur du mobilier"
           placeholder="0"
           error={errors.valeur_mobilier?.message}
-          {...register('valeur_mobilier', { valueAsNumber: true })}
         />
       </div>
 

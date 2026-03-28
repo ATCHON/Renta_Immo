@@ -10,6 +10,7 @@ import { RapportSimulation } from '@/lib/pdf/templates/RapportSimulation';
 import { logger } from '@/lib/logger';
 import { rateLimit, getClientIp, buildRateLimitHeaders } from '@/lib/rate-limit';
 import { resend, EMAIL_SENDER } from '@/lib/email';
+import { APP_NAME } from '@/config/app';
 import type { CalculateurFormData, CalculResultats } from '@/types/calculateur';
 
 // Schémas de validation (réutilisés ou dupliqués pour indépendance)
@@ -56,14 +57,14 @@ export async function POST(request: NextRequest) {
     const data = await resend.emails.send({
       from: EMAIL_SENDER,
       to: email,
-      subject: 'Votre simulation de rentabilité immobilière - Renta Immo',
+      subject: `Votre simulation de rentabilité immobilière - ${APP_NAME}`,
       html: `
                 <h1>Votre rapport de simulation est prêt !</h1>
                 <p>Bonjour,</p>
-                <p>Vous trouverez ci-joint le rapport détaillé de votre simulation de rentabilité immobilière réalisée sur Renta Immo.</p>
+                <p>Vous trouverez ci-joint le rapport détaillé de votre simulation de rentabilité immobilière réalisée sur ${APP_NAME}.</p>
                 <p>Détails du bien : ${formData.bien.type_bien} à ${formData.bien.adresse} (${formData.bien.prix_achat} €)</p>
                 <br/>
-                <p>À très vite sur <a href="https://renta-immo.com">Renta Immo</a>.</p>
+                <p>À très vite sur ${APP_NAME}.</p>
             `,
       attachments: [
         {

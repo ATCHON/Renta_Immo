@@ -24,6 +24,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
 
   const {
     register,
+    control,
     handleSubmit,
     watch,
     setValue,
@@ -113,7 +114,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       </div>
 
       {/* Horizon de projection */}
-      <div className="bg-surface-container rounded-2xl p-4">
+      <div className="bg-surface-container-low rounded-2xl p-4">
         <Select
           label="Horizon de projection"
           {...register('horizon_projection', { valueAsNumber: true })}
@@ -130,7 +131,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
 
       {/* Paramètres de projection */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-surface-container rounded-2xl p-4">
+        <div className="bg-surface-container-low rounded-2xl p-4">
           <PercentInput
             label={
               <LabelTooltip content="Indice de Référence des Loyers. Il plafonne les augmentations annuelles de loyer (autour de 2 à 3% historiquement). Depuis 2023, les passoires thermiques (F et G) ne peuvent plus appliquer cette hausse.">
@@ -142,7 +143,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
             {...register('taux_evolution_loyer', { valueAsNumber: true })}
           />
         </div>
-        <div className="bg-surface-container rounded-2xl p-4">
+        <div className="bg-surface-container-low rounded-2xl p-4">
           <PercentInput
             label="Évolution annuelle charges"
             hint="Inflation (historique 2.5%)"
@@ -153,7 +154,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       </div>
 
       {/* AUDIT-108 : Frais de revente */}
-      <div className="bg-surface-container rounded-2xl p-4">
+      <div className="bg-surface-container-low rounded-2xl p-4">
         <PercentInput
           label="Frais d'agence à la revente"
           hint="Agence 5% par défaut (0% si vente entre particuliers)"
@@ -163,7 +164,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       </div>
 
       {/* FEAT-PV : Simulation plus-value à la revente */}
-      <div className="bg-surface-container rounded-2xl p-4 space-y-4">
+      <div className="bg-surface-container-low rounded-2xl p-4 space-y-4">
         <div>
           <p className="text-sm font-semibold text-on-surface">
             Simulation plus-value à la revente
@@ -174,17 +175,18 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <CurrencyInput
+            name="prix_revente"
+            control={control}
             label="Prix de revente cible"
             hint="Prix de vente estimé (€)"
             error={errors.prix_revente?.message}
-            {...register('prix_revente', { valueAsNumber: true })}
           />
           <Select
             label="Durée de détention"
             hint="Pour le calcul des abattements PV (si différent de l'horizon)"
             {...register('duree_detention', { valueAsNumber: true })}
             options={[
-              { value: '' as unknown as number, label: 'Idem horizon de projection' },
+              { value: '' as unknown as number, label: 'Idem horizon' },
               { value: 5, label: '5 ans' },
               { value: 6, label: '6 ans' },
               { value: 7, label: '7 ans' },

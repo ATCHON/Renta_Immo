@@ -2,6 +2,8 @@
 
 import { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
+import { Controller, type Control, type FieldValues, type Path } from 'react-hook-form';
+import { NumericFormat } from 'react-number-format';
 
 interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'label'> {
   label?: React.ReactNode;
@@ -64,15 +66,59 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 Input.displayName = 'Input';
 
 /**
- * Input pour les montants en euros
+ * Input pour les montants en euros — formatage automatique "200 000 €"
+ * Utilise react-number-format + Controller react-hook-form pour gérer
+ * correctement les reset() et setValue() de formulaire.
  */
-export const CurrencyInput = forwardRef<HTMLInputElement, InputProps>(
-  function CurrencyInput(props, ref) {
-    return <Input ref={ref} type="number" min="0" step="1" rightAddon="€" {...props} />;
-  }
-);
+interface CurrencyInputProps<T extends FieldValues> {
+  // string accepté pour les noms dynamiques (ex: useFieldArray `associes.${index}.revenus`)
+  // control: any car le type Control<T> est trop strict pour les generics useForm<Input, unknown, Output>
+  name: Path<T> | string;
+  control: Control<any>;
+  label?: React.ReactNode;
+  error?: string;
+  hint?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+}
 
-CurrencyInput.displayName = 'CurrencyInput';
+export function CurrencyInput<T extends FieldValues>({
+  name,
+  control,
+  label,
+  error,
+  hint,
+  placeholder,
+  disabled,
+  className,
+}: CurrencyInputProps<T>) {
+  return (
+    <Controller
+      name={name as Path<T>}
+      control={control}
+      render={({ field: { onChange, onBlur, value, ref } }) => (
+        <NumericFormat
+          thousandSeparator=" "
+          decimalSeparator=","
+          allowNegative={false}
+          value={value ?? ''}
+          onValueChange={(values) => onChange(values.floatValue ?? 0)}
+          onBlur={onBlur}
+          getInputRef={ref}
+          customInput={Input as React.ComponentType<InputProps>}
+          label={label}
+          error={error}
+          hint={hint}
+          placeholder={placeholder}
+          rightAddon="€"
+          disabled={disabled}
+          className={className}
+        />
+      )}
+    />
+  );
+}
 
 /**
  * Input pour les pourcentages

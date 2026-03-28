@@ -29,6 +29,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
 
   const {
     register,
+    control,
     handleSubmit,
     watch,
     setValue,
@@ -124,7 +125,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
 
       {/* Options pour nom propre */}
       {selectedType === 'nom_propre' && (
-        <div className="space-y-6 bg-surface-container rounded-2xl p-5">
+        <div className="space-y-6 bg-surface-container-low rounded-2xl p-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* TMI */}
             <Select
@@ -142,38 +143,42 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
             <div className="flex gap-4">
               <div className="flex-1">
                 <CurrencyInput
+                  name="credits_immobiliers"
+                  control={control}
                   label="Crédits immobiliers"
                   placeholder="0"
                   hint="Mensualités actuelles"
                   error={errors.credits_immobiliers?.message}
-                  {...register('credits_immobiliers', { valueAsNumber: true })}
                 />
               </div>
               <div className="flex-1">
                 <CurrencyInput
+                  name="loyers_actuels"
+                  control={control}
                   label="Loyers perçus"
                   placeholder="0"
                   hint="Loyers actuels (hors projet)"
                   error={errors.loyers_actuels?.message}
-                  {...register('loyers_actuels', { valueAsNumber: true })}
                 />
               </div>
             </div>
 
             <CurrencyInput
+              name="revenus_activite"
+              control={control}
               label="Revenus mensuels nets"
               placeholder="0"
               hint="Salaires ou revenus d'activité nets avant projet (optionnel, affine le HCSF)"
               error={errors.revenus_activite?.message}
-              {...register('revenus_activite', { valueAsNumber: true })}
             />
 
             <CurrencyInput
+              name="autres_charges"
+              control={control}
               label="Autres charges"
               placeholder="0"
               hint="Crédits conso, pensions, etc. (affine le HCSF)"
               error={errors.autres_charges?.message}
-              {...register('autres_charges', { valueAsNumber: true })}
             />
           </div>
 
@@ -249,7 +254,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                 {...register('mode_amortissement')}
               />
               {watch('mode_amortissement') === 'composants' && (
-                <p className="text-xs text-primary/70">
+                <p className="text-xs text-on-surface-variant mt-1">
                   Gros oeuvre 40% sur 50 ans, Façade 20% sur 25 ans, Installations 20% sur 15 ans,
                   Agencements 20% sur 10 ans. L&apos;amortissement diminue progressivement.
                 </p>
@@ -309,7 +314,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
 
       {/* Info pour SCI IS */}
       {selectedType === 'sci_is' && (
-        <div className="bg-surface-container rounded-2xl p-5 space-y-4">
+        <div className="bg-surface-container-low rounded-2xl p-5 space-y-4">
           <p className="text-sm text-on-surface">
             <strong className="text-primary">SCI à l&apos;IS</strong> Vous allez configurer les
             associés et leurs revenus à l&apos;étape suivante pour le calcul du taux
