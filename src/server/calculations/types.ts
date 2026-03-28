@@ -102,6 +102,7 @@ export interface FiscaliteCalculations {
   base_imposable: number;
   impot_revenu: number;
   prelevements_sociaux: number;
+  abattement: number;
   impot_total: number;
   revenu_net_apres_impot: number;
   rentabilite_nette_nette: number;

@@ -67,8 +67,8 @@ export function normalizeFormData(data: CalculateurFormData): ValidatedFormData 
   // Appliquer les valeurs par défaut si nécessaire
   const financement = {
     ...data.financement,
-    taux_interet: data.financement.taux_interet || DEFAULTS.financement.taux_interet,
-    duree_emprunt: data.financement.duree_emprunt || DEFAULTS.financement.duree_emprunt,
+    taux_interet: data.financement.taux_interet ?? DEFAULTS.financement.taux_interet,
+    duree_emprunt: data.financement.duree_emprunt ?? DEFAULTS.financement.duree_emprunt,
     assurance_pret: data.financement.assurance_pret ?? DEFAULTS.financement.assurance_pret,
   };
 

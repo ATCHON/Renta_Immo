@@ -3,6 +3,7 @@ import {
   calculerToutesFiscalites,
   calculerLmnpMicro,
   calculerLmnpReel,
+  calculerFiscaliteSciIs,
 } from '@/server/calculations/fiscalite';
 import {
   BienData,
@@ -258,5 +259,32 @@ describe('calculerLmnpReel - CFE', () => {
     );
     // Base = 10000 - 1500 = 8500 - amort (2575.75) = 5924.25
     expect(result.base_imposable).toBeCloseTo(5924, -1);
+  });
+});
+
+describe('calculerFiscaliteSciIs — distribution dividendes', () => {
+  it('net_en_poche >= 0 avec distribution activée (cas standard)', () => {
+    // revenuNet=5000, intérêts=1000, prix=100000 → amort=2500/an
+    const result = calculerFiscaliteSciIs(5000, 100000, mockConfig, 1000, true);
+    expect(result.net_en_poche).toBeGreaterThanOrEqual(0);
+    expect(result.dividendes_bruts).toBeGreaterThan(0);
+    expect(result.flat_tax).toBeGreaterThan(0);
+  });
+
+  it('dividendes_bruts <= revenuNetApresIs (dividendes ne dépassent pas la trésorerie)', () => {
+    // Vérifie l'invariant : beneficeDistribuable = revenuNetApresIs - amort <= revenuNetApresIs
+    const result = calculerFiscaliteSciIs(10000, 200000, mockConfig, 2000, true);
+    // net_en_poche = revenuNetApresIs - flat_tax ≥ 0
+    expect(result.net_en_poche).toBeGreaterThanOrEqual(0);
+    // Les dividendes bruts sont plafonnés sur la trésorerie disponible
+    const revenuNetApresIs = result.revenu_net_apres_impot + result.flat_tax;
+    expect(result.dividendes_bruts).toBeLessThanOrEqual(revenuNetApresIs + 0.01);
+  });
+
+  it('sans distribution : net_en_poche = revenu_net_apres_impot et dividendes = 0', () => {
+    const result = calculerFiscaliteSciIs(5000, 100000, mockConfig, 1000, false);
+    expect(result.dividendes_bruts).toBe(0);
+    expect(result.flat_tax).toBe(0);
+    expect(result.net_en_poche).toBe(result.revenu_net_apres_impot);
   });
 });
