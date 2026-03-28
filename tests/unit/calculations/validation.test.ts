@@ -65,21 +65,21 @@ describe('Calculations Validation', () => {
     // We need to provide minimum valid data for Zod first
     // dataWithZeroValues removed as it was unused
 
-    // Actually, looking at validation.ts, it uses `data.financement.taux_interet || DEFAULTS...`
-    // But Zod schema says min(1) for duree_emprunt.
-    // Let's test fields that are truly optional in Zod but have defaults in normalize
+    // validation.ts utilise `??` pour les valeurs par défaut (pas `||`)
+    // → taux_interet: 0 (achat cash) est une valeur valide et ne doit PAS être remplacé
+    // La valeur par défaut 3.5 ne s'applique que si le champ est null/undefined
 
     const dataForDefaults = {
       ...validBaseData,
       financement: {
         ...validBaseData.financement,
-        taux_interet: 0, // will trigger || default
+        taux_interet: 0, // achat comptant : 0 est valide et conservé via ??
         duree_emprunt: 10,
       }
     };
 
     const result = validateAndNormalize(dataForDefaults);
-    expect(result.data.financement.taux_interet).toBe(3.5);
+    expect(result.data.financement.taux_interet).toBe(0);
   });
 
   it('should validate SCI partners parts sum to 100%', () => {
