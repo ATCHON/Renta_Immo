@@ -17,8 +17,7 @@ interface Props {
 const BAR_HEIGHTS = [35, 50, 45, 65, 60, 75, 80, 100];
 
 export function ResultsAnchorStep5({ kpis }: Props) {
-  const cashflowPositif =
-    kpis.cashflowMensuelEstime !== null && kpis.cashflowMensuelEstime >= 0;
+  const cashflowPositif = kpis.cashflowMensuelEstime !== null && kpis.cashflowMensuelEstime >= 0;
 
   return (
     <div className="space-y-4">
@@ -55,7 +54,11 @@ export function ResultsAnchorStep5({ kpis }: Props) {
       {/* Carte sombre — Projection actuelle */}
       <div className="p-5 bg-primary-container rounded-3xl space-y-4">
         <div className="flex items-center gap-2 mb-1 opacity-80">
-          <Scale className="h-4 w-4 text-on-primary-container" strokeWidth={1.5} aria-hidden="true" />
+          <Scale
+            className="h-4 w-4 text-on-primary-container"
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
           <span className="text-[10px] font-headline font-bold uppercase tracking-widest text-on-primary-container">
             Projection actuelle
           </span>

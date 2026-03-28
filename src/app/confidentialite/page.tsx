@@ -22,7 +22,7 @@ export default function ConfidentialitePage() {
             {APP_NAME} collecte uniquement les données nécessaires au fonctionnement du service :
           </p>
           <ul className="list-disc list-inside mt-3 space-y-1">
-            <li>Adresse e-mail et nom (lors de la création d'un compte)</li>
+            <li>Adresse e-mail et nom (lors de la création d&apos;un compte)</li>
             <li>Données de simulation saisies dans le formulaire</li>
             <li>Données de connexion (via Better Auth)</li>
           </ul>
@@ -33,16 +33,16 @@ export default function ConfidentialitePage() {
             Utilisation des données
           </h2>
           <p>
-            Vos données sont utilisées exclusivement pour faire fonctionner le simulateur, sauvegarder
-            vos simulations et vous envoyer les rapports demandés. Elles ne sont jamais vendues ni
-            partagées avec des tiers à des fins commerciales.
+            Vos données sont utilisées exclusivement pour faire fonctionner le simulateur,
+            sauvegarder vos simulations et vous envoyer les rapports demandés. Elles ne sont jamais
+            vendues ni partagées avec des tiers à des fins commerciales.
           </p>
         </div>
 
         <div>
           <h2 className="font-headline text-xl font-bold text-on-surface mb-3">Conservation</h2>
           <p>
-            Les données de compte sont conservées jusqu'à suppression de votre compte. Les
+            Les données de compte sont conservées jusqu&apos;à suppression de votre compte. Les
             simulations anonymes ne sont pas conservées au-delà de la session.
           </p>
         </div>
@@ -50,7 +50,7 @@ export default function ConfidentialitePage() {
         <div>
           <h2 className="font-headline text-xl font-bold text-on-surface mb-3">Vos droits</h2>
           <p>
-            Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de
+            Conformément au RGPD, vous disposez d&apos;un droit d&apos;accès, de rectification et de
             suppression de vos données. Pour exercer ces droits, contactez-nous via votre espace
             compte ou par e-mail.
           </p>
@@ -60,7 +60,7 @@ export default function ConfidentialitePage() {
           <h2 className="font-headline text-xl font-bold text-on-surface mb-3">Cookies</h2>
           <p>
             {APP_NAME} utilise uniquement des cookies strictement nécessaires au maintien de votre
-            session. Aucun cookie publicitaire ou de tracking tiers n'est déposé.
+            session. Aucun cookie publicitaire ou de tracking tiers n&apos;est déposé.
           </p>
         </div>
       </section>
@@ -70,7 +70,7 @@ export default function ConfidentialitePage() {
           href="/"
           className="font-headline font-semibold text-primary hover:text-primary/80 transition-colors text-sm"
         >
-          ← Retour à l'accueil
+          ← Retour à l&apos;accueil
         </Link>
       </div>
     </main>

@@ -150,7 +150,10 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
       {/* Liste des associés */}
       <div className="space-y-6">
         {fields.map((field, index) => (
-          <div key={field.id} className="bg-surface border border-outline-variant/30 rounded-xl p-5">
+          <div
+            key={field.id}
+            className="bg-surface border border-outline-variant/30 rounded-xl p-5"
+          >
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-outline-variant/20">
               <h3 className="text-base font-bold text-on-surface">Associé {index + 1}</h3>
               {fields.length > 1 && (

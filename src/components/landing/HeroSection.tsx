@@ -77,8 +77,12 @@ export function HeroSection() {
                 monitoring
               </span>
               <div>
-                <span className="font-headline font-extrabold text-lg tracking-tighter text-on-surface">530+</span>
-                <span className="font-body text-sm text-on-surface-variant ml-2">Calculs vérifiés</span>
+                <span className="font-headline font-extrabold text-lg tracking-tighter text-on-surface">
+                  530+
+                </span>
+                <span className="font-body text-sm text-on-surface-variant ml-2">
+                  Calculs vérifiés
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-3 opacity-60">
@@ -90,8 +94,12 @@ export function HeroSection() {
                 receipt_long
               </span>
               <div>
-                <span className="font-headline font-extrabold text-lg tracking-tighter text-on-surface">6</span>
-                <span className="font-body text-sm text-on-surface-variant ml-2">Régimes fiscaux</span>
+                <span className="font-headline font-extrabold text-lg tracking-tighter text-on-surface">
+                  6
+                </span>
+                <span className="font-body text-sm text-on-surface-variant ml-2">
+                  Régimes fiscaux
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-3 opacity-60">
@@ -103,8 +111,12 @@ export function HeroSection() {
                 verified
               </span>
               <div>
-                <span className="font-headline font-extrabold text-lg tracking-tighter text-on-surface">HCSF</span>
-                <span className="font-body text-sm text-on-surface-variant ml-2">Conformité bancaire</span>
+                <span className="font-headline font-extrabold text-lg tracking-tighter text-on-surface">
+                  HCSF
+                </span>
+                <span className="font-body text-sm text-on-surface-variant ml-2">
+                  Conformité bancaire
+                </span>
               </div>
             </div>
           </div>

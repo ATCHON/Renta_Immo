@@ -72,8 +72,8 @@ Input.displayName = 'Input';
  */
 interface CurrencyInputProps<T extends FieldValues> {
   // string accepté pour les noms dynamiques (ex: useFieldArray `associes.${index}.revenus`)
-  // control: any car le type Control<T> est trop strict pour les generics useForm<Input, unknown, Output>
   name: Path<T> | string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Control<T> est trop strict pour useForm<TIn, TCtx, TOut> generics
   control: Control<any>;
   label?: React.ReactNode;
   error?: string;

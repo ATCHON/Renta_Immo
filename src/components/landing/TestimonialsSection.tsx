@@ -22,7 +22,7 @@ const testimonials: Testimonial[] = [
   },
   {
     quote:
-      '« Le scoring dual Rentier / Patrimonial m\'a permis de choisir la bonne stratégie fiscale. L\'interface est d\'une clarté remarquable. »',
+      "« Le scoring dual Rentier / Patrimonial m'a permis de choisir la bonne stratégie fiscale. L'interface est d'une clarté remarquable. »",
     author: 'Éléna Rousseau',
     role: 'Conseillère en gestion de patrimoine',
     image: '/images/testimonial-er.png',
@@ -54,7 +54,7 @@ export function TestimonialsSection() {
           {/* Gauche — accroche */}
           <div className="lg:w-1/3">
             <h2 className="font-headline text-3xl font-extrabold mb-5 tracking-tight text-on-surface">
-              L'outil choisi par les investisseurs sérieux
+              L&apos;outil choisi par les investisseurs sérieux
             </h2>
             <StarRating />
             <p className="text-on-surface-variant leading-relaxed mt-4 font-body">

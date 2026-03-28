@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { analyserHcsf } from '@/server/calculations/hcsf';
 import { CalculationInput } from '@/server/calculations/types';
-import { mockConfig } from '@/server/calculations/__tests__/mock-config';
+import { mockConfig } from '../server/calculations/mock-config';
 
 describe('HCSF Precision Calculations', () => {
   const baseInput: Partial<CalculationInput> = {

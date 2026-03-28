@@ -17,8 +17,8 @@ export default function MentionsLegalesPage() {
         <div>
           <h2 className="font-headline text-xl font-bold text-on-surface mb-3">Éditeur du site</h2>
           <p>
-            {APP_NAME} est un service de simulation d'investissement immobilier édité à titre
-            personnel. Pour toute question, contactez-nous à l'adresse indiquée en bas de page.
+            {APP_NAME} est un service de simulation d&apos;investissement immobilier édité à titre
+            personnel. Pour toute question, contactez-nous à l&apos;adresse indiquée en bas de page.
           </p>
         </div>
 
@@ -35,9 +35,9 @@ export default function MentionsLegalesPage() {
             Propriété intellectuelle
           </h2>
           <p>
-            L'ensemble des contenus présents sur ce site (textes, graphiques, logotypes, icônes,
-            images) sont protégés par le droit d'auteur. Toute reproduction ou représentation, même
-            partielle, est interdite sans autorisation préalable.
+            L&apos;ensemble des contenus présents sur ce site (textes, graphiques, logotypes,
+            icônes, images) sont protégés par le droit d&apos;auteur. Toute reproduction ou
+            représentation, même partielle, est interdite sans autorisation préalable.
           </p>
         </div>
 
@@ -45,8 +45,8 @@ export default function MentionsLegalesPage() {
           <h2 className="font-headline text-xl font-bold text-on-surface mb-3">Responsabilité</h2>
           <p>
             Les simulations fournies par {APP_NAME} sont données à titre indicatif et ne constituent
-            pas un conseil financier, fiscal ou juridique. L'éditeur décline toute responsabilité
-            quant aux décisions prises sur la base de ces résultats.
+            pas un conseil financier, fiscal ou juridique. L&apos;éditeur décline toute
+            responsabilité quant aux décisions prises sur la base de ces résultats.
           </p>
         </div>
       </section>
@@ -56,7 +56,7 @@ export default function MentionsLegalesPage() {
           href="/"
           className="font-headline font-semibold text-primary hover:text-primary/80 transition-colors text-sm"
         >
-          ← Retour à l'accueil
+          ← Retour à l&apos;accueil
         </Link>
       </div>
     </main>

@@ -9,7 +9,7 @@ import {
   calculerScoreGlobal,
   genererEvaluation,
 } from '@/server/calculations/synthese';
-import { mockConfig } from '@/server/calculations/__tests__/mock-config';
+import { mockConfig } from '../server/calculations/mock-config';
 
 describe('AUDIT-106 : Scoring specification', () => {
   describe('ajustementCashflow (-20 / +20)', () => {
@@ -140,7 +140,7 @@ describe('AUDIT-106 : Scoring specification', () => {
     });
 
     it('-10 si reste a vivre < 800', () => {
-      expect(ajustementResteAVivre(1200, 500)).toBe(-10);  // RAV = 1200 - 500 = 700 < 800 => -10
+      expect(ajustementResteAVivre(1200, 500)).toBe(-10); // RAV = 1200 - 500 = 700 < 800 => -10
     });
 
     it('0 si revenus non renseignes', () => {

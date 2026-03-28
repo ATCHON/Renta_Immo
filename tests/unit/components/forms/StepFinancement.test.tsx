@@ -37,17 +37,18 @@ describe('StepFinancement — UX Migration (S4, S7, S8, S9, S11, S12)', () => {
     } as any);
   });
 
-  it('affiche le badge STEP 02 (S4) et le header de stratégie (S7)', () => {
+  it('affiche le header contextuel de stratégie (S7) — sans badge STEP', () => {
     render(<StepFinancement onNext={mockOnNext} onPrev={mockOnPrev} />);
-    expect(screen.getByText('STEP 02')).toBeDefined();
+    // Le header h2 est rendu directement sans badge numérique depuis la migration Verdant
     expect(screen.getByText(/Affinez votre stratégie/i)).toBeDefined();
+    expect(screen.getByText(/paramètres de financement/i)).toBeDefined();
   });
 
-  it('affiche le badge section 2 (S9)', () => {
+  it('affiche le titre de section financement (S9)', () => {
     render(<StepFinancement onNext={mockOnNext} onPrev={mockOnPrev} />);
-    // Le badge est rendu sous forme de span circulaire contenant "2"
-    expect(screen.getByText('2', { selector: 'span' })).toBeDefined();
+    // Le composant affiche un <h3> "Détails du financement" sans badge numérique
     expect(screen.getByText(/Détails du financement/i)).toBeDefined();
+    expect(screen.getByText(/Apport personnel/i)).toBeDefined();
   });
 
   it("affiche l'incitation au pro-tip (S12) et suggestions (S11)", () => {

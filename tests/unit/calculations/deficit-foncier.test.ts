@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { calculerDeficitFoncier, calculerFoncierReel } from '@/server/calculations/fiscalite';
-import { mockConfig } from '@/server/calculations/__tests__/mock-config';
+import { mockConfig } from '../server/calculations/mock-config';
 
 describe('AUDIT-103 : Deficit foncier', () => {
   describe('calculerDeficitFoncier', () => {
-    it('retourne null quand il n\'y a pas de deficit (revenus >= charges)', () => {
+    it("retourne null quand il n'y a pas de deficit (revenus >= charges)", () => {
       const result = calculerDeficitFoncier(15000, 8000, 5000, 30, mockConfig);
       expect(result).toBeNull();
     });
@@ -33,7 +33,7 @@ describe('AUDIT-103 : Deficit foncier', () => {
       expect(result!.duree_report).toBe(10);
     });
 
-    it('plafonne l\'imputation a 10700 EUR (cas 2 story)', () => {
+    it("plafonne l'imputation a 10700 EUR (cas 2 story)", () => {
       // Revenus 10800, Charges 25000, Interets 5000, TMI 30%
       // Deficit total = 25000 + 5000 - 10800 = 19200
       // Deficit hors interets = max(0, 25000 - 10800) = 14200
@@ -49,7 +49,7 @@ describe('AUDIT-103 : Deficit foncier', () => {
       expect(result!.reportable).toBe(8500);
     });
 
-    it('deficit uniquement lie aux interets => pas d\'imputation sur revenu global (cas 3 story)', () => {
+    it("deficit uniquement lie aux interets => pas d'imputation sur revenu global (cas 3 story)", () => {
       // Revenus 10800, Charges 8000, Interets 5000, TMI 30%
       // Deficit total = 8000 + 5000 - 10800 = 2200
       // Deficit hors interets = max(0, 8000 - 10800) = 0
@@ -67,7 +67,7 @@ describe('AUDIT-103 : Deficit foncier', () => {
       expect(result!.reportable).toBe(2200);
     });
 
-    it('respecte le TMI dans le calcul de l\'economie', () => {
+    it("respecte le TMI dans le calcul de l'economie", () => {
       // Meme cas 1 mais TMI 41%
       const result = calculerDeficitFoncier(10800, 18000, 5000, 41, mockConfig);
       expect(result).not.toBeNull();
@@ -134,7 +134,9 @@ describe('AUDIT-103 : Deficit foncier', () => {
       expect(result.deficit_foncier).toBeDefined();
       expect(result.deficit_foncier!.deficit_total).toBe(12200);
       expect(result.base_imposable).toBe(0); // Pas de base imposable en deficit
-      expect(result.alertes.some(a => a.includes('Deficit foncier') || a.includes('Déficit foncier'))).toBe(true);
+      expect(
+        result.alertes.some((a) => a.includes('Deficit foncier') || a.includes('Déficit foncier'))
+      ).toBe(true);
     });
 
     it('pas de deficit foncier quand charges < revenus', () => {
@@ -146,14 +148,14 @@ describe('AUDIT-103 : Deficit foncier', () => {
       // Revenus 14400, deficit reportable 5000
       // Revenu apres report = 14400 - 5000 = 9400
       const result = calculerFoncierReel(14400, 2200, 30, mockConfig, 3000, 5000);
-      expect(result.alertes.some(a => a.includes('reporté consommé'))).toBe(true);
+      expect(result.alertes.some((a) => a.includes('reporté consommé'))).toBe(true);
     });
 
     it('consomme le deficit reportable partiellement si revenus < report', () => {
       // Revenus 3000, deficit reportable 5000
       // Seuls 3000 sont consommes
       const result = calculerFoncierReel(3000, 500, 30, mockConfig, 200, 5000);
-      expect(result.alertes.some(a => a.includes('reporté consommé'))).toBe(true);
+      expect(result.alertes.some((a) => a.includes('reporté consommé'))).toBe(true);
     });
   });
 });

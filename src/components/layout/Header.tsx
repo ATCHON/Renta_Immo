@@ -72,9 +72,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <span className="text-xl font-bold tracking-tight text-primary">
-                {APP_NAME}
-              </span>
+              <span className="text-xl font-bold tracking-tight text-primary">{APP_NAME}</span>
             </Link>
           </div>
 

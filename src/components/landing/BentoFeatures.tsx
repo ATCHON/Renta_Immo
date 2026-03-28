@@ -13,7 +13,7 @@ export function BentoFeatures() {
             Conçu pour la Performance
           </h2>
           <p className="text-on-surface-variant max-w-xl text-lg font-body">
-            Chaque calcul est optimisé pour l'investisseur immobilier exigeant.
+            Chaque calcul est optimisé pour l&apos;investisseur immobilier exigeant.
           </p>
         </div>
 
@@ -33,7 +33,7 @@ export function BentoFeatures() {
                 Cartographie des rendements en temps réel
               </h3>
               <p className="text-on-surface-variant text-base md:text-lg leading-relaxed max-w-md font-body">
-                Visualisez instantanément l'impact des taux, des charges et du taux de vacance
+                Visualisez instantanément l&apos;impact des taux, des charges et du taux de vacance
                 sur votre rentabilité nette. Précision à la milliseconde.
               </p>
             </div>
@@ -100,7 +100,7 @@ export function BentoFeatures() {
                 Projections patrimoniales
               </h3>
               <p className="text-on-secondary-container leading-relaxed font-body text-sm md:text-base">
-                Projection sur 20 ans : TRI, plus-value, effort d'épargne et scoring profil
+                Projection sur 20 ans : TRI, plus-value, effort d&apos;épargne et scoring profil
                 Rentier / Patrimonial.
               </p>
             </div>

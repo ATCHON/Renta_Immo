@@ -114,9 +114,7 @@ export function StepBien({ onNext }: StepBienProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* S6 — Cards radio type de bien */}
         <div className="md:col-span-2">
-          <label className="label">
-            Type de bien
-          </label>
+          <label className="label">Type de bien</label>
           <div className="grid grid-cols-3 gap-3">
             {(() => {
               const iconMap = { Building2, Home, Building } as const;
@@ -152,9 +150,7 @@ export function StepBien({ onNext }: StepBienProps) {
         </div>
 
         <div>
-          <label className="label">
-            État du bien
-          </label>
+          <label className="label">État du bien</label>
           <div className="grid grid-cols-2 gap-3">
             {[
               { value: 'ancien', label: 'Ancien' },

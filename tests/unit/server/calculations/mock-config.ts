@@ -1,4 +1,4 @@
-import type { ResolvedConfig } from '../../config/config-types';
+import type { ResolvedConfig } from '@/server/config/config-types';
 
 /**
  * Config par défaut pour les tests unitaires.
