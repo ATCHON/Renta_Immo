@@ -43,6 +43,16 @@ const nextConfig = {
     ],
   },
 
+  async redirects() {
+    return [
+      {
+        source: '/en-savoir-plus',
+        destination: '/comment-ca-marche',
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {

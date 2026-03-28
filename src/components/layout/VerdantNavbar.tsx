@@ -1,10 +1,9 @@
 'use client';
 
 /**
- * UX-S01 — Navbar glassmorphism « Petra Nova »
+ * UX-S05 — Navbar glassmorphism « Petra Nova » — Intégration globale
  *
- * Utilisée uniquement dans `src/app/page.tsx` pour l'instant.
- * L'intégration globale dans layout.tsx se fera en Phase 5 (UX-S05).
+ * Remplace Header.tsx dans src/app/layout.tsx.
  */
 
 import Link from 'next/link';
@@ -61,10 +60,10 @@ export function VerdantNavbar() {
             Simulateur
           </Link>
           <Link
-            href="/en-savoir-plus"
+            href="/comment-ca-marche"
             className={cn(
               'font-headline font-semibold tracking-tight text-sm transition-colors duration-200',
-              pathname === '/en-savoir-plus'
+              pathname.startsWith('/comment-ca-marche')
                 ? 'text-primary border-b-2 border-primary pb-0.5'
                 : 'text-on-surface/60 hover:text-primary'
             )}
@@ -97,7 +96,15 @@ export function VerdantNavbar() {
               Connexion
             </Link>
           )}
-          <Link href="/calculateur?reset=true" className="btn-verdant text-sm px-5 py-2.5">
+          <Link
+            href="/calculateur?reset=true"
+            className={cn(
+              'font-headline font-semibold tracking-tight text-sm transition-colors duration-200',
+              pathname === '/calculateur'
+                ? 'text-primary border-b-2 border-primary pb-0.5'
+                : 'text-on-surface/60 hover:text-primary'
+            )}
+          >
             Nouvelle simulation
           </Link>
         </div>
@@ -124,7 +131,7 @@ export function VerdantNavbar() {
             Simulateur
           </Link>
           <Link
-            href="/en-savoir-plus"
+            href="/comment-ca-marche"
             className="block font-headline font-semibold text-base text-on-surface hover:text-primary transition-colors py-2"
           >
             Comment ça marche
@@ -141,7 +148,7 @@ export function VerdantNavbar() {
           <div className="pt-2 space-y-3">
             <Link
               href="/calculateur?reset=true"
-              className="btn-verdant w-full py-3 text-base text-center"
+              className="block font-headline font-semibold text-base text-on-surface hover:text-primary transition-colors py-2"
             >
               Nouvelle simulation
             </Link>
