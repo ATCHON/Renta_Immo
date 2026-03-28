@@ -16,17 +16,17 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-forest text-white hover:bg-forest-dark focus:ring-forest',
-  secondary:
-    'bg-transparent border-2 border-border text-charcoal hover:bg-surface focus:ring-forest',
-  ghost: 'bg-transparent text-stone hover:bg-surface hover:text-charcoal focus:ring-forest',
-  danger: 'bg-terracotta text-white hover:bg-terracotta/90 focus:ring-terracotta',
+  primary: 'btn-primary',
+  secondary: 'btn-secondary',
+  ghost: 'btn-ghost',
+  danger:
+    'bg-error text-on-error hover:bg-error/90 rounded-full border-none focus:ring-2 focus:ring-error focus:ring-offset-2',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
   sm: 'h-9 px-4 text-sm',
-  md: 'h-11 px-6 text-base',
-  lg: 'h-[52px] px-8 text-lg',
+  md: 'h-11 px-6 text-sm',
+  lg: 'h-[52px] px-8 text-base',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -47,16 +47,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   return (
     <button
       ref={ref}
-      className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-semibold',
-        'transition-colors duration-fast',
-        'focus:outline-none focus:ring-2 focus:ring-offset-2',
-        'disabled:opacity-50 disabled:cursor-not-allowed',
-        variantStyles[variant],
-        sizeStyles[size],
-        fullWidth && 'w-full',
-        className
-      )}
+      className={cn(variantStyles[variant], sizeStyles[size], fullWidth && 'w-full', className)}
       disabled={disabled || isLoading}
       {...props}
     >

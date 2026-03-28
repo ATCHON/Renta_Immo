@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { ChevronDown, ChevronUp, Check, Lock } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { StepBien } from './StepBien';
@@ -23,6 +23,7 @@ function StepAccordion({
   currentStep,
   title,
   displayNumber,
+  recap,
   onOpen,
   children,
 }: {
@@ -30,17 +31,22 @@ function StepAccordion({
   currentStep: number;
   title: string;
   displayNumber: number;
+  recap?: string;
   onOpen: () => void;
   children: React.ReactNode;
 }) {
   const isOpen = currentStep === stepIndex;
   const isPast = stepIndex < currentStep;
+  const isFuture = stepIndex > currentStep;
 
   return (
     <div
       className={cn(
-        'border border-outline-variant rounded-2xl overflow-hidden bg-white shadow-sm transition-all',
-        isOpen ? 'ring-2 ring-primary/20' : ''
+        'overflow-hidden transition-all',
+        isOpen
+          ? 'rounded-[2rem] bg-surface-container-lowest ring-2 ring-primary/15'
+          : 'rounded-2xl bg-surface-container-low',
+        isFuture ? 'opacity-40' : ''
       )}
     >
       <button
@@ -48,7 +54,9 @@ function StepAccordion({
         onClick={onOpen}
         className={cn(
           'w-full px-6 py-5 flex items-center justify-between transition-colors text-left',
-          isOpen ? 'bg-surface' : 'bg-white hover:bg-surface/50'
+          isOpen
+            ? 'bg-surface-container-lowest'
+            : 'bg-surface-container-low hover:bg-surface-container'
         )}
         aria-expanded={isOpen}
       >
@@ -56,23 +64,39 @@ function StepAccordion({
           <div
             className={cn(
               'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors',
-              isOpen
+              isOpen || isPast
                 ? 'bg-primary text-on-primary'
-                : isPast
-                  ? 'bg-primary text-on-primary'
-                  : 'bg-surface text-on-surface-variant border border-outline-variant'
+                : 'bg-surface text-on-surface-variant border border-outline-variant'
             )}
           >
-            {isPast ? <Check className="w-4 h-4" /> : displayNumber}
+            {isPast ? (
+              <Check className="w-4 h-4" />
+            ) : isFuture ? (
+              <Lock className="w-3.5 h-3.5" />
+            ) : (
+              displayNumber
+            )}
           </div>
-          <span className={cn('font-medium text-lg', isOpen ? 'text-primary' : 'text-charcoal')}>
-            {title}
-          </span>
+          <div className="flex flex-col">
+            <span
+              className={cn(
+                'transition-all',
+                isOpen
+                  ? 'text-2xl font-headline font-extrabold tracking-tighter text-primary'
+                  : 'text-base font-medium text-on-surface'
+              )}
+            >
+              {title}
+            </span>
+            {isPast && recap && (
+              <p className="text-xs text-on-surface-variant/60 mt-0.5 font-label">{recap}</p>
+            )}
+          </div>
         </div>
         {isOpen ? (
-          <ChevronUp className="h-5 w-5 text-stone" />
+          <ChevronUp className="h-5 w-5 text-on-surface-variant" />
         ) : (
-          <ChevronDown className="h-5 w-5 text-stone" />
+          <ChevronDown className="h-5 w-5 text-on-surface-variant" />
         )}
       </button>
       <div
@@ -85,7 +109,7 @@ function StepAccordion({
           isOpen ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'
         )}
       >
-        <div className="p-6 border-t border-outline-variant/30">{children}</div>
+        <div className="p-8 border-t border-outline-variant/10">{children}</div>
       </div>
     </div>
   );
@@ -101,7 +125,7 @@ export function FormWizard() {
   const activeScenarioId = useCalculateurStore((state) => state.activeScenarioId);
   const scenarios = useCalculateurStore((state) => state.scenarios);
   const scenario = scenarios.find((s) => s.id === activeScenarioId) || scenarios[0];
-  const { structure } = scenario;
+  const { structure, bien, financement, exploitation } = scenario;
 
   const { calculate, isLoading } = useCalculateur();
 
@@ -137,6 +161,11 @@ export function FormWizard() {
           currentStep={currentStep}
           title={STEP_LABELS[0]}
           displayNumber={1}
+          recap={
+            bien?.prix_achat
+              ? `${bien.type_bien} • ${bien.prix_achat.toLocaleString('fr-FR')} €`
+              : undefined
+          }
           onOpen={() => setStep(0)}
         >
           <StepBien onNext={nextStep} />
@@ -148,6 +177,13 @@ export function FormWizard() {
           currentStep={currentStep}
           title={STEP_LABELS[1]}
           displayNumber={2}
+          recap={
+            bien?.prix_achat != null &&
+            financement?.apport != null &&
+            financement?.duree_emprunt != null
+              ? `${(bien.prix_achat - financement.apport).toLocaleString('fr-FR')} € emprunté • ${financement.duree_emprunt} ans`
+              : undefined
+          }
           onOpen={() => setStep(1)}
         >
           <StepFinancement onNext={nextStep} onPrev={prevStep} />
@@ -159,6 +195,11 @@ export function FormWizard() {
           currentStep={currentStep}
           title={STEP_LABELS[2]}
           displayNumber={3}
+          recap={
+            exploitation?.loyer_mensuel
+              ? `${exploitation.loyer_mensuel.toLocaleString('fr-FR')} €/mois`
+              : undefined
+          }
           onOpen={() => setStep(2)}
         >
           <StepExploitation onNext={nextStep} onPrev={prevStep} />
@@ -170,6 +211,7 @@ export function FormWizard() {
           currentStep={currentStep}
           title={STEP_LABELS[3]}
           displayNumber={4}
+          recap={structure?.regime_fiscal ?? undefined}
           onOpen={() => setStep(3)}
         >
           <StepStructure onNext={nextStep} onPrev={prevStep} />

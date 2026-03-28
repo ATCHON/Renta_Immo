@@ -26,7 +26,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       )}
       <div className="relative">
         {leftAddon && (
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-stone">
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-on-surface-variant">
             {leftAddon}
           </div>
         )}
@@ -46,7 +46,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           {...props}
         />
         {rightAddon && (
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-stone">
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-on-surface-variant">
             {rightAddon}
           </div>
         )}
@@ -56,7 +56,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           {error}
         </p>
       )}
-      {hint && !error && <p className="text-sm text-pebble mt-1">{hint}</p>}
+      {hint && !error && <p className="text-sm text-on-surface-variant/70 mt-1">{hint}</p>}
     </div>
   );
 });

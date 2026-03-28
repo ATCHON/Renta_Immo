@@ -100,8 +100,8 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-charcoal">Structure juridique</h2>
-        <p className="text-pebble mt-1">Choisissez le mode de détention du bien</p>
+        <h2 className="text-2xl font-bold text-on-surface">Structure juridique</h2>
+        <p className="text-on-surface-variant mt-1">Choisissez le mode de détention du bien</p>
       </div>
 
       {/* Selection de la structure */}
@@ -124,7 +124,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
 
       {/* Options pour nom propre */}
       {selectedType === 'nom_propre' && (
-        <div className="space-y-6 bg-surface rounded-xl p-4 border border-sand">
+        <div className="space-y-6 bg-surface-container rounded-2xl p-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* TMI */}
             <Select
@@ -177,7 +177,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
             />
           </div>
 
-          <hr className="border-sand" />
+          <hr className="border-outline-variant/30" />
 
           {/* Workflow guidé Nue vs Meublée */}
           <div className="space-y-4">
@@ -192,8 +192,8 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                 className={cn(
                   'p-3 rounded-lg border text-center transition-all',
                   typeExploitation === 'nue'
-                    ? 'bg-forest/10 border-forest text-forest font-semibold'
-                    : 'bg-white border-sand text-charcoal hover:border-pebble'
+                    ? 'bg-primary/10 border-primary text-primary font-semibold'
+                    : 'bg-surface-container-low border-outline-variant/30 text-on-surface hover:border-outline'
                 )}
               >
                 Location Nue
@@ -207,8 +207,8 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                 className={cn(
                   'p-3 rounded-lg border text-center transition-all',
                   typeExploitation === 'meublee'
-                    ? 'bg-forest/10 border-forest text-forest font-semibold'
-                    : 'bg-white border-sand text-charcoal hover:border-pebble'
+                    ? 'bg-primary/10 border-primary text-primary font-semibold'
+                    : 'bg-surface-container-low border-outline-variant/30 text-on-surface hover:border-outline'
                 )}
               >
                 Location Meublée (LMNP)
@@ -238,7 +238,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
 
           {/* Mode amortissement (AUDIT-104) - visible pour LMNP réel */}
           {selectedRegime === 'lmnp_reel' && (
-            <div className="bg-forest/5 rounded-xl p-4 border border-forest/10 space-y-3">
+            <div className="bg-primary/5 rounded-2xl p-4 border border-primary/10 space-y-3">
               <Select
                 label="Mode d'amortissement"
                 options={[
@@ -249,7 +249,7 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                 {...register('mode_amortissement')}
               />
               {watch('mode_amortissement') === 'composants' && (
-                <p className="text-xs text-forest/70">
+                <p className="text-xs text-primary/70">
                   Gros oeuvre 40% sur 50 ans, Façade 20% sur 25 ans, Installations 20% sur 15 ans,
                   Agencements 20% sur 10 ans. L&apos;amortissement diminue progressivement.
                 </p>
@@ -259,8 +259,8 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
 
           {/* Info sur le regime selectionne */}
           {selectedRegime && (
-            <div className="bg-forest/5 rounded-xl p-4 border border-forest/10">
-              <p className="text-sm text-forest leading-relaxed">
+            <div className="bg-primary/5 rounded-2xl p-4 border border-primary/10">
+              <p className="text-sm text-primary leading-relaxed">
                 {selectedRegime === 'micro_foncier' && (
                   <>
                     <strong className="block mb-1">Micro-foncier</strong> Abattement forfaitaire de
@@ -290,11 +290,11 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                   </>
                 )}
               </p>
-              <div className="mt-3 pt-3 border-t border-forest/10 flex justify-between items-center">
-                <span className="text-xs text-forest/70">Besoin d&apos;aide pour choisir ?</span>
+              <div className="mt-3 pt-3 border-t border-primary/10 flex justify-between items-center">
+                <span className="text-xs text-primary/70">Besoin d&apos;aide pour choisir ?</span>
                 <button
                   type="button"
-                  className="text-xs font-bold underline hover:text-forest-dark"
+                  className="text-xs font-bold underline hover:text-primary-container"
                   onClick={() => {
                     /* Trigger comparateur modal or link */
                   }}
@@ -309,19 +309,19 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
 
       {/* Info pour SCI IS */}
       {selectedType === 'sci_is' && (
-        <div className="bg-surface rounded-xl p-4 border border-sand space-y-4">
-          <p className="text-sm text-charcoal">
-            <strong className="text-forest">SCI à l&apos;IS</strong> Vous allez configurer les
+        <div className="bg-surface-container rounded-2xl p-5 space-y-4">
+          <p className="text-sm text-on-surface">
+            <strong className="text-primary">SCI à l&apos;IS</strong> Vous allez configurer les
             associés et leurs revenus à l&apos;étape suivante pour le calcul du taux
             d&apos;endettement HCSF.
           </p>
 
-          <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-sand">
+          <div className="flex items-center justify-between p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/20">
             <div>
-              <p className="font-semibold text-sm text-charcoal">
+              <p className="font-semibold text-sm text-on-surface">
                 Distribuer les bénéfices (Dividendes)
               </p>
-              <p className="text-xs text-pebble">
+              <p className="text-xs text-on-surface-variant">
                 Active la distribution annuelle et applique la Flat Tax de 30%.
               </p>
             </div>
@@ -332,11 +332,11 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
                 checked={watch('distribution_dividendes')}
                 onChange={(e) => setValue('distribution_dividendes', e.target.checked)}
               />
-              <div className="w-11 h-6 bg-sand peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-forest"></div>
+              <div className="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
           </div>
 
-          <p className="text-xs text-pebble">
+          <p className="text-xs text-on-surface-variant">
             L&apos;IS permet de déduire l&apos;amortissement du bien et d&apos;être imposé à 15%
             jusqu&apos;à 42 500 euros puis 25% au-delà.
           </p>
@@ -386,10 +386,10 @@ function StructureCard({ label, description, isSelected, onSelect }: StructureCa
       type="button"
       onClick={onSelect}
       className={cn(
-        'p-5 rounded-xl border-2 text-left transition-all duration-300',
+        'p-5 rounded-2xl text-left transition-all duration-300',
         isSelected
-          ? 'border-forest bg-surface shadow-[0_0_0_1px_rgba(45,90,69,1)]'
-          : 'border-sand bg-white hover:border-pebble shadow-sm'
+          ? 'bg-primary/5 ring-2 ring-primary/30'
+          : 'bg-surface-container-low hover:bg-surface-container'
       )}
     >
       <div className="flex items-start gap-4">
@@ -397,7 +397,7 @@ function StructureCard({ label, description, isSelected, onSelect }: StructureCa
           className={cn(
             'w-6 h-6 rounded-full border-2 flex-shrink-0 mt-0.5',
             'flex items-center justify-center transition-colors',
-            isSelected ? 'border-forest bg-forest' : 'border-sand'
+            isSelected ? 'border-primary bg-primary' : 'border-outline-variant'
           )}
         >
           {isSelected && (
@@ -410,12 +410,12 @@ function StructureCard({ label, description, isSelected, onSelect }: StructureCa
           <p
             className={cn(
               'font-bold transition-colors',
-              isSelected ? 'text-forest' : 'text-charcoal'
+              isSelected ? 'text-primary' : 'text-on-surface'
             )}
           >
             {label}
           </p>
-          <p className="text-sm text-pebble mt-1 leading-relaxed">{description}</p>
+          <p className="text-sm text-on-surface-variant mt-1 leading-relaxed">{description}</p>
         </div>
       </div>
     </button>
@@ -436,10 +436,10 @@ function RegimeCard({ label, description, isSelected, onSelect }: RegimeCardProp
       type="button"
       onClick={onSelect}
       className={cn(
-        'p-4 rounded-xl border text-left transition-all duration-200',
+        'p-4 rounded-2xl text-left transition-all duration-200',
         isSelected
-          ? 'border-forest bg-surface ring-1 ring-forest'
-          : 'border-sand bg-white hover:border-pebble shadow-sm'
+          ? 'bg-primary/5 ring-1 ring-primary/30'
+          : 'bg-surface-container-low hover:bg-surface-container'
       )}
     >
       <div className="flex items-start gap-3">
@@ -447,7 +447,7 @@ function RegimeCard({ label, description, isSelected, onSelect }: RegimeCardProp
           className={cn(
             'w-4 h-4 rounded-full border flex-shrink-0 mt-1',
             'flex items-center justify-center',
-            isSelected ? 'border-forest bg-forest' : 'border-sand'
+            isSelected ? 'border-primary bg-primary' : 'border-outline-variant'
           )}
         >
           {isSelected && (
@@ -457,10 +457,12 @@ function RegimeCard({ label, description, isSelected, onSelect }: RegimeCardProp
           )}
         </div>
         <div>
-          <p className={cn('font-semibold text-sm', isSelected ? 'text-forest' : 'text-charcoal')}>
+          <p
+            className={cn('font-semibold text-sm', isSelected ? 'text-primary' : 'text-on-surface')}
+          >
             {label}
           </p>
-          <p className="text-xs text-pebble mt-0.5">{description}</p>
+          <p className="text-xs text-on-surface-variant mt-0.5">{description}</p>
         </div>
       </div>
     </button>
