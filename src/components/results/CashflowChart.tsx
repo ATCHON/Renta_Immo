@@ -15,6 +15,7 @@ import {
   ComposedChart,
 } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
+import { VerdantChartPalette } from '@/styles/verdant-tokens';
 
 interface CashflowDataPoint {
   name: string;
@@ -48,7 +49,12 @@ function CustomTooltip({
         <div className="flex items-center gap-2">
           <span
             className="h-2 w-2 rounded-full"
-            style={{ backgroundColor: (cashflow.value ?? 0) >= 0 ? '#2D5A45' : '#DC2626' }}
+            style={{
+              backgroundColor:
+                (cashflow.value ?? 0) >= 0
+                  ? VerdantChartPalette.positive
+                  : VerdantChartPalette.negative,
+            }}
           />
           <span className="text-stone">Cash-flow :</span>
           <span className="font-bold tabular-nums">{formatCurrency(cashflow.value)}</span>
@@ -56,7 +62,10 @@ function CustomTooltip({
       )}
       {cumul && (
         <div className="flex items-center gap-2 mt-1">
-          <span className="h-2 w-2 rounded-full bg-sage/40" />
+          <span
+            className="h-2 w-2 rounded-full"
+            style={{ backgroundColor: VerdantChartPalette.accent + '66' }}
+          />
           <span className="text-stone">Cumulé :</span>
           <span className="font-bold tabular-nums">{formatCurrency(cumul.value)}</span>
         </div>
@@ -78,7 +87,7 @@ export const CashflowChart = React.memo(function CashflowChart({
     <div style={{ height: 350, width: '100%' }}>
       <ResponsiveContainer width="100%" height={350}>
         <ComposedChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="transparent" />
           <XAxis
             dataKey="name"
             axisLine={false}
@@ -143,7 +152,12 @@ export const CashflowChart = React.memo(function CashflowChart({
               stroke="#2D5A45"
               strokeDasharray="4 4"
               strokeOpacity={0.6}
-              label={{ value: 'Équilibre', position: 'top', fill: '#2D5A45', fontSize: 10 }}
+              label={{
+                value: 'Équilibre',
+                position: 'top',
+                fill: VerdantChartPalette.positive,
+                fontSize: 10,
+              }}
             />
           )}
           <Bar
@@ -156,7 +170,11 @@ export const CashflowChart = React.memo(function CashflowChart({
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.cashflowNetImpot >= 0 ? '#2D5A45' : '#DC2626'}
+                fill={
+                  entry.cashflowNetImpot >= 0
+                    ? VerdantChartPalette.positive
+                    : VerdantChartPalette.negative
+                }
               />
             ))}
           </Bar>

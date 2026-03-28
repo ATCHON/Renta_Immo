@@ -11,6 +11,7 @@ export { Alert } from './Alert';
 export { Spinner } from './Spinner';
 export { Collapsible } from './Collapsible';
 export { LabelTooltip } from './Tooltip';
+export { VerdantSlider } from './VerdantSlider';
 export {
   SideNavigation,
   SideNavigationDesktop,

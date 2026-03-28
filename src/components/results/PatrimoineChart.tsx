@@ -13,6 +13,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
+import { VerdantChartPalette, VerdantColors } from '@/styles/verdant-tokens';
 
 interface PatrimoineDataPoint {
   name: string;
@@ -39,9 +40,13 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
 
   const items = [
-    { key: 'valeurBien', label: 'Valeur du bien', color: '#2D5A45' },
-    { key: 'capitalRestant', label: 'Capital restant dû (Dette)', color: '#DC2626' },
-    { key: 'patrimoineNet', label: 'Patrimoine net', color: '#2563EB' },
+    { key: 'valeurBien', label: 'Valeur du bien', color: VerdantChartPalette.positive },
+    {
+      key: 'capitalRestant',
+      label: 'Capital restant dû (Dette)',
+      color: VerdantChartPalette.negative,
+    },
+    { key: 'patrimoineNet', label: 'Patrimoine net', color: VerdantColors.secondary },
   ];
 
   return (
@@ -119,7 +124,7 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({
               <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="transparent" />
           <XAxis
             dataKey="name"
             axisLine={false}
@@ -172,7 +177,12 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({
               stroke="#DC2626"
               strokeDasharray="4 4"
               strokeOpacity={0.5}
-              label={{ value: 'Fin crédit', position: 'top', fill: '#DC2626', fontSize: 10 }}
+              label={{
+                value: 'Fin crédit',
+                position: 'top',
+                fill: VerdantChartPalette.negative,
+                fontSize: 10,
+              }}
             />
           )}
           <Area
@@ -184,7 +194,7 @@ export const PatrimoineChart = React.memo(function PatrimoineChart({
             fill="url(#colorValeur)"
             strokeWidth={2}
             dot={<ValeurBienLastDot totalPoints={data.length} />}
-            activeDot={{ r: 4, fill: '#2D5A45', stroke: '#fff' }}
+            activeDot={{ r: 4, fill: VerdantChartPalette.positive, stroke: '#fff' }}
           />
           <Area
             type="monotone"

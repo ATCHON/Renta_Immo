@@ -3,37 +3,37 @@
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
-import {
-  Button,
-  Card,
-  Collapsible,
-  SideNavigationDesktop,
-  SideNavigationMobile,
-  type SideNavigationItem,
-} from '@/components/ui';
+import { ArrowLeft, BarChart2, TrendingUp, GitCompare, Settings2 } from 'lucide-react';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Button, Card } from '@/components/ui';
 import { HCSFIndicator } from './HCSFIndicator';
 import { ProjectionTable } from './ProjectionTable';
 import { AmortizationTable } from './AmortizationTable';
 import { FiscalAmortizationTable } from './FiscalAmortizationTable';
 import { MetricCard } from './MetricCard';
 import type { CalculateurFormData } from '@/types/calculateur';
+import type { ProfilInvestisseur } from '@/types/calculateur';
 import {
   InvestmentBreakdown,
   OperationalBalance,
   FiscalComparator,
   ScenarioTabs,
-  DownloadPdfButton,
   ScorePanel,
   InputRecap,
   PointsAttention,
   RecommandationsPanel,
   ProfilInvestisseurToggle,
+  DashboardFloatingFooter,
 } from './';
-import { SaveSimulationButton } from '../simulations/SaveSimulationButton';
+import { useCalculateurStore } from '@/stores/calculateur.store';
+import { useChartData } from '@/hooks/useChartData';
+import { useHasHydrated } from '@/hooks/useHasHydrated';
+import { formatCurrency, formatPercent } from '@/lib/utils';
 
+// --- Dynamic chart imports (no SSR) ---
 const ChartSkeleton = () => (
-  <div className="h-[350px] w-full bg-surface/50 rounded-xl animate-pulse" />
+  <div className="h-[350px] w-full bg-surface-container/50 rounded-xl animate-pulse" />
 );
 
 const CashflowChart = dynamic(
@@ -45,12 +45,41 @@ const PatrimoineChart = dynamic(
   () => import('./PatrimoineChart').then((mod) => ({ default: mod.PatrimoineChart })),
   { loading: () => <ChartSkeleton />, ssr: false }
 );
-import { useCalculateurStore } from '@/stores/calculateur.store';
-import { useChartData } from '@/hooks/useChartData';
-import { useHasHydrated } from '@/hooks/useHasHydrated';
-import { formatCurrency, formatPercent } from '@/lib/utils';
-import { useState, useEffect } from 'react';
-import type { ProfilInvestisseur } from '@/types/calculateur';
+
+// --- Tab definitions ---
+type TabId = 'analyse' | 'projections' | 'comparaison' | 'avance';
+
+const TABS: { id: TabId; label: string; icon: React.ReactNode; stub?: boolean }[] = [
+  { id: 'analyse', label: 'Analyse', icon: <BarChart2 className="h-4 w-4" /> },
+  { id: 'projections', label: 'Projections', icon: <TrendingUp className="h-4 w-4" /> },
+  { id: 'comparaison', label: 'Comparaison', icon: <GitCompare className="h-4 w-4" />, stub: true },
+  { id: 'avance', label: 'Avancé', icon: <Settings2 className="h-4 w-4" />, stub: true },
+];
+
+// --- Helper components ---
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="text-sm font-black uppercase tracking-widest text-on-surface-variant">
+      {children}
+    </h2>
+  );
+}
+
+function StubPanel({ label }: { label: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <div className="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center mb-4">
+        <Settings2 className="h-8 w-8 text-on-surface-variant/40" />
+      </div>
+      <p className="text-sm font-bold text-on-surface-variant uppercase tracking-widest">
+        {label} — Prochainement
+      </p>
+      <p className="text-xs text-on-surface-variant/60 mt-1">
+        Cette section sera disponible dans une prochaine version.
+      </p>
+    </div>
+  );
+}
 
 function scoreToEvaluation(score: number) {
   if (score >= 80) return { evaluation: 'Excellent' as const, couleur: 'green' as const };
@@ -59,69 +88,30 @@ function scoreToEvaluation(score: number) {
   return { evaluation: 'Faible' as const, couleur: 'red' as const };
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-lg font-black uppercase tracking-widest text-charcoal">{children}</h2>;
-}
-
+// --- Main component ---
 export function Dashboard() {
   const router = useRouter();
   const { getActiveScenario, setStatus } = useCalculateurStore();
-  const [activeSection, setActiveSection] = useState('parametres');
-
   const hasHydrated = useHasHydrated();
   const scenario = getActiveScenario();
+
+  const [activeTab, setActiveTab] = useState<TabId>('analyse');
+  const [profilInvestisseur, setProfilInvestisseur] = useState<ProfilInvestisseur>(
+    (scenario.options?.profil_investisseur as ProfilInvestisseur) ?? 'rentier'
+  );
   const { resultats, bien, financement, exploitation, structure, options } = scenario;
 
   const { cashflowData, patrimoineData, breakEvenYear, loanEndYear } = useChartData(
     resultats?.projections?.projections
   );
-  const [profilInvestisseur, setProfilInvestisseur] = useState<ProfilInvestisseur>(
-    (scenario.options?.profil_investisseur as ProfilInvestisseur) ?? 'rentier'
-  );
-
-  // Intersection Observer pour mettre à jour la section active au scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleSections = entries.filter((entry) => entry.isIntersecting);
-        if (visibleSections.length > 0) {
-          // Prendre la section la plus haute à l'écran
-          const sorted = visibleSections.sort(
-            (a, b) => a.boundingClientRect.top - b.boundingClientRect.top
-          );
-          setActiveSection(sorted[0].target.id);
-        }
-      },
-      { rootMargin: '-20% 0px -60% 0px', threshold: 0.1 }
-    );
-
-    const sectionIds = [
-      'parametres',
-      'performance',
-      'indicateurs',
-      'points-attention',
-      'cashflow-rentabilite',
-      'fiscalite',
-      'plus-value',
-      'projections',
-      'financement',
-    ];
-
-    sectionIds.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, [hasHydrated]);
 
   if (!hasHydrated) return null;
 
   if (!resultats) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
-        <h2 className="text-2xl font-medium text-charcoal mb-4">Aucun résultat disponible</h2>
-        <p className="text-stone mb-6">
+        <h2 className="text-2xl font-medium text-on-surface mb-4">Aucun résultat disponible</h2>
+        <p className="text-on-surface-variant mb-6">
           Vous devez d&apos;abord effectuer un calcul de rentabilité.
         </p>
         <Link href="/calculateur">
@@ -146,7 +136,6 @@ export function Dashboard() {
 
   const impotMensuelMoyen = resultats.fiscalite.impot_estime / 12;
 
-  // KPI contextual statuses
   const cashflowStatus =
     resultats.cashflow.mensuel >= 0 ? ('success' as const) : ('danger' as const);
   const rentaStatus =
@@ -160,492 +149,450 @@ export function Dashboard() {
       ? ('success' as const)
       : ('info' as const);
 
-  // Configuration des items du menu de navigation
-  const navItems: SideNavigationItem[] = [
-    { id: 'parametres', label: 'Paramètres' },
-    { id: 'performance', label: 'Performance' },
-    { id: 'indicateurs', label: 'Indicateurs Clés' },
-  ];
-
-  if (
-    resultats.synthese.points_attention_detail?.length ||
-    resultats.synthese.points_attention?.length
-  ) {
-    navItems.push({ id: 'points-attention', label: "Points d'Attention" });
-  }
-
-  navItems.push({ id: 'cashflow-rentabilite', label: 'Cash-flow & Rentabilité' });
-
-  if (resultats.comparaisonFiscalite) {
-    navItems.push({ id: 'fiscalite', label: 'Comparaison Fiscale' });
-  }
-
-  if (resultats.projections?.plusValue) {
-    navItems.push({ id: 'plus-value', label: 'Plus-Value' });
-  }
-
-  if (resultats.projections) {
-    navItems.push({ id: 'projections', label: 'Projections' });
-  }
-
-  navItems.push({ id: 'financement', label: 'Financement & Amortissement' });
-
-  if (resultats.projections) {
-    navItems.push({ id: 'projections-detaillees', label: 'Projections détaillées' });
-  }
-
-  // On attache un onClick qui scroll vers l'élément et ouvre le collapsible si nécessaire
-  const navItemsWithScroll = navItems.map((item) => ({
-    ...item,
-    onClick: () => {
-      document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
-      window.dispatchEvent(new CustomEvent('open-collapsible', { detail: { id: item.id } }));
-    },
-  }));
+  // Score par profil — always run scoreToEvaluation to ensure evaluation/couleur are fresh
+  const scoreForProfil = (() => {
+    const base = resultats.synthese.scores_par_profil
+      ? (() => {
+          const scoreDetail = resultats.synthese.scores_par_profil![profilInvestisseur];
+          return {
+            ...resultats.synthese,
+            score_global: scoreDetail.total,
+            score_detail: scoreDetail,
+          };
+        })()
+      : resultats.synthese;
+    const { evaluation, couleur } = scoreToEvaluation(base.score_global);
+    return { ...base, evaluation, couleur };
+  })();
 
   return (
-    <>
-      {/* Navigation mobile sticky — en dehors du flex principal */}
-      <SideNavigationMobile
-        items={navItemsWithScroll}
-        activeId={activeSection}
-        title="Analyse de la simulation"
-      />
+    <div className="max-w-4xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4">
+      {/* ── Header ── */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 pb-6 border-b border-outline-variant/40">
+        <div>
+          <div className="flex items-center gap-2 text-on-surface-variant mb-3">
+            <button
+              onClick={handleEdit}
+              className="hover:text-primary transition-colors flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Modifier la saisie
+            </button>
+            <span className="text-outline-variant">/</span>
+            <span className="text-xs font-bold text-on-surface-variant/70 uppercase tracking-widest">
+              Rapport d&apos;analyse
+            </span>
+          </div>
+          {bien?.adresse && (
+            <h1 className="text-2xl sm:text-4xl font-black text-on-surface tracking-tight">
+              {bien.adresse}
+            </h1>
+          )}
+        </div>
+      </div>
 
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start pb-20">
-        {/* Sidebar desktop : un seul aside sticky, description dans footer */}
-        <SideNavigationDesktop
-          items={navItemsWithScroll}
-          activeId={activeSection}
-          title="Analyse de la simulation"
-          footer={
-            scenario.description ? (
-              <div className="bg-surface/50 border border-sand/50 rounded-xl p-4 animate-in fade-in">
-                <h3 className="text-xs font-bold text-charcoal uppercase tracking-widest mb-2 border-l-2 border-forest pl-2">
-                  Description
-                </h3>
-                <p className="text-sm text-stone leading-relaxed whitespace-pre-wrap break-words">
-                  {scenario.description}
-                </p>
+      {/* ── ScenarioTabs ── */}
+      <div className="mt-6">
+        <ScenarioTabs />
+      </div>
+
+      {/* ── Tab Bar ── */}
+      <div className="mt-6 flex gap-1 border-b border-outline-variant/40 overflow-x-auto">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            className={cn(
+              'flex items-center gap-2 px-4 py-3 text-sm font-bold whitespace-nowrap',
+              'border-b-2 -mb-px transition-colors duration-150',
+              activeTab === tab.id
+                ? 'border-primary text-primary'
+                : 'border-transparent text-on-surface-variant hover:text-on-surface hover:border-outline-variant'
+            )}
+          >
+            {tab.icon}
+            {tab.label}
+            {tab.stub && (
+              <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant/60">
+                Bientôt
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Tab Content ── */}
+      <div className="mt-8 space-y-10">
+        {/* ─── Tab 1 : Analyse ─── */}
+        {activeTab === 'analyse' && (
+          <>
+            {/* Paramètres */}
+            <section className="space-y-3">
+              <SectionTitle>Paramètres</SectionTitle>
+              <InputRecap
+                bien={bien}
+                financement={financement}
+                exploitation={exploitation}
+                structure={structure}
+              />
+            </section>
+
+            {/* Performance */}
+            <section className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <SectionTitle>Performance</SectionTitle>
+                <ProfilInvestisseurToggle
+                  profil={profilInvestisseur}
+                  onChange={setProfilInvestisseur}
+                />
               </div>
-            ) : undefined
-          }
-        />
+              <ScorePanel synthese={scoreForProfil} />
+            </section>
 
-        {/* Contenu principal */}
-        <div className="flex-1 space-y-8 animate-in fade-in slide-in-from-bottom-4 w-full">
-          {/* 1. Header */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 pb-6 border-b border-sand/60">
-            <div>
-              <div className="flex items-center gap-2 text-stone mb-3">
-                <button
-                  onClick={handleEdit}
-                  className="hover:text-forest transition-colors flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  Modifier la saisie
-                </button>
-                <span className="text-sand">/</span>
-                <span className="text-xs font-bold text-stone/80 uppercase tracking-widest">
-                  Rapport d&apos;analyse
-                </span>
+            {/* Indicateurs Clés */}
+            <section className="space-y-3">
+              <SectionTitle>Indicateurs Clés</SectionTitle>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <MetricCard
+                  label="Renta. Brute"
+                  value={formatPercent(resultats.rentabilite.brute)}
+                  status="info"
+                  tooltip="Loyer facial / Prix d'achat (convention marché)"
+                  data-testid="rentabilite-brute"
+                />
+                <MetricCard
+                  label="Revenus Annuels"
+                  value={formatCurrency(resultats.rentabilite.loyer_annuel ?? 0)}
+                  status="info"
+                  tooltip="Loyer annuel effectif (après taux d'occupation)"
+                  data-testid="revenus-annuels"
+                />
+                <MetricCard
+                  label="Renta. Nette-Nette"
+                  value={formatPercent(resultats.rentabilite.nette_nette)}
+                  status={rentaStatus}
+                  tooltip="Après charges & impôts"
+                />
+                <MetricCard
+                  label="Cash-flow Net"
+                  value={`${resultats.cashflow.mensuel >= 0 ? '+' : ''}${formatCurrency(resultats.cashflow.mensuel)}`}
+                  status={cashflowStatus}
+                  tooltip="Par mois (réel)"
+                />
+                <MetricCard
+                  label="TRI"
+                  value={
+                    resultats.projections ? formatPercent(resultats.projections.totaux.tri) : '--'
+                  }
+                  status={triStatus}
+                  tooltip="Rendement interne"
+                />
+                <MetricCard
+                  label="Patrimoine Net"
+                  value={
+                    resultats.projections
+                      ? formatCurrency(resultats.projections.totaux.enrichissementTotal)
+                      : '--'
+                  }
+                  status="success"
+                  tooltip="Gain à l'horizon"
+                />
               </div>
-              {bien.adresse && (
-                <h1 className="text-2xl sm:text-4xl font-black text-charcoal tracking-tight">
-                  {bien.adresse}
-                </h1>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <SaveSimulationButton formData={formData} resultats={resultats} />
-              <DownloadPdfButton
-                formData={formData}
-                resultats={resultats}
-                className="shadow-lg shadow-forest/20"
-              />
-            </div>
-          </div>
+            </section>
 
-          {/* 2. ScenarioTabs */}
-          <ScenarioTabs />
-
-          {/* 3. InputRecap */}
-          <div id="parametres" className="space-y-3 scroll-mt-24">
-            <SectionTitle>Paramètres</SectionTitle>
-            <InputRecap
-              bien={bien}
-              financement={financement}
-              exploitation={exploitation}
-              structure={structure}
-            />
-          </div>
-
-          {/* 4. ScorePanel avec toggle profil investisseur (V2-S16) */}
-          <div id="performance" className="space-y-3 scroll-mt-24">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <SectionTitle>Performance</SectionTitle>
-              <ProfilInvestisseurToggle
-                profil={profilInvestisseur}
-                onChange={setProfilInvestisseur}
-              />
-            </div>
-            <ScorePanel
-              synthese={
-                resultats.synthese.scores_par_profil
-                  ? (() => {
-                      const scoreDetail = resultats.synthese.scores_par_profil[profilInvestisseur];
-                      const { evaluation, couleur } = scoreToEvaluation(scoreDetail.total);
-                      return {
-                        ...resultats.synthese,
-                        score_global: scoreDetail.total,
-                        score_detail: scoreDetail,
-                        evaluation,
-                        couleur,
-                      };
-                    })()
-                  : resultats.synthese
-              }
-            />
-          </div>
-
-          {/* 5. KPI Cards */}
-          <div id="indicateurs" className="space-y-3 scroll-mt-24">
-            <SectionTitle>Indicateurs Clés</SectionTitle>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <MetricCard
-                label="Renta. Brute"
-                value={formatPercent(resultats.rentabilite.brute)}
-                status="info"
-                tooltip="Loyer facial / Prix d'achat (convention marché)"
-                data-testid="rentabilite-brute"
-              />
-              <MetricCard
-                label="Revenus Annuels"
-                value={formatCurrency(resultats.rentabilite.loyer_annuel ?? 0)}
-                status="info"
-                tooltip="Loyer annuel effectif (après taux d'occupation)"
-                data-testid="revenus-annuels"
-              />
-              <MetricCard
-                label="Renta. Nette-Nette"
-                value={formatPercent(resultats.rentabilite.nette_nette)}
-                status={rentaStatus}
-                tooltip="Après charges & impôts"
-              />
-              <MetricCard
-                label="Cash-flow Net"
-                value={`${resultats.cashflow.mensuel >= 0 ? '+' : ''}${formatCurrency(resultats.cashflow.mensuel)}`}
-                status={cashflowStatus}
-                tooltip="Par mois (réel)"
-              />
-              <MetricCard
-                label="TRI"
-                value={
-                  resultats.projections ? formatPercent(resultats.projections.totaux.tri) : '--'
-                }
-                status={triStatus}
-                tooltip="Rendement interne"
-              />
-              <MetricCard
-                label="Patrimoine Net"
-                value={
-                  resultats.projections
-                    ? formatCurrency(resultats.projections.totaux.enrichissementTotal)
-                    : '--'
-                }
-                status="success"
-                tooltip="Gain à l'horizon"
-              />
-            </div>
-          </div>
-
-          {/* 6. Points d'Attention (V2-S17) */}
-          {(() => {
-            const hasPoints =
-              resultats.synthese.points_attention_detail?.length ||
-              resultats.synthese.points_attention?.length;
-
-            if (!hasPoints) return null;
-            return (
-              <div id="points-attention" className="space-y-3 scroll-mt-24">
+            {/* Points d'Attention */}
+            {resultats.synthese.points_attention_detail?.length ||
+            resultats.synthese.points_attention?.length ? (
+              <section className="space-y-3">
                 <SectionTitle>Points d&apos;Attention</SectionTitle>
                 <PointsAttention
                   points={resultats.synthese.points_attention}
                   pointsDetail={resultats.synthese.points_attention_detail}
                 />
-              </div>
-            );
-          })()}
+              </section>
+            ) : null}
 
-          {/* 7. InvestmentBreakdown + OperationalBalance */}
-          <div
-            id="cashflow-rentabilite"
-            className="grid grid-cols-1 lg:grid-cols-2 gap-8 scroll-mt-24"
-          >
-            <InvestmentBreakdown
-              bien={bien}
-              financement={financement}
-              resultats={resultats.financement}
+            {/* Cash-flow & Rentabilité */}
+            <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <InvestmentBreakdown
+                bien={bien}
+                financement={financement}
+                resultats={resultats.financement}
+              />
+              <OperationalBalance
+                exploitation={exploitation}
+                cashflow={resultats.cashflow}
+                financement={resultats.financement}
+                rentabilite={resultats.rentabilite}
+                impotMensuel={impotMensuelMoyen}
+              />
+            </section>
+
+            {/* Comparaison Fiscale */}
+            {resultats.comparaisonFiscalite && (
+              <section className="space-y-3">
+                <SectionTitle>Comparaison Fiscale</SectionTitle>
+                <FiscalComparator data={resultats.comparaisonFiscalite} />
+              </section>
+            )}
+
+            {/* HCSF */}
+            <HCSFIndicator hcsf={resultats.hcsf} />
+
+            {/* Recommandations */}
+            <RecommandationsPanel
+              recommandations={resultats.synthese.recommandations_detail}
+              fiscalConseil={resultats.comparaisonFiscalite?.conseil}
+              hcsfConforme={resultats.hcsf.conforme}
+              effetLevier={resultats.rentabilite.effet_levier}
             />
-            <OperationalBalance
-              exploitation={exploitation}
-              cashflow={resultats.cashflow}
-              financement={resultats.financement}
-              rentabilite={resultats.rentabilite}
-              impotMensuel={impotMensuelMoyen}
-            />
-          </div>
+          </>
+        )}
 
-          {/* 8. FiscalComparator */}
-          {resultats.comparaisonFiscalite && (
-            <div id="fiscalite" className="scroll-mt-24">
-              <FiscalComparator data={resultats.comparaisonFiscalite} />
-            </div>
-          )}
-
-          {/* 9. Plus-Value à la revente */}
-          {resultats.projections?.plusValue && (
-            <div id="plus-value" className="space-y-3 scroll-mt-24">
-              <SectionTitle>Plus-Value à la Revente</SectionTitle>
-              <div className="bg-surface rounded-2xl border border-sand/50 p-6 space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                  <div className="text-center">
-                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">
-                      PV brute
-                    </p>
-                    <p
-                      className="text-base sm:text-xl font-black text-charcoal"
-                      data-testid="pv-brute"
-                    >
-                      {formatCurrency(resultats.projections.plusValue.plus_value_brute)}
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">
-                      Impôt total PV
-                    </p>
-                    <p
-                      className="text-base sm:text-xl font-black text-terracotta"
-                      data-testid="impot-pv-total"
-                    >
-                      {formatCurrency(resultats.projections.plusValue.impot_total)}
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">
-                      Net revente
-                    </p>
-                    <p className="text-base sm:text-xl font-black text-forest">
-                      {formatCurrency(resultats.projections.plusValue.net_revente)}
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-1">
-                      Durée détention
-                    </p>
-                    <p className="text-base sm:text-xl font-black text-charcoal">
-                      {resultats.projections.plusValue.duree_detention} ans
-                    </p>
-                  </div>
+        {/* ─── Tab 2 : Projections ─── */}
+        {activeTab === 'projections' && (
+          <>
+            {/* Graphiques */}
+            {resultats.projections && (
+              <section className="space-y-3">
+                <SectionTitle>Projections</SectionTitle>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card className="p-6 md:p-10 rounded-3xl bg-surface-container-lowest shadow-sm border-none">
+                    <h3 className="text-xs font-black text-on-surface-variant uppercase tracking-widest mb-5">
+                      Cash-flow net d&apos;impôt
+                    </h3>
+                    <CashflowChart data={cashflowData} breakEvenYear={breakEvenYear} />
+                  </Card>
+                  <Card className="p-6 md:p-10 rounded-3xl bg-surface-container-lowest shadow-sm border-none">
+                    <h3 className="text-xs font-black text-on-surface-variant uppercase tracking-widest mb-5">
+                      Évolution du patrimoine
+                    </h3>
+                    <PatrimoineChart
+                      data={patrimoineData}
+                      loanEndYear={loanEndYear}
+                      dpe={bien?.dpe}
+                    />
+                  </Card>
                 </div>
-                <div className="pt-4 border-t border-sand/30 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                  <div>
-                    <span className="text-pebble">Base imposable (IR)</span>
-                    <span
-                      className="ml-2 font-semibold text-charcoal"
-                      data-testid="base-imposable-pv"
-                    >
-                      {formatCurrency(resultats.projections.plusValue.plus_value_nette_ir)}
-                    </span>
+              </section>
+            )}
+
+            {/* Plus-Value à la revente */}
+            {resultats.projections?.plusValue && (
+              <section className="space-y-3">
+                <SectionTitle>Plus-Value à la Revente</SectionTitle>
+                <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 p-6 space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {[
+                      {
+                        label: 'PV brute',
+                        value: formatCurrency(resultats.projections.plusValue.plus_value_brute),
+                        testId: 'pv-brute',
+                        color: 'text-on-surface',
+                      },
+                      {
+                        label: 'Impôt total PV',
+                        value: formatCurrency(resultats.projections.plusValue.impot_total),
+                        testId: 'impot-pv-total',
+                        color: 'text-error',
+                      },
+                      {
+                        label: 'Net revente',
+                        value: formatCurrency(resultats.projections.plusValue.net_revente),
+                        color: 'text-primary',
+                      },
+                      {
+                        label: 'Durée détention',
+                        value: `${resultats.projections.plusValue.duree_detention} ans`,
+                        color: 'text-on-surface',
+                      },
+                    ].map((item) => (
+                      <div
+                        key={item.label}
+                        className="text-center p-4 rounded-xl bg-surface-container"
+                      >
+                        <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-wider mb-1">
+                          {item.label}
+                        </p>
+                        <p
+                          className={`text-base sm:text-xl font-black ${item.color}`}
+                          {...(item.testId ? { 'data-testid': item.testId } : {})}
+                        >
+                          {item.value}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                  <div>
-                    <span className="text-pebble">Abattement IR</span>
-                    <span className="ml-2 font-semibold text-charcoal" data-testid="abattement-ir">
-                      {resultats.projections.plusValue.abattement_ir}%
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-pebble">Abattement PS</span>
-                    <span className="ml-2 font-semibold text-charcoal" data-testid="abattement-ps">
-                      {resultats.projections.plusValue.abattement_ps}%
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-pebble">Surtaxe PV</span>
-                    <span className="ml-2 font-semibold text-charcoal" data-testid="surtaxe-pv">
-                      {formatCurrency(resultats.projections.plusValue.surtaxe)}
-                    </span>
-                  </div>
-                  {resultats.projections.plusValue.amortissements_reintegres > 0 && (
-                    <div className="col-span-2">
-                      <span className="text-pebble">Amortissements réintégrés (LMNP)</span>
-                      <span className="ml-2 font-semibold text-amber-700">
-                        {formatCurrency(resultats.projections.plusValue.amortissements_reintegres)}
+                  <div className="pt-3 border-t border-outline-variant/30 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <div>
+                      <span className="text-on-surface-variant">Base imposable (IR)</span>
+                      <span
+                        className="ml-2 font-bold text-on-surface"
+                        data-testid="base-imposable-pv"
+                      >
+                        {formatCurrency(resultats.projections.plusValue.plus_value_nette_ir)}
                       </span>
                     </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 10. HCSFIndicator */}
-          <HCSFIndicator hcsf={resultats.hcsf} />
-
-          {/* 10. RecommandationsPanel */}
-          <RecommandationsPanel
-            recommandations={resultats.synthese.recommandations_detail}
-            fiscalConseil={resultats.comparaisonFiscalite?.conseil}
-            hcsfConforme={resultats.hcsf.conforme}
-            effetLevier={resultats.rentabilite.effet_levier}
-          />
-
-          {/* 10. Graphiques (sortis du Collapsible) */}
-          {resultats.projections && (
-            <div id="projections" className="space-y-3 scroll-mt-24">
-              <SectionTitle>Projections</SectionTitle>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <Card className="p-6 bg-white shadow-sm border-none">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest">
-                      Projection Cash-flow (Net d&apos;impôt)
-                    </h3>
-                  </div>
-                  <CashflowChart data={cashflowData} breakEvenYear={breakEvenYear} />
-                </Card>
-                <Card className="p-6 bg-white shadow-sm border-none">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest">
-                      Évolution du Patrimoine
-                    </h3>
-                  </div>
-                  <PatrimoineChart data={patrimoineData} loanEndYear={loanEndYear} dpe={bien.dpe} />
-                </Card>
-              </div>
-            </div>
-          )}
-
-          {/* 11. Collapsible: Financement & Amortissement */}
-          <div id="financement" className="scroll-mt-24">
-            <Collapsible id="financement" title="Expertise financement & Amortissement">
-              <div className="space-y-8 py-4">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                  <div className="text-center p-4 sm:p-6 bg-surface border border-sand/50 rounded-2xl shadow-sm">
-                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
-                      Montant emprunté
-                    </p>
-                    <p className="text-2xl sm:text-3xl font-black text-charcoal tabular-nums">
-                      {formatCurrency(resultats.financement.montant_emprunt)}
-                    </p>
-                  </div>
-                  <div className="text-center p-4 sm:p-6 bg-surface border border-sand/50 rounded-2xl shadow-sm">
-                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
-                      Engagement mensuel
-                    </p>
-                    <p className="text-2xl sm:text-3xl font-black text-charcoal tabular-nums">
-                      {formatCurrency(resultats.financement.mensualite)}
-                    </p>
-                  </div>
-                  <div className="text-center p-4 sm:p-6 bg-terracotta/[0.03] border border-terracotta/10 rounded-2xl shadow-sm">
-                    <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
-                      Coût du crédit
-                    </p>
-                    <p className="text-2xl sm:text-3xl font-black text-terracotta tabular-nums">
-                      {formatCurrency(resultats.financement.cout_total_credit)}
-                    </p>
+                    <div>
+                      <span className="text-on-surface-variant">Abattement IR</span>
+                      <span className="ml-2 font-bold text-on-surface" data-testid="abattement-ir">
+                        {resultats.projections.plusValue.abattement_ir}%
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-on-surface-variant">Abattement PS</span>
+                      <span className="ml-2 font-bold text-on-surface" data-testid="abattement-ps">
+                        {resultats.projections.plusValue.abattement_ps}%
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-on-surface-variant">Surtaxe PV</span>
+                      <span className="ml-2 font-bold text-on-surface" data-testid="surtaxe-pv">
+                        {formatCurrency(resultats.projections.plusValue.surtaxe)}
+                      </span>
+                    </div>
+                    {resultats.projections.plusValue.amortissements_reintegres > 0 && (
+                      <div className="col-span-2">
+                        <span className="text-on-surface-variant">
+                          Amortissements réintégrés (LMNP)
+                        </span>
+                        <span className="ml-2 font-bold text-tertiary">
+                          {formatCurrency(
+                            resultats.projections.plusValue.amortissements_reintegres
+                          )}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
+              </section>
+            )}
 
-                {resultats.tableauAmortissement && (
-                  <div className="pt-4">
-                    <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-forest/30 pl-3">
-                      Remboursement du crédit
-                    </h3>
-                    <AmortizationTable data={resultats.tableauAmortissement} />
-                  </div>
-                )}
-
-                {resultats.tableauAmortissementFiscal && (
-                  <div className="pt-4">
-                    <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-amber-500/40 pl-3">
-                      Amortissement fiscal
-                    </h3>
-                    <FiscalAmortizationTable data={resultats.tableauAmortissementFiscal} />
-                  </div>
-                )}
-              </div>
-            </Collapsible>
-          </div>
-
-          {/* 12. Collapsible: Projections détaillées (table + KPIs only) */}
-          {resultats.projections && (
-            <div id="projections-detaillees" className="scroll-mt-24">
-              <Collapsible
-                id="projections-detaillees"
-                title={`Projections patrimoniales détaillées (${resultats.projections.horizon} ans)`}
-                defaultOpen={false}
-              >
-                <div className="space-y-8 py-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                    <div className="text-center p-6 bg-forest/5 border border-forest/10 rounded-2xl">
-                      <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
-                        TRI Projet
+            {/* Projections détaillées (KPIs + table) */}
+            {resultats.projections && (
+              <section className="space-y-3">
+                <SectionTitle>Détail sur {resultats.projections.horizon} ans</SectionTitle>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    {
+                      label: 'TRI Projet',
+                      value: formatPercent(resultats.projections.totaux.tri),
+                      color: 'text-primary',
+                    },
+                    {
+                      label: 'Patrimoine net',
+                      value: formatCurrency(resultats.projections.totaux.enrichissementTotal),
+                      color: 'text-primary',
+                    },
+                    {
+                      label: 'Cash-flow cumulé',
+                      value: formatCurrency(resultats.projections.totaux.cashflowCumule),
+                      color:
+                        resultats.projections.totaux.cashflowCumule >= 0
+                          ? 'text-primary'
+                          : 'text-error',
+                    },
+                    {
+                      label: 'Dette remboursée',
+                      value: formatCurrency(resultats.projections.totaux.capitalRembourse),
+                      color: 'text-on-surface',
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className="text-center p-5 rounded-xl bg-surface-container"
+                    >
+                      <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-wider mb-1">
+                        {item.label}
                       </p>
-                      <p className="text-3xl font-black text-forest tabular-nums">
-                        {formatPercent(resultats.projections.totaux.tri)}
+                      <p className={`text-xl font-black tabular-nums ${item.color}`}>
+                        {item.value}
                       </p>
                     </div>
-                    <div className="text-center p-6 bg-sage/5 border border-sage/10 rounded-2xl">
-                      <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
-                        Patrimoine net
-                      </p>
-                      <p className="text-3xl font-black text-forest tabular-nums">
-                        {formatCurrency(resultats.projections.totaux.enrichissementTotal)}
-                      </p>
-                    </div>
-                    <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl">
-                      <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
-                        Cash-flow cumulé
-                      </p>
-                      <p
-                        className={`text-3xl font-black tabular-nums ${resultats.projections.totaux.cashflowCumule >= 0 ? 'text-forest' : 'text-terracotta'}`}
-                      >
-                        {formatCurrency(resultats.projections.totaux.cashflowCumule)}
-                      </p>
-                    </div>
-                    <div className="text-center p-6 bg-surface border border-sand/50 rounded-2xl">
-                      <p className="text-xs font-bold text-pebble uppercase tracking-wider mb-2">
-                        Dette remboursée
-                      </p>
-                      <p className="text-3xl font-black text-charcoal tabular-nums">
-                        {formatCurrency(resultats.projections.totaux.capitalRembourse)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-4">
-                    <h3 className="text-sm font-bold text-charcoal uppercase tracking-widest mb-6 px-1 border-l-4 border-forest/30 pl-3">
-                      Simulation pluriannuelle détaillée
-                    </h3>
-                    <ProjectionTable data={resultats.projections} />
-                  </div>
+                  ))}
                 </div>
-              </Collapsible>
-            </div>
-          )}
+                <ProjectionTable data={resultats.projections} />
+              </section>
+            )}
 
-          {/* 13. Lien Méthodologie */}
-          <div className="text-center pt-8">
-            <Link
-              href="/en-savoir-plus"
-              className="inline-flex items-center gap-2 text-forest hover:text-forest-dark transition-all text-sm font-bold uppercase tracking-widest bg-forest/5 px-6 py-3 rounded-full border border-forest/10 hover:border-forest/30"
-            >
-              Méthodologie &amp; Valeurs réglementaires
-            </Link>
-          </div>
-        </div>
-        {/* Fin Contenu principal */}
+            {/* Financement & Amortissement */}
+            <section className="space-y-3">
+              <SectionTitle>Financement &amp; Amortissement</SectionTitle>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  {
+                    label: 'Montant emprunté',
+                    value: formatCurrency(resultats.financement.montant_emprunt),
+                    accent: false,
+                  },
+                  {
+                    label: 'Engagement mensuel',
+                    value: formatCurrency(resultats.financement.mensualite),
+                    accent: false,
+                  },
+                  {
+                    label: 'Coût du crédit',
+                    value: formatCurrency(resultats.financement.cout_total_credit),
+                    accent: true,
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className={cn(
+                      'text-center p-5 rounded-xl',
+                      item.accent ? 'bg-error/5 border border-error/10' : 'bg-surface-container'
+                    )}
+                  >
+                    <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-wider mb-2">
+                      {item.label}
+                    </p>
+                    <p
+                      className={cn(
+                        'text-2xl font-black tabular-nums',
+                        item.accent ? 'text-error' : 'text-on-surface'
+                      )}
+                    >
+                      {item.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {resultats.tableauAmortissement && (
+                <AmortizationTable data={resultats.tableauAmortissement} />
+              )}
+
+              {resultats.tableauAmortissementFiscal && (
+                <div className="pt-2">
+                  <h3 className="text-xs font-black text-on-surface-variant uppercase tracking-widest mb-4 pl-3 border-l-4 border-tertiary/40">
+                    Amortissement fiscal
+                  </h3>
+                  <FiscalAmortizationTable data={resultats.tableauAmortissementFiscal} />
+                </div>
+              )}
+            </section>
+          </>
+        )}
+
+        {/* ─── Tab 3 : Comparaison (stub) ─── */}
+        {activeTab === 'comparaison' && <StubPanel label="Comparaison de scénarios" />}
+
+        {/* ─── Tab 4 : Avancé (stub) ─── */}
+        {activeTab === 'avance' && <StubPanel label="Analyse avancée" />}
       </div>
-    </>
+
+      {/* ── Footer ── */}
+      <div className="text-center pt-12">
+        <Link
+          href="/en-savoir-plus"
+          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors text-sm font-bold uppercase tracking-widest bg-primary/5 px-6 py-3 rounded-full border border-primary/10 hover:border-primary/30"
+        >
+          Méthodologie &amp; Valeurs réglementaires
+        </Link>
+      </div>
+
+      <DashboardFloatingFooter formData={formData} resultats={resultats} />
+    </div>
   );
 }

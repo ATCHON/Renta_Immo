@@ -155,7 +155,13 @@ export async function performCalculations(
       fiscalite: {
         regime: fiscalite.regime,
         impot_estime: fiscalite.impot_total,
+        base_imposable: fiscalite.base_imposable,
+        prelevements_sociaux: fiscalite.prelevements_sociaux,
+        abattement: fiscalite.abattement,
         revenu_net_apres_impot: fiscalite.revenu_net_apres_impot,
+        dividendes_bruts: fiscalite.dividendes_bruts,
+        flat_tax: fiscalite.flat_tax,
+        net_en_poche: fiscalite.net_en_poche,
       },
       hcsf: {
         taux_endettement: hcsf.taux_endettement,

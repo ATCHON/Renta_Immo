@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Card } from '@/components/ui/Card';
 import { CheckCircle2 } from 'lucide-react';
-import { FiscaliteComparaison } from '@/types/calculateur';
+import { cn } from '@/lib/utils';
+import type { FiscaliteComparaison } from '@/types/calculateur';
 
 interface FiscalComparatorProps {
   data: FiscaliteComparaison;
@@ -12,114 +12,97 @@ interface FiscalComparatorProps {
 export const FiscalComparator = React.memo(function FiscalComparator({
   data,
 }: FiscalComparatorProps) {
-  if (!data || !data.items || data.items.length === 0) return null;
+  if (!data?.items?.length) return null;
 
   return (
-    <section className="space-y-6 mt-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-black uppercase tracking-widest text-charcoal">
-            Comparatif des Régimes Fiscaux
-          </h2>
-          <p className="text-stone font-medium mt-1 max-w-2xl">
-            Optimisez votre investissement en comparant l&apos;impact fiscal des principaux régimes.
-            Le cash-flow net est l&apos;indicateur clé pour votre poche.
-          </p>
-        </div>
-      </div>
-
-      <Card className="overflow-hidden border-sand/50 shadow-sm transition-all hover:shadow-md">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-surface/50 border-b border-sand/50">
-                <th className="px-6 py-4 nordic-label-xs min-w-[200px]">Régime Fiscal</th>
-                <th className="px-6 py-4 nordic-label-xs text-center whitespace-nowrap">
-                  Impôt annuel (Moy.)
-                </th>
-                <th className="px-6 py-4 nordic-label-xs text-center whitespace-nowrap">
-                  Cashflow Net annuel
-                </th>
-                <th className="px-6 py-4 nordic-label-xs text-center whitespace-nowrap">
-                  Renta Nette-Nette
-                </th>
-                <th className="px-6 py-4 nordic-label-xs text-right whitespace-nowrap">Conseil</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-sand/30">
-              {data.items.map((item, idx) => (
-                <tr
-                  key={idx}
-                  className={`group transition-colors ${item.isOptimal ? 'bg-forest/5' : 'hover:bg-surface/30'}`}
+    <div className="space-y-3" data-testid="fiscal-comparator">
+      {data.items.map((item, idx) => (
+        <div
+          key={idx}
+          className={cn(
+            'rounded-xl border p-4 transition-all duration-normal',
+            item.isOptimal
+              ? 'border-primary bg-primary/5 shadow-sm'
+              : 'border-outline-variant bg-surface-container-lowest'
+          )}
+          data-testid={item.isOptimal ? 'fiscal-item-recommended' : 'fiscal-item'}
+        >
+          <div className="flex items-start justify-between gap-3">
+            {/* Nom + badges */}
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <span
+                  className={cn(
+                    'font-bold text-sm',
+                    item.isOptimal ? 'text-primary' : 'text-on-surface'
+                  )}
                 >
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`font-black tracking-tight ${item.isOptimal ? 'text-forest' : 'text-charcoal'}`}
-                      >
-                        {item.regime}
-                      </span>
-                      {item.isOptimal && (
-                        <span className="nordic-badge bg-forest text-white">CONSEILLÉ</span>
-                      )}
-                      {item.isSelected && (
-                        <span className="nordic-badge bg-charcoal text-white">VOTRE CHOIX</span>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-stone font-medium mt-1 line-clamp-1 group-hover:line-clamp-none transition-all duration-300">
-                      {item.description}
-                    </p>
-                    {item.dividendes_bruts !== undefined && item.dividendes_bruts > 0 && (
-                      <div className="mt-2 p-2 bg-white/50 rounded-xl border border-sand/50 text-[10px] space-y-1">
-                        <div className="flex justify-between">
-                          <span className="text-stone">Div. bruts:</span>
-                          <span className="font-bold text-charcoal">
-                            {Math.round(item.dividendes_bruts).toLocaleString()} €
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-stone">Flat Tax (30%):</span>
-                          <span className="font-bold text-terracotta">
-                            -{Math.round(item.flat_tax || 0).toLocaleString()} €
-                          </span>
-                        </div>
-                      </div>
+                  {item.regime}
+                </span>
+
+                {item.isOptimal && (
+                  <span
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary text-on-primary"
+                    data-testid="badge-recommande"
+                  >
+                    <CheckCircle2 className="h-3 w-3" />
+                    RECOMMANDÉ
+                  </span>
+                )}
+
+                {item.isSelected && (
+                  <span
+                    className={cn(
+                      'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
+                      item.isOptimal
+                        ? 'border border-primary text-primary'
+                        : 'bg-on-surface text-surface'
                     )}
-                  </td>
-                  <td className="px-6 py-5 text-center font-bold text-charcoal text-sm">
-                    {item.impotAnnuelMoyen > 0
-                      ? `${Math.round(item.impotAnnuelMoyen).toLocaleString()} €`
-                      : '0 €'}
-                  </td>
-                  <td className="px-6 py-5 text-center">
-                    <span
-                      className={`text-base font-black tabular-nums ${item.cashflowNetMoyen > 0 ? 'text-forest' : 'text-terracotta'}`}
-                    >
-                      {item.cashflowNetMoyen > 0 ? '+' : ''}
-                      {Math.round(item.cashflowNetMoyen).toLocaleString()} €
-                    </span>
-                  </td>
-                  <td className="px-6 py-5 text-center">
-                    <div className="inline-flex items-center px-2 py-1 rounded-lg bg-surface text-charcoal text-xs font-black border border-sand/50">
-                      {item.rentabiliteNetteNette}%
-                    </div>
-                  </td>
-                  <td className="px-6 py-5 text-right">
-                    {item.isOptimal ? (
-                      <div className="flex items-center justify-end text-forest font-black text-xs gap-1.5 slide-in-from-right-2 animate-in duration-500 uppercase tracking-widest">
-                        <CheckCircle2 size={14} />
-                        Optimal
-                      </div>
-                    ) : (
-                      <span className="nordic-label-xs">Alternative</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  >
+                    VOTRE CHOIX
+                  </span>
+                )}
+              </div>
+
+              <p className="text-xs text-on-surface-variant">{item.description}</p>
+
+              {item.dividendes_bruts !== undefined && item.dividendes_bruts > 0 && (
+                <div className="mt-2 flex gap-4 text-xs text-on-surface-variant">
+                  <span>
+                    Dividendes bruts :{' '}
+                    <strong>{Math.round(item.dividendes_bruts).toLocaleString()} €</strong>
+                  </span>
+                  <span>
+                    Flat Tax (30%) :{' '}
+                    <strong className="text-error">
+                      -{Math.round(item.flat_tax || 0).toLocaleString()} €
+                    </strong>
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* KPIs à droite */}
+            <div className="text-right shrink-0 space-y-1">
+              <p
+                className={cn(
+                  'text-lg font-black tabular-nums',
+                  item.cashflowNetMoyen >= 0 ? 'text-primary' : 'text-error'
+                )}
+              >
+                {item.cashflowNetMoyen >= 0 ? '+' : ''}
+                {Math.round(item.cashflowNetMoyen).toLocaleString()} €
+              </p>
+              <p className="text-[10px] text-on-surface-variant uppercase tracking-wide">
+                cashflow / an
+              </p>
+              <p className="text-xs font-bold text-on-surface tabular-nums">
+                {item.rentabiliteNetteNette}% net-net
+              </p>
+            </div>
+          </div>
         </div>
-      </Card>
-    </section>
+      ))}
+    </div>
   );
 });

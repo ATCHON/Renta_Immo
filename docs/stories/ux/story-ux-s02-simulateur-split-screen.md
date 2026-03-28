@@ -2,7 +2,7 @@
 
 > **Priorité** : P1 — La refonte la plus complexe
 > **Effort** : L (4–5 jours)
-> **Statut** : In Progress — Sprint 2a ✅ (3.1+3.2), Sprint 3 (3.3–3.6)
+> **Statut** : ✅ DONE — Sprint 2a ✅ (3.1+3.2), Sprint 3 ✅ (3.3–3.6)
 > **Type** : Feature / UI + Layout
 > **Epic** : UX Migration — Phase 2 : Simulateur
 > **Branche** : `feature/verdant-simulator`

@@ -311,6 +311,9 @@ export interface TableauAmortissementFiscal {
 export interface FiscaliteResultat {
   regime: string;
   impot_estime: number;
+  base_imposable: number;
+  prelevements_sociaux: number;
+  abattement: number;
   revenu_net_apres_impot: number;
   dividendes_bruts?: number;
   flat_tax?: number;

@@ -13,18 +13,11 @@ interface MetricCardProps {
   'data-testid'?: string;
 }
 
-const statusStyles: Record<MetricStatus, string> = {
-  success: 'bg-sage/5 border-sage/20',
-  warning: 'bg-amber/5 border-amber/20',
-  danger: 'bg-terracotta/5 border-terracotta/20',
-  info: 'bg-surface border-sand/50',
-};
-
 const valueStyles: Record<MetricStatus, string> = {
-  success: 'text-forest',
-  warning: 'text-amber-700',
-  danger: 'text-terracotta',
-  info: 'text-charcoal',
+  success: 'text-primary',
+  warning: 'text-tertiary',
+  danger: 'text-error',
+  info: 'text-on-surface',
 };
 
 export function MetricCard({
@@ -38,23 +31,25 @@ export function MetricCard({
   return (
     <div
       className={cn(
-        'rounded-lg p-3 sm:p-6 border transition-shadow hover:shadow-md',
-        statusStyles[status],
+        'rounded-xl p-5 sm:p-7 bg-surface-container transition-all duration-normal border border-outline-variant/10 shadow-[0_8px_24px_rgba(1,45,29,0.06)]',
+        'hover:-translate-y-0.5 hover:shadow-lg cursor-default',
         className
       )}
       title={tooltip}
       data-testid={dataTestId}
     >
-      <div className="flex flex-col items-center text-center space-y-1 sm:space-y-2">
+      <div className="flex flex-col items-center text-center space-y-1.5">
         <p
           className={cn(
-            'text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold',
+            'text-2xl sm:text-3xl md:text-4xl font-black tabular-nums',
             valueStyles[status]
           )}
         >
           {value}
         </p>
-        <p className="text-xs font-medium uppercase tracking-wide text-pebble">{label}</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">
+          {label}
+        </p>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Card } from '@/components/ui';
+import { Card, Collapsible } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import type { SyntheseResultat } from '@/types/calculateur';
 
@@ -112,44 +112,6 @@ function AjustementBar({
   );
 }
 
-function ScoreLegendBar({ score, colorKey }: { score: number; colorKey: string }) {
-  const segments = [
-    { label: 'Faible', range: [0, 39], color: 'bg-terracotta/20' },
-    { label: 'Moyen', range: [40, 59], color: 'bg-amber/20' },
-    { label: 'Bon', range: [60, 79], color: 'bg-sage/20' },
-    { label: 'Excellent', range: [80, 100], color: 'bg-forest/20' },
-  ];
-
-  const markerPos = Math.min(100, Math.max(0, score));
-
-  return (
-    <div className="mt-4 w-full max-w-[220px]">
-      <div className="relative h-3 rounded-full overflow-hidden flex">
-        {segments.map((seg) => (
-          <div
-            key={seg.label}
-            className={cn('h-full', seg.color)}
-            style={{ width: seg.range[0] === 80 ? '21%' : seg.range[0] === 0 ? '40%' : '20%' }}
-          />
-        ))}
-        <div
-          className={cn(
-            'absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-white shadow-md',
-            SCORE_COLORS[colorKey as keyof typeof SCORE_COLORS]?.bar ?? 'bg-stone'
-          )}
-          style={{ left: `${markerPos}%`, transform: 'translate(-50%, -50%)' }}
-        />
-      </div>
-      <div className="flex justify-between mt-1.5">
-        <span className="text-[9px] text-stone font-medium">Faible</span>
-        <span className="text-[9px] text-stone font-medium">Moyen</span>
-        <span className="text-[9px] text-stone font-medium">Bon</span>
-        <span className="text-[9px] text-stone font-medium">Excellent</span>
-      </div>
-    </div>
-  );
-}
-
 export function ScorePanel({ synthese }: ScorePanelProps) {
   const evaluation = synthese.evaluation ?? deriveEvaluation(synthese.score_global);
   const colorKey = deriveColorKey(synthese.score_global);
@@ -166,82 +128,124 @@ export function ScorePanel({ synthese }: ScorePanelProps) {
     }));
   }, [synthese.score_detail]);
 
+  // SVG Gauge Calculations
+  const radius = 80;
+  const strokeWidth = 14;
+  const normalizedRadius = radius - strokeWidth * 0.5;
+  const circumference = normalizedRadius * 2 * Math.PI;
+  // Score is mapped assuming 100 max
+  const strokeDashoffset = circumference - (synthese.score_global / 100) * circumference;
+
   return (
-    <Card variant="bordered" className="!p-0 overflow-hidden">
-      <div className="grid grid-cols-1 lg:grid-cols-2">
-        {/* Score Hero */}
-        <div className="p-6 md:p-8 flex flex-col items-center justify-center border-b lg:border-b-0 lg:border-r border-border">
-          <p className="nordic-label-xs mb-4">Indice de Performance</p>
-          <div className="flex items-baseline gap-2 mb-3">
+    <Card variant="bordered" className="!p-0 overflow-hidden relative">
+      <div className="p-8 sm:p-12 flex flex-col items-center justify-center text-center">
+        <p className="nordic-label-xs mb-8">Indice de Performance Global</p>
+
+        {/* Jauge Circulaire */}
+        <div className="relative flex items-center justify-center mb-6">
+          <svg height={radius * 2} width={radius * 2} className="rotate-[-90deg]">
+            <circle
+              className="text-outline-variant/30"
+              strokeWidth={strokeWidth}
+              stroke="currentColor"
+              fill="transparent"
+              r={normalizedRadius}
+              cx={radius}
+              cy={radius}
+            />
+            <circle
+              className={cn('transition-all duration-1000 ease-out', scoreColor.score)}
+              strokeWidth={strokeWidth}
+              strokeDasharray={circumference + ' ' + circumference}
+              style={{ strokeDashoffset }}
+              strokeLinecap="round"
+              stroke="currentColor"
+              fill="transparent"
+              r={normalizedRadius}
+              cx={radius}
+              cy={radius}
+            />
+          </svg>
+
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span
-              className={cn('text-7xl md:text-8xl font-black tracking-tighter', scoreColor.score)}
+              className={cn('text-6xl font-black tracking-tighter', scoreColor.score)}
               data-testid="score-global"
             >
               {synthese.score_global}
             </span>
-            <span className="text-2xl text-stone/40 font-bold">/100</span>
+            <span className="text-sm text-on-surface-variant font-bold">/100</span>
           </div>
-          <span
-            className={cn(
-              'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border',
-              evalStyle.bg,
-              evalStyle.text,
-              evalStyle.border
-            )}
-          >
-            {evaluation}
-          </span>
-          <ScoreLegendBar score={synthese.score_global} colorKey={colorKey} />
         </div>
 
-        {/* Décomposition du score */}
-        <div className="p-6 md:p-8">
-          <p className="nordic-label-xs mb-4">Décomposition du score</p>
-          {ajustements ? (
-            <div className="space-y-2.5">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-xs font-medium text-stone w-28 shrink-0 text-right">
-                  Base initiale
-                </span>
-                <div className="flex-1" />
-                <span className="text-xs font-bold text-charcoal w-10 text-right tabular-nums">
-                  {synthese.score_detail!.base}
-                </span>
-              </div>
-              {ajustements.map((aj) => (
-                <AjustementBar
-                  key={aj.key}
-                  label={aj.label}
-                  value={aj.value}
-                  range={aj.range as [number, number]}
-                />
-              ))}
-              <div className="flex items-center gap-3 pt-3 mt-3 border-t border-border">
-                <span className="text-xs font-bold text-charcoal w-28 shrink-0 text-right">
-                  Total
-                </span>
-                <div className="flex-1" />
-                <span
-                  className={cn(
-                    'text-sm font-black w-10 text-right tabular-nums',
-                    scoreColor.score
-                  )}
-                >
-                  {synthese.score_global}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <p className="text-sm text-stone">Détail non disponible pour cette simulation.</p>
-          )}
+        {/* Badge & Description */}
+        <div className="space-y-4 max-w-lg">
+          <div className="flex justify-center">
+            <span
+              className={cn(
+                'inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-widest border',
+                evalStyle.bg,
+                evalStyle.text,
+                evalStyle.border
+              )}
+            >
+              {evaluation}
+            </span>
+          </div>
+          <p className="text-base font-medium text-on-surface leading-relaxed">
+            {synthese.recommandation}
+          </p>
         </div>
       </div>
 
-      {/* Recommandation */}
-      <div className="px-6 md:px-8 py-4 bg-surface/50 border-t border-border">
-        <p className="text-sm font-medium text-charcoal leading-relaxed">
-          {synthese.recommandation}
-        </p>
+      {/* Décomposition du score en Accordéon */}
+      <div className="px-6 md:px-8 py-5 bg-surface-container-lowest border-t border-outline-variant/40">
+        <Collapsible
+          title="Voir le détail des sous-scores"
+          className="bg-transparent border-0 shadow-none !p-0"
+        >
+          <div className="pt-4 pb-2">
+            {ajustements ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 mb-4 bg-surface-container/50 p-3 rounded-lg">
+                  <span className="text-sm font-bold text-on-surface w-28 shrink-0 text-right">
+                    Base initiale
+                  </span>
+                  <div className="flex-1" />
+                  <span className="text-sm font-black text-on-surface w-10 text-right tabular-nums">
+                    {synthese.score_detail!.base}
+                  </span>
+                </div>
+                {ajustements.map((aj) => (
+                  <AjustementBar
+                    key={aj.key}
+                    label={aj.label}
+                    value={aj.value}
+                    range={aj.range as [number, number]}
+                  />
+                ))}
+                <div className="flex items-center gap-3 pt-4 mt-4 border-t border-outline-variant/40">
+                  <span className="text-sm font-bold text-on-surface w-28 shrink-0 text-right">
+                    Score Total
+                  </span>
+                  <div className="flex-1" />
+                  <span
+                    className={cn(
+                      'text-lg font-black w-10 text-right tabular-nums',
+                      scoreColor.score
+                    )}
+                  >
+                    {synthese.score_global}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-on-surface-variant">
+                Détail non disponible pour cette simulation.
+              </p>
+            )}
+          </div>
+        </Collapsible>
       </div>
     </Card>
   );

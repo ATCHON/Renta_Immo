@@ -3,11 +3,13 @@
  * Référence : landing_page_accueil_premium/code.html — Social Proof Section
  */
 
+import Image from 'next/image';
+
 interface Testimonial {
   quote: string;
   author: string;
   role: string;
-  initials: string;
+  image: string;
 }
 
 const testimonials: Testimonial[] = [
@@ -16,14 +18,14 @@ const testimonials: Testimonial[] = [
       '« Petra Nova a complètement remplacé nos tableurs Excel. La vitesse de calcul et la rigueur fiscale sont incomparables sur le marché. »',
     author: 'Alexandre Thorneau',
     role: 'Investisseur, 12 biens en portefeuille',
-    initials: 'AT',
+    image: '/images/testimonial-at.png',
   },
   {
     quote:
       '« Le scoring dual Rentier / Patrimonial m&apos;a permis de choisir la bonne stratégie fiscale. L&apos;interface est d&apos;une clarté remarquable. »',
     author: 'Éléna Rousseau',
     role: 'Conseillère en gestion de patrimoine',
-    initials: 'ER',
+    image: '/images/testimonial-er.png',
   },
 ];
 
@@ -72,10 +74,8 @@ export function TestimonialsSection() {
                   {t.quote}
                 </p>
                 <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-full bg-secondary-container flex items-center justify-center flex-shrink-0">
-                    <span className="font-headline font-bold text-sm text-on-secondary-container">
-                      {t.initials}
-                    </span>
+                  <div className="w-11 h-11 relative rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-secondary-container">
+                    <Image src={t.image} alt={t.author} fill className="object-cover" />
                   </div>
                   <div>
                     <div className="font-headline font-bold text-sm text-on-surface">

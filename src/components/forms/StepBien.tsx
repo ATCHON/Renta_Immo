@@ -2,9 +2,10 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input, CurrencyInput, Select, Alert, LabelTooltip } from '@/components/ui';
+import { Input, CurrencyInput, Select, Alert, LabelTooltip, Collapsible } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Home, Building2, Building } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { bienSchema, type BienFormDataInput, type BienFormData } from '@/lib/validators';
 import { TYPE_BIEN_OPTIONS } from '@/lib/constants';
 import { useCalculateurStore } from '@/stores/calculateur.store';
@@ -23,6 +24,7 @@ export function StepBien({ onNext }: StepBienProps) {
     register,
     handleSubmit,
     watch,
+    setValue,
     reset,
     formState: { errors },
   } = useForm<BienFormDataInput, unknown, BienFormData>({
@@ -73,7 +75,10 @@ export function StepBien({ onNext }: StepBienProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-charcoal">Informations du bien</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-charcoal">Informations du bien</h2>
+          <Home className="h-6 w-6 text-primary/60" />
+        </div>
         <p className="text-pebble mt-1">Renseignez les caractéristiques du bien immobilier</p>
       </div>
 
@@ -103,27 +108,75 @@ export function StepBien({ onNext }: StepBienProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Select
-          label="Type de bien"
-          options={TYPE_BIEN_OPTIONS.map((opt) => ({
-            value: opt.value,
-            label: opt.label,
-          }))}
-          value={watch('type_bien')}
-          error={errors.type_bien?.message}
-          {...register('type_bien')}
-        />
+        {/* S6 — Cards radio type de bien */}
+        <div className="md:col-span-2">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-2 block">
+            Type de bien
+          </label>
+          <div className="grid grid-cols-3 gap-3">
+            {(() => {
+              const iconMap = { Building2, Home, Building } as const;
+              return TYPE_BIEN_OPTIONS.map(({ value, label, icon: iconName }) => {
+                const Icon = iconMap[iconName as keyof typeof iconMap];
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() =>
+                      setValue('type_bien', value as 'appartement' | 'maison' | 'immeuble', {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      })
+                    }
+                    className={cn(
+                      'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all',
+                      watch('type_bien') === value
+                        ? 'bg-primary text-on-primary border-primary'
+                        : 'bg-surface border-outline-variant hover:border-primary/50 text-on-surface'
+                    )}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="text-xs font-medium">{label}</span>
+                  </button>
+                );
+              });
+            })()}
+          </div>
+          {errors.type_bien && (
+            <p className="text-error text-xs mt-1">{errors.type_bien.message}</p>
+          )}
+        </div>
 
-        <Select
-          label="État du bien"
-          options={[
-            { value: 'ancien', label: 'Ancien' },
-            { value: 'neuf', label: 'Neuf (VEFA)' },
-          ]}
-          value={watch('etat_bien')}
-          error={errors.etat_bien?.message}
-          {...register('etat_bien')}
-        />
+        <div>
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-2 block">
+            État du bien
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { value: 'ancien', label: 'Ancien' },
+              { value: 'neuf', label: 'Neuf (VEFA)' },
+            ].map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() =>
+                  setValue('etat_bien', value as 'ancien' | 'neuf', { shouldValidate: true })
+                }
+                className={cn(
+                  'flex items-center justify-center py-3 px-4 rounded-xl border-2 transition-all',
+                  watch('etat_bien') === value
+                    ? 'bg-primary text-on-primary border-primary'
+                    : 'bg-surface border-outline-variant hover:border-primary/50 text-on-surface'
+                )}
+              >
+                <span className="text-sm font-medium">{label}</span>
+              </button>
+            ))}
+          </div>
+          {errors.etat_bien && (
+            <p className="text-error text-xs mt-1">{errors.etat_bien.message}</p>
+          )}
+        </div>
 
         <Input
           label="Année de construction"
@@ -150,99 +203,101 @@ export function StepBien({ onNext }: StepBienProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          label={
-            <LabelTooltip content="Seule la partie bâti est amortissable en LMNP/SCI IS. Le terrain (en général 15 à 20% du prix) ne s'amortit pas.">
-              Part terrain (%, pour amortissement)
-            </LabelTooltip>
-          }
-          type="number"
-          placeholder="10"
-          rightAddon="%"
-          hint="Appart: 10%, Maison: 20%, Immeuble: 10%. Laissez vide pour la valeur par défaut."
-          error={errors.part_terrain?.message}
-          {...register('part_terrain', { valueAsNumber: true })}
-        />
+      <Select
+        label="Performance énergétique (DPE)"
+        options={[
+          { value: '', label: 'Non renseigné' },
+          { value: 'A', label: 'A - Excellent' },
+          { value: 'B', label: 'B - Très bon' },
+          { value: 'C', label: 'C - Bon' },
+          { value: 'D', label: 'D - Moyen' },
+          { value: 'E', label: 'E - Insuffisant' },
+          { value: 'F', label: 'F - Très insuffisant' },
+          { value: 'G', label: 'G - Extrêmement insuffisant' },
+        ]}
+        error={errors.dpe?.message}
+        {...register('dpe')}
+      />
 
-        <Select
-          label="Performance énergétique (DPE)"
-          options={[
-            { value: '', label: 'Non renseigné' },
-            { value: 'A', label: 'A - Excellent' },
-            { value: 'B', label: 'B - Très bon' },
-            { value: 'C', label: 'C - Bon' },
-            { value: 'D', label: 'D - Moyen' },
-            { value: 'E', label: 'E - Insuffisant' },
-            { value: 'F', label: 'F - Très insuffisant' },
-            { value: 'G', label: 'G - Extrêmement insuffisant' },
-          ]}
-          error={errors.dpe?.message}
-          {...register('dpe')}
-        />
-      </div>
-
-      {/* Rénovation énergétique (V2-S15) */}
-      <div className="pt-4 border-t border-gray-200">
-        <label className="flex items-start space-x-3 cursor-pointer group">
-          <div className="flex items-center h-5">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 transition duration-150 ease-in-out cursor-pointer"
-              {...register('renovation_energetique')}
-            />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-gray-900 group-hover:text-brand-700 transition-colors">
-              <LabelTooltip content="Travaux permettant de sortir le bien des classes DPE E, F ou G. Ils ouvrent droit à un plafond de déficit foncier imputable sur le revenu global majoré (21 400€/an).">
-                Rénovation énergétique éligible
+      {/* Options avancées */}
+      <Collapsible title="Options avancées">
+        <div className="space-y-4">
+          <Input
+            label={
+              <LabelTooltip content="Seule la partie bâti est amortissable en LMNP/SCI IS. Le terrain (en général 15 à 20% du prix) ne s'amortit pas.">
+                Part terrain (%, pour amortissement)
               </LabelTooltip>
-            </span>
-            <span className="text-xs text-gray-500 mt-1">
-              Cochez cette case si les travaux permettent de passer d&apos;une classe E/F/G à
-              A/B/C/D.
-              <br />
-              Le plafond du déficit foncier est doublé à <strong>21 400 €</strong> pour les
-              paiements effectués entre 2023 et 2025.
-            </span>
-          </div>
-        </label>
+            }
+            type="number"
+            placeholder="10"
+            rightAddon="%"
+            hint="Appart: 10%, Maison: 20%, Immeuble: 10%. Laissez vide pour la valeur par défaut."
+            error={errors.part_terrain?.message}
+            {...register('part_terrain', { valueAsNumber: true })}
+          />
 
-        {watch('renovation_energetique') && (
-          <div className="mt-4 pl-7 space-y-3">
-            <div className="max-w-xs">
-              <Input
-                label="Année de paiement des travaux"
-                type="number"
-                placeholder={new Date().getFullYear().toString()}
-                error={errors.annee_travaux?.message}
-                {...register('annee_travaux', { valueAsNumber: true })}
-                hint="Année de réalisation et de paiement définitif des travaux."
-              />
-            </div>
+          {/* Rénovation énergétique (V2-S15) */}
+          <div className="pt-2">
+            <label className="flex items-start space-x-3 cursor-pointer group">
+              <div className="flex items-center h-5">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary transition duration-fast cursor-pointer"
+                  {...register('renovation_energetique')}
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">
+                  <LabelTooltip content="Travaux permettant de sortir le bien des classes DPE E, F ou G. Ils ouvrent droit à un plafond de déficit foncier imputable sur le revenu global majoré (21 400€/an).">
+                    Rénovation énergétique éligible
+                  </LabelTooltip>
+                </span>
+                <span className="text-xs text-on-surface-variant mt-1">
+                  Cochez cette case si les travaux permettent de passer d&apos;une classe E/F/G à
+                  A/B/C/D. Le plafond du déficit foncier est doublé à <strong>21 400 €</strong> pour
+                  les paiements effectués entre 2023 et 2025.
+                </span>
+              </div>
+            </label>
 
-            {(() => {
-              const annee = watch('annee_travaux') as number | undefined;
-              if (annee && (annee < 2023 || annee > 2025)) {
-                return (
-                  <Alert
-                    variant="warning"
-                    icon={AlertTriangle}
-                    title="Dispositif non applicable"
-                    className="mt-2 text-sm"
-                  >
-                    Le plafond majoré de 21 400 € s&apos;applique uniquement aux travaux payés entre
-                    le 01/01/2023 et le 31/12/2025.
-                    <br />
-                    Pour l&apos;année {annee}, le plafond standard de 10 700 € s&apos;appliquera.
-                  </Alert>
-                );
-              }
-              return null;
-            })()}
+            {watch('renovation_energetique') && (
+              <div className="mt-4 pl-7 space-y-3">
+                <div className="max-w-xs">
+                  <Input
+                    label="Année de paiement des travaux"
+                    type="number"
+                    placeholder={new Date().getFullYear().toString()}
+                    error={errors.annee_travaux?.message}
+                    {...register('annee_travaux', { valueAsNumber: true })}
+                    hint="Année de réalisation et de paiement définitif des travaux."
+                  />
+                </div>
+
+                {(() => {
+                  const annee = watch('annee_travaux') as number | undefined;
+                  if (annee && (annee < 2023 || annee > 2025)) {
+                    return (
+                      <Alert
+                        variant="warning"
+                        icon={AlertTriangle}
+                        title="Dispositif non applicable"
+                        className="mt-2 text-sm"
+                      >
+                        Le plafond majoré de 21 400 € s&apos;applique uniquement aux travaux payés
+                        entre le 01/01/2023 et le 31/12/2025.
+                        <br />
+                        Pour l&apos;année {annee}, le plafond standard de 10 700 €
+                        s&apos;appliquera.
+                      </Alert>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      </Collapsible>
 
       <div className="flex justify-end pt-4">
         <Button type="submit">Continuer</Button>

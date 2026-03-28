@@ -2,14 +2,9 @@
 
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { ChevronDown, ChevronUp, Check } from 'lucide-react';
 
-import {
-  Card,
-  SideNavigationDesktop,
-  SideNavigationMobile,
-  type SideNavigationItem,
-} from '@/components/ui';
-import { ProgressStepper } from './ProgressStepper';
+import { cn } from '@/lib/utils';
 import { StepBien } from './StepBien';
 import { StepFinancement } from './StepFinancement';
 import { StepExploitation } from './StepExploitation';
@@ -23,6 +18,79 @@ import { ScenarioTabs } from '@/components/results/ScenarioTabs';
 import { STEP_LABELS } from '@/lib/constants';
 import type { CalculateurFormData } from '@/types';
 
+function StepAccordion({
+  stepIndex,
+  currentStep,
+  title,
+  displayNumber,
+  onOpen,
+  children,
+}: {
+  stepIndex: number;
+  currentStep: number;
+  title: string;
+  displayNumber: number;
+  onOpen: () => void;
+  children: React.ReactNode;
+}) {
+  const isOpen = currentStep === stepIndex;
+  const isPast = stepIndex < currentStep;
+
+  return (
+    <div
+      className={cn(
+        'border border-outline-variant rounded-2xl overflow-hidden bg-white shadow-sm transition-all',
+        isOpen ? 'ring-2 ring-primary/20' : ''
+      )}
+    >
+      <button
+        type="button"
+        onClick={onOpen}
+        className={cn(
+          'w-full px-6 py-5 flex items-center justify-between transition-colors text-left',
+          isOpen ? 'bg-surface' : 'bg-white hover:bg-surface/50'
+        )}
+        aria-expanded={isOpen}
+      >
+        <div className="flex items-center gap-4">
+          <div
+            className={cn(
+              'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors',
+              isOpen
+                ? 'bg-primary text-on-primary'
+                : isPast
+                  ? 'bg-primary text-on-primary'
+                  : 'bg-surface text-on-surface-variant border border-outline-variant'
+            )}
+          >
+            {isPast ? <Check className="w-4 h-4" /> : displayNumber}
+          </div>
+          <span className={cn('font-medium text-lg', isOpen ? 'text-primary' : 'text-charcoal')}>
+            {title}
+          </span>
+        </div>
+        {isOpen ? (
+          <ChevronUp className="h-5 w-5 text-stone" />
+        ) : (
+          <ChevronDown className="h-5 w-5 text-stone" />
+        )}
+      </button>
+      <div
+        aria-hidden={!isOpen}
+        ref={(el) => {
+          if (el) el.inert = !isOpen;
+        }}
+        className={cn(
+          'transition-all duration-normal ease-out overflow-hidden',
+          isOpen ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'
+        )}
+      >
+        <div className="p-6 border-t border-outline-variant/30">{children}</div>
+      </div>
+    </div>
+  );
+}
+
 export function FormWizard() {
   const router = useRouter();
   const { currentStep, setStep, nextStep, prevStep, status, error, getFormData } =
@@ -30,7 +98,6 @@ export function FormWizard() {
 
   const hasHydrated = useHasHydrated();
 
-  // Récupérer le scénario actif de manière réactive - directement depuis le store
   const activeScenarioId = useCalculateurStore((state) => state.activeScenarioId);
   const scenarios = useCalculateurStore((state) => state.scenarios);
   const scenario = scenarios.find((s) => s.id === activeScenarioId) || scenarios[0];
@@ -38,118 +105,99 @@ export function FormWizard() {
 
   const { calculate, isLoading } = useCalculateur();
 
-  // Rediriger vers les résultats si le calcul est réussi
   useEffect(() => {
     if (status === 'success') {
       router.push('/calculateur/resultats');
     }
   }, [status, router]);
 
-  // Gérer la soumission finale
-  // FIX BUG-CALC-01: Utiliser getFormData() pour toujours récupérer les valeurs fraîches du store
-  // au lieu de capturer les variables statiques qui peuvent être obsolètes
   const handleSubmit = useCallback(() => {
     const formData = getFormData() as CalculateurFormData;
     calculate(formData);
   }, [getFormData, calculate]);
 
-  // Déterminer les étapes à afficher selon la structure
-  const visibleSteps =
-    structure.type === 'nom_propre'
-      ? STEP_LABELS.filter((_, index) => index !== 4) // Exclure l'étape Associés
-      : STEP_LABELS;
-
-  // Ajuster le currentStep pour l'affichage si nom propre
-  const displayStep =
-    structure.type === 'nom_propre' && currentStep > 4 ? currentStep - 1 : currentStep;
-
-  // Rendre le composant de l'étape actuelle
-  const renderStep = () => {
-    switch (currentStep) {
-      case 0:
-        return <StepBien onNext={nextStep} />;
-      case 1:
-        return <StepFinancement onNext={nextStep} onPrev={prevStep} />;
-      case 2:
-        return <StepExploitation onNext={nextStep} onPrev={prevStep} />;
-      case 3:
-        return <StepStructure onNext={nextStep} onPrev={prevStep} />;
-      case 4:
-        if (structure.type === 'nom_propre') {
-          // Passer directement aux options
-          return <StepOptions onSubmit={handleSubmit} onPrev={prevStep} isLoading={isLoading} />;
-        }
-        return <StepAssocies onNext={nextStep} onPrev={prevStep} />;
-      case 5:
-        return <StepOptions onSubmit={handleSubmit} onPrev={prevStep} isLoading={isLoading} />;
-      default:
-        return null;
-    }
-  };
-
-  // Construire les items pour le SideNavigation
-  const sideNavItems: SideNavigationItem[] = visibleSteps.map((label, index) => {
-    let itemStatus: 'current' | 'completed' | 'upcoming' = 'upcoming';
-    if (index === displayStep) itemStatus = 'current';
-    else if (index < displayStep || status === 'success') itemStatus = 'completed';
-
-    // Trouver l'index réel pour le setStep
-    const actualIndex = structure.type === 'nom_propre' && index >= 4 ? index + 1 : index;
-
-    return {
-      id: `step-${index}`,
-      label,
-      status: itemStatus,
-      onClick:
-        itemStatus !== 'upcoming' || status === 'success' ? () => setStep(actualIndex) : undefined,
-    };
-  });
-
   if (!hasHydrated) return null;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Navigation mobile : sticky, affichée dans le flux */}
-      <SideNavigationMobile items={sideNavItems} title="Étapes" />
-
-      <div className="max-w-4xl mx-auto mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex-1 overflow-x-auto">
-          <ScenarioTabs />
-        </div>
+    <div className="px-4 py-8">
+      <div className="max-w-2xl mx-auto mb-6">
+        <ScenarioTabs />
       </div>
 
-      {/* Grid Layout pour navigation latérale et formulaire */}
-      <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-[208px_1fr] gap-8 items-start">
-        {/* Navigation latérale sur bureau */}
-        <SideNavigationDesktop items={sideNavItems} title="Étapes" className="mt-8" />
-
-        <div className="w-full">
-          {/* Stepper de progression (barre de progression visuelle) */}
-          <div className="mb-8">
-            <ProgressStepper
-              currentStep={displayStep + 1}
-              totalSteps={visibleSteps.length}
-              onStepClick={(step) => {
-                const actualIndex = structure.type === 'nom_propre' && step > 4 ? step : step - 1;
-                setStep(actualIndex);
-              }}
-              isAllEnabled={status === 'success'}
-            />
+      <div className="max-w-2xl mx-auto space-y-4">
+        {error && (
+          <div className="p-4 bg-error-container border border-error/20 rounded-lg">
+            <p className="text-on-error-container text-sm">{error}</p>
           </div>
+        )}
 
-          {/* Carte du formulaire */}
-          <Card className="w-full">
-            {/* Message d'erreur */}
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-700 text-sm">{error}</p>
-              </div>
-            )}
+        {/* Step 1 : Bien */}
+        <StepAccordion
+          stepIndex={0}
+          currentStep={currentStep}
+          title={STEP_LABELS[0]}
+          displayNumber={1}
+          onOpen={() => setStep(0)}
+        >
+          <StepBien onNext={nextStep} />
+        </StepAccordion>
 
-            {/* Contenu de l'étape */}
-            {renderStep()}
-          </Card>
-        </div>
+        {/* Step 2 : Financement */}
+        <StepAccordion
+          stepIndex={1}
+          currentStep={currentStep}
+          title={STEP_LABELS[1]}
+          displayNumber={2}
+          onOpen={() => setStep(1)}
+        >
+          <StepFinancement onNext={nextStep} onPrev={prevStep} />
+        </StepAccordion>
+
+        {/* Step 3 : Exploitation */}
+        <StepAccordion
+          stepIndex={2}
+          currentStep={currentStep}
+          title={STEP_LABELS[2]}
+          displayNumber={3}
+          onOpen={() => setStep(2)}
+        >
+          <StepExploitation onNext={nextStep} onPrev={prevStep} />
+        </StepAccordion>
+
+        {/* Step 4 : Structure juridique */}
+        <StepAccordion
+          stepIndex={3}
+          currentStep={currentStep}
+          title={STEP_LABELS[3]}
+          displayNumber={4}
+          onOpen={() => setStep(3)}
+        >
+          <StepStructure onNext={nextStep} onPrev={prevStep} />
+        </StepAccordion>
+
+        {/* Step 5 : Associés (conditionnel) */}
+        {structure.type !== 'nom_propre' && (
+          <StepAccordion
+            stepIndex={4}
+            currentStep={currentStep}
+            title={STEP_LABELS[4]}
+            displayNumber={5}
+            onOpen={() => setStep(4)}
+          >
+            <StepAssocies onNext={nextStep} onPrev={prevStep} />
+          </StepAccordion>
+        )}
+
+        {/* Step 6 : Options */}
+        <StepAccordion
+          stepIndex={structure.type === 'nom_propre' ? 4 : 5}
+          currentStep={currentStep}
+          title={STEP_LABELS[5]}
+          displayNumber={structure.type === 'nom_propre' ? 5 : 6}
+          onOpen={() => setStep(structure.type === 'nom_propre' ? 4 : 5)}
+        >
+          <StepOptions onSubmit={handleSubmit} onPrev={prevStep} isLoading={isLoading} />
+        </StepAccordion>
       </div>
     </div>
   );

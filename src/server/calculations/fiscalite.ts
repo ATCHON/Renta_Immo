@@ -36,8 +36,6 @@ import {
  * Détail du calcul fiscal étendu
  */
 export interface FiscaliteDetail extends FiscaliteCalculations {
-  /** Abattement appliqué */
-  abattement: number;
   /** Alertes fiscales */
   alertes: string[];
 }
@@ -398,14 +396,19 @@ export function calculerFiscaliteSciIs(
   const revenuNetApresIs = revenuNetAvantImpots - interetsAssurance - impotIs;
 
   // Gestion des dividendes et Flat Tax (S5.4)
+  // FIX E-01 : Les dividendes sont limités au bénéfice comptable distribuable
+  // Bénéfice distribuable = Base imposable - IS
+  const beneficeDistribuable = Math.max(0, baseImposable - impotIs);
+
   let dividendesBruts = 0;
   let flatTax = 0;
   let netEnPoche = revenuNetApresIs;
 
-  if (distribuerDividendes && revenuNetApresIs > 0) {
-    dividendesBruts = revenuNetApresIs;
+  if (distribuerDividendes && beneficeDistribuable > 0) {
+    // Plafonner sur la trésorerie réelle pour éviter un netEnPoche négatif
+    dividendesBruts = Math.min(beneficeDistribuable, Math.max(0, revenuNetApresIs));
     flatTax = dividendesBruts * config.flatTax; // Flat tax dynamique
-    netEnPoche = dividendesBruts - flatTax;
+    netEnPoche = revenuNetApresIs - dividendesBruts + (dividendesBruts - flatTax);
     alertes.push(
       `Distribution des dividendes activée (Flat Tax ${Math.round(config.flatTax * 100)}% : ${round(flatTax)}€)`
     );
@@ -791,7 +794,7 @@ export function calculerFiscalite(
   const prixAchat = bien.prix_achat;
 
   // Estimation plus précise des intérêts Année 1 (Payer assurance + Intérêts calculés sur capital initial)
-  const tauxInteret = (rentabilite.financement.taux_interet || 3.5) / 100;
+  const tauxInteret = (rentabilite.financement.taux_interet ?? 3.5) / 100;
   const interetsAnnuels = rentabilite.financement.montant_emprunt * tauxInteret;
   const assuranceAnnuelle = rentabilite.financement.mensualite_assurance * 12;
   const coutFinancierAn1 = interetsAnnuels + assuranceAnnuelle;
@@ -913,7 +916,7 @@ export function calculerToutesFiscalites(
   const tmi = input.structure.tmi ?? 30;
 
   // Estimation plus précise des intérêts Année 1
-  const tauxInteret = (input.financement.taux_interet || 3.5) / 100;
+  const tauxInteret = (input.financement.taux_interet ?? 3.5) / 100;
   const interetsAnnuels = rentabilite.financement.montant_emprunt * tauxInteret;
   const assuranceAnnuelle = rentabilite.financement.mensualite_assurance * 12;
   const coutFinancierAn1 = interetsAnnuels + assuranceAnnuelle;

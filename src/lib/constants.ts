@@ -17,9 +17,9 @@ export const TMI_OPTIONS = [
  * Types de biens
  */
 export const TYPE_BIEN_OPTIONS = [
-  { value: 'appartement', label: 'Appartement' },
-  { value: 'maison', label: 'Maison' },
-  { value: 'immeuble', label: 'Immeuble' },
+  { value: 'appartement', label: 'Appartement', icon: 'Building2' },
+  { value: 'maison', label: 'Maison', icon: 'Home' },
+  { value: 'immeuble', label: 'Immeuble', icon: 'Building' },
 ] as const;
 
 /**
