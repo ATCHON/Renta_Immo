@@ -103,7 +103,7 @@ export function CurrencyInput<T extends FieldValues>({
           decimalSeparator=","
           allowNegative={false}
           value={value ?? ''}
-          onValueChange={(values) => onChange(values.floatValue ?? 0)}
+          onValueChange={(values) => onChange(values.floatValue ?? undefined)}
           onBlur={onBlur}
           getInputRef={ref}
           customInput={Input as React.ComponentType<InputProps>}

@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import type { CalculateurFormData, CalculResultats } from '@/types/calculateur';
+import { APP_SLUG } from '@/config/app';
 
 type PdfStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -43,7 +44,7 @@ export function useDownloadPdf(): UseDownloadPdfReturn {
 
         // Generate filename with date
         const today = new Date().toISOString().split('T')[0];
-        const filename = `simulation-petra-nova-${today}.pdf`;
+        const filename = `simulation-${APP_SLUG}-${today}.pdf`;
 
         // Trigger download
         const link = document.createElement('a');

@@ -9,6 +9,7 @@ import { z, ZodError } from 'zod';
 import { RapportSimulation } from '@/lib/pdf/templates/RapportSimulation';
 import { logger } from '@/lib/logger';
 import { rateLimit, getClientIp, buildRateLimitHeaders } from '@/lib/rate-limit';
+import { APP_SLUG } from '@/config/app';
 import type { CalculateurFormData, CalculResultats } from '@/types/calculateur';
 
 // Validation schemas
@@ -186,7 +187,7 @@ export async function POST(request: NextRequest) {
 
     // 5. Generate filename with date
     const today = new Date().toISOString().split('T')[0];
-    const filename = `simulation-petra-nova-${today}.pdf`;
+    const filename = `simulation-${APP_SLUG}-${today}.pdf`;
 
     // 6. Return PDF with proper headers
     return new NextResponse(uint8Array, {

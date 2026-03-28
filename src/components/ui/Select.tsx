@@ -107,8 +107,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
           className={cn(
             'input-field flex items-center justify-between w-full text-left',
             error && 'input-error',
-            disabled && 'opacity-50 cursor-not-allowed',
-            isOpen && '!border-primary !bg-surface-container-lowest',
+            isOpen && '!bg-surface-container-lowest',
+            isOpen && !error && '!border-primary',
             className
           )}
           aria-expanded={isOpen}

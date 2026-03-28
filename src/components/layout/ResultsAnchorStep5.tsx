@@ -69,7 +69,7 @@ export function ResultsAnchorStep5({ kpis }: Props) {
           <span className="text-3xl font-headline font-extrabold text-white tracking-tighter">
             {fmtPercent(kpis.rendementBrut)}
           </span>
-          <p className="text-sm text-on-primary-container font-medium mt-0.5">Rendement net-net</p>
+          <p className="text-sm text-on-primary-container font-medium mt-0.5">Rendement brut</p>
         </div>
 
         {/* Cash-flow mensuel */}

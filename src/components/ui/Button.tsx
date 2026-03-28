@@ -19,8 +19,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary: 'btn-primary',
   secondary: 'btn-secondary',
   ghost: 'btn-ghost',
-  danger:
-    'bg-error text-on-error hover:bg-error/90 rounded-full border-none focus:ring-2 focus:ring-error focus:ring-offset-2',
+  danger: 'btn-primary bg-error text-on-error hover:bg-error/90 focus:ring-error',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
