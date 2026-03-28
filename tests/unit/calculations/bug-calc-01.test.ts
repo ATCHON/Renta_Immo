@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { genererProjections } from '@/server/calculations/projection';
-import { mockConfig } from '@/server/calculations/__tests__/mock-config';
+import { mockConfig } from '../server/calculations/mock-config';
 import type { CalculationInput } from '@/server/calculations/types';
 
 describe('BUG-CALC-01: Prix de revente ignoré', () => {
@@ -69,13 +69,13 @@ describe('BUG-CALC-01: Prix de revente ignoré', () => {
     },
   };
 
-  it('doit utiliser le prix de revente saisi par l\'utilisateur', () => {
+  it("doit utiliser le prix de revente saisi par l'utilisateur", () => {
     // ARRANGE: L'utilisateur saisit un prix de revente de 250 000 €
     const input = {
       ...baseInput,
       options: {
         ...baseInput.options,
-        prix_revente: 250000,  // ← Prix saisi
+        prix_revente: 250000, // ← Prix saisi
         duree_detention: 20,
       },
     };
@@ -98,13 +98,13 @@ describe('BUG-CALC-01: Prix de revente ignoré', () => {
     console.log('[BUG-CALC-01] Valeur revaluée:', valeurRevaluee);
   });
 
-  it('doit utiliser la valeur revaluée si prix_revente n\'est pas saisi', () => {
+  it("doit utiliser la valeur revaluée si prix_revente n'est pas saisi", () => {
     // ARRANGE: L'utilisateur ne saisit PAS de prix de revente
     const input = {
       ...baseInput,
       options: {
         ...baseInput.options,
-        prix_revente: undefined,  // ← Non saisi
+        prix_revente: undefined, // ← Non saisi
       },
     };
 
@@ -142,6 +142,9 @@ describe('BUG-CALC-01: Prix de revente ignoré', () => {
     expect(result.plusValue!.plus_value_brute).toBeLessThan(20000);
 
     // Avec la valeur revaluée (265784€), la PV brute serait plus élevée
-    console.log('[BUG-CALC-01] PV brute avec prix saisi (250k):', result.plusValue!.plus_value_brute);
+    console.log(
+      '[BUG-CALC-01] PV brute avec prix saisi (250k):',
+      result.plusValue!.plus_value_brute
+    );
   });
 });

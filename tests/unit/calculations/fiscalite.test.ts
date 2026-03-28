@@ -13,7 +13,7 @@ import {
   RentabiliteCalculations,
   FinancementCalculations,
 } from '@/server/calculations/types';
-import { mockConfig } from '@/server/calculations/__tests__/mock-config';
+import { mockConfig } from '../server/calculations/mock-config';
 
 describe('calculerToutesFiscalites', () => {
   const mockBien: BienData = {

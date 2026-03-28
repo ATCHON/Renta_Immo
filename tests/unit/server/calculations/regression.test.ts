@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { performCalculations } from '../index';
-import { DPE } from '../types';
+import { performCalculations } from '@/server/calculations/index';
+import { DPE } from '@/server/calculations/types';
 import { mockConfig } from './mock-config';
 
 /**

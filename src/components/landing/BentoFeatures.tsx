@@ -40,13 +40,18 @@ export function BentoFeatures() {
 
             {/* Mini dashboard décoratif */}
             <div className="mt-10 bg-surface p-5 rounded-2xl border border-outline-variant/10">
-              <div className="flex items-end gap-2 h-24">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-headline font-bold uppercase tracking-widest text-on-surface/40">
+                  Rendement net
+                </span>
+                <span className="text-sm font-headline font-extrabold text-primary">+8,42 %</span>
+              </div>
+              <div className="flex items-end gap-2 h-24" aria-hidden="true">
                 {[35, 50, 42, 65, 58, 78, 85, 100].map((h, i) => (
                   <div
                     key={i}
                     className="flex-1 rounded-t-sm bg-primary/20 transition-all hover:bg-primary/40"
                     style={{ height: `${h}%` }}
-                    aria-hidden="true"
                   />
                 ))}
               </div>

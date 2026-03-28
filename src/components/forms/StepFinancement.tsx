@@ -32,6 +32,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
 
   const {
     register,
+    control,
     handleSubmit,
     watch,
     setValue,
@@ -83,14 +84,11 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* S7 — Header contextuel */}
       <div className="mb-6">
-        <span className="inline-flex px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider rounded-full mb-2">
-          STEP 02
-        </span>
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-extrabold text-primary mt-2">Affinez votre stratégie</h1>
+          <h2 className="text-2xl font-bold text-on-surface mt-2">Affinez votre stratégie</h2>
           <Calculator className="h-6 w-6 text-primary/60" />
         </div>
-        <p className="text-on-surface/60 mt-1 text-sm">
+        <p className="text-on-surface-variant mt-1">
           Ajustez les paramètres de financement pour mesurer leur impact sur vos projections
           patrimoniales.
         </p>
@@ -115,20 +113,16 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
         </button>
       </div>
 
-      {/* S9 — Section badge + titre */}
-      <div className="flex items-center gap-3 mb-4">
-        <span className="w-8 h-8 bg-primary text-on-primary rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
-          2
-        </span>
-        <h2 className="text-xl font-bold text-on-surface">Détails du financement</h2>
-      </div>
+      {/* S9 — Section titre financement */}
+      <h3 className="text-base font-semibold text-on-surface mb-4">Détails du financement</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CurrencyInput
+          name="apport"
+          control={control}
           label="Apport personnel"
-          placeholder="20000"
+          placeholder="20 000"
           error={errors.apport?.message}
-          {...register('apport', { valueAsNumber: true })}
         />
         {/* S11 — Hint contextuel apport */}
         {prixAchat > 0 && (
@@ -137,18 +131,22 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
           </p>
         )}
 
-        <div className="bg-forest/5 rounded-xl p-4 flex flex-col justify-center border border-forest/10">
-          <p className="text-sm text-forest font-medium">Montant à emprunter</p>
-          <p className="text-2xl font-bold text-forest">{formatCurrency(montantEmprunt)}</p>
+        <div
+          className="bg-surface-container-lowest rounded-2xl p-4 flex flex-col justify-center"
+          style={{ boxShadow: 'var(--shadow-ambient)' }}
+        >
+          <p className="text-sm text-on-surface-variant font-medium">Montant à emprunter</p>
+          <p className="text-2xl font-bold text-primary">{formatCurrency(montantEmprunt)}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <PercentInput
+          name="taux_interet"
+          control={control}
           label="Taux d'intérêt annuel"
           placeholder="3.5"
           error={errors.taux_interet?.message}
-          {...register('taux_interet', { valueAsNumber: true })}
         />
         {/* S11 — Hint contextuel taux */}
         <p className="text-[11px] text-on-surface/50 mt-1 -mb-2 col-span-1">
@@ -181,10 +179,11 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
       </div>
 
       <PercentInput
+        name="assurance_pret"
+        control={control}
         label="Taux d'assurance prêt"
         placeholder="0.3"
         error={errors.assurance_pret?.message}
-        {...register('assurance_pret', { valueAsNumber: true })}
       />
 
       {/* Options avancées */}
@@ -206,17 +205,19 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <CurrencyInput
+              name="frais_dossier"
+              control={control}
               label="Frais de dossier bancaire"
               placeholder="500"
               error={errors.frais_dossier?.message}
-              {...register('frais_dossier', { valueAsNumber: true })}
             />
 
             <CurrencyInput
+              name="frais_garantie"
+              control={control}
               label="Frais de garantie (hypothèque/caution)"
-              placeholder="2000"
+              placeholder="2 000"
               error={errors.frais_garantie?.message}
-              {...register('frais_garantie', { valueAsNumber: true })}
             />
           </div>
         </div>
@@ -224,14 +225,19 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
 
       {/* Simulation mensualité */}
       {mensualite > 0 && (
-        <div className="bg-sage/10 rounded-xl p-4 border border-sage/20">
-          <p className="text-sm text-forest font-medium">Mensualité estimée (hors assurance)</p>
-          <p className="text-2xl font-bold text-forest">{formatCurrency(mensualite)} / mois</p>
+        <div
+          className="bg-surface-container-lowest rounded-2xl p-4"
+          style={{ boxShadow: 'var(--shadow-ambient)' }}
+        >
+          <p className="text-sm text-on-surface-variant font-medium">
+            Mensualité estimée (hors assurance)
+          </p>
+          <p className="text-2xl font-bold text-primary">{formatCurrency(mensualite)} / mois</p>
         </div>
       )}
 
       {/* V2-S18 : Pondération loyers HCSF */}
-      <div className="border border-outline-variant rounded-xl p-4 space-y-3">
+      <div className="bg-surface-container rounded-2xl p-4 space-y-3">
         <p className="text-sm text-on-surface-variant">
           <LabelTooltip content="Règle du Haut Conseil de Stabilité Financière. Les banques ne prennent en compte qu'une fraction (généralement 70%) de vos revenus locatifs bruts pour calculer votre taux d'endettement maximal (35%).">
             Pondération loyers HCSF
@@ -271,7 +277,7 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
       </div>
 
       {/* S12 — Pro Tip card */}
-      <div className="rounded-2xl border border-outline-variant bg-surface p-5 flex gap-3">
+      <div className="rounded-2xl bg-secondary-fixed/40 p-5 flex gap-3">
         <Lightbulb className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
         <div>
           <p className="text-sm font-semibold text-on-surface">Astuce : Levier vs. Apport</p>

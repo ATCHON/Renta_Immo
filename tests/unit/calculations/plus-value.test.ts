@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { calculerPlusValueIR, calculerPlusValueSciIs, abattementIR, abattementPS } from '@/server/calculations/fiscalite';
-import { mockConfig } from '@/server/calculations/__tests__/mock-config';
+import {
+  calculerPlusValueIR,
+  calculerPlusValueSciIs,
+  abattementIR,
+  abattementPS,
+} from '@/server/calculations/fiscalite';
+import { mockConfig } from '../server/calculations/mock-config';
 
 describe('AUDIT-105 : Plus-value a la revente', () => {
   describe('abattementIR', () => {
@@ -12,9 +17,9 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
 
     it('6% par an de la 6e a la 21e annee', () => {
       expect(abattementIR(6)).toBeCloseTo(0.06, 4);
-      expect(abattementIR(10)).toBeCloseTo(0.30, 4);  // 5 * 6% = 30%
-      expect(abattementIR(15)).toBeCloseTo(0.60, 4);  // 10 * 6% = 60%
-      expect(abattementIR(21)).toBeCloseTo(0.96, 4);  // 16 * 6% = 96%
+      expect(abattementIR(10)).toBeCloseTo(0.3, 4); // 5 * 6% = 30%
+      expect(abattementIR(15)).toBeCloseTo(0.6, 4); // 10 * 6% = 60%
+      expect(abattementIR(21)).toBeCloseTo(0.96, 4); // 16 * 6% = 96%
     });
 
     it('100% a partir de 22 ans (exoneration totale)', () => {
@@ -32,8 +37,8 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
 
     it('1.65% par an de la 6e a la 21e annee', () => {
       expect(abattementPS(6)).toBeCloseTo(0.0165, 4);
-      expect(abattementPS(10)).toBeCloseTo(0.0825, 4);  // 5 * 1.65% = 8.25%
-      expect(abattementPS(21)).toBeCloseTo(0.264, 4);   // 16 * 1.65% = 26.4%
+      expect(abattementPS(10)).toBeCloseTo(0.0825, 4); // 5 * 1.65% = 8.25%
+      expect(abattementPS(21)).toBeCloseTo(0.264, 4); // 16 * 1.65% = 26.4%
     });
 
     it('28% a la 22e annee', () => {
@@ -41,9 +46,9 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
     });
 
     it('9% par an de la 23e a la 30e annee', () => {
-      expect(abattementPS(23)).toBeCloseTo(0.37, 4);   // 28% + 9%
-      expect(abattementPS(25)).toBeCloseTo(0.55, 4);   // 28% + 3*9%
-      expect(abattementPS(30)).toBeCloseTo(1.00, 4);   // 28% + 8*9% = 100%
+      expect(abattementPS(23)).toBeCloseTo(0.37, 4); // 28% + 9%
+      expect(abattementPS(25)).toBeCloseTo(0.55, 4); // 28% + 3*9%
+      expect(abattementPS(30)).toBeCloseTo(1.0, 4); // 28% + 8*9% = 100%
     });
 
     it('100% a partir de 30 ans (exoneration totale)', () => {
@@ -80,7 +85,7 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
       expect(result.impot_total).toBeCloseTo(4362, 0);
     });
 
-    it('pas de plus-value si prix de vente <= prix d\'achat', () => {
+    it("pas de plus-value si prix de vente <= prix d'achat", () => {
       const result = calculerPlusValueIR(180000, 200000, 10, mockConfig);
       expect(result.plus_value_brute).toBeLessThanOrEqual(0);
       expect(result.impot_total).toBe(0);
@@ -184,8 +189,8 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
       expect(result.plus_value_brute).toBe(81510);
 
       // IS : 42500 * 15% + (81510 - 42500) * 25% = 6375 + 9752.50 = 16127.50
-      expect(result.impot_ir).toBeCloseTo(16127.50, 0);
-      expect(result.impot_total).toBeCloseTo(16127.50, 0);
+      expect(result.impot_ir).toBeCloseTo(16127.5, 0);
+      expect(result.impot_total).toBeCloseTo(16127.5, 0);
     });
 
     it('PV SCI IS avec distribution aux associes', () => {
@@ -199,7 +204,7 @@ describe('AUDIT-105 : Plus-value a la revente', () => {
       expect(result.impot_total).toBeCloseTo(35742, 0);
     });
 
-    it('pas d\'abattement pour duree de detention en SCI IS', () => {
+    it("pas d'abattement pour duree de detention en SCI IS", () => {
       const result = calculerPlusValueSciIs(300000, 200000, 50000, mockConfig, false);
       expect(result.abattement_ir).toBe(0);
       expect(result.abattement_ps).toBe(0);
@@ -246,7 +251,7 @@ describe('NC-02 : Surtaxe PV tranche 200k-250k', () => {
     // pvNetteIR = 367500 - 100000 - 7500 = 260000
     const result = calculerPlusValueIR(367500, 100000, 2, mockConfig);
     // Surtaxe : 49999×2% + 49999×3% + 49999×4% + 49999×5% + 9999×6% ≈ 7600
-    expect(result.surtaxe).toBeCloseTo(7599.80, 0);
+    expect(result.surtaxe).toBeCloseTo(7599.8, 0);
   });
 
   it('PV nette 175 000 € → tranche 200k non atteinte, surtaxe ≈ 3 500 €', () => {
@@ -256,7 +261,7 @@ describe('NC-02 : Surtaxe PV tranche 200k-250k', () => {
     expect(result.surtaxe).toBeCloseTo(3499.91, 0);
   });
 
-  it('PV nette 230 000 € → surtaxe inférieure avec taux 5% qu\'avec l\'ancien taux 6%', () => {
+  it("PV nette 230 000 € → surtaxe inférieure avec taux 5% qu'avec l'ancien taux 6%", () => {
     const result = calculerPlusValueIR(337500, 100000, 2, mockConfig);
     // Avec l'ancien taux 6% : 29999×0.06 = 1799.94 → total ≈ 6300
     // Avec le nouveau taux 5% : 29999×0.05 = 1499.95 → total ≈ 6000

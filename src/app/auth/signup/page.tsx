@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { UserPlus, Mail, Lock, User, Chrome } from 'lucide-react';
 import { Suspense } from 'react';
 import { getValidatedRedirect } from '@/lib/auth/redirect';
+import { APP_NAME } from '@/config/app';
 
 function SignupContent() {
   const [name, setName] = useState('');
@@ -71,7 +72,7 @@ function SignupContent() {
           <UserPlus className="w-8 h-8 text-forest" />
         </div>
         <h1 className="text-2xl font-bold text-stone-900">Créer un compte</h1>
-        <p className="text-stone-500 mt-1">Rejoignez Renta Immo aujourd&apos;hui</p>
+        <p className="text-stone-500 mt-1">Rejoignez {APP_NAME} aujourd&apos;hui</p>
       </div>
 
       <form onSubmit={handleEmailSignup} className="space-y-4">

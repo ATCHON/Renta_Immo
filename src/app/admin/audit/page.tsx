@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import AuditGlobalTable from '@/components/admin/AuditGlobalTable';
+import { APP_NAME } from '@/config/app';
 
 export const metadata: Metadata = {
-  title: 'Audit Global | Administration | Renta Immo',
+  title: `Audit Global | Administration | ${APP_NAME}`,
 };
 
 export default function AuditGlobalPage() {

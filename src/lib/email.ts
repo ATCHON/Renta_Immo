@@ -8,4 +8,6 @@ export const resend = new Resend(process.env.RESEND_API_KEY);
  * Configuration par défaut pour l'expéditeur
  * À personnaliser selon votre domaine vérifié sur Resend
  */
-export const EMAIL_SENDER = process.env.EMAIL_SENDER || 'Renta Immo <onboarding@resend.dev>';
+import { APP_NAME } from '@/config/app';
+
+export const EMAIL_SENDER = process.env.EMAIL_SENDER || `${APP_NAME} <onboarding@resend.dev>`;

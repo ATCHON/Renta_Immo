@@ -10,7 +10,7 @@ import { ArrowRight, TrendingUp } from 'lucide-react';
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen pt-32 pb-20 overflow-hidden bg-background">
+    <section className="relative pt-28 md:pt-36 pb-20 md:pb-28 overflow-hidden bg-background">
       {/* Décoration fond subtile */}
       <div
         className="absolute inset-0 z-0 pointer-events-none opacity-[0.025]"
@@ -59,7 +59,7 @@ export function HeroSection() {
               />
             </Link>
             <Link
-              href="/comment-ca-marche"
+              href="/en-savoir-plus"
               className="flex items-center justify-center px-8 py-4 rounded-xl border-2 border-outline-variant/40 text-on-surface font-headline font-bold text-base hover:bg-surface-container-high transition-all"
             >
               Voir un exemple
@@ -67,13 +67,58 @@ export function HeroSection() {
           </div>
 
           {/* Indicateurs de confiance */}
-          <div className="mt-14 pt-8 border-t border-outline-variant/15 flex items-center gap-8 opacity-50">
-            <span className="font-headline font-extrabold text-lg tracking-tighter">530+</span>
-            <span className="font-body text-sm text-on-surface-variant">Tests unitaires</span>
-            <span className="font-headline font-extrabold text-lg tracking-tighter">6</span>
-            <span className="font-body text-sm text-on-surface-variant">Régimes fiscaux</span>
-            <span className="font-headline font-extrabold text-lg tracking-tighter">HCSF</span>
-            <span className="font-body text-sm text-on-surface-variant">Conformité bancaire</span>
+          <div className="mt-14 pt-8 border-t border-outline-variant/15 flex flex-wrap items-center gap-6 md:gap-8">
+            <div className="flex items-center gap-3 opacity-60">
+              <span
+                className="material-symbols-outlined text-xl text-primary"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+                aria-hidden="true"
+              >
+                monitoring
+              </span>
+              <div>
+                <span className="font-headline font-extrabold text-lg tracking-tighter text-on-surface">
+                  530+
+                </span>
+                <span className="font-body text-sm text-on-surface-variant ml-2">
+                  Calculs vérifiés
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 opacity-60">
+              <span
+                className="material-symbols-outlined text-xl text-primary"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+                aria-hidden="true"
+              >
+                receipt_long
+              </span>
+              <div>
+                <span className="font-headline font-extrabold text-lg tracking-tighter text-on-surface">
+                  6
+                </span>
+                <span className="font-body text-sm text-on-surface-variant ml-2">
+                  Régimes fiscaux
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 opacity-60">
+              <span
+                className="material-symbols-outlined text-xl text-primary"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+                aria-hidden="true"
+              >
+                verified
+              </span>
+              <div>
+                <span className="font-headline font-extrabold text-lg tracking-tighter text-on-surface">
+                  HCSF
+                </span>
+                <span className="font-body text-sm text-on-surface-variant ml-2">
+                  Conformité bancaire
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 

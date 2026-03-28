@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { calculerFinancement, calculerTAEG } from '@/server/calculations/rentabilite';
 import type { BienData, FinancementData } from '@/server/calculations/types';
-import { mockConfig } from '@/server/calculations/__tests__/mock-config';
+import { mockConfig } from '../server/calculations/mock-config';
 
 describe('calculerFinancement (frais_notaire)', () => {
   const bienMock: BienData = {

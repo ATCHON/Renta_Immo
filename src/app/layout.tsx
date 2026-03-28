@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, Manrope } from 'next/font/google';
 import { QueryProvider } from '@/components/providers';
 import { ConditionalHeader } from '@/components/layout/ConditionalHeader';
+import { APP_NAME, APP_DESCRIPTION } from '@/config/app';
 import './globals.css';
 
 /**
@@ -27,8 +28,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: 'Renta Immo - Calculateur de Rentabilité Immobilière',
-  description: 'Calculez la rentabilité de votre investissement immobilier en quelques clics',
+  title: `${APP_NAME} — Simulateur d'investissement immobilier`,
+  description: APP_DESCRIPTION,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

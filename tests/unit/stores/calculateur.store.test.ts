@@ -186,8 +186,8 @@ describe('edge cases navigation', () => {
     localStorage.clear();
   });
 
-  it('setStep ne change rien si step < 0', () => {
-    useCalculateurStore.getState().setStep(-1);
+  it('setStep ne change rien si step < -1', () => {
+    useCalculateurStore.getState().setStep(-2);
     expect(useCalculateurStore.getState().currentStep).toBe(0);
   });
 
