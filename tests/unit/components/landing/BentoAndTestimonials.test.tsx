@@ -13,7 +13,7 @@
  *   - TestimonialsSection : titre de section, contenu des témoignages
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BentoFeatures } from '@/components/landing/BentoFeatures';
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection';

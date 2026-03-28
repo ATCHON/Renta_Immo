@@ -3,7 +3,7 @@
  */
 
 export { Button } from './Button';
-export { Input, CurrencyInput, PercentInput } from './Input';
+export { Input, CurrencyInput, PercentInput, NumberInput } from './Input';
 export { Select } from './Select';
 export { Card, CardHeader, CardContent, CardFooter } from './Card';
 export { ProgressBar } from './ProgressBar';

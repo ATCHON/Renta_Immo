@@ -2,7 +2,16 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input, CurrencyInput, Select, Alert, LabelTooltip, Collapsible } from '@/components/ui';
+import {
+  Input,
+  CurrencyInput,
+  NumberInput,
+  PercentInput,
+  Select,
+  Alert,
+  LabelTooltip,
+  Collapsible,
+} from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { AlertTriangle, Home, Building2, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -101,13 +110,13 @@ export function StepBien({ onNext }: StepBienProps) {
           error={errors.prix_achat?.message}
         />
 
-        <Input
+        <NumberInput
+          name="surface"
+          control={control}
           label="Surface (m²)"
-          type="number"
           placeholder="ex: 50"
           rightAddon="m²"
           error={errors.surface?.message}
-          {...register('surface', { valueAsNumber: true })}
         />
       </div>
 
@@ -178,12 +187,13 @@ export function StepBien({ onNext }: StepBienProps) {
           )}
         </div>
 
-        <Input
+        <NumberInput
+          name="annee_construction"
+          control={control}
           label="Année de construction"
-          type="number"
           placeholder="1990"
           error={errors.annee_construction?.message}
-          {...register('annee_construction', { valueAsNumber: true })}
+          thousandSeparator={false}
         />
       </div>
 
@@ -224,18 +234,17 @@ export function StepBien({ onNext }: StepBienProps) {
       {/* Options avancées */}
       <Collapsible title="Options avancées">
         <div className="space-y-4">
-          <Input
+          <PercentInput
+            name="part_terrain"
+            control={control}
             label={
               <LabelTooltip content="Seule la partie bâti est amortissable en LMNP/SCI IS. Le terrain (en général 15 à 20% du prix) ne s'amortit pas.">
                 Part terrain (%, pour amortissement)
               </LabelTooltip>
             }
-            type="number"
             placeholder="10"
-            rightAddon="%"
             hint="Appart: 10%, Maison: 20%, Immeuble: 10%. Laissez vide pour la valeur par défaut."
             error={errors.part_terrain?.message}
-            {...register('part_terrain', { valueAsNumber: true })}
           />
 
           {/* Rénovation énergétique (V2-S15) */}
@@ -265,13 +274,14 @@ export function StepBien({ onNext }: StepBienProps) {
             {watch('renovation_energetique') && (
               <div className="mt-4 pl-7 space-y-3">
                 <div className="max-w-xs">
-                  <Input
+                  <NumberInput
+                    name="annee_travaux"
+                    control={control}
                     label="Année de paiement des travaux"
-                    type="number"
                     placeholder={new Date().getFullYear().toString()}
                     error={errors.annee_travaux?.message}
-                    {...register('annee_travaux', { valueAsNumber: true })}
                     hint="Année de réalisation et de paiement définitif des travaux."
+                    thousandSeparator={false}
                   />
                 </div>
 

@@ -172,10 +172,11 @@ export function StepAssocies({ onNext, onPrev }: StepAssociesProps) {
               />
 
               <PercentInput
+                name={`associes.${index}.parts`}
+                control={control}
                 label="Parts (%)"
                 placeholder="50"
                 error={errors.associes?.[index]?.parts?.message}
-                {...register(`associes.${index}.parts`, { valueAsNumber: true })}
               />
 
               <CurrencyInput

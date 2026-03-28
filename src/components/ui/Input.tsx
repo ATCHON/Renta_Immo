@@ -121,14 +121,91 @@ export function CurrencyInput<T extends FieldValues>({
 }
 
 /**
- * Input pour les pourcentages
+ * Input générique pour les nombres avec formatage (sans les flèches du navigateur)
  */
-export const PercentInput = forwardRef<HTMLInputElement, InputProps>(
-  function PercentInput(props, ref) {
-    return (
-      <Input ref={ref} type="number" min="0" max="100" step="0.01" rightAddon="%" {...props} />
-    );
-  }
-);
+interface NumberInputProps<T extends FieldValues> {
+  name: Path<T> | string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>;
+  label?: React.ReactNode;
+  error?: string;
+  hint?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+  rightAddon?: React.ReactNode;
+  thousandSeparator?: boolean | string;
+  decimalScale?: number;
+  allowNegative?: boolean;
+}
 
-PercentInput.displayName = 'PercentInput';
+export function NumberInput<T extends FieldValues>({
+  name,
+  control,
+  label,
+  error,
+  hint,
+  placeholder,
+  disabled,
+  className,
+  rightAddon,
+  thousandSeparator = ' ',
+  decimalScale,
+  allowNegative = false,
+}: NumberInputProps<T>) {
+  return (
+    <Controller
+      name={name as Path<T>}
+      control={control}
+      render={({ field: { onChange, onBlur, value, ref } }) => (
+        <NumericFormat
+          thousandSeparator={thousandSeparator}
+          decimalSeparator=","
+          decimalScale={decimalScale}
+          allowNegative={allowNegative}
+          value={value ?? ''}
+          onValueChange={(values) => onChange(values.floatValue ?? undefined)}
+          onBlur={onBlur}
+          getInputRef={ref}
+          customInput={Input as React.ComponentType<InputProps>}
+          label={label}
+          error={error}
+          hint={hint}
+          placeholder={placeholder}
+          rightAddon={rightAddon}
+          disabled={disabled}
+          className={className}
+        />
+      )}
+    />
+  );
+}
+
+/**
+ * Input pour les pourcentages (formaté)
+ */
+export function PercentInput<T extends FieldValues>({
+  name,
+  control,
+  label,
+  error,
+  hint,
+  placeholder,
+  disabled,
+  className,
+}: Omit<NumberInputProps<T>, 'rightAddon' | 'thousandSeparator'>) {
+  return (
+    <NumberInput
+      name={name}
+      control={control}
+      label={label}
+      error={error}
+      hint={hint}
+      placeholder={placeholder}
+      disabled={disabled}
+      className={className}
+      rightAddon="%"
+      decimalScale={2}
+    />
+  );
+}

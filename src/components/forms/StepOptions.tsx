@@ -133,6 +133,8 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-surface-container-low rounded-2xl p-4">
           <PercentInput
+            name="taux_evolution_loyer"
+            control={control}
             label={
               <LabelTooltip content="Indice de Référence des Loyers. Il plafonne les augmentations annuelles de loyer (autour de 2 à 3% historiquement). Depuis 2023, les passoires thermiques (F et G) ne peuvent plus appliquer cette hausse.">
                 Évolution annuelle loyers
@@ -140,15 +142,15 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
             }
             hint="Indice IRL (historique 2%)"
             error={errors.taux_evolution_loyer?.message}
-            {...register('taux_evolution_loyer', { valueAsNumber: true })}
           />
         </div>
         <div className="bg-surface-container-low rounded-2xl p-4">
           <PercentInput
+            name="taux_evolution_charges"
+            control={control}
             label="Évolution annuelle charges"
             hint="Inflation (historique 2.5%)"
             error={errors.taux_evolution_charges?.message}
-            {...register('taux_evolution_charges', { valueAsNumber: true })}
           />
         </div>
       </div>
@@ -156,10 +158,11 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
       {/* AUDIT-108 : Frais de revente */}
       <div className="bg-surface-container-low rounded-2xl p-4">
         <PercentInput
+          name="taux_agence_revente"
+          control={control}
           label="Frais d'agence à la revente"
           hint="Agence 5% par défaut (0% si vente entre particuliers)"
           error={errors.taux_agence_revente?.message}
-          {...register('taux_agence_revente', { valueAsNumber: true })}
         />
       </div>
 

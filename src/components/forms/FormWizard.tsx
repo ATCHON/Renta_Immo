@@ -166,7 +166,7 @@ export function FormWizard() {
               ? `${bien.type_bien} • ${bien.prix_achat.toLocaleString('fr-FR')} €`
               : undefined
           }
-          onOpen={() => setStep(0)}
+          onOpen={() => setStep(currentStep === 0 ? -1 : 0)}
         >
           <StepBien onNext={nextStep} />
         </StepAccordion>
@@ -184,7 +184,7 @@ export function FormWizard() {
               ? `${(bien.prix_achat - financement.apport).toLocaleString('fr-FR')} € emprunté • ${financement.duree_emprunt} ans`
               : undefined
           }
-          onOpen={() => setStep(1)}
+          onOpen={() => setStep(currentStep === 1 ? -1 : 1)}
         >
           <StepFinancement onNext={nextStep} onPrev={prevStep} />
         </StepAccordion>
@@ -200,7 +200,7 @@ export function FormWizard() {
               ? `${exploitation.loyer_mensuel.toLocaleString('fr-FR')} €/mois`
               : undefined
           }
-          onOpen={() => setStep(2)}
+          onOpen={() => setStep(currentStep === 2 ? -1 : 2)}
         >
           <StepExploitation onNext={nextStep} onPrev={prevStep} />
         </StepAccordion>
@@ -212,7 +212,7 @@ export function FormWizard() {
           title={STEP_LABELS[3]}
           displayNumber={4}
           recap={structure?.regime_fiscal ?? undefined}
-          onOpen={() => setStep(3)}
+          onOpen={() => setStep(currentStep === 3 ? -1 : 3)}
         >
           <StepStructure onNext={nextStep} onPrev={prevStep} />
         </StepAccordion>
@@ -224,7 +224,7 @@ export function FormWizard() {
             currentStep={currentStep}
             title={STEP_LABELS[4]}
             displayNumber={5}
-            onOpen={() => setStep(4)}
+            onOpen={() => setStep(currentStep === 4 ? -1 : 4)}
           >
             <StepAssocies onNext={nextStep} onPrev={prevStep} />
           </StepAccordion>
@@ -236,7 +236,15 @@ export function FormWizard() {
           currentStep={currentStep}
           title={STEP_LABELS[5]}
           displayNumber={structure.type === 'nom_propre' ? 5 : 6}
-          onOpen={() => setStep(structure.type === 'nom_propre' ? 4 : 5)}
+          onOpen={() =>
+            setStep(
+              currentStep === (structure.type === 'nom_propre' ? 4 : 5)
+                ? -1
+                : structure.type === 'nom_propre'
+                  ? 4
+                  : 5
+            )
+          }
         >
           <StepOptions onSubmit={handleSubmit} onPrev={prevStep} isLoading={isLoading} />
         </StepAccordion>

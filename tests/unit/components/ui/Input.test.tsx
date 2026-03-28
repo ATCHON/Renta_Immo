@@ -36,7 +36,10 @@ function CurrencyWrapper() {
 }
 
 function PercentWrapper() {
-  return <PercentInput label="Taux d'intérêt" name="taux" />;
+  const { control } = useForm<{ taux: number }>({
+    defaultValues: { taux: 3.5 },
+  });
+  return <PercentInput label="Taux d'intérêt" name="taux" control={control} />;
 }
 
 // --- Tests ---
@@ -100,9 +103,9 @@ describe('PercentInput — rendu de base (NR-UI-01)', () => {
     expect(screen.getByText('%')).toBeDefined();
   });
 
-  it('rend un input de type number', () => {
+  it('rend un input avec inputmode="numeric"', () => {
     render(<PercentWrapper />);
-    const input = screen.getByRole('spinbutton');
-    expect(input.getAttribute('type')).toBe('number');
+    const input = screen.getByRole('textbox');
+    expect(input.getAttribute('inputmode')).toBe('numeric');
   });
 });

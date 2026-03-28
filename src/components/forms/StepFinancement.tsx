@@ -142,10 +142,11 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <PercentInput
+          name="taux_interet"
+          control={control}
           label="Taux d'intérêt annuel"
           placeholder="3.5"
           error={errors.taux_interet?.message}
-          {...register('taux_interet', { valueAsNumber: true })}
         />
         {/* S11 — Hint contextuel taux */}
         <p className="text-[11px] text-on-surface/50 mt-1 -mb-2 col-span-1">
@@ -178,10 +179,11 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
       </div>
 
       <PercentInput
+        name="assurance_pret"
+        control={control}
         label="Taux d'assurance prêt"
         placeholder="0.3"
         error={errors.assurance_pret?.message}
-        {...register('assurance_pret', { valueAsNumber: true })}
       />
 
       {/* Options avancées */}
