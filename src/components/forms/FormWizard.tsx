@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronDown, ChevronUp, Check, Lock } from 'lucide-react';
 
@@ -129,14 +129,20 @@ export function FormWizard() {
 
   const { calculate, isLoading } = useCalculateur();
 
+  // Ne rediriger vers les résultats que si le calcul a été déclenché depuis ce composant,
+  // pas au montage si le store contient déjà un résultat précédent.
+  const calculateTriggeredRef = useRef(false);
+
   useEffect(() => {
-    if (status === 'success') {
+    if (status === 'success' && calculateTriggeredRef.current) {
+      calculateTriggeredRef.current = false;
       router.push('/calculateur/resultats');
     }
   }, [status, router]);
 
   const handleSubmit = useCallback(() => {
     const formData = getFormData() as CalculateurFormData;
+    calculateTriggeredRef.current = true;
     calculate(formData);
   }, [getFormData, calculate]);
 
