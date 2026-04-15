@@ -62,10 +62,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   });
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
     return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });

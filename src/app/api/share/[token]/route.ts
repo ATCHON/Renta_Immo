@@ -7,10 +7,7 @@ import { rateLimit, getClientIp, buildRateLimitHeaders } from '@/lib/rate-limit'
  * Accès public — aucune authentification requise.
  * Retourne les données d'une simulation partagée sans exposer user_id.
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { token: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { token: string } }) {
   const ip = getClientIp(request);
   const rl = await rateLimit('share:read', ip);
   if (!rl.success) {
