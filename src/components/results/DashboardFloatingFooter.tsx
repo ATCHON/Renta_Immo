@@ -24,7 +24,7 @@ export function DashboardFloatingFooter({ formData, resultats }: DashboardFloati
 
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
+      if (timeoutRef.current !== null) {
         window.clearTimeout(timeoutRef.current);
       }
     };
@@ -63,7 +63,7 @@ export function DashboardFloatingFooter({ formData, resultats }: DashboardFloati
       await navigator.clipboard.writeText(shareUrl);
       setIsCopied(true);
       toast.success('Lien copié dans le presse-papiers');
-      if (timeoutRef.current) {
+      if (timeoutRef.current !== null) {
         window.clearTimeout(timeoutRef.current);
       }
       timeoutRef.current = window.setTimeout(() => {
