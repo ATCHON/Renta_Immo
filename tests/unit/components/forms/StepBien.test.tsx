@@ -105,7 +105,9 @@ describe('StepBien — UX Migration (S4, S5, S6)', () => {
     await user.click(screen.getByRole('button', { name: /Continuer/i }));
 
     await waitFor(() => {
-      expect(mockUpdateBien).toHaveBeenCalledTimes(1);
+      // updateBien peut être appelé plusieurs fois : via le watch de preview
+      // ET via onSubmit. On vérifie qu'il a été appelé au moins une fois.
+      expect(mockUpdateBien).toHaveBeenCalled();
     });
     expect(mockUpdateBien).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -113,5 +115,20 @@ describe('StepBien — UX Migration (S4, S5, S6)', () => {
       })
     );
     expect(mockOnNext).toHaveBeenCalledTimes(1);
+  });
+
+  it("appelle updateBien lors du changement d'un champ (mise à jour preview)", async () => {
+    const user = userEvent.setup();
+    render(<StepBien onNext={mockOnNext} />);
+    vi.clearAllMocks();
+
+    // Simuler un changement d'état via le bouton Maison
+    const maisonButton = screen.getByRole('button', { name: /Maison/i });
+    await user.click(maisonButton);
+
+    await waitFor(() => {
+      // La subscription watch doit avoir déclenché updateBien
+      expect(mockUpdateBien).toHaveBeenCalled();
+    });
   });
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -10,7 +10,7 @@ import { STRUCTURE_OPTIONS, TMI_OPTIONS, REGIME_FISCAL_OPTIONS } from '@/lib/con
 import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useScenarioFormReset } from '@/hooks/useScenarioFormReset';
 import { cn } from '@/lib/utils';
-import type { TypeStructure, RegimeFiscal } from '@/types';
+import type { TypeStructure, RegimeFiscal, StructureData } from '@/types';
 
 import {
   structureSchema,
@@ -85,6 +85,14 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
     if (typeExploitation === 'meublee') return opt.value.startsWith('lmnp');
     return !opt.value.startsWith('lmnp');
   });
+
+  // Mise à jour du store en temps réel pour la preview sidebar (taux d'effort HCSF)
+  useEffect(() => {
+    const subscription = watch((values) => {
+      updateStructure(values as Partial<StructureData>);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, updateStructure]);
 
   const onSubmit = (data: StructureFormData) => {
     // mode_amortissement pertinent seulement pour LMNP réel et SCI IS
