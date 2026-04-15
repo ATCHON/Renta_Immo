@@ -6,16 +6,13 @@
  * Affiche : Carte synthèse (Rendement + Cash-flow + Investissement) + mini chart + CTA
  */
 
-import { BarChart2, TrendingUp, Banknote, Wallet } from 'lucide-react';
+import { TrendingUp, Banknote, Wallet, Calculator, CheckCircle2, AlertCircle } from 'lucide-react';
 import type { PreviewKPIs } from '@/types/calculateur';
 import { fmtEuro, fmtPercent } from '@/utils/kpiFormat';
 
 interface Props {
   kpis: PreviewKPIs;
 }
-
-/** Hauteurs relatives des barres du mini chart (8 années) */
-const BAR_HEIGHTS = [35, 50, 45, 65, 60, 75, 80, 100];
 
 export function ResultsAnchorStep5({ kpis }: Props) {
   const cashflowPositif = kpis.cashflowMensuelEstime !== null && kpis.cashflowMensuelEstime >= 0;
@@ -25,7 +22,7 @@ export function ResultsAnchorStep5({ kpis }: Props) {
       {/* Carte synthèse foncée */}
       <div className="p-5 bg-primary-container rounded-3xl space-y-4">
         <div className="flex items-center gap-2 mb-1 opacity-80">
-          <BarChart2
+          <TrendingUp
             className="h-4 w-4 text-on-primary-container"
             strokeWidth={1.5}
             aria-hidden="true"
@@ -83,19 +80,38 @@ export function ResultsAnchorStep5({ kpis }: Props) {
           </span>
         </div>
 
-        {/* Mini bar chart projection */}
-        <div
-          className="h-14 w-full bg-primary flex items-end gap-1 px-2 pb-2 rounded-xl overflow-hidden"
-          aria-hidden="true"
-        >
-          {BAR_HEIGHTS.map((h, i) => (
-            <div
-              key={i}
-              className="flex-1 rounded-t-sm bg-on-primary-container/60 hover:bg-on-primary-container transition-colors"
-              style={{ height: `${h}%` }}
-            />
-          ))}
+        {/* Mensualité estimée */}
+        <div>
+          <div className="flex items-center gap-1.5 opacity-70 mb-0.5">
+            <Calculator className="h-3 w-3 text-on-primary-container" strokeWidth={1.5} />
+            <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-on-primary-container">
+              Mensualité estimée
+            </span>
+          </div>
+          <span className="text-xl font-headline font-extrabold text-white tracking-tighter">
+            {fmtEuro(kpis.mensualiteEstimee)}
+          </span>
         </div>
+
+        {/* Badge statut autofinancement */}
+        {kpis.cashflowMensuelEstime !== null && (
+          <div
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-headline font-bold ${
+              cashflowPositif
+                ? 'bg-primary-fixed/20 text-primary-fixed'
+                : 'bg-tertiary-fixed/20 text-tertiary-fixed'
+            }`}
+          >
+            {cashflowPositif ? (
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+            ) : (
+              <AlertCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+            )}
+            {cashflowPositif
+              ? 'Autofinancé'
+              : `Effort d'épargne : ${fmtEuro(Math.abs(kpis.cashflowMensuelEstime))}/mois`}
+          </div>
+        )}
       </div>
 
       {/* Note CTA */}

@@ -23,21 +23,33 @@ function computeNoiMensuel(kpis: PreviewKPIs): number | null {
 
 export function ResultsAnchorStep4({ kpis }: Props) {
   const exploitation = useCalculateurStore((s) => s.getActiveScenario().exploitation);
+  const structure = useCalculateurStore((s) => s.getActiveScenario().structure);
   const noiMensuel = computeNoiMensuel(kpis);
 
-  // Taux d'effort HCSF simplifié : mensualité / (loyer × 70%)
-  // Représente la part de la mensualité non couverte par les revenus locatifs pondérés
-  const tauxEffortHCSF: number | null =
-    kpis.mensualiteEstimee !== null && exploitation?.loyer_mensuel && exploitation.loyer_mensuel > 0
-      ? (kpis.mensualiteEstimee / (exploitation.loyer_mensuel * 0.7)) * 100
-      : null;
+  // Taux d'endettement HCSF : charges mensuelles totales / revenus mensuels pondérés
+  // Formule de référence (page "Comment ça marche" > Fiscalité & Normes HCSF) :
+  //   Revenus = revenus_activite + loyer_mensuel×70% + loyers_actuels×70%
+  //   Charges = mensualité_crédit + crédits_immobiliers_existants + autres_charges
+  const revenusMensuels =
+    (structure?.revenus_activite ?? 0) +
+    (exploitation?.loyer_mensuel ?? 0) * 0.7 +
+    (structure?.loyers_actuels ?? 0) * 0.7;
 
+  const chargesMensuelles =
+    (kpis.mensualiteEstimee ?? 0) +
+    (structure?.credits_immobiliers ?? 0) +
+    (structure?.autres_charges ?? 0);
+
+  const tauxEffortHCSF: number | null =
+    revenusMensuels > 0 ? (chargesMensuelles / revenusMensuels) * 100 : null;
+
+  // Seuils couleur alignés HCSF 2026 : ≤35% conforme | 35-50% limite | >50% non conforme
   const tauxEffortColor =
     tauxEffortHCSF === null
       ? 'text-primary/40'
-      : tauxEffortHCSF <= 100
+      : tauxEffortHCSF <= 35
         ? 'text-primary'
-        : tauxEffortHCSF <= 130
+        : tauxEffortHCSF <= 50
           ? 'text-warning'
           : 'text-error';
 
@@ -75,7 +87,7 @@ export function ResultsAnchorStep4({ kpis }: Props) {
             : '—'}
         </div>
         <p className="text-[10px] text-primary/50 font-label mt-1">
-          Mensualité / (loyer × 70%) — seuil HCSF : 35 %
+          Charges / Revenus pondérés — seuil HCSF : 35 %
         </p>
       </div>
 
