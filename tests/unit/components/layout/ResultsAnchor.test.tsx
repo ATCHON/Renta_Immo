@@ -56,7 +56,12 @@ function mockStore(hasResults = false) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mockedUseCalculateurStore.mockImplementation((selector: (s: any) => unknown) => {
     return selector({
-      getActiveScenario: () => ({ resultats: hasResults ? {} : null }),
+      getActiveScenario: () => ({
+        resultats: hasResults ? {} : null,
+        bien: { prix_achat: 200000, surface: 50, montant_travaux: 0 },
+        financement: { apport: 30000, taux_interet: 3.5, duree_emprunt: 20 },
+        exploitation: { loyer_mensuel: 1000, charges_copro: 1200, taxe_fonciere: 800 },
+      }),
       getFormData: () => ({}),
     });
   });
@@ -89,9 +94,10 @@ describe('ResultsAnchor — valeurs populées', () => {
     mockStore(false);
   });
 
-  it('affiche le préfixe ~ pour rendement brut (step 1)', () => {
+  it("affiche le prix au m² à l'étape 1 (200000 / 50 = 4000 €/m²)", () => {
     render(<ResultsAnchor currentStep={1} />);
-    expect(document.body.textContent).toMatch(/~5[,.]2\s*%/);
+    // Prix au m² = 200000 / 50 = 4000 €/m²
+    expect(document.body.textContent).toMatch(/4\s*000\s*€\/m²/);
   });
 
   it('affiche la mensualité avec ~ (step 2)', () => {

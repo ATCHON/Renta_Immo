@@ -7,17 +7,46 @@
  */
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { Menu, X, FolderOpen } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState, useEffect, useRef } from 'react';
+import { Menu, X, FolderOpen, LogOut, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
 
+/** Retourne les initiales (max 2 caractères) depuis un nom complet */
+function getInitials(name: string | null | undefined): string {
+  if (!name) return '?';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
 export function VerdantNavbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const { data: session } = authClient.useSession();
+
+  // Fermer le menu utilisateur au clic extérieur
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    setIsUserMenuOpen(false);
+    setIsMenuOpen(false);
+    router.push('/');
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -88,13 +117,56 @@ export function VerdantNavbar() {
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
-          {!session && (
+          {!session ? (
             <Link
               href="/auth/login"
               className="font-headline font-semibold text-sm text-on-surface/60 hover:text-primary transition-colors"
             >
               Connexion
             </Link>
+          ) : (
+            /* Avatar utilisateur + menu déroulant */
+            <div className="relative" ref={userMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsUserMenuOpen((v) => !v)}
+                className="flex items-center gap-2 rounded-full px-2 py-1 hover:bg-primary/5 transition-colors"
+                aria-label="Menu utilisateur"
+                aria-expanded={isUserMenuOpen}
+              >
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-xs font-headline font-bold select-none">
+                  {getInitials(session.user.name)}
+                </span>
+                <span className="font-headline font-semibold text-sm text-on-surface/80 max-w-[120px] truncate">
+                  {session.user.name?.split(' ')[0] ?? session.user.email}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    'h-3.5 w-3.5 text-on-surface/40 transition-transform duration-200',
+                    isUserMenuOpen && 'rotate-180'
+                  )}
+                />
+              </button>
+
+              {isUserMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-outline-variant/20 py-2 z-50">
+                  <div className="px-4 py-2 border-b border-outline-variant/10 mb-1">
+                    <p className="font-headline font-semibold text-sm text-on-surface truncate">
+                      {session.user.name}
+                    </p>
+                    <p className="text-xs text-on-surface/50 truncate">{session.user.email}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm font-headline font-medium text-on-surface/70 hover:text-error hover:bg-error/5 transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" strokeWidth={1.5} />
+                    Se déconnecter
+                  </button>
+                </div>
+              )}
+            </div>
           )}
           <Link
             href="/calculateur?reset=true"
@@ -152,13 +224,35 @@ export function VerdantNavbar() {
             >
               Nouvelle simulation
             </Link>
-            {!session && (
+            {!session ? (
               <Link
                 href="/auth/login"
                 className="block text-center font-headline font-semibold text-sm text-on-surface/60 hover:text-primary transition-colors py-2"
               >
                 Connexion
               </Link>
+            ) : (
+              <div className="pt-2 border-t border-outline-variant/20">
+                <div className="flex items-center gap-3 py-2">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-xs font-headline font-bold select-none shrink-0">
+                    {getInitials(session.user.name)}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-headline font-semibold text-sm text-on-surface truncate">
+                      {session.user.name}
+                    </p>
+                    <p className="text-xs text-on-surface/50 truncate">{session.user.email}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 w-full py-2 font-headline font-semibold text-sm text-on-surface/60 hover:text-error transition-colors"
+                >
+                  <LogOut className="h-4 w-4" strokeWidth={1.5} />
+                  Se déconnecter
+                </button>
+              </div>
             )}
           </div>
         </div>
