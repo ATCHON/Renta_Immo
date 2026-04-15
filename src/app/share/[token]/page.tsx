@@ -63,7 +63,7 @@ export default function SharedSimulationPage() {
     setIsCloning(true);
     try {
       await createSimulation.mutateAsync({
-        user_id: '',
+        user_id: session.user.id,
         name: `Copie de ${simulation.name}`,
         description: simulation.description ?? '',
         form_data: simulation.form_data,

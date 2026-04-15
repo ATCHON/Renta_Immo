@@ -13,7 +13,7 @@ import { rateLimit, getClientIp, buildRateLimitHeaders } from '@/lib/rate-limit'
  * Révoque le partage (supprime le token).
  */
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const ip = getClientIp(request);
   const rl = await rateLimit('simulations:share', ip);
   if (!rl.success) {
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { id } = params;
   const supabase = await createAdminClient();
 
   // Vérifier l'ownership
@@ -64,14 +64,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
     return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { id } = params;
   const supabase = await createAdminClient();
 
   const { error } = await supabase

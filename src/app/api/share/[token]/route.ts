@@ -9,7 +9,7 @@ import { rateLimit, getClientIp, buildRateLimitHeaders } from '@/lib/rate-limit'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ token: string }> }
+  { params }: { params: { token: string } }
 ) {
   const ip = getClientIp(request);
   const rl = await rateLimit('share:read', ip);
@@ -20,7 +20,7 @@ export async function GET(
     );
   }
 
-  const { token } = await params;
+  const { token } = params;
 
   // Validation basique du format UUID
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
