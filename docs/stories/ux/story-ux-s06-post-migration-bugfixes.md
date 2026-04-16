@@ -41,7 +41,7 @@ Après le déploiement de la migration UX sprint 4 (`VerdantNavbar`, `SimulatorL
 1. L'ancien `Header.tsx` affichait l'utilisateur connecté ; `VerdantNavbar` récupère la session mais n'en fait aucun usage visuel.
 2. `DashboardFloatingFooter` utilise `transform: translateX(-50%)` via `-translate-x-1/2`. Cette propriété CSS crée un nouveau _containing block_ pour les éléments `position: fixed` enfants — la `SaveSimulationModal` est donc positionnée relativement au footer, pas au viewport.
 3. Les 5 composants `ResultsAnchorStep*.tsx` affichent les mêmes métriques (`rendementBrut`, `cashflowMensuelEstime`) dans plusieurs étapes consécutives, annulant l'effet de progression narrative.
-4. Le bouton de partage copie `window.location.href` qui pointe vers `/simulations/[id]` — une route protégée par middleware, inaccessible sans compte.
+4. Le bouton de partage copie `window.location.href` qui pointe vers `/simulations/[id]` — une route protégée par un middleware, inaccessible sans compte.
 
 ---
 
