@@ -58,10 +58,10 @@ describe('computePreviewKPIs', () => {
       expect(kpis.investissementTotal).toBeCloseTo(226_000, 0);
     });
 
-    it('calcule rendementBrut = (loyer_annuel / investissement) * 100', () => {
-      // (900*12 / 226000) * 100 = 4.779...
+    it('calcule rendementBrut = (loyer_annuel / prix_achat) * 100 — convention marché', () => {
+      // (900*12 / 200_000) * 100 = 5.4 %
       expect(kpis.rendementBrut).not.toBeNull();
-      expect(kpis.rendementBrut!).toBeCloseTo(4.78, 1);
+      expect(kpis.rendementBrut!).toBeCloseTo(5.4, 1);
     });
 
     it('calcule mensualiteEstimee via PMT', () => {

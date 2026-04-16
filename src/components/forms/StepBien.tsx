@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -71,6 +72,14 @@ export function StepBien({ onNext }: StepBienProps) {
     },
     activeScenarioId
   );
+
+  // Mise à jour du store en temps réel pour la preview sidebar
+  useEffect(() => {
+    const subscription = watch((values) => {
+      updateBien(values as Partial<BienData>);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, updateBien]);
 
   const onSubmit = (data: BienFormData) => {
     // Convertir part_terrain de % vers ratio (ex: 10 → 0.10)
