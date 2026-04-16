@@ -38,6 +38,16 @@ const LIMITERS = {
     limiter: Ratelimit.slidingWindow(30, '60 s'),
     prefix: 'rl:simulations:write',
   }),
+  'simulations:share': new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(20, '60 s'),
+    prefix: 'rl:simulations:share',
+  }),
+  'share:read': new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(30, '60 s'),
+    prefix: 'rl:share:read',
+  }),
 } as const;
 
 export type RateLimitEndpoint = keyof typeof LIMITERS;

@@ -1,48 +1,57 @@
 'use client';
 
 /**
- * UX-S02a — KPIs sidebar pour Step 1 (Bien)
- * Affiche : Rendement brut, Mensualité estimée, Investissement total, mini bar chart
+ * UX-S06 — KPIs sidebar pour Step 1 (Bien immobilier)
+ * Focus : Évaluation du bien — indicateurs propres à l'asset
+ * Affiche : Prix au m², Investissement total, Frais notaire estimés
  */
 
-import { TrendingUp, CreditCard, Wallet, BarChart2 } from 'lucide-react';
+import { MapPin, Wallet, Receipt } from 'lucide-react';
 import type { PreviewKPIs } from '@/types/calculateur';
-import { fmtEuro, fmtPercent } from '@/utils/kpiFormat';
+import { useCalculateurStore } from '@/stores/calculateur.store';
+import { fmtEuro } from '@/utils/kpiFormat';
 
 interface Props {
   kpis: PreviewKPIs;
 }
 
-/** Hauteurs relatives des barres du mini chart (8 colonnes = 8 années fictives) */
-const BAR_HEIGHTS = [30, 42, 38, 55, 62, 70, 78, 90];
+function fmtEuroPerM2(value: number | null): string {
+  if (value === null || !isFinite(value)) return '—';
+  return `~${value.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €/m²`;
+}
 
 export function ResultsAnchorStep1({ kpis }: Props) {
+  const bien = useCalculateurStore((s) => s.getActiveScenario().bien);
+
+  const prixAuM2: number | null =
+    bien?.prix_achat && bien?.surface && bien.surface > 0 ? bien.prix_achat / bien.surface : null;
+
+  // Frais notaire = investissementTotal - prix_achat - travaux
+  const fraisNotaire: number | null =
+    kpis.investissementTotal !== null && bien?.prix_achat
+      ? kpis.investissementTotal - bien.prix_achat - (bien.montant_travaux ?? 0)
+      : bien?.prix_achat
+        ? bien.prix_achat * 0.08
+        : null;
+
   return (
     <div className="space-y-4">
-      {/* Rendement brut */}
+      {/* Prix au m² */}
       <div className="p-5 bg-white/50 rounded-2xl shadow-[0_4px_12px_rgba(27,67,50,0.06)]">
         <div className="flex items-center gap-2 mb-2 opacity-70">
-          <TrendingUp className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+          <MapPin className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
           <span className="text-[10px] font-headline font-bold uppercase tracking-wider">
-            Rendement brut
+            Prix au m²
           </span>
         </div>
         <div className="text-3xl font-headline font-extrabold tracking-tighter text-primary">
-          {fmtPercent(kpis.rendementBrut)}
+          {fmtEuroPerM2(prixAuM2)}
         </div>
-      </div>
-
-      {/* Mensualité estimée */}
-      <div className="p-5 bg-white/50 rounded-2xl shadow-[0_4px_12px_rgba(27,67,50,0.06)]">
-        <div className="flex items-center gap-2 mb-2 opacity-70">
-          <CreditCard className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
-          <span className="text-[10px] font-headline font-bold uppercase tracking-wider">
-            Mensualité est.
-          </span>
-        </div>
-        <div className="text-3xl font-headline font-extrabold tracking-tighter text-primary">
-          {fmtEuro(kpis.mensualiteEstimee)}
-        </div>
+        {prixAuM2 === null && bien?.prix_achat && !bien?.surface && (
+          <p className="text-[10px] text-primary/50 font-label mt-1">
+            Renseignez la surface pour calculer
+          </p>
+        )}
       </div>
 
       {/* Investissement total */}
@@ -56,37 +65,23 @@ export function ResultsAnchorStep1({ kpis }: Props) {
         <div className="text-3xl font-headline font-extrabold tracking-tighter text-primary">
           {fmtEuro(kpis.investissementTotal)}
         </div>
+        <p className="text-[10px] text-primary/50 font-label mt-1">
+          Prix + travaux + frais notaire
+        </p>
       </div>
 
-      {/* Mini bar chart cash-flow */}
+      {/* Frais notaire estimés */}
       <div className="p-5 bg-white/50 rounded-2xl shadow-[0_4px_12px_rgba(27,67,50,0.06)]">
-        <div className="flex items-center gap-2 mb-4 opacity-70">
-          <BarChart2 className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+        <div className="flex items-center gap-2 mb-2 opacity-70">
+          <Receipt className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
           <span className="text-[10px] font-headline font-bold uppercase tracking-wider">
-            Cash-flow (projection)
+            Frais notaire est.
           </span>
         </div>
-        <div className="flex items-end gap-1 h-16 w-full" aria-hidden="true">
-          {BAR_HEIGHTS.map((h, i) => (
-            <div
-              key={i}
-              className="flex-1 rounded-t-sm bg-primary/20 hover:bg-primary/40 transition-colors"
-              style={{ height: `${h}%` }}
-            />
-          ))}
+        <div className="text-3xl font-headline font-extrabold tracking-tighter text-primary">
+          {fmtEuro(fraisNotaire)}
         </div>
-        <div className="flex justify-between mt-2">
-          <span className="text-[10px] font-headline font-bold opacity-40 uppercase tracking-widest">
-            An 1
-          </span>
-          <span className="text-[10px] font-headline font-bold opacity-40 uppercase tracking-widest">
-            An 20
-          </span>
-        </div>
-        <div className="mt-2 text-center text-sm font-headline font-extrabold tracking-tighter text-primary">
-          {fmtEuro(kpis.cashflowMensuelEstime)}
-          <span className="text-xs font-label font-medium opacity-60 ml-1">/mois</span>
-        </div>
+        <p className="text-[10px] text-primary/50 font-label mt-1">~8 % du prix d&apos;achat</p>
       </div>
     </div>
   );

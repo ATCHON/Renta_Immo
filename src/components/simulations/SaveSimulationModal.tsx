@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { useSimulationMutations } from '@/hooks/useSimulationMutations';
 import { useCalculateurStore } from '@/stores/calculateur.store';
@@ -40,7 +41,7 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
     prevIsOpen.current = isOpen;
   }, [isOpen, activeScenario.dbId, activeScenario.name, activeScenario.description]);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const handleCreate = async () => {
     if (!name.trim()) return;
@@ -82,7 +83,7 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
 
   const isPending = createSimulation.isPending || updateSimulation.isPending;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm hover:cursor-pointer"
       onClick={onClose}
@@ -182,6 +183,7 @@ export const SaveSimulationModal: React.FC<SaveSimulationModalProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

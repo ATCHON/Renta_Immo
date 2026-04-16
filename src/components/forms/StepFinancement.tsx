@@ -14,7 +14,7 @@ import { useCalculateurStore } from '@/stores/calculateur.store';
 import { useScenarioFormReset } from '@/hooks/useScenarioFormReset';
 import { calculateMensualite, formatCurrency } from '@/lib/utils';
 import type { FinancementData } from '@/types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Calculator, CheckCircle2, Lightbulb, Pencil } from 'lucide-react';
 
 interface StepFinancementProps {
@@ -73,6 +73,14 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
     watchedValues.taux_interet || 0,
     watchedValues.duree_emprunt || 1
   );
+
+  // Mise à jour du store en temps réel pour la preview sidebar
+  useEffect(() => {
+    const subscription = watch((values) => {
+      updateFinancement(values as Partial<FinancementData>);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, updateFinancement]);
 
   const onSubmit = (data: FinancementFormData) => {
     updateFinancement(data as FinancementData);

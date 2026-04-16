@@ -54,6 +54,8 @@ gha-creds-*.json
 claude*.md
 claude.md
 gemini.md
+.obsidian/
+claude-memory-compiler/
 
 # Playwright
 coverage/

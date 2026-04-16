@@ -89,10 +89,12 @@ export function computePreviewKPIs(
       : null;
 
   // ── Rendement brut ────────────────────────────────────────────────────────
+  // Convention marché : dénominateur = prix_achat seul (cohérent avec le serveur
+  // et l'affichage inline de StepExploitation via calculateRentabiliteBrute)
   const loyerAnnuel = loyerMensuel !== null ? loyerMensuel * 12 : null;
   const rendementBrut: number | null =
-    loyerAnnuel !== null && investissementTotal !== null && investissementTotal > 0
-      ? (loyerAnnuel / investissementTotal) * 100
+    loyerAnnuel !== null && prixAchat !== null && prixAchat > 0
+      ? (loyerAnnuel / prixAchat) * 100
       : null;
 
   // ── Coût total du crédit ──────────────────────────────────────────────────

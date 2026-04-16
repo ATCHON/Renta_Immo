@@ -56,7 +56,18 @@ function mockStore(hasResults = false) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mockedUseCalculateurStore.mockImplementation((selector: (s: any) => unknown) => {
     return selector({
-      getActiveScenario: () => ({ resultats: hasResults ? {} : null }),
+      getActiveScenario: () => ({
+        resultats: hasResults ? {} : null,
+        bien: { prix_achat: 200000, surface: 50, montant_travaux: 0 },
+        financement: { apport: 30000, taux_interet: 3.5, duree_emprunt: 20 },
+        exploitation: { loyer_mensuel: 1000, charges_copro: 1200, taxe_fonciere: 800 },
+        structure: {
+          revenus_activite: 3000,
+          credits_immobiliers: 0,
+          loyers_actuels: 0,
+          autres_charges: 0,
+        },
+      }),
       getFormData: () => ({}),
     });
   });
@@ -89,9 +100,38 @@ describe('ResultsAnchor — valeurs populées', () => {
     mockStore(false);
   });
 
-  it('affiche le préfixe ~ pour rendement brut (step 1)', () => {
+  it("affiche le prix au m² à l'étape 1 (200000 / 50 = 4000 €/m²)", () => {
     render(<ResultsAnchor currentStep={1} />);
-    expect(document.body.textContent).toMatch(/~5[,.]2\s*%/);
+    // Prix au m² = 200000 / 50 = 4000 €/m²
+    expect(document.body.textContent).toMatch(/4\s*000\s*€\/m²/);
+  });
+
+  it("affiche le fallback sans surface à l'étape 1", () => {
+    // Surcharge le store pour simuler un scénario sans surface
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockedUseCalculateurStore.mockImplementation((selector: (s: any) => unknown) => {
+      return selector({
+        getActiveScenario: () => ({
+          resultats: null,
+          bien: { prix_achat: 200000, surface: undefined, montant_travaux: 0 },
+          financement: { apport: 30000, taux_interet: 3.5, duree_emprunt: 20 },
+          exploitation: { loyer_mensuel: 1000, charges_copro: 1200, taxe_fonciere: 800 },
+          structure: {
+            revenus_activite: 3000,
+            credits_immobiliers: 0,
+            loyers_actuels: 0,
+            autres_charges: 0,
+          },
+        }),
+        getFormData: () => ({}),
+      });
+    });
+
+    render(<ResultsAnchor currentStep={1} />);
+    // Pas de prix au m² calculé
+    expect(document.body.textContent).not.toMatch(/\d\s*€\/m²/);
+    // Message d'aide affiché
+    expect(document.body.textContent).toMatch(/Renseignez la surface pour calculer/i);
   });
 
   it('affiche la mensualité avec ~ (step 2)', () => {
@@ -133,6 +173,65 @@ describe('ResultsAnchor — bouton PDF', () => {
     // DownloadPdfButton est rendu (pas le bouton disabled)
     const btn = screen.getByRole('button', { name: /télécharger pdf/i });
     expect(btn.hasAttribute('disabled')).toBe(false);
+  });
+});
+
+describe('ResultsAnchor — Step 4 taux endettement HCSF', () => {
+  beforeEach(() => {
+    // kpis.mensualiteEstimee = 987 €
+    // structure: revenus_activite=3000, loyers_actuels=0, credits_immo=0, autres_charges=0
+    // exploitation: loyer_mensuel=1000
+    // Revenus pondérés = 3000 + 1000×0.7 + 0 = 3700 €
+    // Charges = 987 + 0 + 0 = 987 €
+    // Taux = 987 / 3700 × 100 ≈ 26.7 %
+    mockedUsePreviewKPIs.mockReturnValue(KPI_POPULATED);
+    mockStore(false);
+  });
+
+  it('affiche le taux endettement HCSF avec la nouvelle formule (step 4)', () => {
+    render(<ResultsAnchor currentStep={4} />);
+    // Le taux ≈ 26.7 % → arrondi à 27 %, affiché avec ~
+    expect(document.body.textContent).toMatch(/~?\s*27\s*%/);
+  });
+
+  it('affiche le label Charges / Revenus pondérés (step 4)', () => {
+    render(<ResultsAnchor currentStep={4} />);
+    expect(screen.getByText(/Charges \/ Revenus pondérés/i)).toBeDefined();
+  });
+});
+
+describe('ResultsAnchor — Step 5 synthèse enrichie', () => {
+  beforeEach(() => {
+    mockedUsePreviewKPIs.mockReturnValue(KPI_POPULATED);
+    mockStore(false);
+  });
+
+  it('affiche la mensualité estimée dans la synthèse (step 5)', () => {
+    render(<ResultsAnchor currentStep={5} />);
+    expect(screen.getByText(/Mensualité estimée/i)).toBeDefined();
+  });
+
+  it("affiche le badge Effort d'épargne quand cashflow négatif (step 5)", () => {
+    render(<ResultsAnchor currentStep={5} />);
+    // KPI_POPULATED.cashflowMensuelEstime = -120
+    expect(document.body.textContent).toMatch(/Effort d.épargne/i);
+  });
+
+  it('affiche le badge Autofinancé quand cashflow positif (step 5)', () => {
+    mockedUsePreviewKPIs.mockReturnValue({
+      ...KPI_POPULATED,
+      cashflowMensuelEstime: 120,
+    });
+    render(<ResultsAnchor currentStep={5} />);
+    expect(document.body.textContent).toMatch(/Autofinancé/i);
+    expect(document.body.textContent).not.toMatch(/Effort d.épargne/i);
+  });
+
+  it("n'affiche pas le graphique décoratif (step 5)", () => {
+    render(<ResultsAnchor currentStep={5} />);
+    // Les anciennes barres avaient style={{ height: '35%' }} — ne doivent plus exister
+    const barredDivs = document.querySelectorAll('[style*="height: 35%"]');
+    expect(barredDivs.length).toBe(0);
   });
 });
 

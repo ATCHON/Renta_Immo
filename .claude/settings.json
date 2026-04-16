@@ -3,11 +3,42 @@
     "frontend-design@claude-plugins-official": true,
     "plugin-dev@claude-plugins-official": true
   },
-  "env": {
-    "ANTHROPIC_BASE_URL": "https://openrouter.ai/api",
-    "ANTHROPIC_AUTH_TOKEN": "",
-    "ANTHROPIC_API_KEY": "",
-    "ANTHROPIC_MODEL": "openrouter/free"
-    //"ANTHROPIC_MODEL": "minimax/minimax-m2.7"
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --directory claude-memory-compiler python hooks/session-start.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --directory claude-memory-compiler python hooks/pre-compact.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --directory claude-memory-compiler python hooks/session-end.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }
