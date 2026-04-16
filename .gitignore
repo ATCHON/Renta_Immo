@@ -48,6 +48,8 @@ _bmad-output
 _bmad
 .agent
 .agents
+.claude/
+.husky/
 .bmad-core
 .gemini/
 gha-creds-*.json
