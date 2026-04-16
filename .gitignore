@@ -66,6 +66,9 @@ coverage/
 # Supabase Docker
 supabase-docker/
 
+# Documentation (locale uniquement)
+docs/
+
 # git
 .gitignore
 .gitattributes
