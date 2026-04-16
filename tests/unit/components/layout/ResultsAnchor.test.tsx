@@ -106,6 +106,34 @@ describe('ResultsAnchor — valeurs populées', () => {
     expect(document.body.textContent).toMatch(/4\s*000\s*€\/m²/);
   });
 
+  it("affiche le fallback sans surface à l'étape 1", () => {
+    // Surcharge le store pour simuler un scénario sans surface
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockedUseCalculateurStore.mockImplementation((selector: (s: any) => unknown) => {
+      return selector({
+        getActiveScenario: () => ({
+          resultats: null,
+          bien: { prix_achat: 200000, surface: undefined, montant_travaux: 0 },
+          financement: { apport: 30000, taux_interet: 3.5, duree_emprunt: 20 },
+          exploitation: { loyer_mensuel: 1000, charges_copro: 1200, taxe_fonciere: 800 },
+          structure: {
+            revenus_activite: 3000,
+            credits_immobiliers: 0,
+            loyers_actuels: 0,
+            autres_charges: 0,
+          },
+        }),
+        getFormData: () => ({}),
+      });
+    });
+
+    render(<ResultsAnchor currentStep={1} />);
+    // Pas de prix au m² calculé
+    expect(document.body.textContent).not.toMatch(/\d\s*€\/m²/);
+    // Message d'aide affiché
+    expect(document.body.textContent).toMatch(/Renseignez la surface pour calculer/i);
+  });
+
   it('affiche la mensualité avec ~ (step 2)', () => {
     render(<ResultsAnchor currentStep={2} />);
     expect(document.body.textContent).toMatch(/~987\s*€|~1\s*k€/);
@@ -162,8 +190,8 @@ describe('ResultsAnchor — Step 4 taux endettement HCSF', () => {
 
   it('affiche le taux endettement HCSF avec la nouvelle formule (step 4)', () => {
     render(<ResultsAnchor currentStep={4} />);
-    // Le taux ≈ 26.7 % → doit être dans la page (avec ~)
-    expect(document.body.textContent).toMatch(/\d+\s*%/);
+    // Le taux ≈ 26.7 % → arrondi à 27 %, affiché avec ~
+    expect(document.body.textContent).toMatch(/~?\s*27\s*%/);
   });
 
   it('affiche le label Charges / Revenus pondérés (step 4)', () => {
@@ -187,6 +215,16 @@ describe('ResultsAnchor — Step 5 synthèse enrichie', () => {
     render(<ResultsAnchor currentStep={5} />);
     // KPI_POPULATED.cashflowMensuelEstime = -120
     expect(document.body.textContent).toMatch(/Effort d.épargne/i);
+  });
+
+  it('affiche le badge Autofinancé quand cashflow positif (step 5)', () => {
+    mockedUsePreviewKPIs.mockReturnValue({
+      ...KPI_POPULATED,
+      cashflowMensuelEstime: 120,
+    });
+    render(<ResultsAnchor currentStep={5} />);
+    expect(document.body.textContent).toMatch(/Autofinancé/i);
+    expect(document.body.textContent).not.toMatch(/Effort d.épargne/i);
   });
 
   it("n'affiche pas le graphique décoratif (step 5)", () => {

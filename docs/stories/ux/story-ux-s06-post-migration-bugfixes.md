@@ -13,22 +13,22 @@
 ## 1. User Stories
 
 **Bug 1 (Navbar)**
-**En tant que** utilisateur connecté
+**En tant qu'**utilisateur connecté
 **Je veux** voir mon nom / avatar dans la navbar
 **Afin de** savoir que je suis bien authentifié et pouvoir me déconnecter facilement.
 
 **Bug 2 (Modale sauvegarde)**
-**En tant que** utilisateur consultant ses résultats de simulation
+**En tant qu'**utilisateur consultant ses résultats de simulation
 **Je veux** que la modale de sauvegarde apparaisse au centre de l'écran
 **Afin de** pouvoir cliquer sur les boutons "Sauvegarder" et "Annuler" sans qu'ils soient bloqués.
 
 **Bug 3 (Sidebar estimations)**
-**En tant que** utilisateur remplissant le formulaire étape par étape
+**En tant qu'**utilisateur remplissant le formulaire étape par étape
 **Je veux** que la barre latérale affiche des indicateurs **nouveaux et cohérents** à chaque étape
 **Afin de** comprendre progressivement l'impact financier de mes saisies sans voir les mêmes chiffres répétés.
 
 **Bug 4 (Partage de simulation)**
-**En tant que** utilisateur souhaitant partager une simulation
+**En tant qu'**utilisateur souhaitant partager une simulation
 **Je veux** générer un lien public fonctionnel
 **Afin de** le partager avec un tiers (consultant, banquier, partenaire) qui pourra consulter les résultats sans créer de compte, et le cloner s'il est lui-même inscrit.
 
@@ -66,13 +66,13 @@ Après le déploiement de la migration UX sprint 4 (`VerdantNavbar`, `SimulatorL
 
 Chaque étape affiche **uniquement** les indicateurs listés ci-dessous, sans répétition inter-étapes :
 
-| Étape                | KPIs affichés                                                                                                                       |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| **1 — Bien**         | Prix au m² (`prix_achat / surface`), Investissement total (frais inclus), Frais notaire estimés (~8%)                               |
-| **2 — Financement**  | Mensualité estimée, Part d'apport (%), Coût total crédit, TAEG approximatif                                                         |
-| **3 — Exploitation** | Cash-flow mensuel (couleur rouge/vert), Rendement brut, Ratio loyer/mensualité                                                      |
-| **4 — Structure**    | NOI mensuel (revenus nets avant dette), Taux d'effort HCSF simplifié, Rendement net projeté (avec disclaimer)                       |
-| **5 — Options**      | Carte synthèse (Rendement brut + Cash-flow + Investissement total) + mini chart projection + note "Soumettez pour le score complet" |
+| Étape                | KPIs affichés                                                                                                                          |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **1 — Bien**         | Prix au m² (`prix_achat / surface`), Investissement total (frais inclus), Frais notaire estimés (~8%)                                  |
+| **2 — Financement**  | Mensualité estimée, Part d'apport (%), Coût total du crédit, TAEG approximatif                                                         |
+| **3 — Exploitation** | Cash-flow mensuel (couleur rouge/vert), Rendement brut, Ratio loyer/mensualité                                                         |
+| **4 — Structure**    | NOI mensuel (revenus nets avant dette), Taux d'effort HCSF simplifié, Rendement net projeté (avec disclaimer)                          |
+| **5 — Options**      | Carte de synthèse (Rendement brut + Cash-flow + Investissement total) + mini chart projection + note "Soumettez pour le score complet" |
 
 - [ ] Aucune métrique n'apparaît dans deux étapes différentes sauf en étape 5 (synthèse explicite).
 - [ ] Si une valeur requise n'est pas encore saisie, le KPI affiche `—` (tiret).

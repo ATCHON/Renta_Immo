@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Share2, X, Copy, Check, Loader2 } from 'lucide-react';
 import { APP_NAME } from '@/config/app';
 import toast from 'react-hot-toast';
@@ -20,7 +20,14 @@ export function DashboardFloatingFooter({ formData, resultats }: DashboardFloati
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const timeoutRef = useRef<number | null>(null);
   const activeScenario = useCalculateurStore((s) => s.getActiveScenario());
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const handleOpenShare = () => {
     setIsShareOpen(true);
@@ -54,7 +61,8 @@ export function DashboardFloatingFooter({ formData, resultats }: DashboardFloati
       await navigator.clipboard.writeText(shareUrl);
       setIsCopied(true);
       toast.success('Lien copié dans le presse-papiers');
-      setTimeout(() => setIsCopied(false), 2000);
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = window.setTimeout(() => setIsCopied(false), 2000);
     } catch {
       toast.error('Impossible de copier le lien');
     }
