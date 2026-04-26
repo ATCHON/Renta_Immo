@@ -73,6 +73,9 @@ supabase-docker/
 # Documentation (locale uniquement)
 docs/
 
+# graphify - graphe local uniquement, rebuild automatique
+graphify-out/
+
 # git
 .gitignore
 .gitattributes

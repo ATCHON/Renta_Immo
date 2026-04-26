@@ -66,7 +66,7 @@ L'application permet de calculer précisément la rentabilité (brute, nette, ne
    npm run dev
    ```
 
-4. Ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur.
+4. Ouvrez [http://localhost:3001](http://localhost:3001) dans votre navigateur.
 
 ## Déploiement
 

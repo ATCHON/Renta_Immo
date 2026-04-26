@@ -7,11 +7,11 @@ const TEST_USER = {
 async function testAuth() {
     console.log("Testing Auth API...");
     try {
-        const response = await fetch("http://localhost:3000/api/auth/sign-up/email", {
+        const response = await fetch("http://localhost:3001/api/auth/sign-up/email", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": "http://localhost:3000"
+                "Origin": "http://localhost:3001"
             },
             body: JSON.stringify(TEST_USER)
         });
