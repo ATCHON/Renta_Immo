@@ -9,7 +9,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, FolderOpen, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, FolderOpen, LogOut, ChevronDown, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
 
@@ -156,6 +156,14 @@ export function VerdantNavbar() {
                     </p>
                     <p className="text-xs text-on-surface/50 truncate">{session.user.email}</p>
                   </div>
+                  <Link
+                    href="/account"
+                    onClick={() => setIsUserMenuOpen(false)}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm font-headline font-medium text-on-surface/70 hover:text-primary hover:bg-primary/5 transition-colors"
+                  >
+                    <User className="h-4 w-4" strokeWidth={1.5} />
+                    Mon Compte
+                  </Link>
                   <button
                     type="button"
                     onClick={handleSignOut}
@@ -244,6 +252,13 @@ export function VerdantNavbar() {
                     <p className="text-xs text-on-surface/50 truncate">{session.user.email}</p>
                   </div>
                 </div>
+                <Link
+                  href="/account"
+                  className="flex items-center gap-2 w-full py-2 font-headline font-semibold text-sm text-on-surface/60 hover:text-primary transition-colors"
+                >
+                  <User className="h-4 w-4" strokeWidth={1.5} />
+                  Mon Compte
+                </Link>
                 <button
                   type="button"
                   onClick={handleSignOut}
