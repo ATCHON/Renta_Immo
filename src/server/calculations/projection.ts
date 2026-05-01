@@ -625,6 +625,7 @@ export function genererProjections(
       frais_revente: fraisReventeTotal,
     },
     plusValue,
+    tableauAmortissement: amortissement,
   };
 }
 

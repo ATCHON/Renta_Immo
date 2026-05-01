@@ -13,7 +13,6 @@ import { analyserHcsf } from './hcsf';
 import { genererSynthese } from './synthese';
 import {
   genererProjections,
-  genererTableauAmortissement,
   genererTableauAmortissementFiscal,
 } from './projection';
 import { ResolvedConfig } from '../config/config-types';
@@ -117,17 +116,12 @@ export async function performCalculations(
       });
     }
 
-    // Étape 7 : Tableau d'amortissement détaillé
-    const tauxCredit = (data.financement.taux_interet || 0) / 100;
-    const dureeCredit = data.financement.duree_emprunt || 0;
-    const tauxAssurance = (data.financement.assurance_pret || 0) / 100;
-
-    const tableauAmortissement = genererTableauAmortissement(
-      rentabilite.financement.montant_emprunt,
-      tauxCredit,
-      dureeCredit,
-      tauxAssurance
-    );
+    // Étape 7 : Tableau d'amortissement — réutilisé depuis les projections (déjà calculé)
+    // mensuel (300 entrées) exclu : non utilisé par le frontend, économise ~15-20 Ko par réponse
+    const tableauAmortissement: CalculResultats['tableauAmortissement'] = {
+      annuel: projections.tableauAmortissement.annuel,
+      totaux: projections.tableauAmortissement.totaux,
+    };
 
     // Assemblage du résultat final (format compatible avec le frontend existant)
     const resultats: CalculResultats = {

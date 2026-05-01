@@ -1,6 +1,7 @@
 // src/server/config/config-service.ts — Cache distribué Redis (ARCH-S03)
 //
 // Stratégie cascaded fallback :
+//   memCache HIT → retourner (in-process, zéro réseau)
 //   Redis HIT → retourner
 //   Redis MISS ou DOWN → Supabase DB
 //   Supabase DOWN → getFallbackConfig() (valeurs hardcodées)
@@ -30,6 +31,7 @@ function cacheKey(year: number): string {
 
 export class ConfigService {
   private static instance: ConfigService;
+  private memCache = new Map<string, { data: ResolvedConfig; expiresAt: number }>();
 
   static getInstance(): ConfigService {
     if (!ConfigService.instance) ConfigService.instance = new ConfigService();
@@ -40,11 +42,19 @@ export class ConfigService {
     const year = anneeFiscale ?? new Date().getFullYear();
     const ttl = Number(process.env.CONFIG_CACHE_TTL_SECONDS ?? DEFAULT_TTL_SECONDS);
 
+    // 0. Cache in-process (zéro réseau, survit entre invocations warm)
+    const memEntry = this.memCache.get(cacheKey(year));
+    if (memEntry && memEntry.expiresAt > Date.now()) {
+      return memEntry.data;
+    }
+
     // 1. Tentative cache Redis
     try {
       const cached = await redis.get<string>(cacheKey(year));
       if (cached) {
-        return JSON.parse(cached) as ResolvedConfig;
+        const parsed = JSON.parse(cached) as ResolvedConfig;
+        this.memCache.set(cacheKey(year), { data: parsed, expiresAt: Date.now() + ttl * 1000 });
+        return parsed;
       }
     } catch (err) {
       logRedisWarn('Redis indisponible pour lecture — fallback DB', { year, err });
@@ -61,11 +71,13 @@ export class ConfigService {
       if (error || !data?.length) {
         const fallbackConfig = this.getFallbackConfig(year);
         await this.trySetCache(cacheKey(year), fallbackConfig, ttl);
+        this.memCache.set(cacheKey(year), { data: fallbackConfig, expiresAt: Date.now() + ttl * 1000 });
         return fallbackConfig;
       }
 
       const resolved = this.mapToResolvedConfig(year, data as DbConfigParamRow[]);
       await this.trySetCache(cacheKey(year), resolved, ttl);
+      this.memCache.set(cacheKey(year), { data: resolved, expiresAt: Date.now() + ttl * 1000 });
       return resolved;
     } catch {
       // 3. Supabase aussi indisponible → valeurs hardcodées
@@ -76,6 +88,7 @@ export class ConfigService {
   async invalidateCache(year?: number): Promise<void> {
     const currentYear = new Date().getFullYear();
     const years = year ? [year] : [currentYear - 2, currentYear - 1, currentYear, currentYear + 1];
+    years.forEach((y) => this.memCache.delete(cacheKey(y)));
     try {
       await Promise.all(years.map((y) => redis.del(cacheKey(y))));
     } catch (err) {
