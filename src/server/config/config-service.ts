@@ -38,6 +38,10 @@ export class ConfigService {
     return ConfigService.instance;
   }
 
+  private setMemCache(year: number, data: ResolvedConfig, ttlSeconds: number): void {
+    this.memCache.set(cacheKey(year), { data, expiresAt: Date.now() + ttlSeconds * 1000 });
+  }
+
   async getConfig(anneeFiscale?: number): Promise<ResolvedConfig> {
     const year = anneeFiscale ?? new Date().getFullYear();
     const ttl = Number(process.env.CONFIG_CACHE_TTL_SECONDS ?? DEFAULT_TTL_SECONDS);
@@ -53,7 +57,7 @@ export class ConfigService {
       const cached = await redis.get<string>(cacheKey(year));
       if (cached) {
         const parsed = JSON.parse(cached) as ResolvedConfig;
-        this.memCache.set(cacheKey(year), { data: parsed, expiresAt: Date.now() + ttl * 1000 });
+        this.setMemCache(year, parsed, ttl);
         return parsed;
       }
     } catch (err) {
@@ -71,13 +75,13 @@ export class ConfigService {
       if (error || !data?.length) {
         const fallbackConfig = this.getFallbackConfig(year);
         await this.trySetCache(cacheKey(year), fallbackConfig, ttl);
-        this.memCache.set(cacheKey(year), { data: fallbackConfig, expiresAt: Date.now() + ttl * 1000 });
+        this.setMemCache(year, fallbackConfig, ttl);
         return fallbackConfig;
       }
 
       const resolved = this.mapToResolvedConfig(year, data as DbConfigParamRow[]);
       await this.trySetCache(cacheKey(year), resolved, ttl);
-      this.memCache.set(cacheKey(year), { data: resolved, expiresAt: Date.now() + ttl * 1000 });
+      this.setMemCache(year, resolved, ttl);
       return resolved;
     } catch {
       // 3. Supabase aussi indisponible → valeurs hardcodées
