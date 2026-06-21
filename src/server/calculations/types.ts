@@ -292,6 +292,8 @@ export interface ProjectionData {
     inflationCharges: number;
     revalorisationBien: number;
   };
+  /** Tableau d'amortissement calculé pendant les projections — réutilisé par performCalculations */
+  tableauAmortissement: TableauAmortissement;
 }
 
 /**

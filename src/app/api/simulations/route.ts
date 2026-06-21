@@ -47,9 +47,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const requestHeaders = await headers();
+  const [session, supabase] = await Promise.all([
+    auth.api.getSession({ headers: requestHeaders }),
+    createAdminClient(),
+  ]);
 
   if (!session) {
     return NextResponse.json(
@@ -59,7 +61,6 @@ export async function GET(request: NextRequest) {
   }
 
   const { user } = session;
-  const supabase = await createAdminClient();
 
   const { searchParams } = new URL(request.url);
 
@@ -189,9 +190,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const requestHeaders = await headers();
+  const [session, supabase] = await Promise.all([
+    auth.api.getSession({ headers: requestHeaders }),
+    createAdminClient(),
+  ]);
 
   if (!session) {
     return NextResponse.json(
@@ -201,7 +204,6 @@ export async function POST(request: NextRequest) {
   }
 
   const { user } = session;
-  const supabase = await createAdminClient();
 
   try {
     const body = await request.json();
