@@ -78,12 +78,14 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value:
               "default-src 'self'; " +
-              `script-src 'self' 'unsafe-inline' ${process.env.NODE_ENV === 'development' ? "'unsafe-eval'" : ''} https://accounts.google.com; ` +
+              `script-src 'self' 'unsafe-inline' ${process.env.NODE_ENV === 'development' ? "'unsafe-eval'" : ''} https://accounts.google.com https://vercel.live; ` +
               "style-src 'self' 'unsafe-inline'; " +
               "img-src 'self' https: data:; " +
               "font-src 'self' data:; " +
               // Sentry tunnel route (same-origin) remplace les entrées directes sentry.io
-              "connect-src 'self' https://*.supabase.co https://accounts.google.com; " +
+              // vercel.live : toolbar de feedback sur les déploiements preview
+              "connect-src 'self' https://*.supabase.co https://accounts.google.com https://vercel.live wss://ws-us3.pusher.com; " +
+              "frame-src https://vercel.live; " +
               "frame-ancestors 'self';",
           },
           {

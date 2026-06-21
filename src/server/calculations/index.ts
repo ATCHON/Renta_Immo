@@ -11,10 +11,7 @@ import { calculerRentabilite } from './rentabilite';
 import { calculerFiscalite, calculerToutesFiscalites } from './fiscalite';
 import { analyserHcsf } from './hcsf';
 import { genererSynthese } from './synthese';
-import {
-  genererProjections,
-  genererTableauAmortissementFiscal,
-} from './projection';
+import { genererProjections, genererTableauAmortissementFiscal } from './projection';
 import { ResolvedConfig } from '../config/config-types';
 
 // Re-export des types et erreurs pour usage externe
