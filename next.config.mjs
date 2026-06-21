@@ -82,8 +82,8 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'; " +
               "img-src 'self' https: data:; " +
               "font-src 'self' data:; " +
-              // Sentry EU ingest ajouté (ARCH-S02)
-              "connect-src 'self' https://*.supabase.co https://accounts.google.com https://*.sentry.io https://o*.ingest.de.sentry.io; " +
+              // Sentry tunnel route (same-origin) remplace les entrées directes sentry.io
+              "connect-src 'self' https://*.supabase.co https://accounts.google.com; " +
               "frame-ancestors 'self';",
           },
           {
@@ -129,8 +129,8 @@ export default withSentryConfig(nextConfig, {
   // false = plugin webpack client activé (source maps client uploadées en CI)
   disableClientWebpackPlugin: false,
 
-  // Tunnel désactivé pour Sprint 0 — CSP suffit (activer si bloqueurs de pubs mesurés)
-  // tunnelRoute: '/api/sentry-tunnel',
+  // Tunnel Sentry : route les events client via /api/sentry-tunnel (same-origin, bypass CSP)
+  tunnelRoute: '/api/sentry-tunnel',
 
   // Supprimer les source maps du bundle public (sécurité)
   hideSourceMaps: true,

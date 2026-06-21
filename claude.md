@@ -16,6 +16,17 @@ Ce projet dispose d'un graphe de connaissance dans `graphify-out/`.
 
 Application web de simulation de rentabilité immobilière (Calcul des rendements, Cashflow, Impôts LMNP/Foncier/SCI, et Scoring Profilé).
 
+## Mémoire de Session — Chargement Automatique au Démarrage
+
+**Règle obligatoire :** Au début de chaque nouvelle session, avant toute action, lire le fichier daily le plus récent dans `claude-memory-compiler/daily/` pour récupérer le contexte de la dernière session de travail.
+
+**Procédure :**
+1. Lister `claude-memory-compiler/daily/` et identifier le fichier `YYYY-MM-DD.md` dont la date est la plus proche d'aujourd'hui (sans dépasser).
+2. Lire ce fichier — il contient : branche en cours, tâches complétées, tâches en attente, décisions techniques, prochaines étapes.
+3. Résumer en 3-5 lignes ce qui est en cours et ce qui reste à faire, sans attendre que l'utilisateur demande « où on s'est arrêté ».
+
+**Pourquoi :** Évite de parcourir la codebase pour reconstituer le contexte — le daily est la source de vérité sur l'état du travail en cours.
+
 ## Principes de Développement Incontournables
 
 1. **Paradigme de Branche** : Chaque développement s'effectue obligatoirement sur une **nouvelle branche** isolée (`feature/[nom]`, `fix/[nom]`).
