@@ -26,7 +26,9 @@ export function OperationalBalance({
   impotMensuel,
 }: OperationalBalanceProps) {
   const isPositive = cashflow.mensuel >= 0;
-  const loyerMensuel = exploitation.loyer_mensuel || 0;
+  const loyerBrut = exploitation.loyer_mensuel || 0;
+  const tauxOccupation = exploitation.taux_occupation ?? 0.92;
+  const loyerMensuel = Math.round(loyerBrut * tauxOccupation);
   // On utilise les charges calculées par le serveur (sans le crédit)
   const chargesMensuelles = rentabilite.charges_mensuelles || 0;
 
@@ -65,7 +67,12 @@ export function OperationalBalance({
               <div className="w-2 h-2 rounded-full bg-forest" />
               <span className="text-sm font-medium text-charcoal">Revenus locatifs</span>
             </div>
-            <span className="font-bold text-forest">{formatCurrency(loyerMensuel)}</span>
+            <span className="font-bold text-forest">
+              {formatCurrency(loyerMensuel)}
+              <span className="text-xs font-normal opacity-60 ml-1">
+                (×{Math.round(tauxOccupation * 100)}&nbsp;% occ.)
+              </span>
+            </span>
           </div>
 
           <div className="space-y-4">
