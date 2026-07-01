@@ -88,25 +88,97 @@ describe('calculerToutesFiscalites', () => {
     effet_levier: 1.5,
   };
 
-  it('devrait retourner 6 régimes fiscaux', () => {
+  it('ne retourne que les 2 régimes LMNP pour type_location meublée (nom_propre)', () => {
     const result = calculerToutesFiscalites(
       {
         bien: mockBien,
         financement: mockFinancement,
-        exploitation: mockExploitation,
+        exploitation: mockExploitation, // type_location: 'meublee_longue_duree'
+        structure: mockStructure,       // type: 'nom_propre'
+      },
+      mockRentabilite,
+      mockConfig
+    );
+
+    expect(result.items).toHaveLength(2);
+    expect(result.items.map((i) => i.regime)).toContain('LMNP (Micro-BIC)');
+    expect(result.items.map((i) => i.regime)).toContain('LMNP (Réel)');
+    expect(result.items.map((i) => i.regime)).not.toContain('Location Nue (Micro-foncier)');
+    expect(result.items.map((i) => i.regime)).not.toContain('Location Nue (Réel)');
+    expect(result.items.map((i) => i.regime)).not.toContain("SCI à l'IS (Capitalisation)");
+  });
+
+  it('ne retourne que les 2 régimes location nue pour type_location nue (nom_propre)', () => {
+    const result = calculerToutesFiscalites(
+      {
+        bien: mockBien,
+        financement: mockFinancement,
+        exploitation: { ...mockExploitation, type_location: 'nue' },
         structure: mockStructure,
       },
       mockRentabilite,
       mockConfig
     );
 
-    expect(result.items).toHaveLength(6);
+    expect(result.items).toHaveLength(2);
     expect(result.items.map((i) => i.regime)).toContain('Location Nue (Micro-foncier)');
     expect(result.items.map((i) => i.regime)).toContain('Location Nue (Réel)');
-    expect(result.items.map((i) => i.regime)).toContain('LMNP (Micro-BIC)');
-    expect(result.items.map((i) => i.regime)).toContain('LMNP (Réel)');
+    expect(result.items.map((i) => i.regime)).not.toContain('LMNP (Micro-BIC)');
+    expect(result.items.map((i) => i.regime)).not.toContain('LMNP (Réel)');
+    expect(result.items.map((i) => i.regime)).not.toContain("SCI à l'IS (Capitalisation)");
+  });
+
+  it('ne retourne que les 2 régimes SCI pour structure sci_is', () => {
+    const result = calculerToutesFiscalites(
+      {
+        bien: mockBien,
+        financement: mockFinancement,
+        exploitation: mockExploitation,
+        structure: { ...mockStructure, type: 'sci_is' },
+      },
+      mockRentabilite,
+      mockConfig
+    );
+
+    expect(result.items).toHaveLength(2);
     expect(result.items.map((i) => i.regime)).toContain("SCI à l'IS (Capitalisation)");
     expect(result.items.map((i) => i.regime)).toContain("SCI à l'IS (Distribution)");
+    expect(result.items.map((i) => i.regime)).not.toContain('LMNP (Micro-BIC)');
+    expect(result.items.map((i) => i.regime)).not.toContain('Location Nue (Micro-foncier)');
+  });
+
+  it('le badge RECOMMANDÉ ne peut pas être attribué à un régime incompatible (LMNP)', () => {
+    const result = calculerToutesFiscalites(
+      {
+        bien: mockBien,
+        financement: mockFinancement,
+        exploitation: mockExploitation, // meublée → LMNP uniquement
+        structure: mockStructure,
+      },
+      mockRentabilite,
+      mockConfig
+    );
+
+    const optimalItem = result.items.find((i) => i.isOptimal);
+    expect(optimalItem).toBeDefined();
+    expect(['LMNP (Micro-BIC)', 'LMNP (Réel)']).toContain(optimalItem?.regime);
+  });
+
+  it('le badge RECOMMANDÉ ne peut pas être attribué à un régime incompatible (location nue)', () => {
+    const result = calculerToutesFiscalites(
+      {
+        bien: mockBien,
+        financement: mockFinancement,
+        exploitation: { ...mockExploitation, type_location: 'nue' },
+        structure: mockStructure,
+      },
+      mockRentabilite,
+      mockConfig
+    );
+
+    const optimalItem = result.items.find((i) => i.isOptimal);
+    expect(optimalItem).toBeDefined();
+    expect(['Location Nue (Micro-foncier)', 'Location Nue (Réel)']).toContain(optimalItem?.regime);
   });
 
   it('devrait identifier un régime optimal', () => {
@@ -125,12 +197,12 @@ describe('calculerToutesFiscalites', () => {
     expect(optimalItems).toHaveLength(1);
   });
 
-  it('devrait respecter un TMI égal à 0', () => {
+  it('devrait respecter un TMI égal à 0 (location nue)', () => {
     const result = calculerToutesFiscalites(
       {
         bien: mockBien,
         financement: mockFinancement,
-        exploitation: mockExploitation,
+        exploitation: { ...mockExploitation, type_location: 'nue' },
         structure: { ...mockStructure, tmi: 0 },
       },
       mockRentabilite as RentabiliteCalculations,

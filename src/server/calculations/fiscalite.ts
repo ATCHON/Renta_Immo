@@ -924,6 +924,18 @@ export function calculerToutesFiscalites(
   const partTerrain = input.bien.part_terrain;
   const modeAmortissement = input.structure.mode_amortissement ?? 'simplifie';
 
+  // Régimes éligibles selon le type d'exploitation
+  const REGIMES_LMNP = ['lmnp_micro', 'lmnp_reel'] as const;
+  const REGIMES_NUE = ['micro_foncier', 'foncier_reel'] as const;
+  const REGIMES_SCI = ['sci_is', 'sci_is_dividendes'] as const;
+
+  const regimesEligibles: readonly string[] =
+    input.structure.type === 'sci_is'
+      ? REGIMES_SCI
+      : input.exploitation.type_location === 'nue'
+        ? REGIMES_NUE
+        : REGIMES_LMNP;
+
   const resultatsRaw = [
     {
       id: 'micro_foncier',
@@ -1002,9 +1014,12 @@ export function calculerToutesFiscalites(
     },
   ];
 
+  // Filtrer les régimes incompatibles avec le type d'exploitation
+  const resultatsFiltrés = resultatsRaw.filter((r) => regimesEligibles.includes(r.id));
+
   // Post-traitement pour calculer la rentabilité nette-nette de chaque régime
   const coutTotalAcquisitionComp = rentabilite.financement.cout_total_acquisition;
-  const items = resultatsRaw.map((r) => {
+  const items = resultatsFiltrés.map((r) => {
     const rentabiliteNetteNette =
       coutTotalAcquisitionComp > 0
         ? ((rentabilite.revenu_net_avant_impots - r.calc.impot_total) / coutTotalAcquisitionComp) *
