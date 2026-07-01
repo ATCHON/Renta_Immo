@@ -11,7 +11,8 @@ interface CashflowCardProps {
 
 export function CashflowCard({ cashflow }: CashflowCardProps) {
   const isPositive = cashflow.mensuel >= 0;
-  const hasBrut = cashflow.mensuel_brut !== undefined;
+  const brut = cashflow.mensuel_brut;
+  const hasBrut = brut !== undefined;
 
   return (
     <Card>
@@ -41,8 +42,8 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
             <p className="text-xs text-pebble mt-2 font-medium">après impôts</p>
             {hasBrut && (
               <p className="text-xs text-pebble/70 mt-1">
-                {cashflow.mensuel_brut! >= 0 ? '+' : ''}
-                {formatCurrency(cashflow.mensuel_brut!)} avant impôts
+                {brut! >= 0 ? '+' : ''}
+                {formatCurrency(brut!)} avant impôts
               </p>
             )}
           </div>
