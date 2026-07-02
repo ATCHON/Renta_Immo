@@ -243,7 +243,7 @@ export function StepOptions({ onSubmit, onPrev, isLoading }: StepOptionsProps) {
           </li>
           <li className="flex items-center gap-2">
             <span className="text-primary">✓</span> Projection pluriannuelle sur{' '}
-            {watchedValues.horizon_projection} ans
+            {Number(watchedValues.horizon_projection)} ans
           </li>
           {watchedValues.generer_pdf && (
             <li className="flex items-center gap-2">
