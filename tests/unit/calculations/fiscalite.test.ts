@@ -3,6 +3,7 @@ import {
   calculerToutesFiscalites,
   calculerLmnpMicro,
   calculerLmnpReel,
+  calculerFoncierReel,
   calculerFiscaliteSciIs,
 } from '@/server/calculations/fiscalite';
 import {
@@ -358,5 +359,82 @@ describe('calculerFiscaliteSciIs — distribution dividendes', () => {
     expect(result.dividendes_bruts).toBe(0);
     expect(result.flat_tax).toBe(0);
     expect(result.net_en_poche).toBe(result.revenu_net_apres_impot);
+  });
+});
+
+describe('BUG-04 — LMNP Réel vs Location Nue Réel : cashflow net différencié', () => {
+  // Scénario : bien en déficit (charges + intérêts > revenus).
+  // LMNP Réel → amortissement non déductible (résultat avant amort < 0) → impot_total = 0
+  // Foncier Réel → déficit foncier → économie IR sur autres revenus → impot_total doit être < 0
+  // Si les deux affichent impot_total = 0, le cashflow comparateur est identique → BUG-04.
+  //
+  // Inputs communs : revenusBruts=6000, charges=8000, intérêts=3000, TMI=30
+  //   déficit hors intérêts = max(0, 8000 - 6000) = 2000
+  //   imputationRevenuGlobal = min(2000, 10700) = 2000
+  //   economieImpot = 2000 * 0.30 = 600
+  //   → Foncier Réel doit retourner impot_total = -600 (avantage réel sur revenu global)
+  //   → LMNP Réel retourne impot_total = 0 (amortissement non consommable, reporté)
+
+  const revenusBruts = 6000;
+  const chargesDeductibles = 8000;
+  const interetsAssurance = 3000;
+  const tmi = 30;
+  const prixAchat = 200000;
+
+  it('Foncier Réel avec déficit foncier doit avoir impot_total < 0 (économie IR reflétée)', () => {
+    const result = calculerFoncierReel(
+      revenusBruts,
+      chargesDeductibles,
+      tmi,
+      mockConfig,
+      interetsAssurance
+    );
+    // L'économie d'impôt sur revenu global (600€) doit être visible dans impot_total
+    expect(result.deficit_foncier).toBeDefined();
+    expect(result.deficit_foncier?.economie_impot).toBeCloseTo(600, 0);
+    expect(result.impot_total).toBeLessThan(0);
+  });
+
+  it('LMNP Réel avec déficit doit avoir impot_total = 0 (amortissement non consommé, reporté)', () => {
+    const result = calculerLmnpReel(
+      revenusBruts,
+      chargesDeductibles,
+      prixAchat,
+      tmi,
+      mockConfig,
+      0,
+      0,
+      interetsAssurance
+    );
+    expect(result.impot_total).toBe(0);
+  });
+
+  it('cashflowNetMoyen LMNP Réel et Location Nue Réel sont différents pour le même bien en déficit', () => {
+    const cashflowAnnuel = -5000; // cashflow avant impôt, commun aux deux scenarios
+    const resultLmnp = calculerLmnpReel(
+      revenusBruts,
+      chargesDeductibles,
+      prixAchat,
+      tmi,
+      mockConfig,
+      0,
+      0,
+      interetsAssurance
+    );
+    const resultNue = calculerFoncierReel(
+      revenusBruts,
+      chargesDeductibles,
+      tmi,
+      mockConfig,
+      interetsAssurance
+    );
+
+    const cashflowLmnp = Math.round(cashflowAnnuel - resultLmnp.impot_total);
+    const cashflowNue = Math.round(cashflowAnnuel - resultNue.impot_total);
+
+    // Les cashflows doivent être différents (Location Nue bénéficie de l'économie IR)
+    expect(cashflowLmnp).not.toBe(cashflowNue);
+    // Et Location Nue doit être meilleur grâce au déficit foncier
+    expect(cashflowNue).toBeGreaterThan(cashflowLmnp);
   });
 });
