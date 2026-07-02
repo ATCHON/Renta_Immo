@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { StepFinancement } from '@/components/forms/StepFinancement';
 import { useCalculateurStore } from '@/stores/calculateur.store';
+import type { CalculateurState } from '@/stores/calculateur.store';
 
 vi.mock('@/stores/calculateur.store', () => ({
   useCalculateurStore: vi.fn(),
@@ -34,7 +35,7 @@ describe('StepFinancement — UX Migration (S4, S7, S8, S9, S11, S12)', () => {
       }),
       updateFinancement: vi.fn(),
       activeScenarioId: '1',
-    } as any);
+    } as Partial<CalculateurState>);
   });
 
   it('affiche le header contextuel de stratégie (S7) — sans badge STEP', () => {
@@ -82,7 +83,7 @@ describe('StepFinancement — BUG-03 montant emprunté cohérent', () => {
       }),
       updateFinancement: vi.fn(),
       activeScenarioId: '1',
-    } as any);
+    } as Partial<CalculateurState>);
 
     render(<StepFinancement onNext={mockOnNext} onPrev={mockOnPrev} />);
 
@@ -121,7 +122,7 @@ describe('StepFinancement — BUG-03 montant emprunté cohérent', () => {
       }),
       updateFinancement: vi.fn(),
       activeScenarioId: '1',
-    } as any);
+    } as Partial<CalculateurState>);
 
     render(<StepFinancement onNext={mockOnNext} onPrev={mockOnPrev} />);
 

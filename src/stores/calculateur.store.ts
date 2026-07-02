@@ -77,7 +77,7 @@ const DEFAULT_OPTIONS: OptionsData = {
 /**
  * Interface du state du store
  */
-interface CalculateurState {
+export interface CalculateurState {
   // Navigation globale
   currentStep: number;
   status: FormStatus;
