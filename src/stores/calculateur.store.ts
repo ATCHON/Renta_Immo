@@ -371,13 +371,13 @@ export const useCalculateurStore = create<CalculateurState>()(
           const typeLocation = scenario.exploitation.type_location;
           const currentRegime = scenario.structure.regime_fiscal;
           const isCurrentlyLmnp = currentRegime?.startsWith('lmnp') ?? false;
-          const isMenublee = typeLocation?.startsWith('meublee') ?? false;
+          const isMeublee = typeLocation?.startsWith('meublee') ?? false;
 
-          if (isMenublee && !isCurrentlyLmnp) {
+          if (isMeublee && !isCurrentlyLmnp) {
             updateActive({
               structure: { ...scenario.structure, regime_fiscal: 'lmnp_micro' },
             });
-          } else if (!isMenublee && isCurrentlyLmnp) {
+          } else if (!isMeublee && isCurrentlyLmnp) {
             updateActive({
               structure: { ...scenario.structure, regime_fiscal: 'micro_foncier' },
             });
