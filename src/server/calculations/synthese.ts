@@ -293,7 +293,7 @@ export function genererPointsAttention(
     points.push({
       type: 'error',
       categorie: 'cashflow',
-      message: `Cashflow très négatif : ${round(rentabilite.cashflow_mensuel)}€/mois`,
+      message: `Cashflow très négatif : ${round(rentabilite.cashflow_mensuel)}€/mois (avant impôts)`,
       conseil: "Effort d'épargne trop important, revoyez les paramètres du projet",
     });
   }
@@ -302,7 +302,7 @@ export function genererPointsAttention(
     points.push({
       type: 'warning',
       categorie: 'cashflow',
-      message: `Cashflow négatif de ${Math.abs(round(rentabilite.cashflow_mensuel))}€/mois`,
+      message: `Cashflow négatif de ${Math.abs(round(rentabilite.cashflow_mensuel))}€/mois (avant impôts)`,
       conseil: 'Vous devrez compléter chaque mois pour couvrir les charges',
     });
   }

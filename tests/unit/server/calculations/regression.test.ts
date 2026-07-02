@@ -800,9 +800,9 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
     expect(toutesAlertes).toMatch(/plafond|dépassé|micro/i);
   });
 
-  it('CAS 16: ComparaisonFiscalite - 6 régimes présents avec isOptimal', async () => {
-    // Valide que calculerToutesFiscalites retourne exactement 6 régimes
-    // et qu'un seul est marqué isOptimal = true
+  it('CAS 16: ComparaisonFiscalite - régimes LMNP uniquement (meublé) avec isOptimal', async () => {
+    // Valide que calculerToutesFiscalites retourne uniquement les régimes compatibles
+    // avec le type d'exploitation (meublé → 2 régimes LMNP) et qu'un seul est isOptimal
     const input = {
       bien: {
         adresse: '130 Rue de la République, 13001 Marseille',
@@ -847,17 +847,15 @@ describe('Calculations Regression Tests (Audit 2026)', () => {
     // comparaisonFiscalite est { items: FiscaliteComparaisonItem[], conseil: string }
     const items = comparaisonFiscalite?.items ?? [];
 
-    // Exactement 6 régimes
-    expect(items).toHaveLength(6);
+    // type_location meublée + nom_propre → exactement 2 régimes LMNP
+    expect(items).toHaveLength(2);
 
-    // Labels des 6 régimes attendus (r.label dans calculerToutesFiscalites, pas r.id)
+    // Labels des 2 régimes LMNP attendus
     const regimes = items.map((r) => r.regime);
-    expect(regimes).toContain('Location Nue (Micro-foncier)');
-    expect(regimes).toContain('Location Nue (Réel)');
     expect(regimes).toContain('LMNP (Micro-BIC)');
     expect(regimes).toContain('LMNP (Réel)');
-    expect(regimes).toContain("SCI à l'IS (Capitalisation)");
-    expect(regimes).toContain("SCI à l'IS (Distribution)");
+    expect(regimes).not.toContain('Location Nue (Micro-foncier)');
+    expect(regimes).not.toContain("SCI à l'IS (Capitalisation)");
 
     // Exactement 1 régime optimal
     const optimaux = items.filter((r) => r.isOptimal);

@@ -25,7 +25,7 @@ interface StepStructureProps {
 
 export function StepStructure({ onNext, onPrev }: StepStructureProps) {
   const { getActiveScenario, updateStructure, activeScenarioId } = useCalculateurStore();
-  const { structure } = getActiveScenario();
+  const { structure, exploitation } = getActiveScenario();
 
   const {
     register,
@@ -52,11 +52,13 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
   });
 
   // État local pour le type d'exploitation (Nue vs Meublée)
-  // On l'initialise en fonction du régime fiscal actuel
+  // On l'initialise en fonction du régime fiscal actuel, ou à défaut du type_location en exploitation
   const currentRegime = watch('regime_fiscal');
-  const [typeExploitation, setTypeExploitation] = useState<'nue' | 'meublee'>(
-    currentRegime?.startsWith('lmnp') ? 'meublee' : 'nue'
-  );
+  const [typeExploitation, setTypeExploitation] = useState<'nue' | 'meublee'>(() => {
+    if (currentRegime?.startsWith('lmnp')) return 'meublee';
+    if (exploitation.type_location?.startsWith('meublee')) return 'meublee';
+    return 'nue';
+  });
 
   useScenarioFormReset(
     reset,
@@ -74,7 +76,13 @@ export function StepStructure({ onNext, onPrev }: StepStructureProps) {
     },
     activeScenarioId,
     () => {
-      setTypeExploitation(structure.regime_fiscal?.startsWith('lmnp') ? 'meublee' : 'nue');
+      if (structure.regime_fiscal?.startsWith('lmnp')) {
+        setTypeExploitation('meublee');
+      } else if (exploitation.type_location?.startsWith('meublee')) {
+        setTypeExploitation('meublee');
+      } else {
+        setTypeExploitation('nue');
+      }
     }
   );
 

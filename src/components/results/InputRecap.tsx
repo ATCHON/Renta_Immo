@@ -72,7 +72,7 @@ export function InputRecap({ bien, financement, exploitation, structure }: Input
   ];
 
   const exploitationItems = [
-    { label: 'Loyer', value: `${formatCurrency(exploitation.loyer_mensuel ?? 0)}/m` },
+    { label: 'Loyer', value: `${formatCurrency(exploitation.loyer_mensuel ?? 0)}/mois` },
     {
       label: 'Charges',
       value: `${formatCurrency((exploitation.charges_copro ?? 0) + (exploitation.assurance_pno ?? 0))}/an`,

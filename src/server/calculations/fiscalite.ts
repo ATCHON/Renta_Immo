@@ -147,10 +147,11 @@ export function calculerFoncierReel(
   const prelevementsSociaux = baseImposable * config.tauxPsFoncier;
   let impotTotal = impotRevenu + prelevementsSociaux;
 
-  // L'économie du déficit foncier réduit uniquement l'IR (imputation sur revenu global, pas les PS)
+  // L'économie du déficit foncier réduit l'IR sur revenu global (autres revenus comme salaire).
+  // impot_total peut être négatif : une valeur négative représente un gain net (remboursement fiscal)
+  // qui améliore le cashflow comparatif. C'est intentionnel pour BUG-04.
   if (deficitFoncier) {
-    const irReduit = Math.max(0, impotRevenu - deficitFoncier.economie_impot);
-    impotTotal = irReduit + prelevementsSociaux;
+    impotTotal = impotRevenu - deficitFoncier.economie_impot + prelevementsSociaux;
   }
 
   const revenuNetApresImpot = revenusBruts - chargesDeductibles - interetsAssurance - impotTotal;
@@ -924,6 +925,18 @@ export function calculerToutesFiscalites(
   const partTerrain = input.bien.part_terrain;
   const modeAmortissement = input.structure.mode_amortissement ?? 'simplifie';
 
+  // Régimes éligibles selon le type d'exploitation
+  const REGIMES_LMNP = ['lmnp_micro', 'lmnp_reel'] as const;
+  const REGIMES_NUE = ['micro_foncier', 'foncier_reel'] as const;
+  const REGIMES_SCI = ['sci_is', 'sci_is_dividendes'] as const;
+
+  const regimesEligibles: readonly string[] =
+    input.structure.type === 'sci_is'
+      ? REGIMES_SCI
+      : input.exploitation.type_location === 'nue'
+        ? REGIMES_NUE
+        : REGIMES_LMNP;
+
   const resultatsRaw = [
     {
       id: 'micro_foncier',
@@ -1002,9 +1015,12 @@ export function calculerToutesFiscalites(
     },
   ];
 
+  // Filtrer les régimes incompatibles avec le type d'exploitation
+  const resultatsFiltrés = resultatsRaw.filter((r) => regimesEligibles.includes(r.id));
+
   // Post-traitement pour calculer la rentabilité nette-nette de chaque régime
   const coutTotalAcquisitionComp = rentabilite.financement.cout_total_acquisition;
-  const items = resultatsRaw.map((r) => {
+  const items = resultatsFiltrés.map((r) => {
     const rentabiliteNetteNette =
       coutTotalAcquisitionComp > 0
         ? ((rentabilite.revenu_net_avant_impots - r.calc.impot_total) / coutTotalAcquisitionComp) *

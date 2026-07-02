@@ -280,7 +280,7 @@ export interface ProjectionData {
     capitalRembourse: number;
     impotCumule: number;
     enrichissementTotal: number;
-    tri: number;
+    tri: number | null;
     frais_revente?: number;
   };
   plusValue?: PlusValueDetail;

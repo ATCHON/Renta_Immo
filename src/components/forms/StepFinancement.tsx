@@ -67,7 +67,13 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
 
   const watchedValues = watch() as unknown as FinancementFormData;
   const prixAchat = bien.prix_achat || 0;
-  const montantEmprunt = Math.max(0, prixAchat - (watchedValues.apport || 0));
+  const montantTravaux = bien.montant_travaux || 0;
+  // Frais de notaire : approximation 8% (même convention que computePreviewKPIs)
+  const fraisNotaireEstimes = prixAchat * 0.08;
+  const fraisBancaires =
+    (watchedValues.frais_dossier || 0) + (watchedValues.frais_garantie || 0);
+  const coutTotalAcquisition = prixAchat + fraisNotaireEstimes + montantTravaux + fraisBancaires;
+  const montantEmprunt = Math.max(0, coutTotalAcquisition - (watchedValues.apport || 0));
   const mensualite = calculateMensualite(
     montantEmprunt,
     watchedValues.taux_interet || 0,
@@ -145,6 +151,25 @@ export function StepFinancement({ onNext, onPrev }: StepFinancementProps) {
         >
           <p className="text-sm text-on-surface-variant font-medium">Montant à emprunter</p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(montantEmprunt)}</p>
+          {prixAchat > 0 && (
+            <div className="mt-2 text-[10px] text-on-surface/50 space-y-0.5">
+              <p>
+                Prix d&apos;achat : {formatCurrency(prixAchat)}
+              </p>
+              <p>
+                + Frais de notaire (~8 %) : {formatCurrency(fraisNotaireEstimes)}
+              </p>
+              {montantTravaux > 0 && (
+                <p>+ Travaux : {formatCurrency(montantTravaux)}</p>
+              )}
+              {fraisBancaires > 0 && (
+                <p>+ Frais bancaires : {formatCurrency(fraisBancaires)}</p>
+              )}
+              <p className="border-t border-outline-variant/30 pt-0.5">
+                − Apport : {formatCurrency(watchedValues.apport || 0)}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

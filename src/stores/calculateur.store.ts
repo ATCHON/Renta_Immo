@@ -77,7 +77,7 @@ const DEFAULT_OPTIONS: OptionsData = {
 /**
  * Interface du state du store
  */
-interface CalculateurState {
+export interface CalculateurState {
   // Navigation globale
   currentStep: number;
   status: FormStatus;
@@ -117,6 +117,7 @@ interface CalculateurState {
   // Actions utilitaires
   reset: () => void;
   resetScenario: (id: string) => void;
+  syncRegimeFiscalFromTypeLocation: () => void;
   getFormData: () => {
     bien: Partial<BienData>;
     financement: Partial<FinancementData>;
@@ -363,6 +364,25 @@ export const useCalculateurStore = create<CalculateurState>()(
               error: null,
             }),
           });
+        },
+
+        syncRegimeFiscalFromTypeLocation: () => {
+          const scenario = get().getActiveScenario();
+          const typeLocation = scenario.exploitation.type_location;
+          const currentRegime = scenario.structure.regime_fiscal;
+          const isCurrentlyLmnp = currentRegime?.startsWith('lmnp') ?? false;
+          const isMeublee = typeLocation?.startsWith('meublee') ?? false;
+
+          if (isMeublee && !isCurrentlyLmnp) {
+            updateActive({
+              structure: { ...scenario.structure, regime_fiscal: 'lmnp_micro' },
+            });
+          } else if (!isMeublee && isCurrentlyLmnp) {
+            updateActive({
+              structure: { ...scenario.structure, regime_fiscal: 'micro_foncier' },
+            });
+          }
+          // Si déjà cohérent, ne rien changer
         },
 
         getFormData: () => {

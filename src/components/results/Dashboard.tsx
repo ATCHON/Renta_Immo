@@ -145,7 +145,7 @@ export function Dashboard() {
         ? ('warning' as const)
         : ('danger' as const);
   const triStatus =
-    resultats.projections && resultats.projections.totaux.tri >= 5
+    resultats.projections && resultats.projections.totaux.tri !== null && resultats.projections.totaux.tri >= 5
       ? ('success' as const)
       : ('info' as const);
 
@@ -283,7 +283,11 @@ export function Dashboard() {
                 <MetricCard
                   label="TRI"
                   value={
-                    resultats.projections ? formatPercent(resultats.projections.totaux.tri) : '--'
+                    resultats.projections
+                      ? resultats.projections.totaux.tri !== null
+                        ? formatPercent(resultats.projections.totaux.tri)
+                        : 'N/A'
+                      : '--'
                   }
                   status={triStatus}
                   tooltip="Rendement interne"
@@ -477,7 +481,9 @@ export function Dashboard() {
                   {[
                     {
                       label: 'TRI Projet',
-                      value: formatPercent(resultats.projections.totaux.tri),
+                      value: resultats.projections.totaux.tri !== null
+                        ? formatPercent(resultats.projections.totaux.tri)
+                        : 'N/A',
                       color: 'text-primary',
                     },
                     {

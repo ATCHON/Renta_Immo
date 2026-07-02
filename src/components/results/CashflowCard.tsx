@@ -11,6 +11,8 @@ interface CashflowCardProps {
 
 export function CashflowCard({ cashflow }: CashflowCardProps) {
   const isPositive = cashflow.mensuel >= 0;
+  const brut = cashflow.mensuel_brut;
+  const hasBrut = brut !== undefined;
 
   return (
     <Card>
@@ -20,7 +22,7 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
       />
       <CardContent>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-          {/* Cashflow mensuel */}
+          {/* Cashflow mensuel après impôts */}
           <div
             className={cn(
               'p-4 sm:p-6 rounded-xl text-center border',
@@ -37,9 +39,13 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
               {isPositive ? '+' : ''}
               {formatCurrency(cashflow.mensuel)}
             </p>
-            <p className="text-xs text-pebble mt-2 font-medium">
-              {isPositive ? 'Excédent de trésorerie' : "Effort d'épargne requis"}
-            </p>
+            <p className="text-xs text-pebble mt-2 font-medium">après impôts</p>
+            {hasBrut && (
+              <p className="text-xs text-pebble/70 mt-1">
+                {brut! >= 0 ? '+' : ''}
+                {formatCurrency(brut!)} avant impôts
+              </p>
+            )}
           </div>
 
           {/* Cashflow annuel */}
@@ -59,9 +65,7 @@ export function CashflowCard({ cashflow }: CashflowCardProps) {
               {isPositive ? '+' : ''}
               {formatCurrency(cashflow.annuel)}
             </p>
-            <p className="text-xs text-pebble mt-2 font-medium">
-              Cashflow Net annuel (après impôts)
-            </p>
+            <p className="text-xs text-pebble mt-2 font-medium">après impôts</p>
           </div>
         </div>
 

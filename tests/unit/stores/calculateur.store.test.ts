@@ -415,3 +415,53 @@ describe('update methods', () => {
     expect(formData.options).toBeDefined();
   });
 });
+
+// =============================================================================
+// BUG-07 — Synchronisation type_location → StepStructure (typeExploitation)
+// =============================================================================
+describe('BUG-07 : synchronisation type_location vers structure.regime_fiscal', () => {
+  beforeEach(() => {
+    useCalculateurStore.getState().reset();
+    localStorage.clear();
+  });
+
+  it('updateExploitation avec type_location meublée prérempli regime_fiscal à lmnp_micro dans le store', () => {
+    // Simule : l'utilisateur sélectionne une location meublée au step exploitation
+    // Puis updateBien déclenche la synchronisation du regime_fiscal par défaut LMNP
+    useCalculateurStore.getState().updateExploitation({ type_location: 'meublee_longue_duree' });
+    useCalculateurStore.getState().syncRegimeFiscalFromTypeLocation();
+
+    const scenario = useCalculateurStore.getState().getActiveScenario();
+    expect(scenario.exploitation.type_location).toBe('meublee_longue_duree');
+    expect(scenario.structure.regime_fiscal).toBe('lmnp_micro');
+  });
+
+  it('updateExploitation avec type_location nue prérempli regime_fiscal à micro_foncier dans le store', () => {
+    // D'abord mettre un état LMNP pour vérifier le retour vers nue
+    useCalculateurStore.getState().updateStructure({ regime_fiscal: 'lmnp_micro' });
+    useCalculateurStore.getState().updateExploitation({ type_location: 'nue' });
+    useCalculateurStore.getState().syncRegimeFiscalFromTypeLocation();
+
+    const scenario = useCalculateurStore.getState().getActiveScenario();
+    expect(scenario.exploitation.type_location).toBe('nue');
+    expect(scenario.structure.regime_fiscal).toBe('micro_foncier');
+  });
+
+  it('syncRegimeFiscalFromTypeLocation avec meublee_tourisme_classe prérempli regime_fiscal à lmnp_micro', () => {
+    useCalculateurStore.getState().updateExploitation({ type_location: 'meublee_tourisme_classe' });
+    useCalculateurStore.getState().syncRegimeFiscalFromTypeLocation();
+
+    const scenario = useCalculateurStore.getState().getActiveScenario();
+    expect(scenario.structure.regime_fiscal).toBe('lmnp_micro');
+  });
+
+  it('syncRegimeFiscalFromTypeLocation ne modifie pas le regime_fiscal si déjà cohérent (lmnp_reel + meublée)', () => {
+    useCalculateurStore.getState().updateStructure({ regime_fiscal: 'lmnp_reel' });
+    useCalculateurStore.getState().updateExploitation({ type_location: 'meublee_longue_duree' });
+    useCalculateurStore.getState().syncRegimeFiscalFromTypeLocation();
+
+    const scenario = useCalculateurStore.getState().getActiveScenario();
+    // lmnp_reel est déjà cohérent avec meublée → ne pas écraser
+    expect(scenario.structure.regime_fiscal).toBe('lmnp_reel');
+  });
+});

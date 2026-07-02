@@ -25,15 +25,36 @@ describe('Calculateur TRI', () => {
   it('doit gérer un apport de 0 (pas de flux négatif)', () => {
     const flux = [0, 1000, 1000, 11000];
     const tri = calculerTRI(flux);
-    // Doit retourner 0 car pas de flux négatif (rendement infini non calculable)
-    expect(tri).toBe(0);
+    // Doit retourner null car pas de flux négatif (rendement infini non calculable)
+    expect(tri).toBeNull();
   });
 
-  it('doit gérer une divergence', () => {
+  it('doit gérer une divergence (retourne null)', () => {
     const flux = [-1, 1000000, 1000000];
     const tri = calculerTRI(flux);
-    // Devrait être capé par la sécurité et retourner 0 ou un grand nombre
-    expect(tri).toBeLessThan(110000);
+    // Divergence capée : retourne null plutôt qu'un 0 ou une valeur aberrante
+    expect(tri).toBeNull();
+  });
+
+  // BUG-05 : TRI = 0,00 % aberrant — Newton-Raphson divergeait avec guess=0.1 et retournait 0
+  it('BUG-05 : retourne une valeur non nulle pour un scénario standard avec revente (Paris 11e)', () => {
+    // Apport 60k, cashflow ~-15900/an (≈-1325/mois), revente 350k après 20 ans
+    // TRI réel ≈ -0.70 % (légèrement négatif car cashflow négatif compensé par revente)
+    const fluxAnnuels = Array(19).fill(-15900);
+    const flux = [-60000, ...fluxAnnuels, -15900 + 350000];
+    const tri = calculerTRI(flux); // fallback multi-guess doit converger (BUG-05)
+    expect(tri).not.toBe(0);
+    expect(tri).not.toBeNull();
+    // TRI légèrement négatif attendu (~-0.70%)
+    expect(tri).toBeGreaterThan(-5);
+    expect(tri).toBeLessThan(5);
+  });
+
+  it('BUG-05 : retourne null si tous les flux sont négatifs (pas de revente)', () => {
+    // Flux totalement négatifs : pas de convergence possible
+    const flux = [-60000, ...Array(20).fill(-15900)];
+    const tri = calculerTRI(flux);
+    expect(tri).toBeNull();
   });
 });
 

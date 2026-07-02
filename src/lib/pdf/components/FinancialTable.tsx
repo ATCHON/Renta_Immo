@@ -221,7 +221,7 @@ export function FinancialTable({
                 <View style={styles.rowBetween}>
                   <Text style={styles.label}>TRI annuel</Text>
                   <Text style={[styles.value, styles.textBold, { color: colors.chart3 }]}>
-                    {formatPercent(projections.totaux.tri)}
+                    {projections.totaux.tri !== null ? formatPercent(projections.totaux.tri) : 'N/A'}
                   </Text>
                 </View>
               </View>

@@ -30,47 +30,54 @@ import {
 import type { ModeAmortissement, PlusValueDetail } from './types';
 
 /**
- * Calcule le Taux de Rendement Interne (TRI)
- * @param flux Flux de trésorerie (le premier élément est l'apport négatif)
- * @param guess Estimation initiale (par défaut 0.1 pour 10%)
+ * Tente une convergence Newton-Raphson à partir d'un guess donné.
+ * Retourne le TRI en décimal ou null si divergence.
  */
-export function calculerTRI(flux: number[], guess: number = 0.1): number {
-  // Vérification de base: il faut au moins un flux négatif et un flux positif
-  const hasNegative = flux.some((f) => f < 0);
-  const hasPositive = flux.some((f) => f > 0);
-  if (!hasNegative || !hasPositive) return 0;
-
-  const maxIterations = TRI_MAX_ITERATIONS;
+function _newtonRaphson(flux: number[], guess: number): number | null {
   let tri = guess;
-
-  for (let i = 0; i < maxIterations; i++) {
+  for (let i = 0; i < TRI_MAX_ITERATIONS; i++) {
     let npv = 0;
     let dNpv = 0;
-
     for (let t = 0; t < flux.length; t++) {
       const factor = Math.pow(1 + tri, t);
-      if (!isFinite(factor) || factor === 0) break;
-
+      if (!isFinite(factor) || factor === 0) return null;
       npv += flux[t] / factor;
       if (t > 0) {
         dNpv -= (t * flux[t]) / (factor * (1 + tri));
       }
     }
-
-    if (Math.abs(npv) < TRI_PRECISION) return tri * 100;
-    if (dNpv === 0 || !isFinite(dNpv)) break;
-
+    if (Math.abs(npv) < TRI_PRECISION) return tri;
+    if (dNpv === 0 || !isFinite(dNpv)) return null;
     const nextTri = tri - npv / dNpv;
-
-    // Sécurité supplémentaire : si le TRI s'emballe
-    if (Math.abs(nextTri) > 1000) break; // Cap à 100000%
-
-    if (Math.abs(nextTri - tri) < TRI_PRECISION) return nextTri * 100;
+    if (Math.abs(nextTri) > 1000) return null; // Cap à 100 000%
+    if (Math.abs(nextTri - tri) < TRI_PRECISION) return nextTri;
     tri = nextTri;
   }
+  return null;
+}
 
-  // Si on n'a pas convergé mais que le flux total est positif, on retourne un TRI approché ou 0
-  return 0;
+/**
+ * Calcule le Taux de Rendement Interne (TRI)
+ * @param flux Flux de trésorerie (le premier élément est l'apport négatif)
+ * @param guess Estimation initiale (par défaut 0.1 pour 10%)
+ * @returns TRI en pourcentage, ou null si non calculable / non convergé
+ */
+export function calculerTRI(flux: number[], guess: number = 0.1): number | null {
+  // Vérification de base: il faut au moins un flux négatif et un flux positif
+  const hasNegative = flux.some((f) => f < 0);
+  const hasPositive = flux.some((f) => f > 0);
+  if (!hasNegative || !hasPositive) return null;
+
+  // Tentative avec le guess fourni, puis fallback sur plusieurs points de départ
+  // (BUG-05 : guess=0.1 diverge pour les scénarios immobiliers à faible TRI)
+  const guesses = [guess, 0.05, 0.02, 0.15, 0.0, -0.05];
+  for (const g of guesses) {
+    const result = _newtonRaphson(flux, g);
+    if (result !== null) return result * 100;
+  }
+
+  // Non-convergence sur tous les points de départ : retourner null (BUG-05)
+  return null;
 }
 
 /**
@@ -621,7 +628,7 @@ export function genererProjections(
       enrichissementTotal: Math.round(
         capitalRembourseTotal + cashflowCumule - impotPV - fraisReventeTotal
       ),
-      tri: tri > 0 ? Math.round(tri * 100) / 100 : 0,
+      tri: tri !== null ? Math.round(tri * 100) / 100 : null,
       frais_revente: fraisReventeTotal,
     },
     plusValue,
